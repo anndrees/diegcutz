@@ -1,7 +1,8 @@
-import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Scissors, Clock, MapPin } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
+import Map from "@/components/Map";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -95,6 +96,20 @@ const Home = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Location Section */}
+      <section className="py-20 px-4 bg-background">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-5xl font-black text-center mb-6 text-neon-cyan">
+            <MapPin className="inline-block mr-2 mb-2" size={40} />
+            UBICACIÓN
+          </h2>
+          <p className="text-center text-lg mb-8 text-muted-foreground">
+            Carrer Sant Antoni, Monóvar, Alicante, España, 03640
+          </p>
+          <Map />
         </div>
       </section>
 

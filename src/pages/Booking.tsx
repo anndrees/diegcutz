@@ -84,9 +84,8 @@ const Booking = () => {
       client_contact: clientContact,
     });
 
-    setLoading(false);
-
     if (error) {
+      setLoading(false);
       toast({
         title: "Error",
         description: "Esta hora ya está reservada. Por favor elige otra.",
@@ -95,6 +94,22 @@ const Booking = () => {
       loadBookedTimes();
       return;
     }
+
+    // Send email notification
+    try {
+      await supabase.functions.invoke('send-booking-email', {
+        body: {
+          clientName,
+          clientContact,
+          bookingDate: format(selectedDate, "yyyy-MM-dd"),
+          bookingTime: selectedTime,
+        },
+      });
+    } catch (emailError) {
+      console.error("Error sending email notification:", emailError);
+    }
+
+    setLoading(false);
 
     toast({
       title: "¡Reserva confirmada!",
