@@ -35,36 +35,64 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Services Section */}
+      {/* About Section */}
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
-          <h2 className="text-5xl font-black text-center mb-16 text-neon-cyan">
-            SERVICIOS
-          </h2>
+          <div className="text-center mb-16">
+            <h2 className="text-5xl md:text-6xl font-black mb-6 text-neon-cyan">
+              🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
+            </h2>
+            <p className="text-xl md:text-2xl text-foreground font-bold">
+              En nuestro spot de Monóvar, el flow nunca falta.
+            </p>
+          </div>
           
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="bg-card p-8 rounded-lg border border-border hover:border-primary transition-colors">
+          <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple">
               <Scissors className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-2xl font-bold mb-4">CORTES</h3>
-              <p className="text-muted-foreground">
-                Cortes modernos y clásicos adaptados a tu estilo. Desde fades hasta diseños personalizados.
+              <h3 className="text-2xl font-bold mb-4 text-neon-purple">TRENDING CUTS</h3>
+              <p className="text-foreground">
+                Dominamos el fade que arrasa, los cortes con textura y el estilo que estás buscando.
               </p>
             </div>
 
-            <div className="bg-card p-8 rounded-lg border border-border hover:border-primary transition-colors">
+            <div className="bg-card p-8 rounded-lg border-2 border-secondary glow-neon-cyan">
               <Clock className="w-12 h-12 text-secondary mb-4" />
-              <h3 className="text-2xl font-bold mb-4">BARBAS</h3>
-              <p className="text-muted-foreground">
-                Perfilado y cuidado de barba profesional. Tu barba siempre impecable.
+              <h3 className="text-2xl font-bold mb-4 text-neon-cyan">BEARD GAME</h3>
+              <p className="text-foreground">
+                Diseño de barba profesional y clean shaves a navaja para que salgas impecable.
               </p>
             </div>
 
-            <div className="bg-card p-8 rounded-lg border border-border hover:border-primary transition-colors">
+            <div className="bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple">
               <MapPin className="w-12 h-12 text-primary mb-4" />
-              <h3 className="text-2xl font-bold mb-4">DISEÑOS</h3>
-              <p className="text-muted-foreground">
-                Diseños únicos y creativos. Dale personalidad a tu look.
+              <h3 className="text-2xl font-bold mb-4 text-neon-purple">STYLE COACHING</h3>
+              <p className="text-foreground">
+                Te asesoramos para que el corte le dé el toque a tu vibe. 🚨
               </p>
+            </div>
+          </div>
+
+          {/* Booking Rules */}
+          <div className="bg-gradient-neon p-8 rounded-lg">
+            <h3 className="text-3xl font-black mb-6 text-center text-background">
+              🚨 BOOKING Y REGLAS CLARAS
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6 text-background">
+              <div className="bg-background/20 p-6 rounded-lg backdrop-blur-sm">
+                <h4 className="text-xl font-bold mb-3 text-background">Cancelación</h4>
+                <p className="text-background font-medium">
+                  Tienes 48 horas (2 días) antes de la cita para cancelar o reubicar. 
+                  ¡Máximo respeto por el tiempo!
+                </p>
+              </div>
+              <div className="bg-background/20 p-6 rounded-lg backdrop-blur-sm">
+                <h4 className="text-xl font-bold mb-3 text-background">Pago</h4>
+                <p className="text-background font-medium">
+                  Solo aceptamos efectivo (CASH). Por seguridad, se paga antes de empezar el servicio. 
+                  ¡Gracias por elegirnos!
+                </p>
+              </div>
             </div>
           </div>
         </div>

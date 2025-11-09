@@ -135,16 +135,16 @@ const Booking = () => {
           {/* Calendar */}
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-2xl">Selecciona una fecha</CardTitle>
+              <CardTitle className="text-xl md:text-2xl">Selecciona una fecha</CardTitle>
               <CardDescription>Los domingos estamos cerrados</CardDescription>
             </CardHeader>
-            <CardContent className="flex justify-center">
+            <CardContent className="flex justify-center overflow-x-auto">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
                 disabled={(date) => date < new Date() || date.getDay() === 0}
-                className="rounded-md border border-border pointer-events-auto"
+                className="rounded-md border border-border pointer-events-auto scale-90 sm:scale-100"
               />
             </CardContent>
           </Card>
@@ -154,11 +154,11 @@ const Booking = () => {
             {selectedDate && (
               <Card className="bg-card border-border">
                 <CardHeader>
-                  <CardTitle className="text-2xl flex items-center gap-2">
+                  <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                     <Clock className="text-secondary" />
                     Horas disponibles
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-sm md:text-base">
                     {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
                   </CardDescription>
                 </CardHeader>
@@ -166,7 +166,7 @@ const Booking = () => {
                   {availableHours.length === 0 ? (
                     <p className="text-destructive">Cerrado este día</p>
                   ) : (
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                       {availableHours.map((hour) => {
                         const timeString = `${hour.toString().padStart(2, "0")}:00:00`;
                         const isBooked = bookedTimes.includes(timeString);
@@ -177,7 +177,7 @@ const Booking = () => {
                             variant={selectedTime === timeString ? "neon" : "outline"}
                             disabled={isBooked}
                             onClick={() => setSelectedTime(timeString)}
-                            className="h-12"
+                            className="h-10 sm:h-12 text-sm sm:text-base"
                           >
                             {hour}:00
                           </Button>
@@ -192,7 +192,7 @@ const Booking = () => {
             {selectedTime && (
               <Card className="bg-card border-border">
                 <CardHeader>
-                  <CardTitle className="text-2xl">Tus datos</CardTitle>
+                  <CardTitle className="text-xl md:text-2xl">Tus datos</CardTitle>
                   <CardDescription>
                     Para confirmar la reserva
                   </CardDescription>
@@ -200,23 +200,25 @@ const Booking = () => {
                 <CardContent>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                      <Label htmlFor="name">Nombre completo</Label>
+                      <Label htmlFor="name" className="text-sm md:text-base">Nombre completo</Label>
                       <Input
                         id="name"
                         value={clientName}
                         onChange={(e) => setClientName(e.target.value)}
                         placeholder="Tu nombre"
+                        className="text-sm md:text-base"
                         required
                       />
                     </div>
                     
                     <div>
-                      <Label htmlFor="contact">Teléfono o Email</Label>
+                      <Label htmlFor="contact" className="text-sm md:text-base">Teléfono o Email</Label>
                       <Input
                         id="contact"
                         value={clientContact}
                         onChange={(e) => setClientContact(e.target.value)}
                         placeholder="Tu contacto"
+                        className="text-sm md:text-base"
                         required
                       />
                     </div>
@@ -224,7 +226,7 @@ const Booking = () => {
                     <Button
                       type="submit"
                       variant="neonCyan"
-                      className="w-full h-12"
+                      className="w-full h-10 sm:h-12 text-sm sm:text-base"
                       disabled={loading}
                     >
                       {loading ? "Reservando..." : "Confirmar Reserva"}
