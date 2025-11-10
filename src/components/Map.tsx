@@ -7,7 +7,7 @@ const Map = () => {
   const mapInstance = useRef<L.Map | null>(null);
 
   // Coordinates for Carrer Sant Antoni, Monóvar, Alicante
-  const position: [number, number] = [38.4428, -0.8471];
+  const position: [number, number] = [38.438264, -0.838957];
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
