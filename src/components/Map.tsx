@@ -36,23 +36,25 @@ const Map = () => {
         style={{ height: '100%', width: '100%' }}
         scrollWheelZoom={false}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <Marker position={position} icon={icon}>
-          <Popup>
-            <div className="text-center">
-              <strong className="text-lg">DIEGCUTZ</strong>
-              <br />
-              Carrer Sant Antoni
-              <br />
-              Monóvar, Alicante
-              <br />
-              03640, España
-            </div>
-          </Popup>
-        </Marker>
+        <>
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <Marker position={position} icon={icon}>
+            <Popup>
+              <div className="text-center">
+                <strong className="text-lg">DIEGCUTZ</strong>
+                <br />
+                Carrer Sant Antoni
+                <br />
+                Monóvar, Alicante
+                <br />
+                03640, España
+              </div>
+            </Popup>
+          </Marker>
+        </>
       </MapContainer>
     </div>
   );
