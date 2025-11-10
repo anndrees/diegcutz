@@ -1,48 +1,59 @@
-import { useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
+
+// Fix for default marker icon
+const icon = L.icon({
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+  iconSize: [25, 41],
+  iconAnchor: [12, 41],
+  popupAnchor: [1, -34],
+  shadowSize: [41, 41]
+});
 
 const Map = () => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
+  // Coordinates for Carrer Sant Antoni, Monóvar, Alicante
+  const position: [number, number] = [38.4428, -0.8471];
 
   useEffect(() => {
-    if (!mapContainer.current) return;
-
-    // Mapbox public token - users should replace with their own
-    mapboxgl.accessToken = 'pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbTNraTY5OTYwOXZtMmtzNnNoa2V3cjRmIn0.RWbp02mcqP93k3_-N98Vrw';
-    
-    map.current = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/dark-v11',
-      center: [-0.8456, 38.4389], // Monóvar coordinates
-      zoom: 16,
+    // Fix leaflet's default icon path issues with bundlers
+    delete (L.Icon.Default.prototype as any)._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
     });
-
-    // Add marker at barbershop location
-    new mapboxgl.Marker({ color: '#00ffff' })
-      .setLngLat([-0.8456, 38.4389])
-      .setPopup(
-        new mapboxgl.Popup({ offset: 25 })
-          .setHTML('<strong>DIEGCUTZ</strong><br>Carrer Sant Antoni<br>Monóvar, Alicante<br>03640')
-      )
-      .addTo(map.current);
-
-    // Add navigation controls
-    map.current.addControl(
-      new mapboxgl.NavigationControl(),
-      'top-right'
-    );
-
-    // Cleanup
-    return () => {
-      map.current?.remove();
-    };
   }, []);
 
   return (
-    <div className="relative w-full h-[400px] rounded-lg overflow-hidden border-2 border-neon/30">
-      <div ref={mapContainer} className="absolute inset-0" />
+    <div className="w-full h-[400px] rounded-lg overflow-hidden border-2 border-primary glow-neon-purple">
+      <MapContainer 
+        center={position} 
+        zoom={16} 
+        style={{ height: '100%', width: '100%' }}
+        scrollWheelZoom={false}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <Marker position={position} icon={icon}>
+          <Popup>
+            <div className="text-center">
+              <strong className="text-lg">DIEGCUTZ</strong>
+              <br />
+              Carrer Sant Antoni
+              <br />
+              Monóvar, Alicante
+              <br />
+              03640, España
+            </div>
+          </Popup>
+        </Marker>
+      </MapContainer>
     </div>
   );
 };

@@ -33,6 +33,8 @@ type Booking = {
   booking_time: string;
   client_name: string;
   client_contact: string;
+  services: string[];
+  total_price: number;
 };
 
 const Admin = () => {
@@ -60,7 +62,7 @@ const Admin = () => {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (username === "diego" && password === "Diegcutz2025") {
+    if (username === "diego" && password === "DiegCutz#2025Pro") {
       setIsAuthenticated(true);
       toast({
         title: "Bienvenido",
@@ -101,7 +103,10 @@ const Admin = () => {
       return;
     }
 
-    setBookings(data || []);
+    setBookings((data || []).map(booking => ({
+      ...booking,
+      services: Array.isArray(booking.services) ? (booking.services as string[]) : []
+    })));
   };
 
   const handleDelete = async (id: string) => {
@@ -273,6 +278,8 @@ const Admin = () => {
                     <TableHead>Hora</TableHead>
                     <TableHead>Cliente</TableHead>
                     <TableHead>Contacto</TableHead>
+                    <TableHead>Servicios</TableHead>
+                    <TableHead>Total</TableHead>
                     <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -285,6 +292,18 @@ const Admin = () => {
                       <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
                       <TableCell className="font-medium">{booking.client_name}</TableCell>
                       <TableCell>{booking.client_contact}</TableCell>
+                      <TableCell>
+                        <div className="text-sm max-w-xs">
+                          {booking.services && booking.services.length > 0 ? (
+                            booking.services.map((service, idx) => (
+                              <div key={idx} className="text-xs truncate">{service}</div>
+                            ))
+                          ) : (
+                            <span className="text-muted-foreground">Sin servicios</span>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell className="font-bold">{booking.total_price}€</TableCell>
                       <TableCell className="text-right space-x-2">
                         <Button
                           variant="ghost"

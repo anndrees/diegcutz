@@ -52,6 +52,8 @@ All colors MUST be HSL.
   }
 }
 
+@import url('https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap');
+
 @layer base {
   * {
     @apply border-border;
@@ -63,6 +65,11 @@ All colors MUST be HSL.
   
   h1, h2, h3, h4, h5, h6 {
     @apply font-bold tracking-tight;
+  }
+  
+  .font-aggressive {
+    font-family: 'Black Ops One', system-ui, sans-serif;
+    letter-spacing: 0.05em;
   }
 }
 

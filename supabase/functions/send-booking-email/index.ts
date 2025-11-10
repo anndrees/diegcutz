@@ -13,6 +13,8 @@ interface BookingEmailRequest {
   clientContact: string;
   bookingDate: string;
   bookingTime: string;
+  services: string[];
+  totalPrice: number;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -22,9 +24,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { clientName, clientContact, bookingDate, bookingTime }: BookingEmailRequest = await req.json();
+    const { clientName, clientContact, bookingDate, bookingTime, services, totalPrice }: BookingEmailRequest = await req.json();
 
-    console.log("Sending booking notification email for:", { clientName, bookingDate, bookingTime });
+    console.log("Sending booking notification email for:", { clientName, bookingDate, bookingTime, totalPrice });
 
     // Send email using Resend API directly
     const emailResponse = await fetch("https://api.resend.com/emails", {
@@ -51,7 +53,10 @@ const handler = async (req: Request): Promise<Response> => {
                   month: 'long', 
                   day: 'numeric' 
                 })}<br>
-                <strong style="color: #00ffff;">Hora:</strong> ${bookingTime}
+                <strong style="color: #00ffff;">Hora:</strong> ${bookingTime}<br>
+                <strong style="color: #00ffff;">Servicios:</strong><br>
+                ${services.map(s => `&nbsp;&nbsp;• ${s}`).join('<br>')}<br>
+                <strong style="color: #00ffff;">TOTAL:</strong> <span style="font-size: 20px; color: #ff00ff;">${totalPrice}€</span>
               </p>
             </div>
             <p style="color: #666; text-align: center; margin-top: 20px; font-size: 14px;">

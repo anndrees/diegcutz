@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin } from "lucide-react";
+import { Scissors, Clock, MapPin, MessageCircle } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 
@@ -19,7 +19,7 @@ const Home = () => {
         </div>
         
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-7xl md:text-9xl font-black mb-6 text-neon-purple">
+          <h1 className="text-7xl md:text-9xl font-black mb-6 text-neon-purple font-aggressive">
             DIEGCUTZ
           </h1>
           <p className="text-xl md:text-2xl text-neon-cyan mb-8 font-bold uppercase tracking-widest">
@@ -155,6 +155,17 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* WhatsApp Floating Button */}
+      <a
+        href="https://wa.me/34641637576"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20BA5A] text-white p-4 rounded-full shadow-lg transition-all hover:scale-110 glow-neon-cyan"
+        aria-label="Contactar por WhatsApp"
+      >
+        <MessageCircle className="w-8 h-8" />
+      </a>
 
       {/* Footer */}
       <footer className="py-8 px-4 text-center border-t border-border">

@@ -22,6 +22,8 @@ export type Database = {
           client_name: string
           created_at: string | null
           id: string
+          services: Json
+          total_price: number
         }
         Insert: {
           booking_date: string
@@ -30,6 +32,8 @@ export type Database = {
           client_name: string
           created_at?: string | null
           id?: string
+          services?: Json
+          total_price?: number
         }
         Update: {
           booking_date?: string
@@ -38,6 +42,8 @@ export type Database = {
           client_name?: string
           created_at?: string | null
           id?: string
+          services?: Json
+          total_price?: number
         }
         Relationships: []
       }
