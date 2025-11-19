@@ -177,6 +177,7 @@ const Home = () => {
         >
           Admin
         </Button>
+        <p>v 1.0.1</p>
       </footer>
     </div>
   );

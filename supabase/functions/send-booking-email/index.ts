@@ -37,7 +37,7 @@ const handler = async (req: Request): Promise<Response> => {
       },
       body: JSON.stringify({
         from: "DIEGCUTZ <onboarding@resend.dev>",
-        to: ["anndrees31@gmail.com"],
+        to: ["diegodiegolopezgarcia279@gmail.com"],
         subject: `🔥 Nueva Reserva - ${clientName}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
