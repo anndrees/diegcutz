@@ -6,9 +6,9 @@ import { Label } from "@/components/ui/label";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { format } from "date-fns";
+import { format, addHours, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Edit2, Trash2, LogOut } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -26,6 +26,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type Booking = {
   id: string;
@@ -52,6 +53,9 @@ const Admin = () => {
     name: "",
     contact: "",
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | undefined>();
+  const [showCalendarDialog, setShowCalendarDialog] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -174,6 +178,95 @@ const Admin = () => {
     loadBookings();
   };
 
+  // Función para verificar si una reserva es pasada (2 horas después de la hora de reserva)
+  const isPastBooking = (booking: Booking) => {
+    const bookingDateTime = parseISO(`${booking.booking_date}T${booking.booking_time}`);
+    const twoHoursAfter = addHours(bookingDateTime, 2);
+    return new Date() > twoHoursAfter;
+  };
+
+  // Filtrar reservas actuales y pasadas
+  const currentBookings = bookings.filter(booking => !isPastBooking(booking) && 
+    booking.client_name.toLowerCase().includes(searchQuery.toLowerCase()));
+  const pastBookings = bookings.filter(booking => isPastBooking(booking) && 
+    booking.client_name.toLowerCase().includes(searchQuery.toLowerCase()));
+
+  // Obtener fechas con reservas para el calendario
+  const datesWithBookings = bookings.map(booking => new Date(booking.booking_date + "T00:00:00"));
+
+  // Obtener reservas del día seleccionado en el calendario
+  const bookingsForSelectedDate = selectedCalendarDate
+    ? bookings.filter(booking => {
+        const bookingDate = new Date(booking.booking_date + "T00:00:00");
+        return bookingDate.toDateString() === selectedCalendarDate.toDateString();
+      })
+    : [];
+
+  // Componente de tabla reutilizable
+  const BookingsTable = ({ bookings: bookingsToShow }: { bookings: Booking[] }) => (
+    <>
+      {bookingsToShow.length === 0 ? (
+        <p className="text-center text-muted-foreground py-8">
+          No hay reservas {searchQuery ? "que coincidan con la búsqueda" : "registradas"}
+        </p>
+      ) : (
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Fecha</TableHead>
+              <TableHead>Hora</TableHead>
+              <TableHead>Cliente</TableHead>
+              <TableHead>Contacto</TableHead>
+              <TableHead>Servicios</TableHead>
+              <TableHead>Total</TableHead>
+              <TableHead className="text-right">Acciones</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {bookingsToShow.map((booking) => (
+              <TableRow key={booking.id}>
+                <TableCell>
+                  {format(new Date(booking.booking_date + "T00:00:00"), "d MMM yyyy", { locale: es })}
+                </TableCell>
+                <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
+                <TableCell className="font-medium">{booking.client_name}</TableCell>
+                <TableCell>{booking.client_contact}</TableCell>
+                <TableCell>
+                  <div className="text-sm max-w-xs">
+                    {booking.services && booking.services.length > 0 ? (
+                      booking.services.map((service, idx) => (
+                        <div key={idx} className="text-xs truncate">{service}</div>
+                      ))
+                    ) : (
+                      <span className="text-muted-foreground">Sin servicios</span>
+                    )}
+                  </div>
+                </TableCell>
+                <TableCell className="font-bold">{booking.total_price}€</TableCell>
+                <TableCell className="text-right space-x-2">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => openEditDialog(booking)}
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDelete(booking.id)}
+                  >
+                    <Trash2 className="h-4 w-4 text-destructive" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      )}
+    </>
+  );
+
   if (!isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center px-4">
@@ -256,77 +349,147 @@ const Admin = () => {
           </p>
         </div>
 
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+          {/* Calendario Visual */}
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <CalendarIcon className="h-5 w-5" />
+                Calendario de Reservas
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <Calendar
+                mode="single"
+                selected={selectedCalendarDate}
+                onSelect={(date) => {
+                  setSelectedCalendarDate(date);
+                  if (date) setShowCalendarDialog(true);
+                }}
+                className="rounded-md border border-border pointer-events-auto"
+                modifiers={{
+                  booked: datesWithBookings,
+                }}
+                modifiersClassNames={{
+                  booked: "bg-neon-purple text-white font-bold rounded-full",
+                }}
+              />
+            </CardContent>
+          </Card>
+
+          {/* Estadísticas */}
+          <Card className="bg-card border-border lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="text-xl">Resumen</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="text-center p-4 bg-neon-purple/10 rounded-lg">
+                  <p className="text-3xl font-bold text-neon-purple">{currentBookings.length}</p>
+                  <p className="text-sm text-muted-foreground">Reservas Actuales</p>
+                </div>
+                <div className="text-center p-4 bg-muted rounded-lg">
+                  <p className="text-3xl font-bold text-muted-foreground">{pastBookings.length}</p>
+                  <p className="text-sm text-muted-foreground">Reservas Pasadas</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
         <Card className="bg-card border-border">
           <CardHeader>
-            <div className="flex justify-between items-center">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <CardTitle className="text-2xl">Reservas</CardTitle>
-              <Button onClick={loadBookings} disabled={loading}>
-                {loading ? "Cargando..." : "Actualizar"}
-              </Button>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <div className="relative flex-1 sm:flex-initial">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Buscar cliente..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-10 w-full sm:w-[250px]"
+                  />
+                </div>
+                <Button onClick={loadBookings} disabled={loading}>
+                  {loading ? "Cargando..." : "Actualizar"}
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
-            {bookings.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">
-                No hay reservas registradas
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Hora</TableHead>
-                    <TableHead>Cliente</TableHead>
-                    <TableHead>Contacto</TableHead>
-                    <TableHead>Servicios</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead className="text-right">Acciones</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {bookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>
-                        {format(new Date(booking.booking_date + "T00:00:00"), "d MMM yyyy", { locale: es })}
-                      </TableCell>
-                      <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
-                      <TableCell className="font-medium">{booking.client_name}</TableCell>
-                      <TableCell>{booking.client_contact}</TableCell>
-                      <TableCell>
-                        <div className="text-sm max-w-xs">
-                          {booking.services && booking.services.length > 0 ? (
-                            booking.services.map((service, idx) => (
-                              <div key={idx} className="text-xs truncate">{service}</div>
-                            ))
-                          ) : (
-                            <span className="text-muted-foreground">Sin servicios</span>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="font-bold">{booking.total_price}€</TableCell>
-                      <TableCell className="text-right space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openEditDialog(booking)}
-                        >
-                          <Edit2 className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(booking.id)}
-                        >
-                          <Trash2 className="h-4 w-4 text-destructive" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
+            <Tabs defaultValue="current" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="current">
+                  Actuales ({currentBookings.length})
+                </TabsTrigger>
+                <TabsTrigger value="past">
+                  Pasadas ({pastBookings.length})
+                </TabsTrigger>
+              </TabsList>
+              <TabsContent value="current" className="mt-4">
+                <BookingsTable bookings={currentBookings} />
+              </TabsContent>
+              <TabsContent value="past" className="mt-4">
+                <BookingsTable bookings={pastBookings} />
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
+
+        {/* Dialog para mostrar reservas del día seleccionado */}
+        <Dialog open={showCalendarDialog} onOpenChange={setShowCalendarDialog}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>
+                Reservas del {selectedCalendarDate && format(selectedCalendarDate, "d 'de' MMMM 'de' yyyy", { locale: es })}
+              </DialogTitle>
+              <DialogDescription>
+                {bookingsForSelectedDate.length} reserva{bookingsForSelectedDate.length !== 1 ? 's' : ''} para este día
+              </DialogDescription>
+            </DialogHeader>
+            <div className="py-4">
+              {bookingsForSelectedDate.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">
+                  No hay reservas para este día
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {bookingsForSelectedDate.map((booking) => (
+                    <Card key={booking.id} className="bg-muted/50">
+                      <CardContent className="pt-6">
+                        <div className="flex justify-between items-start">
+                          <div className="space-y-1">
+                            <p className="font-bold text-lg">{booking.client_name}</p>
+                            <p className="text-sm text-muted-foreground">{booking.client_contact}</p>
+                            <p className="text-sm">
+                              <span className="font-semibold">Hora:</span> {booking.booking_time.slice(0, 5)}
+                            </p>
+                            <div className="text-sm">
+                              <span className="font-semibold">Servicios:</span>
+                              <div className="mt-1">
+                                {booking.services && booking.services.length > 0 ? (
+                                  booking.services.map((service, idx) => (
+                                    <div key={idx} className="text-xs">{service}</div>
+                                  ))
+                                ) : (
+                                  <span className="text-muted-foreground">Sin servicios</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-2xl font-bold text-neon-purple">{booking.total_price}€</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Edit Dialog */}
         <Dialog open={!!editingBooking} onOpenChange={() => setEditingBooking(null)}>
