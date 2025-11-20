@@ -2,16 +2,15 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useNavigate } from "react-router-dom";
+import { Label } from "@/components/ui/label";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Clock, Package, Sparkles } from "lucide-react";
+import { ArrowLeft, Clock, Package, Sparkles, LogIn } from "lucide-react";
 import { SERVICES, PACKS, Service, Pack } from "@/types/booking";
 
 const HOURS = {
@@ -26,16 +25,55 @@ const HOURS = {
 
 const Booking = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
+  const { user, profile, loading: authLoading } = useAuth();
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>("");
-  const [clientName, setClientName] = useState("");
-  const [contactType, setContactType] = useState<"phone" | "email">("phone");
-  const [clientContact, setClientContact] = useState("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [selectedPack, setSelectedPack] = useState<string | null>(null);
   const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Restore booking state from localStorage if redirected from auth
+  useEffect(() => {
+    const savedBookingState = localStorage.getItem("pendingBooking");
+    if (savedBookingState && user) {
+      const state = JSON.parse(savedBookingState);
+      setSelectedDate(state.date ? new Date(state.date) : undefined);
+      setSelectedTime(state.time || "");
+      setSelectedServices(state.services || []);
+      setSelectedPack(state.pack || null);
+      localStorage.removeItem("pendingBooking");
+      
+      // Check if the saved time is still available
+      if (state.date && state.time) {
+        checkTimeAvailability(new Date(state.date), state.time);
+      }
+    }
+  }, [user]);
+
+  const checkTimeAvailability = async (date: Date, time: string) => {
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("booking_time")
+      .eq("booking_date", format(date, "yyyy-MM-dd"));
+
+    if (!error && data) {
+      const bookedTimesForDate = data.map((b) => b.booking_time);
+      if (bookedTimesForDate.includes(time)) {
+        toast({
+          title: "Hora no disponible",
+          description: "La hora que habías seleccionado ya no está disponible. Por favor selecciona otra.",
+          variant: "destructive",
+        });
+        setSelectedTime("");
+        setSelectedDate(undefined);
+        setSelectedServices([]);
+        setSelectedPack(null);
+      }
+    }
+  };
 
   useEffect(() => {
     if (selectedDate) {
@@ -128,32 +166,34 @@ const Booking = () => {
     return items;
   };
 
-  const validateContact = () => {
-    if (contactType === "email") {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return emailRegex.test(clientContact);
-    } else {
-      const phoneRegex = /^[+]?[(]?[0-9]{1,4}[)]?[-\s.]?[(]?[0-9]{1,4}[)]?[-\s.]?[0-9]{1,9}$/;
-      return phoneRegex.test(clientContact.replace(/\s/g, ''));
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedDate || !selectedTime || !clientName || !clientContact) {
+    // Check if user is logged in
+    if (!user || !profile) {
+      // Save booking state to localStorage
+      const bookingState = {
+        date: selectedDate?.toISOString(),
+        time: selectedTime,
+        services: selectedServices,
+        pack: selectedPack,
+      };
+      localStorage.setItem("pendingBooking", JSON.stringify(bookingState));
+      
       toast({
-        title: "Error",
-        description: "Por favor completa todos los campos",
-        variant: "destructive",
+        title: "Inicia sesión",
+        description: "Debes iniciar sesión para completar tu reserva",
       });
+      
+      navigate("/auth", { state: { from: "/booking" } });
       return;
     }
 
-    if (!validateContact()) {
+    if (!selectedDate || !selectedTime) {
       toast({
         title: "Error",
-        description: contactType === "email" ? "Email inválido" : "Teléfono inválido",
+        description: "Por favor selecciona fecha y hora",
         variant: "destructive",
       });
       return;
@@ -176,10 +216,11 @@ const Booking = () => {
     const { error } = await supabase.from("bookings").insert({
       booking_date: format(selectedDate, "yyyy-MM-dd"),
       booking_time: selectedTime,
-      client_name: clientName,
-      client_contact: clientContact,
+      client_name: profile.full_name,
+      client_contact: profile.contact_value,
       services: servicesData,
       total_price: totalPrice,
+      user_id: user.id,
     });
 
     if (error) {
@@ -197,8 +238,8 @@ const Booking = () => {
     try {
       await supabase.functions.invoke('send-booking-email', {
         body: {
-          clientName,
-          clientContact,
+          clientName: profile.full_name,
+          clientContact: profile.contact_value,
           bookingDate: format(selectedDate, "yyyy-MM-dd"),
           bookingTime: selectedTime,
           services: servicesData,
@@ -219,11 +260,8 @@ const Booking = () => {
     // Reset form
     setSelectedDate(undefined);
     setSelectedTime("");
-    setClientName("");
-    setClientContact("");
     setSelectedServices([]);
     setSelectedPack(null);
-    setContactType("phone");
   };
 
   const availableHours = getAvailableHours();
@@ -407,69 +445,60 @@ const Booking = () => {
               </Card>
             )}
 
-            {/* Contact Form */}
+            {/* User Info / Login Prompt */}
             <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="text-xl md:text-2xl">Tus datos</CardTitle>
+                <CardTitle className="text-xl md:text-2xl">
+                  {user && profile ? "Tu perfil" : "Inicia sesión"}
+                </CardTitle>
                 <CardDescription>
-                  Para confirmar la reserva
+                  {user && profile 
+                    ? "Información de tu cuenta" 
+                    : "Debes iniciar sesión para completar tu reserva"
+                  }
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <Label htmlFor="name" className="text-sm md:text-base">Nombre completo</Label>
-                    <Input
-                      id="name"
-                      value={clientName}
-                      onChange={(e) => setClientName(e.target.value)}
-                      placeholder="Tu nombre"
-                      className="text-sm md:text-base"
-                      required
-                    />
+                {authLoading ? (
+                  <p className="text-center py-4">Cargando...</p>
+                ) : user && profile ? (
+                  <div className="space-y-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Nombre</p>
+                      <p className="text-lg font-semibold">{profile.full_name}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Contacto</p>
+                      <p className="text-lg font-semibold">{profile.contact_value}</p>
+                    </div>
+                    <Button
+                      onClick={handleSubmit}
+                      variant="neonCyan"
+                      className="w-full h-10 sm:h-12 text-sm sm:text-base"
+                      disabled={loading || (!selectedPack && selectedServices.length === 0)}
+                    >
+                      {loading ? "Reservando..." : `Confirmar Reserva - ${totalPrice}€`}
+                    </Button>
                   </div>
-                  
-                  <div>
-                    <Label className="text-sm md:text-base mb-3 block">Método de contacto</Label>
-                    <RadioGroup value={contactType} onValueChange={(value) => {
-                      setContactType(value as "phone" | "email");
-                      setClientContact("");
-                    }}>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="phone" id="phone" />
-                        <Label htmlFor="phone" className="cursor-pointer">Teléfono</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="email" id="email" />
-                        <Label htmlFor="email" className="cursor-pointer">Email</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  <div>
-                    <Label htmlFor="contact" className="text-sm md:text-base">
-                      {contactType === "phone" ? "Teléfono" : "Email"}
-                    </Label>
-                    <Input
-                      id="contact"
-                      type={contactType === "email" ? "email" : "tel"}
-                      value={clientContact}
-                      onChange={(e) => setClientContact(e.target.value)}
-                      placeholder={contactType === "phone" ? "+34 123 456 789" : "tu@email.com"}
-                      className="text-sm md:text-base"
-                      required
-                    />
-                  </div>
-
+                ) : (
                   <Button
-                    type="submit"
-                    variant="neonCyan"
+                    onClick={() => {
+                      const bookingState = {
+                        date: selectedDate?.toISOString(),
+                        time: selectedTime,
+                        services: selectedServices,
+                        pack: selectedPack,
+                      };
+                      localStorage.setItem("pendingBooking", JSON.stringify(bookingState));
+                      navigate("/auth", { state: { from: "/booking" } });
+                    }}
+                    variant="neon"
                     className="w-full h-10 sm:h-12 text-sm sm:text-base"
-                    disabled={loading || (!selectedPack && selectedServices.length === 0)}
                   >
-                    {loading ? "Reservando..." : `Confirmar Reserva - ${totalPrice}€`}
+                    <LogIn className="mr-2" />
+                    Iniciar Sesión / Registrarse
                   </Button>
-                </form>
+                )}
               </CardContent>
             </Card>
           </div>
