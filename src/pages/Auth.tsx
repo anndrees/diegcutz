@@ -52,7 +52,7 @@ const Auth = () => {
     // Supabase only supports email login, so we need to use the email from profile
     const loginEmail = profileData.contact_method === "email" 
       ? profileData.contact_value 
-      : `${loginUsername}@diegcutz.local`; // Fallback for phone users
+      : `${loginUsername}@phone.diegcutz.app`; // Fallback for phone users
 
     const { error } = await supabase.auth.signInWithPassword({
       email: loginEmail,
@@ -145,7 +145,7 @@ const Auth = () => {
     // For phone users, create a dummy email
     const signupEmail = signupContactType === "email" 
       ? signupContactValue 
-      : `${signupUsername}@diegcutz.local`;
+      : `${signupUsername}@phone.diegcutz.app`;
 
     const redirectUrl = `${window.location.origin}/`;
 
