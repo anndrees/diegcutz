@@ -24,6 +24,7 @@ export type Database = {
           id: string
           services: Json
           total_price: number
+          user_id: string | null
         }
         Insert: {
           booking_date: string
@@ -34,6 +35,7 @@ export type Database = {
           id?: string
           services?: Json
           total_price?: number
+          user_id?: string | null
         }
         Update: {
           booking_date?: string
@@ -44,6 +46,42 @@ export type Database = {
           id?: string
           services?: Json
           total_price?: number
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          contact_method: string
+          contact_value: string
+          created_at: string | null
+          full_name: string
+          id: string
+          username: string
+        }
+        Insert: {
+          contact_method: string
+          contact_value: string
+          created_at?: string | null
+          full_name: string
+          id: string
+          username: string
+        }
+        Update: {
+          contact_method?: string
+          contact_value?: string
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          username?: string
         }
         Relationships: []
       }

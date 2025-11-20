@@ -1,14 +1,39 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin, MessageCircle } from "lucide-react";
+import { Scissors, Clock, MapPin, MessageCircle, User } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
+import { useAuth } from "@/hooks/useAuth";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
 
   return (
     <div className="min-h-screen">
+      {/* Top Bar with Login/Profile */}
+      <div className="absolute top-0 right-0 z-50 p-4">
+        {user && profile ? (
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate("/booking")}
+            className="text-foreground hover:text-neon-cyan"
+          >
+            <User className="mr-2 h-4 w-4" />
+            {profile.username}
+          </Button>
+        ) : (
+          <Button 
+            variant="outline" 
+            onClick={() => navigate("/auth")}
+            className="border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-background"
+          >
+            <User className="mr-2 h-4 w-4" />
+            Iniciar Sesión
+          </Button>
+        )}
+      </div>
+
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div 

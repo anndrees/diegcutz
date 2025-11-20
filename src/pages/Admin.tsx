@@ -3,12 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, addHours, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -36,6 +36,12 @@ type Booking = {
   client_contact: string;
   services: string[];
   total_price: number;
+  user_id?: string | null;
+  profile?: {
+    full_name: string;
+    username: string;
+    contact_value: string;
+  } | null;
 };
 
 const Admin = () => {
@@ -91,7 +97,10 @@ const Admin = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from("bookings")
-      .select("*")
+      .select(`
+        *,
+        profile:profiles(full_name, username, contact_value)
+      `)
       .order("booking_date", { ascending: true })
       .order("booking_time", { ascending: true });
 
@@ -109,7 +118,8 @@ const Admin = () => {
 
     setBookings((data || []).map(booking => ({
       ...booking,
-      services: Array.isArray(booking.services) ? (booking.services as string[]) : []
+      services: Array.isArray(booking.services) ? (booking.services as string[]) : [],
+      profile: Array.isArray(booking.profile) ? booking.profile[0] : booking.profile
     })));
   };
 
@@ -229,8 +239,22 @@ const Admin = () => {
                   {format(new Date(booking.booking_date + "T00:00:00"), "d MMM yyyy", { locale: es })}
                 </TableCell>
                 <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
-                <TableCell className="font-medium">{booking.client_name}</TableCell>
-                <TableCell>{booking.client_contact}</TableCell>
+                <TableCell className="font-medium">
+                  {booking.user_id && booking.profile ? (
+                    <Link 
+                      to={`/admin/client/${booking.user_id}`}
+                      className="flex items-center gap-1 text-neon-cyan hover:underline"
+                    >
+                      {booking.profile.full_name}
+                      <ExternalLink className="h-3 w-3" />
+                    </Link>
+                  ) : (
+                    booking.client_name
+                  )}
+                </TableCell>
+                <TableCell>
+                  {booking.user_id && booking.profile ? booking.profile.contact_value : booking.client_contact}
+                </TableCell>
                 <TableCell>
                   <div className="text-sm max-w-xs">
                     {booking.services && booking.services.length > 0 ? (
