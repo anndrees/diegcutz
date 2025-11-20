@@ -49,19 +49,28 @@ const Auth = () => {
       return;
     }
 
-    // Supabase only supports email login, so we need to use the email from profile
-    const loginEmail = profileData.contact_method === "email" 
-      ? profileData.contact_value 
-      : `${loginUsername}@phone.diegcutz.app`; // Fallback for phone users
+    let signInError = null;
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail,
-      password: loginPassword,
-    });
+    if (profileData.contact_method === "email") {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: profileData.contact_value,
+        password: loginPassword,
+      });
+      signInError = error;
+    } else {
+      const normalizedPhone = profileData.contact_value.replace(/\s+/g, "");
+      const phone = normalizedPhone.startsWith("+") ? normalizedPhone : `+34${normalizedPhone}`;
+
+      const { error } = await supabase.auth.signInWithPassword({
+        phone,
+        password: loginPassword,
+      });
+      signInError = error;
+    }
 
     setLoading(false);
 
-    if (error) {
+    if (signInError) {
       toast({
         title: "Error",
         description: "Usuario o contraseña incorrectos",
@@ -142,33 +151,50 @@ const Auth = () => {
       return;
     }
 
-    // For phone users, create a dummy email
-    const signupEmail = signupContactType === "email" 
-      ? signupContactValue 
-      : `${signupUsername}@phone.diegcutz.app`;
-
     const redirectUrl = `${window.location.origin}/`;
 
-    const { error } = await supabase.auth.signUp({
-      email: signupEmail,
-      password: signupPassword,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: signupFullName,
-          username: signupUsername,
-          contact_method: signupContactType,
-          contact_value: signupContactValue,
+    let signUpError = null;
+
+    if (signupContactType === "email") {
+      const { error } = await supabase.auth.signUp({
+        email: signupContactValue,
+        password: signupPassword,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: signupFullName,
+            username: signupUsername,
+            contact_method: signupContactType,
+            contact_value: signupContactValue,
+          },
         },
-      },
-    });
+      });
+      signUpError = error;
+    } else {
+      const rawPhone = signupContactValue.replace(/\s+/g, "");
+      const phone = rawPhone.startsWith("+") ? rawPhone : `+34${rawPhone}`;
+
+      const { error } = await supabase.auth.signUp({
+        phone,
+        password: signupPassword,
+        options: {
+          data: {
+            full_name: signupFullName,
+            username: signupUsername,
+            contact_method: signupContactType,
+            contact_value: phone,
+          },
+        },
+      });
+      signUpError = error;
+    }
 
     setLoading(false);
 
-    if (error) {
+    if (signUpError) {
       toast({
         title: "Error",
-        description: error.message,
+        description: signUpError.message,
         variant: "destructive",
       });
       return;
