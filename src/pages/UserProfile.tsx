@@ -261,8 +261,8 @@ export default function UserProfile() {
                       <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
                       <TableCell>{booking.booking_time}</TableCell>
                       <TableCell>
-                        {Array.isArray(booking.services)
-                          ? booking.services.map((s: any) => s.name).join(", ")
+                        {Array.isArray(booking.services) && booking.services.length > 0
+                          ? booking.services.join(", ")
                           : "N/A"}
                       </TableCell>
                       <TableCell>{booking.total_price}€</TableCell>
@@ -299,8 +299,8 @@ export default function UserProfile() {
                       <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
                       <TableCell>{booking.booking_time}</TableCell>
                       <TableCell>
-                        {Array.isArray(booking.services)
-                          ? booking.services.map((s: any) => s.name).join(", ")
+                        {Array.isArray(booking.services) && booking.services.length > 0
+                          ? booking.services.join(", ")
                           : "N/A"}
                       </TableCell>
                       <TableCell>{booking.total_price}€</TableCell>
