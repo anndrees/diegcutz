@@ -69,21 +69,97 @@ const Admin = () => {
     }
   }, [isAuthenticated]);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (username === "diego" && password === "DiegCutz#2025Pro") {
+    setLoading(true);
+
+    try {
+      const { data: profileData, error: profileError } = await supabase
+        .from("profiles")
+        .select("id, contact_method, contact_value")
+        .eq("username", username)
+        .single();
+
+      if (profileError || !profileData) {
+        toast({
+          title: "Error",
+          description: "Usuario o contraseña incorrectos",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      let signInError = null as { message: string } | null;
+
+      if (profileData.contact_method === "email") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: profileData.contact_value,
+          password,
+        });
+        signInError = error;
+      } else {
+        const normalizedPhone = profileData.contact_value.replace(/\s+/g, "");
+        const phone = normalizedPhone.startsWith("+") ? normalizedPhone : `+34${normalizedPhone}`;
+
+        const { error } = await supabase.auth.signInWithPassword({
+          phone,
+          password,
+        });
+        signInError = error;
+      }
+
+      if (signInError) {
+        let errorMessage = "Usuario o contraseña incorrectos";
+
+        if (signInError.message.includes("Email not confirmed")) {
+          errorMessage = "Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de correo.";
+        } else if (signInError.message.includes("Phone not confirmed")) {
+          errorMessage = "Debes confirmar tu teléfono antes de iniciar sesión.";
+        } else if (signInError.message.includes("Phone signups are disabled")) {
+          errorMessage = "El inicio de sesión por teléfono no está activado. Contacta al administrador.";
+        }
+
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+
+      if (sessionError || !session?.user) {
+        toast({
+          title: "Error",
+          description: "No se pudo validar la sesión de administrador",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: isAdmin, error: roleError } = await supabase.rpc("has_role", {
+        _role: "admin",
+        _user_id: session.user.id,
+      });
+
+      if (roleError || !isAdmin) {
+        toast({
+          title: "Error",
+          description: "No tienes permisos para acceder al panel de administración",
+          variant: "destructive",
+        });
+        await supabase.auth.signOut();
+        return;
+      }
+
       setIsAuthenticated(true);
       toast({
         title: "Bienvenido",
         description: "Sesión iniciada correctamente",
       });
-    } else {
-      toast({
-        title: "Error",
-        description: "Usuario o contraseña incorrectos",
-        variant: "destructive",
-      });
+    } finally {
+      setLoading(false);
     }
   };
 
