@@ -71,9 +71,19 @@ const Auth = () => {
     setLoading(false);
 
     if (signInError) {
+      let errorMessage = "Usuario o contraseña incorrectos";
+      
+      if (signInError.message.includes("Email not confirmed")) {
+        errorMessage = "Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de correo.";
+      } else if (signInError.message.includes("Phone not confirmed")) {
+        errorMessage = "Debes confirmar tu teléfono antes de iniciar sesión.";
+      } else if (signInError.message.includes("Phone signups are disabled")) {
+        errorMessage = "El inicio de sesión por teléfono no está activado. Contacta al administrador.";
+      }
+
       toast({
         title: "Error",
-        description: "Usuario o contraseña incorrectos",
+        description: errorMessage,
         variant: "destructive",
       });
       return;
@@ -200,9 +210,13 @@ const Auth = () => {
       return;
     }
 
+    const successMessage = signupContactType === "email"
+      ? "Tu cuenta ha sido creada correctamente. Revisa tu bandeja de correo para confirmar tu usuario e iniciar sesión."
+      : "Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.";
+
     toast({
       title: "¡Cuenta creada!",
-      description: "Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.",
+      description: successMessage,
     });
 
     // Clear signup form

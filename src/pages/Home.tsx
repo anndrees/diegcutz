@@ -16,7 +16,7 @@ const Home = () => {
         {user && profile ? (
           <Button 
             variant="ghost" 
-            onClick={() => navigate("/booking")}
+            onClick={() => navigate("/user")}
             className="text-foreground hover:text-neon-cyan"
           >
             <User className="mr-2 h-4 w-4" />
