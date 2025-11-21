@@ -47,7 +47,9 @@ type Booking = {
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    return sessionStorage.getItem("adminAuth") === "true";
+  });
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -74,6 +76,7 @@ const Admin = () => {
 
     if (username === "diego" && password === "DiegCutz#2025Pro") {
       setIsAuthenticated(true);
+      sessionStorage.setItem("adminAuth", "true");
       toast({
         title: "Bienvenido",
         description: "Sesión iniciada correctamente",
@@ -89,6 +92,7 @@ const Admin = () => {
 
   const handleLogout = () => {
     setIsAuthenticated(false);
+    sessionStorage.removeItem("adminAuth");
     setUsername("");
     setPassword("");
   };

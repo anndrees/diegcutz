@@ -3,9 +3,20 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, User, Phone, Mail, Calendar, Clock, Package } from "lucide-react";
+import { ArrowLeft, User, Phone, Mail, Calendar, Clock, Package, Edit2, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface Profile {
   id: string;
@@ -28,9 +39,15 @@ interface Booking {
 const ClientProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [editForm, setEditForm] = useState({
+    date: "",
+    time: "",
+  });
 
   useEffect(() => {
     if (id) {
@@ -71,6 +88,68 @@ const ClientProfile = () => {
     }
 
     setLoading(false);
+  };
+
+  const handleEdit = (booking: Booking) => {
+    setEditingBooking(booking);
+    setEditForm({
+      date: booking.booking_date,
+      time: booking.booking_time,
+    });
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingBooking) return;
+
+    const { error } = await supabase
+      .from("bookings")
+      .update({
+        booking_date: editForm.date,
+        booking_time: editForm.time,
+      })
+      .eq("id", editingBooking.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la reserva",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Éxito",
+      description: "Reserva actualizada correctamente",
+    });
+
+    setEditingBooking(null);
+    loadClientData();
+  };
+
+  const handleDelete = async (bookingId: string) => {
+    if (!confirm("¿Seguro que quieres eliminar esta reserva?")) return;
+
+    const { error } = await supabase
+      .from("bookings")
+      .delete()
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar la reserva",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Éxito",
+      description: "Reserva eliminada correctamente",
+    });
+
+    loadClientData();
   };
 
   if (loading) {
@@ -188,24 +267,42 @@ const ClientProfile = () => {
                         <div className="flex items-start gap-2">
                           <Package className="w-4 h-4 text-secondary mt-1" />
                           <div className="flex flex-col">
-                            {Array.isArray(booking.services) ? (
+                            {Array.isArray(booking.services) && booking.services.length > 0 ? (
                               booking.services.map((service, idx) => (
                                 <span key={idx} className="text-sm text-muted-foreground">
                                   {service}
                                 </span>
                               ))
                             ) : (
-                              <span className="text-sm text-muted-foreground">
-                                {JSON.stringify(booking.services)}
-                              </span>
+                              <span className="text-sm text-muted-foreground">Sin servicios</span>
                             )}
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-primary">
-                          {booking.total_price}€
-                        </p>
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <p className="text-2xl font-bold text-primary">
+                            {booking.total_price}€
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleEdit(booking)}
+                            title="Editar reserva"
+                          >
+                            <Edit2 className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            size="icon"
+                            onClick={() => handleDelete(booking.id)}
+                            title="Eliminar reserva"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -214,6 +311,46 @@ const ClientProfile = () => {
             )}
           </CardContent>
         </Card>
+
+        {/* Dialog de edición */}
+        <Dialog open={!!editingBooking} onOpenChange={() => setEditingBooking(null)}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Editar Reserva</DialogTitle>
+              <DialogDescription>
+                Modifica la fecha y hora de la reserva
+              </DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4 py-4">
+              <div>
+                <Label htmlFor="date">Fecha</Label>
+                <Input
+                  id="date"
+                  type="date"
+                  value={editForm.date}
+                  onChange={(e) => setEditForm({ ...editForm, date: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label htmlFor="time">Hora</Label>
+                <Input
+                  id="time"
+                  type="time"
+                  value={editForm.time}
+                  onChange={(e) => setEditForm({ ...editForm, time: e.target.value })}
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setEditingBooking(null)}>
+                Cancelar
+              </Button>
+              <Button onClick={handleSaveEdit}>
+                Guardar Cambios
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
