@@ -85,6 +85,39 @@ export type Database = {
         }
         Relationships: []
       }
+      services: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          included_service_ids: string[] | null
+          name: string
+          price: number
+          service_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          included_service_ids?: string[] | null
+          name: string
+          price: number
+          service_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          included_service_ids?: string[] | null
+          name?: string
+          price?: number
+          service_type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
