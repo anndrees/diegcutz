@@ -9,7 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, LogOut, Calendar } from "lucide-react";
+import { ArrowLeft, LogOut, Calendar, Star } from "lucide-react";
+import { RatingDialog } from "@/components/RatingDialog";
 
 interface Booking {
   id: string;
@@ -18,6 +19,11 @@ interface Booking {
   services: any;
   total_price: number;
   created_at: string;
+  rating?: {
+    id: string;
+    rating: number;
+    comment: string | null;
+  };
 }
 
 export default function UserProfile() {
@@ -29,6 +35,8 @@ export default function UserProfile() {
   const [fullName, setFullName] = useState("");
   const [contactMethod, setContactMethod] = useState("");
   const [contactValue, setContactValue] = useState("");
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) {
@@ -48,24 +56,48 @@ export default function UserProfile() {
   const fetchBookings = async () => {
     if (!user) return;
 
-    const { data, error } = await supabase
+    const { data: bookingsData, error: bookingsError } = await supabase
       .from("bookings")
       .select("*")
       .eq("user_id", user.id)
       .order("booking_date", { ascending: false });
 
-    if (error) {
-      console.error("Error fetching bookings:", error);
+    if (bookingsError) {
+      console.error("Error fetching bookings:", bookingsError);
       toast({
         title: "Error",
         description: "No se pudieron cargar las reservas",
         variant: "destructive",
       });
-    } else {
-      setBookings(data || []);
+      setLoading(false);
+      return;
     }
 
+    // Load ratings for each booking
+    const bookingIds = (bookingsData || []).map(b => b.id);
+    const { data: ratingsData } = await supabase
+      .from("ratings")
+      .select("*")
+      .in("booking_id", bookingIds);
+
+    const ratingsMap = new Map(ratingsData?.map(r => [r.booking_id, r]) || []);
+
+    const bookingsWithRatings = (bookingsData || []).map(booking => ({
+      ...booking,
+      rating: ratingsMap.get(booking.id),
+    }));
+
+    setBookings(bookingsWithRatings);
     setLoading(false);
+  };
+
+  const handleRateBooking = (bookingId: string) => {
+    setSelectedBookingId(bookingId);
+    setRatingDialogOpen(true);
+  };
+
+  const handleRatingSubmitted = () => {
+    fetchBookings();
   };
 
   const handleUpdateProfile = async () => {
@@ -253,21 +285,28 @@ export default function UserProfile() {
                     <TableHead>Hora</TableHead>
                     <TableHead>Servicios</TableHead>
                     <TableHead>Precio</TableHead>
+                    <TableHead className="text-right">Valoración</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {currentBookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
-                      <TableCell>{booking.booking_time}</TableCell>
-                      <TableCell>
-                        {Array.isArray(booking.services) && booking.services.length > 0
-                          ? booking.services.join(", ")
-                          : "N/A"}
-                      </TableCell>
-                      <TableCell>{booking.total_price}€</TableCell>
-                    </TableRow>
-                  ))}
+                  {currentBookings.map((booking) => {
+                    const hasRating = !!booking.rating;
+                    return (
+                      <TableRow key={booking.id}>
+                        <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
+                        <TableCell>{booking.booking_time}</TableCell>
+                        <TableCell>
+                          {Array.isArray(booking.services) && booking.services.length > 0
+                            ? booking.services.join(", ")
+                            : "N/A"}
+                        </TableCell>
+                        <TableCell>{booking.total_price}€</TableCell>
+                        <TableCell className="text-right">
+                          <span className="text-sm text-muted-foreground">Pendiente</span>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
@@ -291,27 +330,58 @@ export default function UserProfile() {
                     <TableHead>Hora</TableHead>
                     <TableHead>Servicios</TableHead>
                     <TableHead>Precio</TableHead>
+                    <TableHead className="text-right">Valoración</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {pastBookings.map((booking) => (
-                    <TableRow key={booking.id}>
-                      <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
-                      <TableCell>{booking.booking_time}</TableCell>
-                      <TableCell>
-                        {Array.isArray(booking.services) && booking.services.length > 0
-                          ? booking.services.join(", ")
-                          : "N/A"}
-                      </TableCell>
-                      <TableCell>{booking.total_price}€</TableCell>
-                    </TableRow>
-                  ))}
+                  {pastBookings.map((booking) => {
+                    const hasRating = !!booking.rating;
+                    return (
+                      <TableRow key={booking.id}>
+                        <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
+                        <TableCell>{booking.booking_time}</TableCell>
+                        <TableCell>
+                          {Array.isArray(booking.services) && booking.services.length > 0
+                            ? booking.services.join(", ")
+                            : "N/A"}
+                        </TableCell>
+                        <TableCell>{booking.total_price}€</TableCell>
+                        <TableCell className="text-right">
+                          {hasRating ? (
+                            <div className="flex items-center justify-end gap-1">
+                              <span className="text-sm font-semibold">{booking.rating!.rating}</span>
+                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            </div>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => handleRateBooking(booking.id)}
+                            >
+                              <Star className="h-4 w-4 mr-1" />
+                              Valorar
+                            </Button>
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             )}
           </CardContent>
         </Card>
       </div>
+
+      {selectedBookingId && user && (
+        <RatingDialog
+          bookingId={selectedBookingId}
+          userId={user.id}
+          open={ratingDialogOpen}
+          onOpenChange={setRatingDialogOpen}
+          onRatingSubmitted={handleRatingSubmitted}
+        />
+      )}
     </div>
   );
 }
