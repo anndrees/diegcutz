@@ -27,6 +27,8 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { StatisticsSection } from "@/components/admin/StatisticsSection";
+import { ServicesManagement } from "@/components/admin/ServicesManagement";
 
 type Booking = {
   id: string;
@@ -205,7 +207,22 @@ const Admin = () => {
     booking.client_name.toLowerCase().includes(searchQuery.toLowerCase()));
 
   // Obtener fechas con reservas para el calendario
-  const datesWithBookings = bookings.map(booking => new Date(booking.booking_date + "T00:00:00"));
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const currentDatesWithBookings = bookings
+    .filter(booking => {
+      const bookingDate = new Date(booking.booking_date + "T00:00:00");
+      return bookingDate >= today;
+    })
+    .map(booking => new Date(booking.booking_date + "T00:00:00"));
+
+  const pastDatesWithBookings = bookings
+    .filter(booking => {
+      const bookingDate = new Date(booking.booking_date + "T00:00:00");
+      return bookingDate < today;
+    })
+    .map(booking => new Date(booking.booking_date + "T00:00:00"));
 
   // Obtener reservas del día seleccionado en el calendario
   const bookingsForSelectedDate = selectedCalendarDate
@@ -372,9 +389,19 @@ const Admin = () => {
             PANEL DE ADMINISTRACIÓN
           </h1>
           <p className="text-xl text-muted-foreground">
-            Gestiona todas las reservas
+            Gestiona todas las reservas, servicios y estadísticas
           </p>
         </div>
+
+        {/* Tabs for different sections */}
+        <Tabs defaultValue="bookings" className="w-full mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-6">
+            <TabsTrigger value="bookings">Reservas</TabsTrigger>
+            <TabsTrigger value="statistics">Estadísticas</TabsTrigger>
+            <TabsTrigger value="services">Servicios</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="bookings" className="space-y-6">
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
           {/* Calendario Visual */}
@@ -395,10 +422,12 @@ const Admin = () => {
                 }}
                 className="rounded-md border border-border pointer-events-auto"
                 modifiers={{
-                  booked: datesWithBookings,
+                  currentBooking: currentDatesWithBookings,
+                  pastBooking: pastDatesWithBookings,
                 }}
                 modifiersClassNames={{
-                  booked: "bg-neon-purple text-white font-bold rounded-full",
+                  currentBooking: "bg-neon-purple text-white font-bold rounded-full",
+                  pastBooking: "bg-muted text-muted-foreground font-bold rounded-full",
                 }}
               />
             </CardContent>
@@ -463,6 +492,16 @@ const Admin = () => {
             </Tabs>
           </CardContent>
         </Card>
+          </TabsContent>
+
+          <TabsContent value="statistics">
+            <StatisticsSection bookings={bookings} />
+          </TabsContent>
+
+          <TabsContent value="services">
+            <ServicesManagement />
+          </TabsContent>
+        </Tabs>
 
         {/* Dialog para mostrar reservas del día seleccionado */}
         <Dialog open={showCalendarDialog} onOpenChange={setShowCalendarDialog}>
