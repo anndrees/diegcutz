@@ -11,7 +11,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Package, Sparkles, LogIn } from "lucide-react";
-import { SERVICES, PACKS, Service, Pack } from "@/types/booking";
+
+type Service = {
+  id: string;
+  name: string;
+  price: number;
+  description?: string;
+};
+
+type Pack = {
+  id: string;
+  name: string;
+  price: number;
+  description?: string;
+  included_service_ids?: string[];
+};
 
 const HOURS = {
   monday: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
@@ -34,6 +48,53 @@ const Booking = () => {
   const [selectedPack, setSelectedPack] = useState<string | null>(null);
   const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const [packs, setPacks] = useState<Pack[]>([]);
+  const [loadingServices, setLoadingServices] = useState(true);
+
+  // Load services and packs from database
+  useEffect(() => {
+    loadServicesFromDB();
+  }, []);
+
+  const loadServicesFromDB = async () => {
+    setLoadingServices(true);
+    const { data, error } = await supabase
+      .from("services")
+      .select("*")
+      .order("name");
+
+    if (error) {
+      console.error("Error loading services:", error);
+      toast({
+        title: "Error",
+        description: "No se pudieron cargar los servicios",
+        variant: "destructive",
+      });
+      setLoadingServices(false);
+      return;
+    }
+
+    if (data) {
+      const dbServices = data.filter(s => s.service_type === 'service').map(s => ({
+        id: s.id,
+        name: s.name,
+        price: parseFloat(s.price.toString()),
+        description: s.description || undefined,
+      }));
+      const dbPacks = data.filter(s => s.service_type === 'pack').map(s => ({
+        id: s.id,
+        name: s.name,
+        price: parseFloat(s.price.toString()),
+        description: s.description || undefined,
+        included_service_ids: s.included_service_ids || [],
+      }));
+      
+      setServices(dbServices);
+      setPacks(dbPacks);
+    }
+    setLoadingServices(false);
+  };
 
   // Restore booking state from localStorage if redirected from auth
   useEffect(() => {
@@ -114,9 +175,9 @@ const Booking = () => {
     }
     setSelectedPack(packId);
     // Remove services included in the pack
-    const pack = PACKS.find(p => p.id === packId);
-    if (pack) {
-      setSelectedServices(selectedServices.filter(s => !pack.includedServices.includes(s)));
+    const pack = packs.find(p => p.id === packId);
+    if (pack && pack.included_service_ids) {
+      setSelectedServices(selectedServices.filter(s => !pack.included_service_ids!.includes(s)));
     }
   };
 
@@ -130,20 +191,20 @@ const Booking = () => {
 
   const isServiceDisabled = (serviceId: string) => {
     if (!selectedPack) return false;
-    const pack = PACKS.find(p => p.id === selectedPack);
-    return pack ? pack.includedServices.includes(serviceId) : false;
+    const pack = packs.find(p => p.id === selectedPack);
+    return pack && pack.included_service_ids ? pack.included_service_ids.includes(serviceId) : false;
   };
 
   const calculateTotal = () => {
     let total = 0;
     
     if (selectedPack) {
-      const pack = PACKS.find(p => p.id === selectedPack);
+      const pack = packs.find(p => p.id === selectedPack);
       if (pack) total += pack.price;
     }
     
     selectedServices.forEach(serviceId => {
-      const service = SERVICES.find(s => s.id === serviceId);
+      const service = services.find(s => s.id === serviceId);
       if (service) total += service.price;
     });
     
@@ -154,12 +215,12 @@ const Booking = () => {
     const items: string[] = [];
     
     if (selectedPack) {
-      const pack = PACKS.find(p => p.id === selectedPack);
+      const pack = packs.find(p => p.id === selectedPack);
       if (pack) items.push(`${pack.name} (${pack.price}€)`);
     }
     
     selectedServices.forEach(serviceId => {
-      const service = SERVICES.find(s => s.id === serviceId);
+      const service = services.find(s => s.id === serviceId);
       if (service) items.push(`${service.name} (${service.price}€)`);
     });
     
@@ -349,89 +410,98 @@ const Booking = () => {
         </div>
 
         {/* Services Selection */}
-        {selectedTime && (
+        {selectedTime && !loadingServices && (
           <div className="mt-8 space-y-6">
             {/* Packs */}
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                  <Package className="text-neon-cyan" />
-                  Selecciona un Pack
-                </CardTitle>
-                <CardDescription>Solo puedes seleccionar un pack</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {PACKS.map((pack) => (
-                  <div
-                    key={pack.id}
-                    className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                      selectedPack === pack.id
-                        ? 'border-neon-cyan bg-card/50 glow-neon-cyan'
-                        : selectedPack && selectedPack !== pack.id
-                        ? 'border-muted opacity-50'
-                        : 'border-border hover:border-primary'
-                    }`}
-                    onClick={() => handlePackChange(pack.id)}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h4 className="font-bold text-lg text-neon-cyan">{pack.name}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Incluye: {pack.includedServices.map(sid => 
-                            SERVICES.find(s => s.id === sid)?.name
-                          ).join(', ')}
-                        </p>
-                      </div>
-                      <span className="text-xl font-bold text-primary">{pack.price}€</span>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Services */}
-            <Card className="bg-card border-border">
-              <CardHeader>
-                <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                  <Sparkles className="text-primary" />
-                  Servicios Adicionales
-                </CardTitle>
-                <CardDescription>Puedes seleccionar varios servicios</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {SERVICES.map((service) => {
-                  const disabled = isServiceDisabled(service.id);
-                  return (
+            {packs.length > 0 && (
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                    <Package className="text-neon-cyan" />
+                    Selecciona un Pack
+                  </CardTitle>
+                  <CardDescription>Solo puedes seleccionar un pack</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {packs.map((pack) => (
                     <div
-                      key={service.id}
-                      className={`flex items-center justify-between p-4 border-2 rounded-lg ${
-                        disabled
-                          ? 'opacity-50 border-muted'
-                          : selectedServices.includes(service.id)
-                          ? 'border-primary bg-card/50 glow-neon-purple'
+                      key={pack.id}
+                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                        selectedPack === pack.id
+                          ? 'border-neon-cyan bg-card/50 glow-neon-cyan'
+                          : selectedPack && selectedPack !== pack.id
+                          ? 'border-muted opacity-50'
                           : 'border-border hover:border-primary'
                       }`}
+                      onClick={() => handlePackChange(pack.id)}
                     >
-                      <div className="flex items-center gap-3">
-                        <Checkbox
-                          id={service.id}
-                          checked={selectedServices.includes(service.id)}
-                          onCheckedChange={() => handleServiceChange(service.id)}
-                          disabled={disabled}
-                        />
-                        <Label
-                          htmlFor={service.id}
-                          className={`text-base cursor-pointer ${disabled ? 'line-through' : ''}`}
-                        >
-                          {service.name}
-                        </Label>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h4 className="font-bold text-lg text-neon-cyan">{pack.name}</h4>
+                          {pack.description && (
+                            <p className="text-sm text-muted-foreground mt-1">{pack.description}</p>
+                          )}
+                          {pack.included_service_ids && pack.included_service_ids.length > 0 && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              Incluye: {pack.included_service_ids.map(sid => 
+                                services.find(s => s.id === sid)?.name
+                              ).filter(Boolean).join(', ')}
+                            </p>
+                          )}
+                        </div>
+                        <span className="text-xl font-bold text-primary">{pack.price}€</span>
                       </div>
-                      <span className="text-lg font-bold">{service.price}€</span>
                     </div>
-                  );
-                })}
-              </CardContent>
-            </Card>
+                  ))}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Services */}
+            {services.length > 0 && (
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                    <Sparkles className="text-primary" />
+                    Servicios Adicionales
+                  </CardTitle>
+                  <CardDescription>Puedes seleccionar varios servicios</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {services.map((service) => {
+                    const disabled = isServiceDisabled(service.id);
+                    return (
+                      <div
+                        key={service.id}
+                        className={`flex items-center justify-between p-4 border-2 rounded-lg ${
+                          disabled
+                            ? 'opacity-50 border-muted'
+                            : selectedServices.includes(service.id)
+                            ? 'border-primary bg-card/50 glow-neon-purple'
+                            : 'border-border hover:border-primary'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Checkbox
+                            id={service.id}
+                            checked={selectedServices.includes(service.id)}
+                            onCheckedChange={() => handleServiceChange(service.id)}
+                            disabled={disabled}
+                          />
+                          <Label
+                            htmlFor={service.id}
+                            className={`text-base cursor-pointer ${disabled ? 'line-through' : ''}`}
+                          >
+                            {service.name}
+                          </Label>
+                        </div>
+                        <span className="text-lg font-bold">{service.price}€</span>
+                      </div>
+                    );
+                  })}
+                </CardContent>
+              </Card>
+            )}
 
             {/* Total Price */}
             {(selectedPack || selectedServices.length > 0) && (
