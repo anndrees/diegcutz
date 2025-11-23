@@ -202,9 +202,16 @@ const Auth = () => {
     setLoading(false);
 
     if (signUpError) {
+      let errorMessage = signUpError.message;
+      
+      // Manejar timeouts específicamente
+      if (signUpError.message.includes("timeout") || signUpError.message.includes("upstream")) {
+        errorMessage = "El servidor está tardando en responder. Tu cuenta puede haberse creado correctamente. Por favor, verifica tu email e intenta iniciar sesión en unos minutos.";
+      }
+      
       toast({
         title: "Error",
-        description: signUpError.message,
+        description: errorMessage,
         variant: "destructive",
       });
       return;
