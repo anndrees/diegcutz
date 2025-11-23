@@ -108,7 +108,7 @@ const Home = () => {
               <div className="bg-background/20 p-6 rounded-lg backdrop-blur-sm">
                 <h4 className="text-xl font-bold mb-3 text-background">Cancelación</h4>
                 <p className="text-background font-medium">
-                  Tienes 48 horas (2 días) antes de la cita para cancelar o reubicar. 
+                  Tienes 48 horas (2 días) antes de la cita para <a href="https://wa.me/34641637576?text=Cancelar%20mi%20cita" target="_blank">cancelar</a> o <a href="https://wa.me/34641637576?text=Reubicar%20mi%20cita" target="_blank">reubicar</a> tu cita.
                   ¡Máximo respeto por el tiempo!
                 </p>
               </div>
