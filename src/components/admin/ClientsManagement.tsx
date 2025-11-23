@@ -8,6 +8,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Edit2, Trash2, Search } from "lucide-react";
+import { Link } from "react-router-dom";
 
 type Client = {
   id: string;
@@ -186,7 +187,14 @@ export const ClientsManagement = () => {
                 {filteredClients.map((client) => (
                   <TableRow key={client.id}>
                     <TableCell className="font-medium">{client.full_name}</TableCell>
-                    <TableCell>{client.username}</TableCell>
+                    <TableCell>
+                      <Link 
+                        to={`/client-profile/${client.id}`}
+                        className="text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+                      >
+                        {client.username}
+                      </Link>
+                    </TableCell>
                     <TableCell>{client.contact_value}</TableCell>
                     <TableCell className="capitalize">{client.contact_method}</TableCell>
                     <TableCell>{new Date(client.created_at).toLocaleDateString()}</TableCell>

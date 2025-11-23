@@ -406,9 +406,9 @@ const Booking = () => {
                           >
                             {isBooked && (
                               <span className="absolute inset-0 flex items-center justify-center">
-                                <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
-                                  <line x1="18" y1="6" x2="6" y2="18"></line>
-                                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                                <svg className="w-full h-full text-neon-cyan opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                                  <line x1="4" y1="4" x2="20" y2="20"></line>
+                                  <line x1="20" y1="4" x2="4" y2="20"></line>
                                 </svg>
                               </span>
                             )}
