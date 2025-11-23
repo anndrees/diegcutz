@@ -122,6 +122,7 @@ export type Database = {
       }
       services: {
         Row: {
+          coming_soon: boolean
           created_at: string | null
           description: string | null
           id: string
@@ -132,6 +133,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          coming_soon?: boolean
           created_at?: string | null
           description?: string | null
           id?: string
@@ -142,6 +144,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          coming_soon?: boolean
           created_at?: string | null
           description?: string | null
           id?: string

@@ -29,6 +29,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { StatisticsSection } from "@/components/admin/StatisticsSection";
 import { ServicesManagement } from "@/components/admin/ServicesManagement";
+import { ClientsManagement } from "@/components/admin/ClientsManagement";
 
 type Booking = {
   id: string;
@@ -395,10 +396,11 @@ const Admin = () => {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="bookings" className="w-full mb-6">
-          <TabsList className="grid w-full grid-cols-3 mb-6">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="statistics">Estadísticas</TabsTrigger>
             <TabsTrigger value="services">Servicios</TabsTrigger>
+            <TabsTrigger value="clients">Clientes</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
@@ -500,6 +502,10 @@ const Admin = () => {
 
           <TabsContent value="services">
             <ServicesManagement />
+          </TabsContent>
+
+          <TabsContent value="clients">
+            <ClientsManagement />
           </TabsContent>
         </Tabs>
 

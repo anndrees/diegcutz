@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,6 +19,8 @@ type Service = {
   price: number;
   service_type: 'service' | 'pack';
   description?: string;
+  coming_soon?: boolean;
+  included_service_ids?: string[];
 };
 
 export const ServicesManagement = () => {
@@ -31,6 +34,8 @@ export const ServicesManagement = () => {
     price: 0,
     service_type: "service" as 'service' | 'pack',
     description: "",
+    coming_soon: false,
+    included_service_ids: [] as string[],
   });
 
   useEffect(() => {
@@ -66,6 +71,8 @@ export const ServicesManagement = () => {
       price: service.price,
       service_type: service.service_type,
       description: service.description || "",
+      coming_soon: service.coming_soon || false,
+      included_service_ids: service.included_service_ids || [],
     });
   };
 
@@ -76,6 +83,8 @@ export const ServicesManagement = () => {
       price: 0,
       service_type: "service",
       description: "",
+      coming_soon: false,
+      included_service_ids: [],
     });
   };
 
@@ -274,15 +283,58 @@ export const ServicesManagement = () => {
               />
             </div>
 
-            <div>
-              <Label htmlFor="description">Descripción</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                placeholder="Descripción del servicio o pack"
-                rows={3}
+            {formData.service_type === 'pack' ? (
+              <div>
+                <Label htmlFor="included_services">Servicios Incluidos</Label>
+                <div className="space-y-2 max-h-40 overflow-y-auto border rounded-md p-3">
+                  {services.filter(s => s.service_type === 'service').map(service => (
+                    <div key={service.id} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`service-${service.id}`}
+                        checked={formData.included_service_ids.includes(service.id)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setFormData({ 
+                              ...formData, 
+                              included_service_ids: [...formData.included_service_ids, service.id] 
+                            });
+                          } else {
+                            setFormData({ 
+                              ...formData, 
+                              included_service_ids: formData.included_service_ids.filter(id => id !== service.id) 
+                            });
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`service-${service.id}`} className="cursor-pointer">
+                        {service.name} ({service.price}€)
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <div>
+                <Label htmlFor="description">Descripción</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  placeholder="Descripción del servicio"
+                  rows={3}
+                />
+              </div>
+            )}
+
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="coming_soon"
+                checked={formData.coming_soon}
+                onCheckedChange={(checked) => setFormData({ ...formData, coming_soon: !!checked })}
               />
+              <Label htmlFor="coming_soon" className="cursor-pointer">
+                Marcar como PRÓXIMAMENTE (no seleccionable en reservas)
+              </Label>
             </div>
           </div>
 

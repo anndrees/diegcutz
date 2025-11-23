@@ -12,12 +12,6 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Package, Sparkles, LogIn } from "lucide-react";
 
-type Service = {
-  id: string;
-  name: string;
-  price: number;
-  description?: string;
-};
 
 type Pack = {
   id: string;
@@ -25,6 +19,15 @@ type Pack = {
   price: number;
   description?: string;
   included_service_ids?: string[];
+  coming_soon?: boolean;
+};
+
+type Service = {
+  id: string;
+  name: string;
+  price: number;
+  description?: string;
+  coming_soon?: boolean;
 };
 
 const HOURS = {
@@ -76,18 +79,20 @@ const Booking = () => {
     }
 
     if (data) {
-      const dbServices = data.filter(s => s.service_type === 'service').map(s => ({
+      const dbServices = data.filter(s => s.service_type === 'service' && !s.coming_soon).map(s => ({
         id: s.id,
         name: s.name,
         price: parseFloat(s.price.toString()),
         description: s.description || undefined,
+        coming_soon: s.coming_soon || false,
       }));
-      const dbPacks = data.filter(s => s.service_type === 'pack').map(s => ({
+      const dbPacks = data.filter(s => s.service_type === 'pack' && !s.coming_soon).map(s => ({
         id: s.id,
         name: s.name,
         price: parseFloat(s.price.toString()),
         description: s.description || undefined,
         included_service_ids: s.included_service_ids || [],
+        coming_soon: s.coming_soon || false,
       }));
       
       setServices(dbServices);
@@ -395,9 +400,19 @@ const Booking = () => {
                             variant={selectedTime === timeString ? "neon" : "outline"}
                             disabled={isBooked}
                             onClick={() => setSelectedTime(timeString)}
-                            className="h-10 sm:h-12 text-sm sm:text-base"
+                            className={`h-10 sm:h-12 text-sm sm:text-base relative ${
+                              isBooked ? 'opacity-50' : ''
+                            }`}
                           >
-                            {hour}:00
+                            {isBooked && (
+                              <span className="absolute inset-0 flex items-center justify-center">
+                                <svg className="w-6 h-6 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+                                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                                </svg>
+                              </span>
+                            )}
+                            <span className={isBooked ? 'opacity-30' : ''}>{hour}:00</span>
                           </Button>
                         );
                       })}
@@ -424,33 +439,46 @@ const Booking = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {packs.map((pack) => (
-                    <div
-                      key={pack.id}
-                      className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                        selectedPack === pack.id
-                          ? 'border-neon-cyan bg-card/50 glow-neon-cyan'
-                          : selectedPack && selectedPack !== pack.id
-                          ? 'border-muted opacity-50'
-                          : 'border-border hover:border-primary'
-                      }`}
-                      onClick={() => handlePackChange(pack.id)}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h4 className="font-bold text-lg text-neon-cyan">{pack.name}</h4>
-                          {pack.description && (
-                            <p className="text-sm text-muted-foreground mt-1">{pack.description}</p>
-                          )}
-                          {pack.included_service_ids && pack.included_service_ids.length > 0 && (
-                            <p className="text-sm text-muted-foreground mt-1">
-                              Incluye: {pack.included_service_ids.map(sid => 
-                                services.find(s => s.id === sid)?.name
-                              ).filter(Boolean).join(', ')}
-                            </p>
-                          )}
+                    <div key={pack.id}>
+                      <div
+                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                          selectedPack === pack.id
+                            ? 'border-neon-cyan bg-card/50 glow-neon-cyan'
+                            : selectedPack && selectedPack !== pack.id
+                            ? 'border-muted opacity-50'
+                            : 'border-border hover:border-primary'
+                        }`}
+                        onClick={() => handlePackChange(pack.id)}
+                      >
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h4 className="font-bold text-lg text-neon-cyan">{pack.name}</h4>
+                            {pack.included_service_ids && pack.included_service_ids.length > 0 && (
+                              <p className="text-sm text-muted-foreground mt-1">
+                                Incluye: {pack.included_service_ids.map(sid => 
+                                  services.find(s => s.id === sid)?.name
+                                ).filter(Boolean).join(', ')}
+                              </p>
+                            )}
+                          </div>
+                          <span className="text-xl font-bold text-primary">{pack.price}€</span>
                         </div>
-                        <span className="text-xl font-bold text-primary">{pack.price}€</span>
                       </div>
+                      
+                      {/* Show coming soon facial mask only for selected packs */}
+                      {selectedPack === pack.id && (
+                        <div className="mt-2 p-3 border-2 border-dashed border-muted rounded-lg opacity-60">
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <h5 className="font-semibold text-sm">¿Añadir mascarilla facial?</h5>
+                              <p className="text-xs text-muted-foreground mt-0.5">1.50€</p>
+                            </div>
+                            <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-1 rounded">
+                              Próximamente
+                            </span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </CardContent>
