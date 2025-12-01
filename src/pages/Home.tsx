@@ -1,13 +1,49 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Scissors, Clock, MapPin, MessageCircle, User } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+
+type TimeRange = {
+  start: string;
+  end: string;
+};
+
+type BusinessHour = {
+  day_of_week: number;
+  is_closed: boolean;
+  is_24h: boolean;
+  time_ranges: TimeRange[];
+};
+
+const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
 const Home = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+
+  useEffect(() => {
+    loadBusinessHours();
+  }, []);
+
+  const loadBusinessHours = async () => {
+    const { data } = await supabase
+      .from("business_hours")
+      .select("*")
+      .order("day_of_week", { ascending: true });
+
+    if (data) {
+      const formattedData = data.map(d => ({
+        ...d,
+        time_ranges: Array.isArray(d.time_ranges) ? d.time_ranges as TimeRange[] : []
+      }));
+      setBusinessHours(formattedData);
+    }
+  };
 
   return (
     <div className="min-h-screen">
@@ -146,26 +182,51 @@ const Home = () => {
           </h2>
           
           <div className="space-y-4 text-lg">
-            <div className="flex justify-between py-4 border-b border-border">
-              <span className="font-bold">Lunes - Martes</span>
-              <span className="text-muted-foreground">11:00 - 21:00</span>
-            </div>
-            <div className="flex justify-between py-4 border-b border-border">
-              <span className="font-bold">Miércoles - Jueves</span>
-              <span className="text-muted-foreground">12:00 - 21:00</span>
-            </div>
-            <div className="flex justify-between py-4 border-b border-border">
-              <span className="font-bold">Viernes</span>
-              <span className="text-muted-foreground">11:00 - 16:00</span>
-            </div>
-            <div className="flex justify-between py-4 border-b border-border">
-              <span className="font-bold">Sábado</span>
-              <span className="text-muted-foreground">11:00 - 17:00</span>
-            </div>
-            <div className="flex justify-between py-4 border-b border-border">
-              <span className="font-bold">Domingo</span>
-              <span className="text-destructive">Cerrado</span>
-            </div>
+            {businessHours.length > 0 ? (
+              businessHours.map((day) => (
+                <div key={day.day_of_week} className="flex justify-between py-4 border-b border-border">
+                  <span className="font-bold">{DAYS[day.day_of_week]}</span>
+                  <span className="text-muted-foreground">
+                    {day.is_closed ? (
+                      <span className="text-destructive">Cerrado</span>
+                    ) : day.is_24h ? (
+                      "Abierto 24h"
+                    ) : (
+                      day.time_ranges.map((range, i) => (
+                        <span key={i}>
+                          {range.start.slice(0, 5)} - {range.end.slice(0, 5)}
+                          {i < day.time_ranges.length - 1 && ", "}
+                        </span>
+                      ))
+                    )}
+                  </span>
+                </div>
+              ))
+            ) : (
+              // Fallback si no hay datos
+              <>
+                <div className="flex justify-between py-4 border-b border-border">
+                  <span className="font-bold">Lunes - Martes</span>
+                  <span className="text-muted-foreground">11:00 - 21:00</span>
+                </div>
+                <div className="flex justify-between py-4 border-b border-border">
+                  <span className="font-bold">Miércoles - Jueves</span>
+                  <span className="text-muted-foreground">12:00 - 21:00</span>
+                </div>
+                <div className="flex justify-between py-4 border-b border-border">
+                  <span className="font-bold">Viernes</span>
+                  <span className="text-muted-foreground">11:00 - 16:00</span>
+                </div>
+                <div className="flex justify-between py-4 border-b border-border">
+                  <span className="font-bold">Sábado</span>
+                  <span className="text-muted-foreground">11:00 - 17:00</span>
+                </div>
+                <div className="flex justify-between py-4 border-b border-border">
+                  <span className="font-bold">Domingo</span>
+                  <span className="text-destructive">Cerrado</span>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="text-center mt-12">
