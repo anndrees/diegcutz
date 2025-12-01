@@ -9,8 +9,9 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, LogOut, Calendar, Star } from "lucide-react";
+import { ArrowLeft, LogOut, Calendar, Star, Gift } from "lucide-react";
 import { RatingDialog } from "@/components/RatingDialog";
+import { Progress } from "@/components/ui/progress";
 
 interface Booking {
   id: string;
@@ -26,10 +27,16 @@ interface Booking {
   };
 }
 
+interface LoyaltyReward {
+  completed_bookings: number;
+  free_cuts_available: number;
+}
+
 export default function UserProfile() {
   const navigate = useNavigate();
   const { user, profile, signOut, refreshProfile } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loyaltyReward, setLoyaltyReward] = useState<LoyaltyReward | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [fullName, setFullName] = useState("");
@@ -51,7 +58,24 @@ export default function UserProfile() {
     }
 
     fetchBookings();
+    fetchLoyaltyReward();
   }, [user, profile, navigate]);
+
+  const fetchLoyaltyReward = async () => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from("loyalty_rewards")
+      .select("completed_bookings, free_cuts_available")
+      .eq("user_id", user.id)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      console.error("Error fetching loyalty reward:", error);
+    } else {
+      setLoyaltyReward(data || { completed_bookings: 0, free_cuts_available: 0 });
+    }
+  };
 
   const fetchBookings = async () => {
     if (!user) return;
@@ -229,16 +253,12 @@ export default function UserProfile() {
               ) : (
                 <>
                   <div>
-                    <p className="text-sm text-muted-foreground">Nombre Completo</p>
+                    <p className="text-sm text-muted-foreground">Nombre</p>
                     <p className="font-medium">{profile?.full_name}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Usuario</p>
-                    <p className="font-medium">{profile?.username}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm text-muted-foreground">Método de Contacto</p>
-                    <p className="font-medium capitalize">{profile?.contact_method}</p>
+                    <p className="font-medium">@{profile?.username}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
@@ -246,131 +266,158 @@ export default function UserProfile() {
                     </p>
                     <p className="font-medium">{profile?.contact_value}</p>
                   </div>
-                  <Button onClick={() => setEditing(true)}>Editar Perfil</Button>
+                  <Button onClick={() => setEditing(true)} variant="outline">
+                    Editar Perfil
+                  </Button>
                 </>
               )}
             </CardContent>
           </Card>
 
+          {/* Loyalty Rewards Card */}
           <Card>
             <CardHeader>
-              <CardTitle>Acciones Rápidas</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Gift className="text-primary" />
+                Programa de Fidelización
+              </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button
-                onClick={() => navigate("/booking")}
-                className="w-full flex items-center justify-center gap-2"
-              >
-                <Calendar className="h-4 w-4" />
-                Nueva Reserva
-              </Button>
+              <div>
+                <div className="flex justify-between mb-2">
+                  <p className="text-sm text-muted-foreground">Progreso hacia tu próximo corte gratis</p>
+                  <p className="text-sm font-bold text-primary">
+                    {loyaltyReward ? (loyaltyReward.completed_bookings % 10) : 0}/10
+                  </p>
+                </div>
+                <Progress 
+                  value={loyaltyReward ? ((loyaltyReward.completed_bookings % 10) / 10) * 100 : 0} 
+                  className="h-3"
+                />
+                <p className="text-xs text-muted-foreground mt-2">
+                  * Solo cuentan reservas de 5€ o más
+                </p>
+              </div>
+              
+              {loyaltyReward && loyaltyReward.free_cuts_available > 0 && (
+                <div className="p-4 bg-primary/10 border-2 border-primary rounded-lg">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Gift className="text-primary" />
+                    <p className="font-bold text-primary">
+                      ¡Tienes {loyaltyReward.free_cuts_available} corte{loyaltyReward.free_cuts_available > 1 ? 's' : ''} gratis disponible{loyaltyReward.free_cuts_available > 1 ? 's' : ''}!
+                    </p>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Contacta con nosotros para usar tu cupón
+                  </p>
+                </div>
+              )}
+              
+              <div className="text-sm text-muted-foreground">
+                <p><strong>Total de reservas válidas:</strong> {loyaltyReward?.completed_bookings || 0}</p>
+                <p className="mt-1">Cada 10 reservas de más de 5€, ¡te regalamos un corte!</p>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Reservas Actuales</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {currentBookings.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                No tienes reservas actuales
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Hora</TableHead>
-                    <TableHead>Servicios</TableHead>
-                    <TableHead>Precio</TableHead>
-                    <TableHead className="text-right">Valoración</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {currentBookings.map((booking) => {
-                    const hasRating = !!booking.rating;
-                    return (
-                      <TableRow key={booking.id}>
-                        <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
-                        <TableCell>{booking.booking_time}</TableCell>
-                        <TableCell>
-                          {Array.isArray(booking.services) && booking.services.length > 0
-                            ? booking.services.join(", ")
-                            : "N/A"}
-                        </TableCell>
-                        <TableCell>{booking.total_price}€</TableCell>
-                        <TableCell className="text-right">
-                          <span className="text-sm text-muted-foreground">Pendiente</span>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+        {/* Bookings Section */}
+        <div className="mt-8">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Calendar className="text-primary" />
+                Historial de Reservas
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-6">
+                {/* Current Bookings */}
+                {currentBookings.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Próximas Reservas</h3>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Fecha</TableHead>
+                          <TableHead>Hora</TableHead>
+                          <TableHead>Servicios</TableHead>
+                          <TableHead className="text-right">Precio</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {currentBookings.map((booking) => (
+                          <TableRow key={booking.id}>
+                            <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
+                            <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
+                            <TableCell>
+                              {Array.isArray(booking.services) && booking.services.map((s, i) => (
+                                <div key={i}>{s}</div>
+                              ))}
+                            </TableCell>
+                            <TableCell className="text-right font-bold">{booking.total_price}€</TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
 
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle>Historial de Reservas</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {pastBookings.length === 0 ? (
-              <p className="text-muted-foreground text-center py-4">
-                No tienes reservas pasadas
-              </p>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Hora</TableHead>
-                    <TableHead>Servicios</TableHead>
-                    <TableHead>Precio</TableHead>
-                    <TableHead className="text-right">Valoración</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {pastBookings.map((booking) => {
-                    const hasRating = !!booking.rating;
-                    return (
-                      <TableRow key={booking.id}>
-                        <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
-                        <TableCell>{booking.booking_time}</TableCell>
-                        <TableCell>
-                          {Array.isArray(booking.services) && booking.services.length > 0
-                            ? booking.services.join(", ")
-                            : "N/A"}
-                        </TableCell>
-                        <TableCell>{booking.total_price}€</TableCell>
-                        <TableCell className="text-right">
-                          {hasRating ? (
-                            <div className="flex items-center justify-end gap-1">
-                              <span className="text-sm font-semibold">{booking.rating!.rating}</span>
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
-                            </div>
-                          ) : (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => handleRateBooking(booking.id)}
-                            >
-                              <Star className="h-4 w-4 mr-1" />
-                              Valorar
-                            </Button>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
+                {/* Past Bookings */}
+                {pastBookings.length > 0 && (
+                  <div>
+                    <h3 className="text-lg font-semibold mb-4">Reservas Pasadas</h3>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Fecha</TableHead>
+                          <TableHead>Hora</TableHead>
+                          <TableHead>Servicios</TableHead>
+                          <TableHead className="text-right">Precio</TableHead>
+                          <TableHead className="text-right">Valoración</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {pastBookings.map((booking) => (
+                          <TableRow key={booking.id}>
+                            <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
+                            <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
+                            <TableCell>
+                              {Array.isArray(booking.services) && booking.services.map((s, i) => (
+                                <div key={i}>{s}</div>
+                              ))}
+                            </TableCell>
+                            <TableCell className="text-right font-bold">{booking.total_price}€</TableCell>
+                            <TableCell className="text-right">
+                              {booking.rating ? (
+                                <div className="flex items-center justify-end gap-1">
+                                  <Star className="w-4 h-4 fill-primary text-primary" />
+                                  <span>{booking.rating.rating}/5</span>
+                                </div>
+                              ) : (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleRateBooking(booking.id)}
+                                >
+                                  Valorar
+                                </Button>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+
+                {bookings.length === 0 && (
+                  <p className="text-center text-muted-foreground py-8">No tienes reservas aún</p>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
 
       {selectedBookingId && user && (

@@ -79,14 +79,17 @@ const Booking = () => {
     }
 
     if (data) {
-      const dbServices = data.filter(s => s.service_type === 'service' && !s.coming_soon).map(s => ({
+      // Services - show ALL but mark coming_soon ones
+      const dbServices = data.filter(s => s.service_type === 'service').map(s => ({
         id: s.id,
         name: s.name,
         price: parseFloat(s.price.toString()),
         description: s.description || undefined,
         coming_soon: s.coming_soon || false,
       }));
-      const dbPacks = data.filter(s => s.service_type === 'pack' && !s.coming_soon).map(s => ({
+      
+      // Packs - show ALL but mark coming_soon ones
+      const dbPacks = data.filter(s => s.service_type === 'pack').map(s => ({
         id: s.id,
         name: s.name,
         price: parseFloat(s.price.toString()),
@@ -441,18 +444,27 @@ const Booking = () => {
                   {packs.map((pack) => (
                     <div key={pack.id}>
                       <div
-                        className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                          selectedPack === pack.id
-                            ? 'border-neon-cyan bg-card/50 glow-neon-cyan'
+                        className={`p-4 border-2 rounded-lg transition-all ${
+                          pack.coming_soon
+                            ? 'opacity-60 cursor-not-allowed border-muted'
+                            : selectedPack === pack.id
+                            ? 'border-neon-cyan bg-card/50 glow-neon-cyan cursor-pointer'
                             : selectedPack && selectedPack !== pack.id
-                            ? 'border-muted opacity-50'
-                            : 'border-border hover:border-primary'
+                            ? 'border-muted opacity-50 cursor-pointer'
+                            : 'border-border hover:border-primary cursor-pointer'
                         }`}
-                        onClick={() => handlePackChange(pack.id)}
+                        onClick={() => !pack.coming_soon && handlePackChange(pack.id)}
                       >
                         <div className="flex justify-between items-start">
                           <div>
-                            <h4 className="font-bold text-lg text-neon-cyan">{pack.name}</h4>
+                            <div className="flex items-center gap-2">
+                              <h4 className="font-bold text-lg text-neon-cyan">{pack.name}</h4>
+                              {pack.coming_soon && (
+                                <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
+                                  Próximamente
+                                </span>
+                              )}
+                            </div>
                             {pack.included_service_ids && pack.included_service_ids.length > 0 && (
                               <p className="text-sm text-muted-foreground mt-1">
                                 Incluye: {pack.included_service_ids.map(sid => 
@@ -466,7 +478,7 @@ const Booking = () => {
                       </div>
                       
                       {/* Show coming soon facial mask only for selected packs */}
-                      {selectedPack === pack.id && (
+                      {selectedPack === pack.id && !pack.coming_soon && (
                         <div className="mt-2 p-3 border-2 border-dashed border-muted rounded-lg opacity-60">
                           <div className="flex justify-between items-center">
                             <div>
@@ -497,7 +509,7 @@ const Booking = () => {
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {services.map((service) => {
-                    const disabled = isServiceDisabled(service.id);
+                    const disabled = isServiceDisabled(service.id) || service.coming_soon;
                     return (
                       <div
                         key={service.id}
@@ -518,9 +530,16 @@ const Booking = () => {
                           />
                           <Label
                             htmlFor={service.id}
-                            className={`text-base cursor-pointer ${disabled ? 'line-through' : ''}`}
+                            className={`text-base cursor-pointer ${disabled ? '' : ''}`}
                           >
-                            {service.name}
+                            <div className="flex items-center gap-2">
+                              <span>{service.name}</span>
+                              {service.coming_soon && (
+                                <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
+                                  Próximamente
+                                </span>
+                              )}
+                            </div>
                           </Label>
                         </div>
                         <span className="text-lg font-bold">{service.price}€</span>
