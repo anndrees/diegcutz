@@ -58,6 +58,71 @@ export type Database = {
           },
         ]
       }
+      business_hours: {
+        Row: {
+          created_at: string | null
+          day_of_week: number
+          id: string
+          is_24h: boolean
+          is_closed: boolean
+          time_ranges: Json
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          day_of_week: number
+          id?: string
+          is_24h?: boolean
+          is_closed?: boolean
+          time_ranges?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          day_of_week?: number
+          id?: string
+          is_24h?: boolean
+          is_closed?: boolean
+          time_ranges?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      loyalty_rewards: {
+        Row: {
+          completed_bookings: number
+          created_at: string | null
+          free_cuts_available: number
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_bookings?: number
+          created_at?: string | null
+          free_cuts_available?: number
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_bookings?: number
+          created_at?: string | null
+          free_cuts_available?: number
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_rewards_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           contact_method: string

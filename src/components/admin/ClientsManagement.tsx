@@ -189,7 +189,7 @@ export const ClientsManagement = () => {
                     <TableCell className="font-medium">{client.full_name}</TableCell>
                     <TableCell>
                       <Link 
-                        to={`/client-profile/${client.id}`}
+                        to={`/admin/client/${client.id}`}
                         className="text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
                       >
                         {client.username}
