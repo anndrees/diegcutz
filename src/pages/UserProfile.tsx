@@ -191,7 +191,7 @@ export default function UserProfile() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="email">Email</SelectItem>
+                        <SelectItem value="email" disabled>Email</SelectItem>
                         <SelectItem value="phone">Teléfono</SelectItem>
                       </SelectContent>
                     </Select>

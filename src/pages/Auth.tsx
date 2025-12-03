@@ -407,8 +407,8 @@ const Auth = () => {
                         <Label htmlFor="signup-phone" className="cursor-pointer">Teléfono</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="email" id="signup-email" />
-                        <Label htmlFor="signup-email" className="cursor-pointer">Email</Label>
+                        <RadioGroupItem value="email" id="signup-email" disabled />
+                        <Label htmlFor="signup-email" className="cursor-pointer text-muted-foreground">Email</Label>
                       </div>
                     </RadioGroup>
                   </div>
