@@ -101,44 +101,46 @@ export const ClientsManagement = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Seguro que quieres eliminar al cliente ${name}? Esto también eliminará todas sus reservas.`)) return;
+    if (!confirm(`¿Seguro que quieres eliminar al cliente ${name}? Esto eliminará COMPLETAMENTE al usuario, incluyendo su cuenta, reservas y todos sus datos.`)) return;
 
-    // First delete all bookings associated with this user
-    const { error: bookingsError } = await supabase
-      .from("bookings")
-      .delete()
-      .eq("user_id", id);
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-user', {
+        body: { userId: id }
+      });
 
-    if (bookingsError) {
+      if (error) {
+        console.error("Error calling delete-user function:", error);
+        toast({
+          title: "Error",
+          description: "No se pudo eliminar el cliente completamente",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (data?.error) {
+        toast({
+          title: "Error",
+          description: data.error,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Cliente eliminado",
+        description: "El cliente se eliminó completamente del sistema",
+      });
+
+      loadClients();
+    } catch (err) {
+      console.error("Error deleting client:", err);
       toast({
         title: "Error",
-        description: "No se pudieron eliminar las reservas del cliente",
+        description: "Error inesperado al eliminar el cliente",
         variant: "destructive",
       });
-      return;
     }
-
-    // Then delete the profile
-    const { error } = await supabase
-      .from("profiles")
-      .delete()
-      .eq("id", id);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el cliente",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    toast({
-      title: "Cliente eliminado",
-      description: "El cliente y sus reservas se eliminaron correctamente",
-    });
-
-    loadClients();
   };
 
   const filteredClients = clients.filter(client =>
