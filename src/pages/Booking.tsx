@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift } from "lucide-react";
@@ -46,6 +47,8 @@ const Booking = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { user, profile, loading: authLoading } = useAuth();
+  const isMobile = useIsMobile();
+  const hoursRef = useRef<HTMLDivElement>(null);
   const [selectedDate, setSelectedDate] = useState<Date>();
   const [selectedTime, setSelectedTime] = useState<string>("");
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
@@ -57,6 +60,15 @@ const Booking = () => {
   const [loadingServices, setLoadingServices] = useState(true);
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [isFreeCutReservation, setIsFreeCutReservation] = useState(false);
+
+  // Auto-scroll to hours section on mobile when date is selected
+  useEffect(() => {
+    if (selectedDate && isMobile && hoursRef.current) {
+      setTimeout(() => {
+        hoursRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    }
+  }, [selectedDate, isMobile]);
 
   // Check if this is a free cut reservation from URL params
   useEffect(() => {
@@ -513,7 +525,7 @@ const Booking = () => {
           </Card>
 
           {/* Time Selection */}
-          <div className="space-y-6">
+          <div className="space-y-6" ref={hoursRef}>
             {selectedDate && (
               <Card className="bg-card border-border">
                 <CardHeader>

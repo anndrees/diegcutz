@@ -176,7 +176,7 @@ export const ServicesManagement = () => {
         <TableRow>
           <TableHead>Nombre</TableHead>
           <TableHead>Precio</TableHead>
-          <TableHead>Descripción</TableHead>
+          <TableHead>Estado</TableHead>
           <TableHead className="text-right">Acciones</TableHead>
         </TableRow>
       </TableHeader>
@@ -185,7 +185,17 @@ export const ServicesManagement = () => {
           <TableRow key={service.id}>
             <TableCell className="font-medium">{service.name}</TableCell>
             <TableCell>{service.price}€</TableCell>
-            <TableCell className="text-sm text-muted-foreground">{service.description || "-"}</TableCell>
+            <TableCell>
+              {service.coming_soon ? (
+                <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
+                  Próximamente
+                </span>
+              ) : (
+                <span className="text-xs font-bold text-green-500 uppercase bg-green-500/10 px-2 py-0.5 rounded">
+                  Activo
+                </span>
+              )}
+            </TableCell>
             <TableCell className="text-right space-x-2">
               <Button variant="ghost" size="icon" onClick={() => handleEdit(service)}>
                 <Edit2 className="h-4 w-4" />
