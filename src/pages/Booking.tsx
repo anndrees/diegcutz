@@ -10,8 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Clock, Package, Sparkles, LogIn } from "lucide-react";
-
+import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift } from "lucide-react";
 
 type Pack = {
   id: string;
@@ -30,14 +29,16 @@ type Service = {
   coming_soon?: boolean;
 };
 
-const HOURS = {
-  monday: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-  tuesday: [11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-  wednesday: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-  thursday: [12, 13, 14, 15, 16, 17, 18, 19, 20, 21],
-  friday: [11, 12, 13, 14, 15, 16],
-  saturday: [11, 12, 13, 14, 15, 16, 17],
-  sunday: [],
+type TimeRange = {
+  start: string;
+  end: string;
+};
+
+type BusinessHour = {
+  day_of_week: number;
+  is_closed: boolean;
+  is_24h: boolean;
+  time_ranges: TimeRange[];
 };
 
 const Booking = () => {
@@ -54,11 +55,37 @@ const Booking = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [packs, setPacks] = useState<Pack[]>([]);
   const [loadingServices, setLoadingServices] = useState(true);
+  const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+  const [isFreeCutReservation, setIsFreeCutReservation] = useState(false);
 
-  // Load services and packs from database
+  // Check if this is a free cut reservation from URL params
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get("free_cut") === "true") {
+      setIsFreeCutReservation(true);
+    }
+  }, [location.search]);
+
+  // Load services, packs and business hours from database
   useEffect(() => {
     loadServicesFromDB();
+    loadBusinessHours();
   }, []);
+
+  const loadBusinessHours = async () => {
+    const { data, error } = await supabase
+      .from("business_hours")
+      .select("*")
+      .order("day_of_week");
+
+    if (!error && data) {
+      const formatted = data.map(d => ({
+        ...d,
+        time_ranges: Array.isArray(d.time_ranges) ? d.time_ranges as TimeRange[] : []
+      }));
+      setBusinessHours(formatted);
+    }
+  };
 
   const loadServicesFromDB = async () => {
     setLoadingServices(true);
@@ -166,17 +193,44 @@ const Booking = () => {
     setBookedTimes(data.map((b) => b.booking_time));
   };
 
-  const getAvailableHours = () => {
-    if (!selectedDate) return [];
+  const getAvailableHours = (): number[] => {
+    if (!selectedDate || businessHours.length === 0) return [];
     
     const dayOfWeek = selectedDate.getDay();
-    const dayNames = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
-    const dayName = dayNames[dayOfWeek] as keyof typeof HOURS;
+    const dayConfig = businessHours.find(h => h.day_of_week === dayOfWeek);
     
-    return HOURS[dayName];
+    if (!dayConfig || dayConfig.is_closed) return [];
+    
+    if (dayConfig.is_24h) {
+      // Return all hours except 23 (since reservation lasts 1 hour)
+      return Array.from({ length: 23 }, (_, i) => i);
+    }
+    
+    const hours: Set<number> = new Set();
+    
+    dayConfig.time_ranges.forEach(range => {
+      const startHour = parseInt(range.start.split(":")[0]);
+      const endHour = parseInt(range.end.split(":")[0]);
+      
+      // Last bookable hour is endHour - 1 (since reservations last 1 hour)
+      for (let h = startHour; h < endHour; h++) {
+        hours.add(h);
+      }
+    });
+    
+    return Array.from(hours).sort((a, b) => a - b);
+  };
+
+  const isDayClosed = (date: Date): boolean => {
+    if (businessHours.length === 0) return false;
+    const dayOfWeek = date.getDay();
+    const dayConfig = businessHours.find(h => h.day_of_week === dayOfWeek);
+    return dayConfig?.is_closed ?? false;
   };
 
   const handlePackChange = (packId: string) => {
+    if (isFreeCutReservation) return; // Cannot select packs for free cut
+    
     if (selectedPack === packId) {
       setSelectedPack(null);
       return;
@@ -190,6 +244,14 @@ const Booking = () => {
   };
 
   const handleServiceChange = (serviceId: string) => {
+    // For free cut, DEGRADADO and VACIAR are pre-selected and cannot be deselected
+    if (isFreeCutReservation) {
+      const service = services.find(s => s.id === serviceId);
+      if (service && (service.name.includes("DEGRADADO") || service.name.includes("VACIAR") || service.name.includes("TEXTURIZADO"))) {
+        return; // Cannot toggle these for free cut
+      }
+    }
+    
     if (selectedServices.includes(serviceId)) {
       setSelectedServices(selectedServices.filter(s => s !== serviceId));
     } else {
@@ -203,6 +265,24 @@ const Booking = () => {
     return pack && pack.included_service_ids ? pack.included_service_ids.includes(serviceId) : false;
   };
 
+  // Get the IDs of DEGRADADO and VACIAR/TEXTURIZADO services for free cut
+  const getFreeCutServiceIds = (): string[] => {
+    return services
+      .filter(s => s.name.includes("DEGRADADO") || s.name.includes("VACIAR") || s.name.includes("TEXTURIZADO"))
+      .map(s => s.id);
+  };
+
+  // Auto-select free cut services
+  useEffect(() => {
+    if (isFreeCutReservation && services.length > 0) {
+      const freeCutIds = getFreeCutServiceIds();
+      setSelectedServices(prev => {
+        const combined = new Set([...prev, ...freeCutIds]);
+        return Array.from(combined);
+      });
+    }
+  }, [isFreeCutReservation, services]);
+
   const calculateTotal = () => {
     let total = 0;
     
@@ -213,7 +293,14 @@ const Booking = () => {
     
     selectedServices.forEach(serviceId => {
       const service = services.find(s => s.id === serviceId);
-      if (service) total += service.price;
+      if (service) {
+        // For free cut, DEGRADADO and VACIAR/TEXTURIZADO are free
+        if (isFreeCutReservation && (service.name.includes("DEGRADADO") || service.name.includes("VACIAR") || service.name.includes("TEXTURIZADO"))) {
+          // Free!
+        } else {
+          total += service.price;
+        }
+      }
     });
     
     return total;
@@ -229,12 +316,17 @@ const Booking = () => {
     
     selectedServices.forEach(serviceId => {
       const service = services.find(s => s.id === serviceId);
-      if (service) items.push(`${service.name} (${service.price}€)`);
+      if (service) {
+        if (isFreeCutReservation && (service.name.includes("DEGRADADO") || service.name.includes("VACIAR") || service.name.includes("TEXTURIZADO"))) {
+          items.push(`${service.name} (GRATIS - Corte gratis)`);
+        } else {
+          items.push(`${service.name} (${service.price}€)`);
+        }
+      }
     });
     
     return items;
   };
-
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -282,6 +374,23 @@ const Booking = () => {
     const totalPrice = calculateTotal();
     const servicesData = getSelectedItems();
 
+    // If this is a free cut reservation, deduct from loyalty_rewards
+    if (isFreeCutReservation) {
+      // Get current free_cuts_available and decrement
+      const { data: loyaltyData } = await supabase
+        .from("loyalty_rewards")
+        .select("free_cuts_available")
+        .eq("user_id", user.id)
+        .single();
+
+      if (loyaltyData && loyaltyData.free_cuts_available > 0) {
+        await supabase
+          .from("loyalty_rewards")
+          .update({ free_cuts_available: loyaltyData.free_cuts_available - 1 })
+          .eq("user_id", user.id);
+      }
+    }
+
     const { error } = await supabase.from("bookings").insert({
       booking_date: format(selectedDate, "yyyy-MM-dd"),
       booking_time: selectedTime,
@@ -313,6 +422,7 @@ const Booking = () => {
           bookingTime: selectedTime,
           services: servicesData,
           totalPrice,
+          isFreeCut: isFreeCutReservation,
         },
       });
     } catch (emailError) {
@@ -321,9 +431,13 @@ const Booking = () => {
 
     setLoading(false);
 
+    const message = isFreeCutReservation 
+      ? `¡Tu corte gratis está confirmado! Te esperamos el ${format(selectedDate, "d 'de' MMMM", { locale: es })} a las ${selectedTime}.`
+      : `Te esperamos el ${format(selectedDate, "d 'de' MMMM", { locale: es })} a las ${selectedTime}. Total: ${totalPrice}€`;
+
     toast({
       title: "¡Reserva confirmada!",
-      description: `Te esperamos el ${format(selectedDate, "d 'de' MMMM", { locale: es })} a las ${selectedTime}. Total: ${totalPrice}€`,
+      description: message,
     });
 
     // Reset form
@@ -331,6 +445,12 @@ const Booking = () => {
     setSelectedTime("");
     setSelectedServices([]);
     setSelectedPack(null);
+    setIsFreeCutReservation(false);
+    
+    // Navigate back to profile if it was a free cut
+    if (isFreeCutReservation) {
+      navigate(`/user/${user.id}`);
+    }
   };
 
   const availableHours = getAvailableHours();
@@ -349,12 +469,29 @@ const Booking = () => {
         </Button>
 
         <div className="text-center mb-12">
-          <h1 className="text-5xl md:text-7xl font-black mb-4 text-neon-purple font-aggressive">
-            RESERVA TU CITA
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Elige tu fecha, hora y servicios
-          </p>
+          {isFreeCutReservation ? (
+            <>
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-4">
+                <Gift className="h-5 w-5" />
+                <span className="font-bold">CORTE GRATIS</span>
+              </div>
+              <h1 className="text-5xl md:text-7xl font-black mb-4 text-neon-cyan font-aggressive">
+                ¡TU CORTE GRATIS!
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Incluye DEGRADADO + VACIAR/TEXTURIZADO. Puedes añadir servicios extra.
+              </p>
+            </>
+          ) : (
+            <>
+              <h1 className="text-5xl md:text-7xl font-black mb-4 text-neon-purple font-aggressive">
+                RESERVA TU CITA
+              </h1>
+              <p className="text-xl text-muted-foreground">
+                Elige tu fecha, hora y servicios
+              </p>
+            </>
+          )}
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
@@ -362,14 +499,14 @@ const Booking = () => {
           <Card className="bg-card border-border">
             <CardHeader>
               <CardTitle className="text-xl md:text-2xl">Selecciona una fecha</CardTitle>
-              <CardDescription>Los domingos estamos cerrados</CardDescription>
+              <CardDescription>Los días marcados como cerrados no están disponibles</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center overflow-x-auto">
               <Calendar
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                disabled={(date) => date < new Date() || date.getDay() === 0}
+                disabled={(date) => date < new Date() || isDayClosed(date)}
                 className="rounded-md border border-border pointer-events-auto scale-90 sm:scale-100"
               />
             </CardContent>
@@ -430,8 +567,8 @@ const Booking = () => {
         {/* Services Selection */}
         {selectedTime && !loadingServices && (
           <div className="mt-8 space-y-6">
-            {/* Packs */}
-            {packs.length > 0 && (
+            {/* Packs - Hidden for free cut reservations */}
+            {!isFreeCutReservation && packs.length > 0 && (
               <Card className="bg-card border-border">
                 <CardHeader>
                   <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
@@ -503,19 +640,29 @@ const Booking = () => {
                 <CardHeader>
                   <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                     <Sparkles className="text-primary" />
-                    Servicios Adicionales
+                    {isFreeCutReservation ? "Servicios (DEGRADADO y VACIAR incluidos)" : "Servicios Adicionales"}
                   </CardTitle>
-                  <CardDescription>Puedes seleccionar varios servicios</CardDescription>
+                  <CardDescription>
+                    {isFreeCutReservation 
+                      ? "Los servicios marcados con ✓ GRATIS están incluidos en tu corte gratis"
+                      : "Puedes seleccionar varios servicios"
+                    }
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {services.map((service) => {
+                    const isFreeCutService = isFreeCutReservation && 
+                      (service.name.includes("DEGRADADO") || service.name.includes("VACIAR") || service.name.includes("TEXTURIZADO"));
                     const disabled = isServiceDisabled(service.id) || service.coming_soon;
+                    
                     return (
                       <div
                         key={service.id}
                         className={`flex items-center justify-between p-4 border-2 rounded-lg ${
-                          disabled
+                          disabled && !isFreeCutService
                             ? 'opacity-50 border-muted'
+                            : isFreeCutService
+                            ? 'border-neon-cyan bg-neon-cyan/10'
                             : selectedServices.includes(service.id)
                             ? 'border-primary bg-card/50 glow-neon-purple'
                             : 'border-border hover:border-primary'
@@ -526,14 +673,19 @@ const Booking = () => {
                             id={service.id}
                             checked={selectedServices.includes(service.id)}
                             onCheckedChange={() => handleServiceChange(service.id)}
-                            disabled={disabled}
+                            disabled={disabled || isFreeCutService}
                           />
                           <Label
                             htmlFor={service.id}
-                            className={`text-base cursor-pointer ${disabled ? '' : ''}`}
+                            className={`text-base cursor-pointer`}
                           >
                             <div className="flex items-center gap-2">
                               <span>{service.name}</span>
+                              {isFreeCutService && (
+                                <span className="text-xs font-bold text-neon-cyan uppercase bg-neon-cyan/20 px-2 py-0.5 rounded">
+                                  ✓ GRATIS
+                                </span>
+                              )}
                               {service.coming_soon && (
                                 <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
                                   Próximamente
@@ -542,7 +694,9 @@ const Booking = () => {
                             </div>
                           </Label>
                         </div>
-                        <span className="text-lg font-bold">{service.price}€</span>
+                        <span className={`text-lg font-bold ${isFreeCutService ? 'line-through text-muted-foreground' : ''}`}>
+                          {service.price}€
+                        </span>
                       </div>
                     );
                   })}
@@ -552,10 +706,15 @@ const Booking = () => {
 
             {/* Total Price */}
             {(selectedPack || selectedServices.length > 0) && (
-              <Card className="bg-gradient-neon border-0">
+              <Card className={`border-0 ${isFreeCutReservation ? 'bg-gradient-to-r from-neon-cyan/20 to-neon-purple/20' : 'bg-gradient-neon'}`}>
                 <CardContent className="p-6">
-                  <div className="flex justify-between items-center text-background">
-                    <span className="text-2xl font-black">TOTAL:</span>
+                  <div className={`flex justify-between items-center ${isFreeCutReservation ? 'text-foreground' : 'text-background'}`}>
+                    <div>
+                      <span className="text-2xl font-black">TOTAL:</span>
+                      {isFreeCutReservation && totalPrice === 0 && (
+                        <p className="text-sm text-neon-cyan">¡Es tu corte gratis!</p>
+                      )}
+                    </div>
                     <span className="text-4xl font-black">{totalPrice}€</span>
                   </div>
                 </CardContent>
@@ -590,11 +749,11 @@ const Booking = () => {
                     </div>
                     <Button
                       onClick={handleSubmit}
-                      variant="neonCyan"
+                      variant={isFreeCutReservation ? "neonCyan" : "neonCyan"}
                       className="w-full h-10 sm:h-12 text-sm sm:text-base"
                       disabled={loading || (!selectedPack && selectedServices.length === 0)}
                     >
-                      {loading ? "Reservando..." : `Confirmar Reserva - ${totalPrice}€`}
+                      {loading ? "Reservando..." : isFreeCutReservation ? `¡Confirmar Corte Gratis!` : `Confirmar Reserva - ${totalPrice}€`}
                     </Button>
                   </div>
                 ) : (

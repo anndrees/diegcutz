@@ -28,6 +28,49 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
 
+  // Helper function to translate error messages
+  const translateError = (error: any): string => {
+    const message = error?.message || error?.toString() || "";
+    
+    // Common Supabase auth errors
+    if (message.includes("User already registered") || message.includes("user_already_exists")) {
+      return "Este email o teléfono ya está registrado. Por favor, inicia sesión o usa otro.";
+    }
+    if (message.includes("Email not confirmed")) {
+      return "Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de correo.";
+    }
+    if (message.includes("Phone not confirmed")) {
+      return "Debes confirmar tu teléfono antes de iniciar sesión.";
+    }
+    if (message.includes("Phone signups are disabled")) {
+      return "El registro por teléfono no está disponible en este momento.";
+    }
+    if (message.includes("Invalid login credentials") || message.includes("invalid_credentials")) {
+      return "Usuario o contraseña incorrectos.";
+    }
+    if (message.includes("Email rate limit exceeded")) {
+      return "Demasiados intentos. Por favor, espera unos minutos antes de intentar de nuevo.";
+    }
+    if (message.includes("timeout") || message.includes("upstream")) {
+      return "El servidor está tardando en responder. Por favor, inténtalo de nuevo en unos segundos.";
+    }
+    if (message.includes("network") || message.includes("fetch")) {
+      return "Error de conexión. Verifica tu conexión a internet.";
+    }
+    if (message.includes("Password should be at least")) {
+      return "La contraseña debe tener al menos 6 caracteres.";
+    }
+    if (message.includes("Unable to validate email address")) {
+      return "El formato del email no es válido.";
+    }
+    if (message.includes("Signups not allowed")) {
+      return "Los registros están deshabilitados temporalmente.";
+    }
+    
+    // Generic fallback
+    return "Ha ocurrido un error. Por favor, inténtalo de nuevo.";
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -71,19 +114,9 @@ const Auth = () => {
     setLoading(false);
 
     if (signInError) {
-      let errorMessage = "Usuario o contraseña incorrectos";
-      
-      if (signInError.message.includes("Email not confirmed")) {
-        errorMessage = "Debes confirmar tu email antes de iniciar sesión. Revisa tu bandeja de correo.";
-      } else if (signInError.message.includes("Phone not confirmed")) {
-        errorMessage = "Debes confirmar tu teléfono antes de iniciar sesión.";
-      } else if (signInError.message.includes("Phone signups are disabled")) {
-        errorMessage = "El inicio de sesión por teléfono no está activado. Contacta al administrador.";
-      }
-
       toast({
         title: "Error",
-        description: errorMessage,
+        description: translateError(signInError),
         variant: "destructive",
       });
       return;
@@ -138,7 +171,7 @@ const Auth = () => {
       setLoading(false);
       toast({
         title: "Error",
-        description: signupContactType === "email" ? "Email inválido" : "Teléfono inválido",
+        description: signupContactType === "email" ? "El formato del email no es válido" : "El formato del teléfono no es válido",
         variant: "destructive",
       });
       return;
@@ -164,9 +197,10 @@ const Auth = () => {
     const redirectUrl = `${window.location.origin}/`;
 
     let signUpError = null;
+    let signUpData = null;
 
     if (signupContactType === "email") {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: signupContactValue,
         password: signupPassword,
         options: {
@@ -180,11 +214,12 @@ const Auth = () => {
         },
       });
       signUpError = error;
+      signUpData = data;
     } else {
       const rawPhone = signupContactValue.replace(/\s+/g, "");
       const phone = rawPhone.startsWith("+") ? rawPhone : `+34${rawPhone}`;
 
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         phone,
         password: signupPassword,
         options: {
@@ -197,29 +232,42 @@ const Auth = () => {
         },
       });
       signUpError = error;
+      signUpData = data;
     }
 
     setLoading(false);
 
     if (signUpError) {
-      let errorMessage = signUpError.message;
-      
-      // Manejar timeouts específicamente
-      if (signUpError.message.includes("timeout") || signUpError.message.includes("upstream")) {
-        errorMessage = "El servidor está tardando en responder. Tu cuenta puede haberse creado correctamente. Por favor, verifica tu email e intenta iniciar sesión en unos minutos.";
-      }
-      
       toast({
         title: "Error",
-        description: errorMessage,
+        description: translateError(signUpError),
         variant: "destructive",
       });
       return;
     }
 
+    // Check if the user already exists (Supabase returns user but no session for existing users)
+    if (signUpData?.user && !signUpData?.session && signupContactType === "phone") {
+      // For phone signups, user might already exist
+      const { data: existingAuth } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("contact_value", signupContactValue.startsWith("+") ? signupContactValue : `+34${signupContactValue.replace(/\s+/g, "")}`)
+        .single();
+
+      if (existingAuth) {
+        toast({
+          title: "Error",
+          description: "Este teléfono ya está registrado. Por favor, inicia sesión.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     const successMessage = signupContactType === "email"
-      ? "Tu cuenta ha sido creada correctamente. Revisa tu bandeja de correo para confirmar tu usuario e iniciar sesión."
-      : "Tu cuenta ha sido creada correctamente. Ahora puedes iniciar sesión.";
+      ? "Tu cuenta ha sido creada. Revisa tu email para confirmar tu cuenta antes de iniciar sesión."
+      : "¡Tu cuenta ha sido creada! Ya puedes iniciar sesión.";
 
     toast({
       title: "¡Cuenta creada!",

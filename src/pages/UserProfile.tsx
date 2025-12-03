@@ -300,16 +300,23 @@ export default function UserProfile() {
               </div>
               
               {loyaltyReward && loyaltyReward.free_cuts_available > 0 && (
-                <div className="p-4 bg-primary/10 border-2 border-primary rounded-lg">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Gift className="text-primary" />
-                    <p className="font-bold text-primary">
+                <div className="p-4 bg-neon-cyan/10 border-2 border-neon-cyan rounded-lg">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Gift className="text-neon-cyan" />
+                    <p className="font-bold text-neon-cyan">
                       ¡Tienes {loyaltyReward.free_cuts_available} corte{loyaltyReward.free_cuts_available > 1 ? 's' : ''} gratis disponible{loyaltyReward.free_cuts_available > 1 ? 's' : ''}!
                     </p>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Contacta con nosotros para usar tu cupón
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Incluye: DEGRADADO + VACIAR/TEXTURIZADO
                   </p>
+                  <Button 
+                    onClick={() => navigate("/booking?free_cut=true")}
+                    className="w-full bg-neon-cyan hover:bg-neon-cyan/90 text-background font-bold"
+                  >
+                    <Gift className="mr-2 h-4 w-4" />
+                    ¡Reclamar Corte Gratis!
+                  </Button>
                 </div>
               )}
               
