@@ -125,27 +125,45 @@ export type Database = {
       }
       profiles: {
         Row: {
+          ban_reason: string | null
+          banned_at: string | null
           contact_method: string
           contact_value: string
           created_at: string | null
           full_name: string
           id: string
+          is_banned: boolean | null
+          is_restricted: boolean | null
+          restricted_at: string | null
+          restriction_ends_at: string | null
           username: string
         }
         Insert: {
+          ban_reason?: string | null
+          banned_at?: string | null
           contact_method: string
           contact_value: string
           created_at?: string | null
           full_name: string
           id: string
+          is_banned?: boolean | null
+          is_restricted?: boolean | null
+          restricted_at?: string | null
+          restriction_ends_at?: string | null
           username: string
         }
         Update: {
+          ban_reason?: string | null
+          banned_at?: string | null
           contact_method?: string
           contact_value?: string
           created_at?: string | null
           full_name?: string
           id?: string
+          is_banned?: boolean | null
+          is_restricted?: boolean | null
+          restricted_at?: string | null
+          restriction_ends_at?: string | null
           username?: string
         }
         Relationships: []
