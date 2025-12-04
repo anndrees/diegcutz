@@ -263,7 +263,7 @@ const Home = () => {
         >
           Admin
         </Button>
-        <p>v 1.0.1</p>
+        <p>v 1.2.47</p>
       </footer>
     </div>
   );
