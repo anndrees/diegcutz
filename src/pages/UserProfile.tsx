@@ -35,7 +35,8 @@ export default function UserProfile() {
     user,
     profile,
     signOut,
-    refreshProfile
+    refreshProfile,
+    checkAccountStatus
   } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loyaltyReward, setLoyaltyReward] = useState<LoyaltyReward | null>(null);
@@ -46,6 +47,28 @@ export default function UserProfile() {
   const [contactValue, setContactValue] = useState("");
   const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+
+  // Check account status
+  useEffect(() => {
+    const checkStatus = async () => {
+      if (!user) return;
+      
+      const status = await checkAccountStatus();
+      
+      if (status.isBanned) {
+        toast({
+          title: "Cuenta suspendida",
+          description: status.banReason,
+          variant: "destructive",
+        });
+        await signOut();
+        navigate("/auth");
+      }
+    };
+    
+    checkStatus();
+  }, [user]);
+
   useEffect(() => {
     if (!user) {
       navigate("/auth");
