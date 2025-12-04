@@ -177,10 +177,10 @@ const Auth = () => {
 
     const normalizedLoginUsername = sanitizeUsername(loginUsername);
 
-    // First, get the profile to find the email associated with the username
+    // First, get the profile to find the email associated with the username and check ban status
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
-      .select("contact_value, contact_method")
+      .select("contact_value, contact_method, is_banned, ban_reason")
       .eq("username", normalizedLoginUsername)
       .single();
 
@@ -189,6 +189,17 @@ const Auth = () => {
       toast({
         title: "Error",
         description: "Usuario no encontrado",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if user is banned
+    if (profileData.is_banned) {
+      setLoading(false);
+      toast({
+        title: "Cuenta suspendida",
+        description: profileData.ban_reason || "Tu cuenta ha sido suspendida. Contacta con el administrador.",
         variant: "destructive",
       });
       return;

@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  checkAccountStatus: () => Promise<{ isBanned: boolean; isRestricted: boolean; banReason?: string; restrictionEndsAt?: string }>;
 }
 
 interface Profile {
@@ -17,6 +18,12 @@ interface Profile {
   username: string;
   contact_method: string;
   contact_value: string;
+  is_banned?: boolean;
+  ban_reason?: string;
+  banned_at?: string;
+  is_restricted?: boolean;
+  restriction_ends_at?: string;
+  restricted_at?: string;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -26,6 +33,7 @@ const AuthContext = createContext<AuthContextType>({
   loading: true,
   signOut: async () => {},
   refreshProfile: async () => {},
+  checkAccountStatus: async () => ({ isBanned: false, isRestricted: false }),
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -34,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
       .from("profiles")
       .select("*")
@@ -42,14 +50,85 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .single();
 
     if (!error && data) {
+      // Check if user is banned
+      if (data.is_banned) {
+        // Force sign out banned users
+        await supabase.auth.signOut();
+        setUser(null);
+        setSession(null);
+        setProfile(null);
+        return null;
+      }
+      
+      // Check if restriction has expired
+      if (data.is_restricted && data.restriction_ends_at) {
+        const endTime = new Date(data.restriction_ends_at);
+        if (new Date() >= endTime) {
+          // Restriction expired, remove it
+          await supabase
+            .from("profiles")
+            .update({
+              is_restricted: false,
+              restriction_ends_at: null,
+              restricted_at: null,
+            })
+            .eq("id", userId);
+          
+          data.is_restricted = false;
+          data.restriction_ends_at = null;
+          data.restricted_at = null;
+        }
+      }
+      
       setProfile(data);
+      return data;
     }
+    return null;
   };
 
   const refreshProfile = async () => {
     if (user) {
       await fetchProfile(user.id);
     }
+  };
+
+  const checkAccountStatus = async () => {
+    if (!user) {
+      return { isBanned: false, isRestricted: false };
+    }
+
+    const { data } = await supabase
+      .from("profiles")
+      .select("is_banned, ban_reason, is_restricted, restriction_ends_at")
+      .eq("id", user.id)
+      .single();
+
+    if (!data) {
+      return { isBanned: false, isRestricted: false };
+    }
+
+    // Check if banned
+    if (data.is_banned) {
+      return { 
+        isBanned: true, 
+        isRestricted: false,
+        banReason: data.ban_reason || "Tu cuenta ha sido suspendida."
+      };
+    }
+
+    // Check if restricted and not expired
+    if (data.is_restricted && data.restriction_ends_at) {
+      const endTime = new Date(data.restriction_ends_at);
+      if (new Date() < endTime) {
+        return { 
+          isBanned: false, 
+          isRestricted: true,
+          restrictionEndsAt: data.restriction_ends_at
+        };
+      }
+    }
+
+    return { isBanned: false, isRestricted: false };
   };
 
   useEffect(() => {
@@ -92,7 +171,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile }}>
+    <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile, checkAccountStatus }}>
       {children}
     </AuthContext.Provider>
   );

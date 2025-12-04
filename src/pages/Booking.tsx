@@ -46,7 +46,7 @@ const Booking = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  const { user, profile, loading: authLoading } = useAuth();
+  const { user, profile, loading: authLoading, checkAccountStatus, signOut } = useAuth();
   const isMobile = useIsMobile();
   const hoursRef = useRef<HTMLDivElement>(null);
   const [selectedDate, setSelectedDate] = useState<Date>();
@@ -60,6 +60,44 @@ const Booking = () => {
   const [loadingServices, setLoadingServices] = useState(true);
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [isFreeCutReservation, setIsFreeCutReservation] = useState(false);
+  const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
+
+  // Check account status on mount and periodically
+  useEffect(() => {
+    const checkStatus = async () => {
+      if (!user) return;
+      
+      const status = await checkAccountStatus();
+      
+      if (status.isBanned) {
+        toast({
+          title: "Cuenta suspendida",
+          description: status.banReason,
+          variant: "destructive",
+        });
+        await signOut();
+        navigate("/auth");
+        return;
+      }
+      
+      if (status.isRestricted && status.restrictionEndsAt) {
+        const endTime = new Date(status.restrictionEndsAt);
+        const now = new Date();
+        const diff = endTime.getTime() - now.getTime();
+        
+        if (diff > 0) {
+          const hours = Math.floor(diff / (1000 * 60 * 60));
+          const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+          setRestrictionTimeLeft(`${hours}h ${minutes}m ${seconds}s`);
+        }
+      }
+    };
+    
+    checkStatus();
+    const interval = setInterval(checkStatus, 1000);
+    return () => clearInterval(interval);
+  }, [user]);
 
   // Auto-scroll to hours section on mobile when date is selected
   useEffect(() => {
@@ -363,6 +401,39 @@ const Booking = () => {
       return;
     }
 
+    // Check for restriction
+    const status = await checkAccountStatus();
+    
+    if (status.isBanned) {
+      toast({
+        title: "Cuenta suspendida",
+        description: status.banReason,
+        variant: "destructive",
+      });
+      await signOut();
+      navigate("/auth");
+      return;
+    }
+    
+    if (status.isRestricted && status.restrictionEndsAt) {
+      const endTime = new Date(status.restrictionEndsAt);
+      const now = new Date();
+      const diff = endTime.getTime() - now.getTime();
+      
+      if (diff > 0) {
+        const hours = Math.floor(diff / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+        
+        toast({
+          title: "No puedes reservar",
+          description: `Tu cuenta está temporalmente restringida. Podrás volver a reservar en ${hours}h ${minutes}m ${seconds}s`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     if (!selectedDate || !selectedTime) {
       toast({
         title: "Error",
@@ -505,6 +576,19 @@ const Booking = () => {
             </>
           )}
         </div>
+
+        {/* Restriction Alert */}
+        {profile?.is_restricted && restrictionTimeLeft && (
+          <div className="mb-8 p-4 bg-yellow-500/20 border border-yellow-500 rounded-lg">
+            <div className="flex items-center gap-2 text-yellow-500 font-bold mb-1">
+              <span>⚠️ CUENTA RESTRINGIDA</span>
+            </div>
+            <p className="text-muted-foreground">
+              No puedes hacer reservas temporalmente. Podrás volver a reservar en:{" "}
+              <span className="font-mono text-yellow-500">{restrictionTimeLeft}</span>
+            </p>
+          </div>
+        )}
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Calendar */}
