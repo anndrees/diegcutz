@@ -7,8 +7,34 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, LogIn, UserPlus } from "lucide-react";
+import { ArrowLeft, LogIn, UserPlus, Check, X, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+// Username validation regex: only lowercase a-z, 0-9, underscore, period
+const USERNAME_REGEX = /^[a-z0-9_.]+$/;
+
+const sanitizeUsername = (value: string): string => {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9_.]/g, ''); // Remove any invalid characters
+};
+
+const generateUsernameSuggestions = (base: string): string[] => {
+  const sanitized = sanitizeUsername(base);
+  if (!sanitized) return [];
+  
+  const suggestions: string[] = [];
+  const randomNum1 = Math.floor(Math.random() * 999) + 1;
+  const randomNum2 = Math.floor(Math.random() * 999) + 1;
+  const year = new Date().getFullYear().toString().slice(-2);
+  
+  suggestions.push(`${sanitized}${randomNum1}`);
+  suggestions.push(`${sanitized}_${year}`);
+  suggestions.push(`${sanitized}.${randomNum2}`);
+  
+  return suggestions;
+};
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -27,6 +53,11 @@ const Auth = () => {
   const [signupContactValue, setSignupContactValue] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
+  
+  // Username availability state
+  const [checkingUsername, setCheckingUsername] = useState(false);
+  const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+  const [usernameSuggestions, setUsernameSuggestions] = useState<string[]>([]);
 
   // Helper function to translate error messages
   const translateError = (error: any): string => {
@@ -71,15 +102,86 @@ const Auth = () => {
     return "Ha ocurrido un error. Por favor, inténtalo de nuevo.";
   };
 
+  const handleUsernameChange = (value: string) => {
+    const sanitized = sanitizeUsername(value);
+    setSignupUsername(sanitized);
+    setUsernameAvailable(null);
+    setUsernameSuggestions([]);
+  };
+
+  const checkUsernameAvailability = async () => {
+    const username = signupUsername.trim();
+    
+    if (!username || username.length < 3) {
+      setUsernameAvailable(null);
+      setUsernameSuggestions([]);
+      return;
+    }
+
+    if (!USERNAME_REGEX.test(username)) {
+      setUsernameAvailable(false);
+      setUsernameSuggestions([]);
+      return;
+    }
+
+    setCheckingUsername(true);
+    
+    try {
+      const { data: existingProfile } = await supabase
+        .from("profiles")
+        .select("username")
+        .eq("username", username)
+        .single();
+
+      if (existingProfile) {
+        setUsernameAvailable(false);
+        // Generate and check suggestions
+        const suggestions = generateUsernameSuggestions(username);
+        const availableSuggestions: string[] = [];
+        
+        for (const suggestion of suggestions) {
+          const { data } = await supabase
+            .from("profiles")
+            .select("username")
+            .eq("username", suggestion)
+            .single();
+          
+          if (!data) {
+            availableSuggestions.push(suggestion);
+          }
+        }
+        
+        setUsernameSuggestions(availableSuggestions.slice(0, 3));
+      } else {
+        setUsernameAvailable(true);
+        setUsernameSuggestions([]);
+      }
+    } catch {
+      // Error means no profile found, username is available
+      setUsernameAvailable(true);
+      setUsernameSuggestions([]);
+    } finally {
+      setCheckingUsername(false);
+    }
+  };
+
+  const selectSuggestion = (suggestion: string) => {
+    setSignupUsername(suggestion);
+    setUsernameAvailable(true);
+    setUsernameSuggestions([]);
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    const normalizedLoginUsername = sanitizeUsername(loginUsername);
 
     // First, get the profile to find the email associated with the username
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
       .select("contact_value, contact_method")
-      .eq("username", loginUsername)
+      .eq("username", normalizedLoginUsername)
       .single();
 
     if (profileError || !profileData) {
@@ -142,9 +244,42 @@ const Auth = () => {
     }
   };
 
+  const validateUsername = (username: string): string | null => {
+    if (username.length < 3) {
+      return "El nombre de usuario debe tener al menos 3 caracteres";
+    }
+    if (username.length > 30) {
+      return "El nombre de usuario no puede tener más de 30 caracteres";
+    }
+    if (!USERNAME_REGEX.test(username)) {
+      return "Solo se permiten letras minúsculas, números, punto (.) y guion bajo (_)";
+    }
+    if (username.startsWith('.') || username.endsWith('.')) {
+      return "El nombre de usuario no puede empezar ni terminar con punto";
+    }
+    if (username.includes('..')) {
+      return "El nombre de usuario no puede tener puntos consecutivos";
+    }
+    return null;
+  };
+
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    const username = signupUsername.trim();
+
+    // Username validation
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setLoading(false);
+      toast({
+        title: "Error",
+        description: usernameError,
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Validation
     if (signupPassword !== signupConfirmPassword) {
@@ -177,15 +312,16 @@ const Auth = () => {
       return;
     }
 
-    // Check if username already exists
+    // Check if username already exists (double-check on submit)
     const { data: existingProfile } = await supabase
       .from("profiles")
       .select("username")
-      .eq("username", signupUsername)
+      .eq("username", username)
       .single();
 
     if (existingProfile) {
       setLoading(false);
+      setUsernameAvailable(false);
       toast({
         title: "Error",
         description: "Este nombre de usuario ya está en uso",
@@ -207,7 +343,7 @@ const Auth = () => {
           emailRedirectTo: redirectUrl,
           data: {
             full_name: signupFullName,
-            username: signupUsername,
+            username: username,
             contact_method: signupContactType,
             contact_value: signupContactValue,
           },
@@ -225,7 +361,7 @@ const Auth = () => {
         options: {
           data: {
             full_name: signupFullName,
-            username: signupUsername,
+            username: username,
             contact_method: signupContactType,
             contact_value: phone,
           },
@@ -280,6 +416,8 @@ const Auth = () => {
     setSignupContactValue("");
     setSignupPassword("");
     setSignupConfirmPassword("");
+    setUsernameAvailable(null);
+    setUsernameSuggestions([]);
   };
 
   return (
@@ -327,7 +465,7 @@ const Auth = () => {
                     <Input
                       id="login-username"
                       value={loginUsername}
-                      onChange={(e) => setLoginUsername(e.target.value)}
+                      onChange={(e) => setLoginUsername(sanitizeUsername(e.target.value))}
                       placeholder="usuario"
                       required
                     />
@@ -384,13 +522,49 @@ const Auth = () => {
 
                   <div>
                     <Label htmlFor="signup-username">Nombre de usuario</Label>
-                    <Input
-                      id="signup-username"
-                      value={signupUsername}
-                      onChange={(e) => setSignupUsername(e.target.value)}
-                      placeholder="usuario"
-                      required
-                    />
+                    <div className="relative">
+                      <Input
+                        id="signup-username"
+                        value={signupUsername}
+                        onChange={(e) => handleUsernameChange(e.target.value)}
+                        onBlur={checkUsernameAvailability}
+                        placeholder="usuario"
+                        className={`pr-10 ${
+                          usernameAvailable === true ? 'border-green-500 focus-visible:ring-green-500' : 
+                          usernameAvailable === false ? 'border-destructive focus-visible:ring-destructive' : ''
+                        }`}
+                        required
+                      />
+                      {checkingUsername && (
+                        <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 animate-spin text-muted-foreground" />
+                      )}
+                      {!checkingUsername && usernameAvailable === true && (
+                        <Check className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-green-500" />
+                      )}
+                      {!checkingUsername && usernameAvailable === false && (
+                        <X className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-destructive" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Solo letras minúsculas, números, punto (.) y guion bajo (_)
+                    </p>
+                    {usernameAvailable === false && usernameSuggestions.length > 0 && (
+                      <div className="mt-2 space-y-1">
+                        <p className="text-xs text-destructive">Este nombre no está disponible. Prueba con:</p>
+                        <div className="flex flex-wrap gap-2">
+                          {usernameSuggestions.map((suggestion) => (
+                            <button
+                              key={suggestion}
+                              type="button"
+                              onClick={() => selectSuggestion(suggestion)}
+                              className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors"
+                            >
+                              {suggestion}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <div>
