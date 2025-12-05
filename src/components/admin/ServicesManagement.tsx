@@ -10,8 +10,14 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Trash2, Plus } from "lucide-react";
+import { Edit2, Trash2, Plus, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { OptionalAddonsManagement } from "./OptionalAddonsManagement";
+
+type CustomExtra = {
+  name: string;
+  price: number;
+};
 
 type Service = {
   id: string;
@@ -21,6 +27,7 @@ type Service = {
   description?: string;
   coming_soon?: boolean;
   included_service_ids?: string[];
+  custom_extras?: CustomExtra[];
 };
 
 export const ServicesManagement = () => {
@@ -36,7 +43,10 @@ export const ServicesManagement = () => {
     description: "",
     coming_soon: false,
     included_service_ids: [] as string[],
+    custom_extras: [] as CustomExtra[],
   });
+  const [newExtraName, setNewExtraName] = useState("");
+  const [newExtraPrice, setNewExtraPrice] = useState(0);
 
   useEffect(() => {
     loadServices();
@@ -53,15 +63,14 @@ export const ServicesManagement = () => {
     setLoading(false);
 
     if (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los servicios",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "No se pudieron cargar los servicios", variant: "destructive" });
       return;
     }
 
-    setServices((data || []) as Service[]);
+    setServices((data || []).map(s => ({
+      ...s,
+      custom_extras: Array.isArray(s.custom_extras) ? s.custom_extras as CustomExtra[] : []
+    })) as Service[]);
   };
 
   const handleEdit = (service: Service) => {
@@ -73,6 +82,7 @@ export const ServicesManagement = () => {
       description: service.description || "",
       coming_soon: service.coming_soon || false,
       included_service_ids: service.included_service_ids || [],
+      custom_extras: service.custom_extras || [],
     });
   };
 
@@ -85,56 +95,64 @@ export const ServicesManagement = () => {
       description: "",
       coming_soon: false,
       included_service_ids: [],
+      custom_extras: [],
+    });
+  };
+
+  const handleAddCustomExtra = () => {
+    if (!newExtraName) return;
+    setFormData({
+      ...formData,
+      custom_extras: [...formData.custom_extras, { name: newExtraName, price: newExtraPrice }]
+    });
+    setNewExtraName("");
+    setNewExtraPrice(0);
+  };
+
+  const handleRemoveCustomExtra = (index: number) => {
+    setFormData({
+      ...formData,
+      custom_extras: formData.custom_extras.filter((_, i) => i !== index)
     });
   };
 
   const handleSave = async () => {
-    if (!formData.name || formData.price <= 0) {
-      toast({
-        title: "Error",
-        description: "Completa todos los campos requeridos",
-        variant: "destructive",
-      });
+    if (!formData.name || formData.price < 0) {
+      toast({ title: "Error", description: "Completa todos los campos requeridos", variant: "destructive" });
       return;
     }
+
+    const payload = {
+      name: formData.name,
+      price: formData.price,
+      service_type: formData.service_type,
+      description: formData.description || null,
+      coming_soon: formData.coming_soon,
+      included_service_ids: formData.service_type === 'pack' ? formData.included_service_ids : [],
+      custom_extras: formData.service_type === 'pack' ? formData.custom_extras : [],
+    };
 
     if (editingService) {
       const { error } = await supabase
         .from("services")
-        .update(formData)
+        .update(payload)
         .eq("id", editingService.id);
 
       if (error) {
-        toast({
-          title: "Error",
-          description: "No se pudo actualizar el servicio",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: "No se pudo actualizar el servicio", variant: "destructive" });
         return;
       }
 
-      toast({
-        title: "Servicio actualizado",
-        description: "Los cambios se guardaron correctamente",
-      });
+      toast({ title: "Servicio actualizado", description: "Los cambios se guardaron correctamente" });
     } else {
-      const { error } = await supabase
-        .from("services")
-        .insert(formData);
+      const { error } = await supabase.from("services").insert(payload);
 
       if (error) {
-        toast({
-          title: "Error",
-          description: "No se pudo crear el servicio",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: "No se pudo crear el servicio", variant: "destructive" });
         return;
       }
 
-      toast({
-        title: "Servicio creado",
-        description: "El servicio se creó correctamente",
-      });
+      toast({ title: "Servicio creado", description: "El servicio se creó correctamente" });
     }
 
     setEditingService(null);
@@ -142,33 +160,43 @@ export const ServicesManagement = () => {
     loadServices();
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (service: Service) => {
+    // Check if service is used in any pack
+    if (service.service_type === 'service') {
+      const packsUsingService = services.filter(
+        s => s.service_type === 'pack' && s.included_service_ids?.includes(service.id)
+      );
+
+      if (packsUsingService.length > 0) {
+        toast({
+          title: "No se puede eliminar",
+          description: `Este servicio está incluido en: ${packsUsingService.map(p => p.name).join(", ")}`,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
     if (!confirm("¿Seguro que quieres eliminar este servicio?")) return;
 
-    const { error } = await supabase
-      .from("services")
-      .delete()
-      .eq("id", id);
+    const { error } = await supabase.from("services").delete().eq("id", service.id);
 
     if (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo eliminar el servicio",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "No se pudo eliminar el servicio", variant: "destructive" });
       return;
     }
 
-    toast({
-      title: "Servicio eliminado",
-      description: "El servicio se eliminó correctamente",
-    });
-
+    toast({ title: "Servicio eliminado", description: "El servicio se eliminó correctamente" });
     loadServices();
   };
 
   const individualServices = services.filter(s => s.service_type === 'service');
   const packs = services.filter(s => s.service_type === 'pack');
+
+  const getServiceName = (id: string) => {
+    const service = services.find(s => s.id === id);
+    return service?.name || id;
+  };
 
   const ServiceTable = ({ items }: { items: Service[] }) => (
     <Table>
@@ -177,6 +205,7 @@ export const ServicesManagement = () => {
           <TableHead>Nombre</TableHead>
           <TableHead>Precio</TableHead>
           <TableHead>Estado</TableHead>
+          {items[0]?.service_type === 'pack' && <TableHead>Incluye</TableHead>}
           <TableHead className="text-right">Acciones</TableHead>
         </TableRow>
       </TableHeader>
@@ -187,20 +216,26 @@ export const ServicesManagement = () => {
             <TableCell>{service.price}€</TableCell>
             <TableCell>
               {service.coming_soon ? (
-                <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
-                  Próximamente
-                </span>
+                <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">Próximamente</span>
               ) : (
-                <span className="text-xs font-bold text-green-500 uppercase bg-green-500/10 px-2 py-0.5 rounded">
-                  Activo
-                </span>
+                <span className="text-xs font-bold text-green-500 uppercase bg-green-500/10 px-2 py-0.5 rounded">Activo</span>
               )}
             </TableCell>
+            {service.service_type === 'pack' && (
+              <TableCell>
+                <div className="text-xs max-w-xs">
+                  {service.included_service_ids?.map(id => getServiceName(id)).join(", ")}
+                  {service.custom_extras && service.custom_extras.length > 0 && (
+                    <span className="text-neon-cyan"> + {service.custom_extras.map(e => e.name).join(", ")}</span>
+                  )}
+                </div>
+              </TableCell>
+            )}
             <TableCell className="text-right space-x-2">
               <Button variant="ghost" size="icon" onClick={() => handleEdit(service)}>
                 <Edit2 className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => handleDelete(service.id)}>
+              <Button variant="ghost" size="icon" onClick={() => handleDelete(service)}>
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </TableCell>
@@ -211,59 +246,55 @@ export const ServicesManagement = () => {
   );
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex justify-between items-center">
-          <CardTitle>Gestión de Servicios y Packs</CardTitle>
-          <Button onClick={handleCreate} variant="neon">
-            <Plus className="mr-2 h-4 w-4" />
-            Crear Nuevo
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <Tabs defaultValue="services" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="services">Servicios Individuales ({individualServices.length})</TabsTrigger>
-            <TabsTrigger value="packs">Packs ({packs.length})</TabsTrigger>
-          </TabsList>
-          <TabsContent value="services" className="mt-4">
-            {individualServices.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No hay servicios registrados</p>
-            ) : (
-              <ServiceTable items={individualServices} />
-            )}
-          </TabsContent>
-          <TabsContent value="packs" className="mt-4">
-            {packs.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No hay packs registrados</p>
-            ) : (
-              <ServiceTable items={packs} />
-            )}
-          </TabsContent>
-        </Tabs>
-      </CardContent>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-center">
+            <CardTitle>Gestión de Servicios y Packs</CardTitle>
+            <Button onClick={handleCreate} variant="neon">
+              <Plus className="mr-2 h-4 w-4" />
+              Crear Nuevo
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="services" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="services">Servicios ({individualServices.length})</TabsTrigger>
+              <TabsTrigger value="packs">Packs ({packs.length})</TabsTrigger>
+            </TabsList>
+            <TabsContent value="services" className="mt-4">
+              {individualServices.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No hay servicios</p>
+              ) : (
+                <ServiceTable items={individualServices} />
+              )}
+            </TabsContent>
+            <TabsContent value="packs" className="mt-4">
+              {packs.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No hay packs</p>
+              ) : (
+                <ServiceTable items={packs} />
+              )}
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
+
+      <OptionalAddonsManagement />
 
       {/* Edit/Create Dialog */}
       <Dialog open={!!editingService || isCreating} onOpenChange={() => { setEditingService(null); setIsCreating(false); }}>
-        <DialogContent>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingService ? "Editar" : "Crear"} {formData.service_type === 'pack' ? 'Pack' : 'Servicio'}</DialogTitle>
-            <DialogDescription>
-              {editingService ? "Modifica" : "Crea"} los datos del {formData.service_type === 'pack' ? 'pack' : 'servicio'}
-            </DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
             <div>
-              <Label htmlFor="service-type">Tipo</Label>
-              <Select
-                value={formData.service_type}
-                onValueChange={(value: 'service' | 'pack') => setFormData({ ...formData, service_type: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+              <Label>Tipo</Label>
+              <Select value={formData.service_type} onValueChange={(value: 'service' | 'pack') => setFormData({ ...formData, service_type: value })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="service">Servicio Individual</SelectItem>
                   <SelectItem value="pack">Pack</SelectItem>
@@ -272,92 +303,79 @@ export const ServicesManagement = () => {
             </div>
 
             <div>
-              <Label htmlFor="name">Nombre</Label>
-              <Input
-                id="name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Ej: DEGRADADO"
-              />
+              <Label>Nombre</Label>
+              <Input value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} placeholder="Ej: DEGRADADO" />
             </div>
 
             <div>
-              <Label htmlFor="price">Precio (€)</Label>
-              <Input
-                id="price"
-                type="number"
-                step="0.5"
-                value={formData.price}
-                onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-                placeholder="0.00"
-              />
+              <Label>Precio (€)</Label>
+              <Input type="number" step="0.5" value={formData.price} onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) || 0 })} />
             </div>
 
-            {formData.service_type === 'pack' ? (
-              <div>
-                <Label htmlFor="included_services">Servicios Incluidos</Label>
-                <div className="space-y-2 max-h-40 overflow-y-auto border rounded-md p-3">
-                  {services.filter(s => s.service_type === 'service').map(service => (
-                    <div key={service.id} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={`service-${service.id}`}
-                        checked={formData.included_service_ids.includes(service.id)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setFormData({ 
-                              ...formData, 
-                              included_service_ids: [...formData.included_service_ids, service.id] 
-                            });
-                          } else {
-                            setFormData({ 
-                              ...formData, 
-                              included_service_ids: formData.included_service_ids.filter(id => id !== service.id) 
-                            });
-                          }
-                        }}
-                      />
-                      <Label htmlFor={`service-${service.id}`} className="cursor-pointer">
-                        {service.name} ({service.price}€)
-                      </Label>
-                    </div>
-                  ))}
+            {formData.service_type === 'pack' && (
+              <>
+                <div>
+                  <Label>Servicios Incluidos</Label>
+                  <div className="space-y-2 max-h-32 overflow-y-auto border rounded-md p-3">
+                    {services.filter(s => s.service_type === 'service').map(service => (
+                      <div key={service.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`service-${service.id}`}
+                          checked={formData.included_service_ids.includes(service.id)}
+                          onCheckedChange={(checked) => {
+                            if (checked) {
+                              setFormData({ ...formData, included_service_ids: [...formData.included_service_ids, service.id] });
+                            } else {
+                              setFormData({ ...formData, included_service_ids: formData.included_service_ids.filter(id => id !== service.id) });
+                            }
+                          }}
+                        />
+                        <Label htmlFor={`service-${service.id}`} className="cursor-pointer">{service.name} ({service.price}€)</Label>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ) : (
+
+                <div>
+                  <Label>Extras del Pack (no vendidos por separado)</Label>
+                  <div className="space-y-2 border rounded-md p-3">
+                    {formData.custom_extras.map((extra, idx) => (
+                      <div key={idx} className="flex items-center justify-between bg-muted p-2 rounded">
+                        <span>{extra.name} ({extra.price}€)</span>
+                        <Button variant="ghost" size="icon" onClick={() => handleRemoveCustomExtra(idx)}>
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ))}
+                    <div className="flex gap-2">
+                      <Input placeholder="Nombre extra" value={newExtraName} onChange={(e) => setNewExtraName(e.target.value)} className="flex-1" />
+                      <Input type="number" placeholder="€" value={newExtraPrice} onChange={(e) => setNewExtraPrice(parseFloat(e.target.value) || 0)} className="w-20" />
+                      <Button variant="outline" size="sm" onClick={handleAddCustomExtra}>+</Button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {formData.service_type === 'service' && (
               <div>
-                <Label htmlFor="description">Descripción</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Descripción del servicio"
-                  rows={3}
-                />
+                <Label>Descripción</Label>
+                <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={2} />
               </div>
             )}
 
             <div className="flex items-center space-x-2">
-              <Checkbox
-                id="coming_soon"
-                checked={formData.coming_soon}
-                onCheckedChange={(checked) => setFormData({ ...formData, coming_soon: !!checked })}
-              />
-              <Label htmlFor="coming_soon" className="cursor-pointer">
-                Marcar como PRÓXIMAMENTE (no seleccionable en reservas)
-              </Label>
+              <Checkbox id="coming_soon" checked={formData.coming_soon} onCheckedChange={(checked) => setFormData({ ...formData, coming_soon: !!checked })} />
+              <Label htmlFor="coming_soon" className="cursor-pointer">Marcar como PRÓXIMAMENTE</Label>
             </div>
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setEditingService(null); setIsCreating(false); }}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} variant="neon">
-              Guardar
-            </Button>
+            <Button variant="outline" onClick={() => { setEditingService(null); setIsCreating(false); }}>Cancelar</Button>
+            <Button onClick={handleSave} variant="neon">Guardar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </Card>
+    </div>
   );
 };

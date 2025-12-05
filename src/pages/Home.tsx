@@ -1,11 +1,12 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin, MessageCircle, User } from "lucide-react";
+import { Scissors, Clock, MapPin, MessageCircle, User, Gift } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { RatingsCarousel } from "@/components/RatingsCarousel";
 
 type TimeRange = {
   start: string;
@@ -19,15 +20,24 @@ type BusinessHour = {
   time_ranges: TimeRange[];
 };
 
+type Giveaway = {
+  id: string;
+  title: string;
+  prize: string;
+  end_date: string;
+};
+
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
 const Home = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+  const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
 
   useEffect(() => {
     loadBusinessHours();
+    loadActiveGiveaway();
   }, []);
 
   const loadBusinessHours = async () => {
@@ -42,6 +52,23 @@ const Home = () => {
         time_ranges: Array.isArray(d.time_ranges) ? d.time_ranges as TimeRange[] : []
       }));
       setBusinessHours(formattedData);
+    }
+  };
+
+  const loadActiveGiveaway = async () => {
+    const now = new Date().toISOString();
+    const { data } = await supabase
+      .from("giveaways")
+      .select("id, title, prize, end_date")
+      .eq("is_finished", false)
+      .lte("start_date", now)
+      .gte("end_date", now)
+      .order("end_date", { ascending: true })
+      .limit(1)
+      .maybeSingle();
+
+    if (data) {
+      setActiveGiveaway(data as Giveaway);
     }
   };
 
@@ -96,6 +123,29 @@ const Home = () => {
           </Button>
         </div>
       </section>
+
+      {/* Active Giveaway Banner */}
+      {activeGiveaway && (
+        <section className="py-6 px-4 bg-gradient-neon">
+          <div className="max-w-4xl mx-auto text-center">
+            <button 
+              onClick={() => navigate("/giveaways")}
+              className="flex items-center justify-center gap-4 w-full group"
+            >
+              <Gift className="h-8 w-8 text-background animate-bounce" />
+              <div>
+                <p className="text-lg font-black text-background uppercase">
+                  🎁 SORTEO ACTIVO: {activeGiveaway.title}
+                </p>
+                <p className="text-sm text-background/80">
+                  Premio: {activeGiveaway.prize} — ¡Participa ahora!
+                </p>
+              </div>
+              <Gift className="h-8 w-8 text-background animate-bounce" />
+            </button>
+          </div>
+        </section>
+      )}
 
       {/* About Section */}
       <section className="py-20 px-4">
@@ -157,6 +207,31 @@ const Home = () => {
               </div>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Ratings Carousel */}
+      <RatingsCarousel />
+
+      {/* Giveaways CTA */}
+      <section className="py-16 px-4 bg-card/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <Gift className="h-16 w-16 mx-auto text-neon-purple mb-4" />
+          <h2 className="text-4xl font-black mb-4 text-neon-purple">
+            ¡PARTICIPA EN NUESTROS SORTEOS!
+          </h2>
+          <p className="text-xl text-muted-foreground mb-8">
+            Gana cortes gratis, productos exclusivos y más premios
+          </p>
+          <Button 
+            size="lg" 
+            variant="neonCyan"
+            onClick={() => navigate("/giveaways")}
+            className="text-lg px-12 py-6 h-auto"
+          >
+            <Gift className="mr-2 h-5 w-5" />
+            Ver Sorteos
+          </Button>
         </div>
       </section>
 
@@ -263,7 +338,7 @@ const Home = () => {
         >
           Admin
         </Button>
-        <p>v 1.2.47</p>
+        <p>v 1.3.0</p>
       </footer>
     </div>
   );
