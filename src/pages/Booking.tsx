@@ -530,10 +530,8 @@ const Booking = () => {
     setSelectedPack(null);
     setIsFreeCutReservation(false);
     
-    // Navigate back to profile if it was a free cut
-    if (isFreeCutReservation) {
-      navigate(`/user/${user.id}`);
-    }
+    // Navigate to home after booking
+    navigate("/");
   };
 
   const availableHours = getAvailableHours();

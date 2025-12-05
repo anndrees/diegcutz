@@ -240,8 +240,8 @@ const Auth = () => {
       description: "Has iniciado sesión correctamente",
     });
 
-    // Redirect to booking or original destination
-    const from = location.state?.from || "/booking";
+    // Redirect to original destination or home
+    const from = location.state?.from || "/";
     navigate(from, { replace: true });
   };
 
