@@ -162,14 +162,14 @@ const ClientProfile = () => {
       setBookings(bookingsData || []);
     }
 
-    // Load loyalty rewards
+    // Load loyalty rewards (use maybeSingle to avoid error when no record exists)
     const { data: loyaltyData } = await supabase
       .from("loyalty_rewards")
       .select("completed_bookings, free_cuts_available")
       .eq("user_id", id)
-      .single();
+      .maybeSingle();
 
-    setLoyaltyReward(loyaltyData);
+    setLoyaltyReward(loyaltyData || { completed_bookings: 0, free_cuts_available: 0 });
     setLoading(false);
   };
 
@@ -351,6 +351,25 @@ const ClientProfile = () => {
     }
 
     toast({ title: "Éxito", description: "Corte gratis otorgado al cliente" });
+    loadClientData();
+  };
+
+  const handleRemoveFreeCut = async () => {
+    if (!profile || !loyaltyReward || loyaltyReward.free_cuts_available <= 0) return;
+
+    const { error } = await supabase
+      .from("loyalty_rewards")
+      .update({
+        free_cuts_available: 0,
+      })
+      .eq("user_id", profile.id);
+
+    if (error) {
+      toast({ title: "Error", description: "No se pudo quitar el corte gratis", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Éxito", description: "Corte gratis quitado" });
     loadClientData();
   };
 
@@ -610,7 +629,7 @@ const ClientProfile = () => {
               )}
 
               {/* Admin Controls */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 <Button 
                   variant="outline" 
                   onClick={handleAddToCounter}
@@ -634,7 +653,16 @@ const ClientProfile = () => {
                   className="flex items-center gap-2"
                 >
                   <Gift className="w-4 h-4" />
-                  Otorgar corte gratis
+                  Otorgar corte
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={handleRemoveFreeCut}
+                  disabled={!loyaltyReward || loyaltyReward.free_cuts_available <= 0}
+                  className="flex items-center gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  Quitar corte
                 </Button>
               </div>
             </div>
