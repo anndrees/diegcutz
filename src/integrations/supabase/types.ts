@@ -14,6 +14,44 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_action_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          target_user_id: string | null
+          target_user_name: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          target_user_id?: string | null
+          target_user_name?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          target_user_id?: string | null
+          target_user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_action_logs_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           booking_date: string
@@ -88,6 +126,98 @@ export type Database = {
         }
         Relationships: []
       }
+      giveaway_participants: {
+        Row: {
+          created_at: string
+          giveaway_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          giveaway_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          giveaway_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "giveaway_participants_giveaway_id_fkey"
+            columns: ["giveaway_id"]
+            isOneToOne: false
+            referencedRelation: "giveaways"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "giveaway_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      giveaways: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string
+          excluded_user_ids: string[] | null
+          id: string
+          is_finished: boolean
+          prize: string
+          requirements: string | null
+          start_date: string
+          title: string
+          updated_at: string
+          winner_id: string | null
+          winner_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date: string
+          excluded_user_ids?: string[] | null
+          id?: string
+          is_finished?: boolean
+          prize: string
+          requirements?: string | null
+          start_date: string
+          title: string
+          updated_at?: string
+          winner_id?: string | null
+          winner_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          excluded_user_ids?: string[] | null
+          id?: string
+          is_finished?: boolean
+          prize?: string
+          requirements?: string | null
+          start_date?: string
+          title?: string
+          updated_at?: string
+          winner_id?: string | null
+          winner_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "giveaways_winner_id_fkey"
+            columns: ["winner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       loyalty_rewards: {
         Row: {
           completed_bookings: number
@@ -122,6 +252,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      optional_addons: {
+        Row: {
+          coming_soon: boolean
+          created_at: string
+          id: string
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          coming_soon?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          price?: number
+          updated_at?: string
+        }
+        Update: {
+          coming_soon?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -207,6 +364,7 @@ export type Database = {
         Row: {
           coming_soon: boolean
           created_at: string | null
+          custom_extras: Json | null
           description: string | null
           id: string
           included_service_ids: string[] | null
@@ -218,6 +376,7 @@ export type Database = {
         Insert: {
           coming_soon?: boolean
           created_at?: string | null
+          custom_extras?: Json | null
           description?: string | null
           id?: string
           included_service_ids?: string[] | null
@@ -229,6 +388,7 @@ export type Database = {
         Update: {
           coming_soon?: boolean
           created_at?: string | null
+          custom_extras?: Json | null
           description?: string | null
           id?: string
           included_service_ids?: string[] | null

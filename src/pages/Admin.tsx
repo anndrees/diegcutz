@@ -31,6 +31,9 @@ import { StatisticsSection } from "@/components/admin/StatisticsSection";
 import { ServicesManagement } from "@/components/admin/ServicesManagement";
 import { ClientsManagement } from "@/components/admin/ClientsManagement";
 import { BusinessHoursManagement } from "@/components/admin/BusinessHoursManagement";
+import { RatingsManagement } from "@/components/admin/RatingsManagement";
+import { GiveawaysManagement } from "@/components/admin/GiveawaysManagement";
+import { AdminActionsLog } from "@/components/admin/AdminActionsLog";
 
 type Booking = {
   id: string;
@@ -397,12 +400,15 @@ const Admin = () => {
 
         {/* Tabs for different sections */}
         <Tabs defaultValue="bookings" className="w-full mb-6">
-          <TabsList className="grid w-full grid-cols-5 mb-6">
+          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-6">
             <TabsTrigger value="bookings">Reservas</TabsTrigger>
             <TabsTrigger value="statistics">Estadísticas</TabsTrigger>
             <TabsTrigger value="services">Servicios</TabsTrigger>
             <TabsTrigger value="clients">Clientes</TabsTrigger>
             <TabsTrigger value="hours">Horario</TabsTrigger>
+            <TabsTrigger value="ratings">Valoraciones</TabsTrigger>
+            <TabsTrigger value="giveaways">Sorteos</TabsTrigger>
+            <TabsTrigger value="logs">Historial</TabsTrigger>
           </TabsList>
 
           <TabsContent value="bookings" className="space-y-6">
@@ -512,6 +518,18 @@ const Admin = () => {
 
           <TabsContent value="hours">
             <BusinessHoursManagement />
+          </TabsContent>
+
+          <TabsContent value="ratings">
+            <RatingsManagement />
+          </TabsContent>
+
+          <TabsContent value="giveaways">
+            <GiveawaysManagement />
+          </TabsContent>
+
+          <TabsContent value="logs">
+            <AdminActionsLog />
           </TabsContent>
         </Tabs>
 
