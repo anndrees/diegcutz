@@ -177,6 +177,7 @@ export type Database = {
           updated_at: string
           winner_id: string | null
           winner_name: string | null
+          winner_username: string | null
         }
         Insert: {
           created_at?: string
@@ -192,6 +193,7 @@ export type Database = {
           updated_at?: string
           winner_id?: string | null
           winner_name?: string | null
+          winner_username?: string | null
         }
         Update: {
           created_at?: string
@@ -207,6 +209,7 @@ export type Database = {
           updated_at?: string
           winner_id?: string | null
           winner_name?: string | null
+          winner_username?: string | null
         }
         Relationships: [
           {
@@ -356,6 +359,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: true
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ratings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]

@@ -21,6 +21,7 @@ type Giveaway = {
   is_finished: boolean;
   winner_id: string | null;
   winner_name: string | null;
+  winner_username: string | null;
 };
 
 type ParticipantCount = {
@@ -251,17 +252,20 @@ const Giveaways = () => {
                   {pastGiveaways.map((giveaway) => (
                     <Card key={giveaway.id} className="bg-muted/50">
                       <CardContent className="pt-6">
-                        <div className="flex justify-between items-center">
+                        <div className="flex justify-between items-start">
                           <div>
                             <h3 className="font-bold text-lg">{giveaway.title}</h3>
                             <p className="text-sm text-muted-foreground">{giveaway.prize}</p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {format(new Date(giveaway.start_date), "d MMM yyyy", { locale: es })} - {format(new Date(giveaway.end_date), "d MMM yyyy", { locale: es })}
+                            </p>
                           </div>
-                          {giveaway.winner_name && (
+                          {giveaway.winner_username && (
                             <div className="text-right">
                               <p className="text-xs text-muted-foreground">Ganador</p>
                               <p className="font-bold text-neon-cyan flex items-center gap-1">
                                 <Trophy className="h-4 w-4" />
-                                {giveaway.winner_name}
+                                @{giveaway.winner_username}
                               </p>
                             </div>
                           )}

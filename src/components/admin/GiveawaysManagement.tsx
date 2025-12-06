@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Trash2, Plus, Trophy, Users, Ban, Shuffle } from "lucide-react";
+import { Edit2, Trash2, Plus, Trophy, Users, Ban, Shuffle, RotateCcw } from "lucide-react";
+import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -25,6 +26,7 @@ type Giveaway = {
   is_finished: boolean;
   winner_id: string | null;
   winner_name: string | null;
+  winner_username: string | null;
   excluded_user_ids: string[];
   created_at: string;
 };
@@ -55,6 +57,8 @@ export const GiveawaysManagement = () => {
   const [showExcludeDialog, setShowExcludeDialog] = useState<string | null>(null);
   const [allUsers, setAllUsers] = useState<Profile[]>([]);
   const [excludedIds, setExcludedIds] = useState<string[]>([]);
+  const [showReselectDialog, setShowReselectDialog] = useState<Giveaway | null>(null);
+  const [excludePreviousWinner, setExcludePreviousWinner] = useState(true);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -237,11 +241,11 @@ export const GiveawaysManagement = () => {
     loadGiveaways();
   };
 
-  const handleSelectWinner = async (giveaway: Giveaway) => {
+  const handleSelectWinner = async (giveaway: Giveaway, additionalExclusions: string[] = []) => {
     // Get eligible participants (not excluded)
     const { data: participants } = await supabase
       .from("giveaway_participants")
-      .select("user_id, profile:profiles(full_name)")
+      .select("user_id, profile:profiles(full_name, username)")
       .eq("giveaway_id", giveaway.id);
 
     if (!participants || participants.length === 0) {
@@ -249,8 +253,9 @@ export const GiveawaysManagement = () => {
       return;
     }
 
+    const allExclusions = [...(giveaway.excluded_user_ids || []), ...additionalExclusions];
     const eligibleParticipants = participants.filter(
-      p => !(giveaway.excluded_user_ids || []).includes(p.user_id)
+      p => !allExclusions.includes(p.user_id)
     );
 
     if (eligibleParticipants.length === 0) {
@@ -267,7 +272,9 @@ export const GiveawaysManagement = () => {
       .update({
         winner_id: winner.user_id,
         winner_name: winnerProfile?.full_name || "Usuario",
+        winner_username: winnerProfile?.username || null,
         is_finished: true,
+        excluded_user_ids: allExclusions.length > 0 ? allExclusions : giveaway.excluded_user_ids,
       })
       .eq("id", giveaway.id);
 
@@ -278,17 +285,30 @@ export const GiveawaysManagement = () => {
 
     await supabase.from("admin_action_logs").insert({
       action_type: "SELECT_GIVEAWAY_WINNER",
-      description: `Seleccionó a ${winnerProfile?.full_name} como ganador del sorteo "${giveaway.title}"`,
+      description: `Seleccionó a ${winnerProfile?.full_name} (@${winnerProfile?.username}) como ganador del sorteo "${giveaway.title}"`,
       target_user_id: winner.user_id,
       target_user_name: winnerProfile?.full_name,
     });
 
     toast({
       title: "🎉 ¡Ganador seleccionado!",
-      description: `${winnerProfile?.full_name} ha ganado el sorteo`,
+      description: `${winnerProfile?.full_name} (@${winnerProfile?.username}) ha ganado el sorteo`,
     });
 
     loadGiveaways();
+  };
+
+  const handleReselectWinner = async () => {
+    if (!showReselectDialog) return;
+
+    const additionalExclusions: string[] = [];
+    if (excludePreviousWinner && showReselectDialog.winner_id) {
+      additionalExclusions.push(showReselectDialog.winner_id);
+    }
+
+    await handleSelectWinner(showReselectDialog, additionalExclusions);
+    setShowReselectDialog(null);
+    setExcludePreviousWinner(true);
   };
 
   const handleSaveExclusions = async () => {
@@ -364,8 +384,13 @@ export const GiveawaysManagement = () => {
                       <Badge variant={status.variant}>{status.label}</Badge>
                     </TableCell>
                     <TableCell>
-                      {giveaway.winner_name ? (
-                        <span className="text-neon-cyan font-bold">🏆 {giveaway.winner_name}</span>
+                      {giveaway.winner_id ? (
+                        <Link 
+                          to={`/admin/client/${giveaway.winner_id}`} 
+                          className="text-neon-cyan font-bold hover:underline flex items-center gap-1"
+                        >
+                          🏆 {giveaway.winner_name}
+                        </Link>
                       ) : (
                         <span className="text-muted-foreground">-</span>
                       )}
@@ -377,12 +402,17 @@ export const GiveawaysManagement = () => {
                       <Button variant="ghost" size="icon" onClick={() => loadAllUsers(giveaway)} title="Excluir usuarios">
                         <Ban className="h-4 w-4" />
                       </Button>
-                      {!giveaway.is_finished && (
+                      {!giveaway.winner_id && (
                         <Button variant="ghost" size="icon" onClick={() => handleSelectWinner(giveaway)} title="Sortear ganador">
                           <Shuffle className="h-4 w-4 text-neon-cyan" />
                         </Button>
                       )}
-                      {!giveaway.is_finished && (
+                      {giveaway.winner_id && (
+                        <Button variant="ghost" size="icon" onClick={() => setShowReselectDialog(giveaway)} title="Reelegir ganador">
+                          <RotateCcw className="h-4 w-4 text-orange-500" />
+                        </Button>
+                      )}
+                      {!giveaway.is_finished && !giveaway.winner_id && (
                         <Button variant="ghost" size="icon" onClick={() => handleFinish(giveaway)} title="Finalizar">
                           <Trophy className="h-4 w-4" />
                         </Button>
@@ -497,6 +527,38 @@ export const GiveawaysManagement = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowExcludeDialog(null)}>Cancelar</Button>
             <Button onClick={handleSaveExclusions} variant="neon">Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Reselect Winner Dialog */}
+      <Dialog open={!!showReselectDialog} onOpenChange={() => setShowReselectDialog(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reelegir Ganador</DialogTitle>
+            <DialogDescription>
+              El ganador actual es: <strong>{showReselectDialog?.winner_name}</strong>
+              {showReselectDialog?.winner_username && ` (@${showReselectDialog.winner_username})`}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="exclude-previous"
+                checked={excludePreviousWinner}
+                onCheckedChange={(checked) => setExcludePreviousWinner(!!checked)}
+              />
+              <Label htmlFor="exclude-previous" className="cursor-pointer">
+                Excluir al ganador anterior de la nueva selección
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowReselectDialog(null)}>Cancelar</Button>
+            <Button onClick={handleReselectWinner} variant="neon">
+              <RotateCcw className="mr-2 h-4 w-4" />
+              Reelegir
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
