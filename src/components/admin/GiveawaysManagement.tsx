@@ -14,6 +14,7 @@ import { Edit2, Trash2, Plus, Trophy, Users, Ban, Shuffle, RotateCcw } from "luc
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { WinnerAnimation } from "./WinnerAnimation";
 
 type Giveaway = {
   id: string;
@@ -59,6 +60,10 @@ export const GiveawaysManagement = () => {
   const [excludedIds, setExcludedIds] = useState<string[]>([]);
   const [showReselectDialog, setShowReselectDialog] = useState<Giveaway | null>(null);
   const [excludePreviousWinner, setExcludePreviousWinner] = useState(true);
+  
+  // Winner animation state
+  const [showWinnerAnimation, setShowWinnerAnimation] = useState(false);
+  const [selectedWinner, setSelectedWinner] = useState<{ name: string; username: string; giveawayTitle: string } | null>(null);
   
   const [formData, setFormData] = useState({
     title: "",
@@ -290,10 +295,13 @@ export const GiveawaysManagement = () => {
       target_user_name: winnerProfile?.full_name,
     });
 
-    toast({
-      title: "🎉 ¡Ganador seleccionado!",
-      description: `${winnerProfile?.full_name} (@${winnerProfile?.username}) ha ganado el sorteo`,
+    // Show winner animation
+    setSelectedWinner({
+      name: winnerProfile?.full_name || "Usuario",
+      username: winnerProfile?.username || "usuario",
+      giveawayTitle: giveaway.title,
     });
+    setShowWinnerAnimation(true);
 
     loadGiveaways();
   };
@@ -562,6 +570,20 @@ export const GiveawaysManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Winner Animation */}
+      {selectedWinner && (
+        <WinnerAnimation
+          open={showWinnerAnimation}
+          onClose={() => {
+            setShowWinnerAnimation(false);
+            setSelectedWinner(null);
+          }}
+          winnerName={selectedWinner.name}
+          winnerUsername={selectedWinner.username}
+          giveawayTitle={selectedWinner.giveawayTitle}
+        />
+      )}
     </Card>
   );
 };

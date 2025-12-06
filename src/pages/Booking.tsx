@@ -13,12 +13,18 @@ import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift } from "lucide-react";
 
+type CustomExtra = {
+  name: string;
+  price: number;
+};
+
 type Pack = {
   id: string;
   name: string;
   price: number;
   description?: string;
   included_service_ids?: string[];
+  custom_extras?: CustomExtra[];
   coming_soon?: boolean;
 };
 
@@ -28,6 +34,13 @@ type Service = {
   price: number;
   description?: string;
   coming_soon?: boolean;
+};
+
+type OptionalAddon = {
+  id: string;
+  name: string;
+  price: number;
+  coming_soon: boolean;
 };
 
 type TimeRange = {
@@ -57,6 +70,8 @@ const Booking = () => {
   const [loading, setLoading] = useState(false);
   const [services, setServices] = useState<Service[]>([]);
   const [packs, setPacks] = useState<Pack[]>([]);
+  const [optionalAddons, setOptionalAddons] = useState<OptionalAddon[]>([]);
+  const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [loadingServices, setLoadingServices] = useState(true);
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [isFreeCutReservation, setIsFreeCutReservation] = useState(false);
@@ -139,6 +154,8 @@ const Booking = () => {
 
   const loadServicesFromDB = async () => {
     setLoadingServices(true);
+    
+    // Load services
     const { data, error } = await supabase
       .from("services")
       .select("*")
@@ -165,19 +182,31 @@ const Booking = () => {
         coming_soon: s.coming_soon || false,
       }));
       
-      // Packs - show ALL but mark coming_soon ones
+      // Packs - show ALL but mark coming_soon ones, include custom_extras
       const dbPacks = data.filter(s => s.service_type === 'pack').map(s => ({
         id: s.id,
         name: s.name,
         price: parseFloat(s.price.toString()),
         description: s.description || undefined,
         included_service_ids: s.included_service_ids || [],
+        custom_extras: Array.isArray(s.custom_extras) ? s.custom_extras as CustomExtra[] : [],
         coming_soon: s.coming_soon || false,
       }));
       
       setServices(dbServices);
       setPacks(dbPacks);
     }
+
+    // Load optional addons
+    const { data: addonsData } = await supabase
+      .from("optional_addons")
+      .select("*")
+      .order("name");
+    
+    if (addonsData) {
+      setOptionalAddons(addonsData as OptionalAddon[]);
+    }
+
     setLoadingServices(false);
   };
 
@@ -353,6 +382,12 @@ const Booking = () => {
       }
     });
     
+    // Add selected addons
+    selectedAddons.forEach(addonId => {
+      const addon = optionalAddons.find(a => a.id === addonId);
+      if (addon) total += addon.price;
+    });
+    
     return total;
   };
 
@@ -375,7 +410,21 @@ const Booking = () => {
       }
     });
     
+    // Add selected addons
+    selectedAddons.forEach(addonId => {
+      const addon = optionalAddons.find(a => a.id === addonId);
+      if (addon) items.push(`${addon.name} (${addon.price}€)`);
+    });
+    
     return items;
+  };
+
+  const handleAddonChange = (addonId: string) => {
+    if (selectedAddons.includes(addonId)) {
+      setSelectedAddons(selectedAddons.filter(id => id !== addonId));
+    } else {
+      setSelectedAddons([...selectedAddons, addonId]);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -672,58 +721,89 @@ const Booking = () => {
                   <CardDescription>Solo puedes seleccionar un pack</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
-                  {packs.map((pack) => (
-                    <div key={pack.id}>
-                      <div
-                        className={`p-4 border-2 rounded-lg transition-all ${
-                          pack.coming_soon
-                            ? 'opacity-60 cursor-not-allowed border-muted'
-                            : selectedPack === pack.id
-                            ? 'border-neon-cyan bg-card/50 glow-neon-cyan cursor-pointer'
-                            : selectedPack && selectedPack !== pack.id
-                            ? 'border-muted opacity-50 cursor-pointer'
-                            : 'border-border hover:border-primary cursor-pointer'
-                        }`}
-                        onClick={() => !pack.coming_soon && handlePackChange(pack.id)}
-                      >
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <h4 className="font-bold text-lg text-neon-cyan">{pack.name}</h4>
-                              {pack.coming_soon && (
-                                <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
-                                  Próximamente
-                                </span>
+                  {packs.map((pack) => {
+                    // Build the "Incluye" text with services + custom extras
+                    const includedServiceNames = pack.included_service_ids?.map(sid => 
+                      services.find(s => s.id === sid)?.name
+                    ).filter(Boolean) || [];
+                    const customExtraNames = pack.custom_extras?.map(e => e.name) || [];
+                    const allIncluded = [...includedServiceNames, ...customExtraNames];
+                    
+                    return (
+                      <div key={pack.id}>
+                        <div
+                          className={`p-4 border-2 rounded-lg transition-all ${
+                            pack.coming_soon
+                              ? 'opacity-60 cursor-not-allowed border-muted'
+                              : selectedPack === pack.id
+                              ? 'border-neon-cyan bg-card/50 glow-neon-cyan cursor-pointer'
+                              : selectedPack && selectedPack !== pack.id
+                              ? 'border-muted opacity-50 cursor-pointer'
+                              : 'border-border hover:border-primary cursor-pointer'
+                          }`}
+                          onClick={() => !pack.coming_soon && handlePackChange(pack.id)}
+                        >
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h4 className="font-bold text-lg text-neon-cyan">{pack.name}</h4>
+                                {pack.coming_soon && (
+                                  <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
+                                    Próximamente
+                                  </span>
+                                )}
+                              </div>
+                              {allIncluded.length > 0 && (
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  Incluye: {allIncluded.join(', ')}
+                                </p>
                               )}
                             </div>
-                            {pack.included_service_ids && pack.included_service_ids.length > 0 && (
-                              <p className="text-sm text-muted-foreground mt-1">
-                                Incluye: {pack.included_service_ids.map(sid => 
-                                  services.find(s => s.id === sid)?.name
-                                ).filter(Boolean).join(', ')}
-                              </p>
-                            )}
+                            <span className="text-xl font-bold text-primary">{pack.price}€</span>
                           </div>
-                          <span className="text-xl font-bold text-primary">{pack.price}€</span>
                         </div>
+                        
+                        {/* Show optional addons for selected packs */}
+                        {selectedPack === pack.id && !pack.coming_soon && optionalAddons.length > 0 && (
+                          <div className="mt-2 space-y-2">
+                            {optionalAddons.map((addon) => (
+                              <div 
+                                key={addon.id}
+                                className={`p-3 border-2 rounded-lg transition-all ${
+                                  addon.coming_soon
+                                    ? 'border-dashed border-muted opacity-60'
+                                    : selectedAddons.includes(addon.id)
+                                    ? 'border-neon-purple bg-neon-purple/10 cursor-pointer'
+                                    : 'border-border hover:border-primary cursor-pointer'
+                                }`}
+                                onClick={() => !addon.coming_soon && handleAddonChange(addon.id)}
+                              >
+                                <div className="flex justify-between items-center">
+                                  <div className="flex items-center gap-2">
+                                    {!addon.coming_soon && (
+                                      <Checkbox
+                                        checked={selectedAddons.includes(addon.id)}
+                                        onCheckedChange={() => handleAddonChange(addon.id)}
+                                      />
+                                    )}
+                                    <div>
+                                      <h5 className="font-semibold text-sm">¿Añadir {addon.name}?</h5>
+                                      <p className="text-xs text-muted-foreground mt-0.5">{addon.price}€</p>
+                                    </div>
+                                  </div>
+                                  {addon.coming_soon && (
+                                    <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-1 rounded">
+                                      Próximamente
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                      
-                      {/* Show coming soon facial mask only for selected packs */}
-                      {selectedPack === pack.id && !pack.coming_soon && (
-                        <div className="mt-2 p-3 border-2 border-dashed border-muted rounded-lg opacity-60">
-                          <div className="flex justify-between items-center">
-                            <div>
-                              <h5 className="font-semibold text-sm">¿Añadir mascarilla facial?</h5>
-                              <p className="text-xs text-muted-foreground mt-0.5">1.50€</p>
-                            </div>
-                            <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-1 rounded">
-                              Próximamente
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </CardContent>
               </Card>
             )}
