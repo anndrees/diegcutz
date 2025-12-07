@@ -56,10 +56,13 @@ export type Database = {
         Row: {
           booking_date: string
           booking_time: string
+          cancelled_at: string | null
+          cancelled_by: string | null
           client_contact: string
           client_name: string
           created_at: string | null
           id: string
+          is_cancelled: boolean | null
           services: Json
           total_price: number
           user_id: string | null
@@ -67,10 +70,13 @@ export type Database = {
         Insert: {
           booking_date: string
           booking_time: string
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           client_contact: string
           client_name: string
           created_at?: string | null
           id?: string
+          is_cancelled?: boolean | null
           services?: Json
           total_price?: number
           user_id?: string | null
@@ -78,10 +84,13 @@ export type Database = {
         Update: {
           booking_date?: string
           booking_time?: string
+          cancelled_at?: string | null
+          cancelled_by?: string | null
           client_contact?: string
           client_name?: string
           created_at?: string | null
           id?: string
+          is_cancelled?: boolean | null
           services?: Json
           total_price?: number
           user_id?: string | null
@@ -169,6 +178,7 @@ export type Database = {
           end_date: string
           excluded_user_ids: string[] | null
           id: string
+          instagram_url: string | null
           is_finished: boolean
           prize: string
           requirements: string | null
@@ -185,6 +195,7 @@ export type Database = {
           end_date: string
           excluded_user_ids?: string[] | null
           id?: string
+          instagram_url?: string | null
           is_finished?: boolean
           prize: string
           requirements?: string | null
@@ -201,6 +212,7 @@ export type Database = {
           end_date?: string
           excluded_user_ids?: string[] | null
           id?: string
+          instagram_url?: string | null
           is_finished?: boolean
           prize?: string
           requirements?: string | null

@@ -29,6 +29,7 @@ type Giveaway = {
   winner_name: string | null;
   winner_username: string | null;
   excluded_user_ids: string[];
+  instagram_url: string | null;
   created_at: string;
 };
 
@@ -70,6 +71,7 @@ export const GiveawaysManagement = () => {
     description: "",
     requirements: "",
     prize: "",
+    instagram_url: "",
     start_date: "",
     end_date: "",
   });
@@ -135,6 +137,7 @@ export const GiveawaysManagement = () => {
       description: "",
       requirements: "",
       prize: "",
+      instagram_url: "",
       start_date: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
       end_date: format(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd'T'HH:mm"),
     });
@@ -147,6 +150,7 @@ export const GiveawaysManagement = () => {
       description: giveaway.description || "",
       requirements: giveaway.requirements || "",
       prize: giveaway.prize,
+      instagram_url: giveaway.instagram_url || "",
       start_date: giveaway.start_date.slice(0, 16),
       end_date: giveaway.end_date.slice(0, 16),
     });
@@ -163,6 +167,7 @@ export const GiveawaysManagement = () => {
       description: formData.description || null,
       requirements: formData.requirements || null,
       prize: formData.prize,
+      instagram_url: formData.instagram_url || null,
       start_date: new Date(formData.start_date).toISOString(),
       end_date: new Date(formData.end_date).toISOString(),
     };
@@ -462,6 +467,14 @@ export const GiveawaysManagement = () => {
             <div>
               <Label>Requisitos</Label>
               <Textarea value={formData.requirements} onChange={(e) => setFormData({ ...formData, requirements: e.target.value })} placeholder="Ej: Seguir en Instagram, compartir historia..." rows={2} />
+            </div>
+            <div>
+              <Label>Enlace de Instagram</Label>
+              <Input 
+                value={formData.instagram_url} 
+                onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })} 
+                placeholder="https://www.instagram.com/p/..." 
+              />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
