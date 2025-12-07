@@ -35,12 +35,10 @@ export const WinnerAnimation = ({
     if (countdown > 0) {
       const timer = setTimeout(() => {
         setCountdown(countdown - 1);
-        // Play beep sound
         playBeep(countdown <= 3);
       }, 1000);
       return () => clearTimeout(timer);
     } else {
-      // Show winner and trigger confetti
       setShowWinner(true);
       triggerConfetti();
     }
@@ -72,7 +70,6 @@ export const WinnerAnimation = ({
   };
 
   const triggerConfetti = () => {
-    // Multiple confetti bursts
     const duration = 4 * 1000;
     const animationEnd = Date.now() + duration;
     const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 9999 };
@@ -104,7 +101,6 @@ export const WinnerAnimation = ({
       });
     }, 250);
 
-    // Big burst in the middle
     confetti({
       particleCount: 150,
       spread: 100,
@@ -116,86 +112,73 @@ export const WinnerAnimation = ({
 
   return (
     <Dialog open={open} onOpenChange={() => {}}>
-      <DialogContent className="max-w-2xl bg-gradient-to-br from-background via-background to-neon-purple/20 border-2 border-neon-cyan overflow-hidden [&>button]:hidden">
-        <div className="relative min-h-[400px] flex flex-col items-center justify-center py-8">
+      <DialogContent className="max-w-2xl sm:max-w-lg md:max-w-2xl border-2 border-neon-cyan overflow-hidden [&>button]:hidden bg-transparent backdrop-blur-xl">
+        {/* Blur overlay behind the modal */}
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-md -z-10" />
+        
+        <div className="relative min-h-[350px] sm:min-h-[400px] flex flex-col items-center justify-center py-6 sm:py-8 bg-gradient-to-br from-background via-background to-neon-purple/20 rounded-lg">
           {/* Background effects */}
-          <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 overflow-hidden rounded-lg">
             {!showWinner && (
               <div className="absolute inset-0 bg-gradient-to-t from-neon-purple/20 to-transparent animate-pulse" />
             )}
             {showWinner && (
               <>
-                <div className="absolute top-0 left-1/4 w-32 h-32 bg-neon-cyan/30 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-neon-purple/30 rounded-full blur-3xl animate-pulse" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute top-0 left-1/4 w-24 sm:w-32 h-24 sm:h-32 bg-neon-cyan/30 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute bottom-0 right-1/4 w-32 sm:w-40 h-32 sm:h-40 bg-neon-purple/30 rounded-full blur-3xl animate-pulse" />
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 sm:w-64 h-48 sm:h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" />
               </>
             )}
           </div>
 
           {/* Content */}
-          <div className="relative z-10 text-center">
+          <div className="relative z-10 text-center px-4">
             {!showWinner ? (
               <>
-                {/* Countdown */}
-                <p className="text-xl text-muted-foreground mb-4 animate-pulse">
+                <p className="text-lg sm:text-xl text-muted-foreground mb-3 sm:mb-4 animate-pulse">
                   Sorteando ganador de...
                 </p>
-                <p className="text-2xl font-bold text-neon-cyan mb-8">
+                <p className="text-xl sm:text-2xl font-bold text-neon-cyan mb-6 sm:mb-8">
                   "{giveawayTitle}"
                 </p>
                 
-                <div className="relative">
-                  {/* Pulsing ring */}
-                  <div className={`absolute inset-0 rounded-full border-4 border-neon-cyan ${countdown <= 3 ? 'animate-ping' : 'animate-pulse'}`} 
-                       style={{ 
-                         width: '200px', 
-                         height: '200px', 
-                         margin: 'auto',
-                         left: '50%',
-                         top: '50%',
-                         transform: 'translate(-50%, -50%)'
-                       }} 
-                  />
-                  
-                  {/* Number */}
-                  <div 
-                    key={countdown}
-                    className={`text-[120px] font-black leading-none transition-all duration-300 ${
-                      countdown <= 3 
-                        ? 'text-destructive animate-bounce' 
-                        : 'text-neon-cyan'
-                    }`}
-                    style={{
-                      textShadow: countdown <= 3 
-                        ? '0 0 30px rgba(239, 68, 68, 0.8)' 
-                        : '0 0 30px rgba(0, 229, 255, 0.8)',
-                      animation: 'scale-in 0.3s ease-out'
-                    }}
-                  >
-                    {countdown}
-                  </div>
+                {/* Number only - no circle */}
+                <div 
+                  key={countdown}
+                  className={`text-[80px] sm:text-[120px] font-black leading-none transition-all duration-300 ${
+                    countdown <= 3 
+                      ? 'text-destructive animate-bounce' 
+                      : 'text-neon-cyan'
+                  }`}
+                  style={{
+                    textShadow: countdown <= 3 
+                      ? '0 0 40px rgba(239, 68, 68, 0.8), 0 0 80px rgba(239, 68, 68, 0.4)' 
+                      : '0 0 40px rgba(0, 229, 255, 0.8), 0 0 80px rgba(0, 229, 255, 0.4)',
+                    animation: 'scale-in 0.3s ease-out'
+                  }}
+                >
+                  {countdown}
                 </div>
               </>
             ) : (
               <>
-                {/* Winner reveal */}
                 <div className="animate-scale-in">
-                  <div className="text-6xl mb-4">🎉🏆🎉</div>
+                  <div className="text-4xl sm:text-6xl mb-3 sm:mb-4">🎉🏆🎉</div>
                   
-                  <p className="text-xl text-muted-foreground mb-2">
+                  <p className="text-lg sm:text-xl text-muted-foreground mb-2">
                     ¡El ganador de "{giveawayTitle}" es...!
                   </p>
                   
-                  <div className="my-8 p-6 bg-gradient-to-r from-neon-cyan/20 via-neon-purple/20 to-neon-cyan/20 rounded-2xl border-2 border-neon-cyan animate-pulse">
-                    <h2 className="text-4xl md:text-5xl font-black text-foreground mb-2">
+                  <div className="my-6 sm:my-8 p-4 sm:p-6 bg-gradient-to-r from-neon-cyan/20 via-neon-purple/20 to-neon-cyan/20 rounded-2xl border-2 border-neon-cyan animate-pulse">
+                    <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground mb-2">
                       {winnerName}
                     </h2>
-                    <p className="text-2xl md:text-3xl font-bold text-neon-cyan">
+                    <p className="text-xl sm:text-2xl md:text-3xl font-bold text-neon-cyan">
                       @{winnerUsername}
                     </p>
                   </div>
                   
-                  <div className="flex justify-center gap-2 text-4xl mb-8">
+                  <div className="flex justify-center gap-2 text-2xl sm:text-4xl mb-6 sm:mb-8">
                     <span className="animate-bounce" style={{ animationDelay: '0ms' }}>🎊</span>
                     <span className="animate-bounce" style={{ animationDelay: '100ms' }}>🎉</span>
                     <span className="animate-bounce" style={{ animationDelay: '200ms' }}>🥳</span>
@@ -207,7 +190,7 @@ export const WinnerAnimation = ({
                     onClick={onClose} 
                     variant="neon" 
                     size="lg"
-                    className="text-lg px-8"
+                    className="text-base sm:text-lg px-6 sm:px-8"
                   >
                     ¡Genial!
                   </Button>

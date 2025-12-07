@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Gift, Calendar, Trophy, Users, Clock, CheckCircle } from "lucide-react";
+import { ArrowLeft, Gift, Calendar, Trophy, Users, Clock, CheckCircle, Instagram } from "lucide-react";
 import { format, formatDistanceToNow, isPast, isFuture } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -22,11 +22,7 @@ type Giveaway = {
   winner_id: string | null;
   winner_name: string | null;
   winner_username: string | null;
-};
-
-type ParticipantCount = {
-  giveaway_id: string;
-  count: number;
+  instagram_url: string | null;
 };
 
 const Giveaways = () => {
@@ -138,10 +134,10 @@ const Giveaways = () => {
         </Button>
 
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-4 text-neon-purple">
+          <h1 className="text-5xl font-black mb-4 text-neon-purple animate-fade-in">
             🎁 SORTEOS
           </h1>
-          <p className="text-xl text-muted-foreground">
+          <p className="text-xl text-muted-foreground animate-fade-in" style={{ animationDelay: "100ms" }}>
             ¡Participa y gana premios exclusivos!
           </p>
         </div>
@@ -168,12 +164,16 @@ const Giveaways = () => {
                   Sorteos Activos
                 </h2>
                 <div className="grid gap-6">
-                  {activeGiveaways.map((giveaway) => {
+                  {activeGiveaways.map((giveaway, index) => {
                     const status = getStatus(giveaway);
                     const isParticipating = userParticipations.includes(giveaway.id);
                     
                     return (
-                      <Card key={giveaway.id} className="bg-gradient-to-br from-card to-background border-2 border-primary/30 overflow-hidden">
+                      <Card 
+                        key={giveaway.id} 
+                        className="bg-gradient-to-br from-card to-background border-2 border-primary/30 overflow-hidden animate-fade-in"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <div>
@@ -197,6 +197,24 @@ const Giveaways = () => {
                               <p className="text-sm font-bold text-muted-foreground mb-1">Requisitos:</p>
                               <p className="text-sm">{giveaway.requirements}</p>
                             </div>
+                          )}
+
+                          {/* Instagram Button */}
+                          {giveaway.instagram_url && (
+                            <a 
+                              href={giveaway.instagram_url} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="block"
+                            >
+                              <Button 
+                                variant="outline" 
+                                className="w-full bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white border-0 hover:opacity-90 transition-opacity"
+                              >
+                                <Instagram className="mr-2 h-5 w-5" />
+                                Ir a la publicación del sorteo
+                              </Button>
+                            </a>
                           )}
 
                           <div className="flex flex-wrap gap-4 text-sm">
@@ -249,8 +267,12 @@ const Giveaways = () => {
                   Sorteos Finalizados
                 </h2>
                 <div className="grid gap-4">
-                  {pastGiveaways.map((giveaway) => (
-                    <Card key={giveaway.id} className="bg-muted/50">
+                  {pastGiveaways.map((giveaway, index) => (
+                    <Card 
+                      key={giveaway.id} 
+                      className="bg-muted/50 animate-fade-in"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
                       <CardContent className="pt-6">
                         <div className="flex justify-between items-start">
                           <div>

@@ -22,16 +22,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { AdminGuard } from "@/components/admin/AdminGuard";
 
 interface Profile {
   id: string;
@@ -502,6 +494,7 @@ const ClientProfile = () => {
   const progressToFreeCut = loyaltyReward ? loyaltyReward.completed_bookings % 10 : 0;
 
   return (
+    <AdminGuard>
     <div className="min-h-screen py-12 px-4">
       <div className="max-w-4xl mx-auto">
         <Button
@@ -992,38 +985,19 @@ const ClientProfile = () => {
         </Dialog>
 
         {/* Delete Confirmation */}
-        <AlertDialog open={showDeleteConfirm} onOpenChange={setShowDeleteConfirm}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="flex items-center gap-2">
-                <AlertTriangle className="w-5 h-5 text-destructive" />
-                ¿Eliminar cliente permanentemente?
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Esta acción no se puede deshacer. Se eliminarán todos los datos del cliente incluyendo:
-                <ul className="list-disc list-inside mt-2 space-y-1">
-                  <li>Perfil del usuario</li>
-                  <li>Todas sus reservas</li>
-                  <li>Todas sus valoraciones</li>
-                  <li>Datos de fidelización</li>
-                  <li>Cuenta de autenticación</li>
-                </ul>
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={handleDeleteClient} 
-                disabled={deleting}
-                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              >
-                {deleting ? "Eliminando..." : "Eliminar permanentemente"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <ConfirmDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          title="¿Eliminar cliente permanentemente?"
+          description="Esta acción no se puede deshacer. Se eliminarán todos los datos del cliente incluyendo su perfil, reservas, valoraciones, datos de fidelización y cuenta de autenticación."
+          confirmText={deleting ? "Eliminando..." : "Eliminar permanentemente"}
+          cancelText="Cancelar"
+          onConfirm={handleDeleteClient}
+          variant="destructive"
+        />
       </div>
     </div>
+    </AdminGuard>
   );
 };
 

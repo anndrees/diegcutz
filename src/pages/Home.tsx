@@ -80,7 +80,7 @@ const Home = () => {
           <Button 
             variant="ghost" 
             onClick={() => navigate("/user")}
-            className="text-foreground hover:text-neon-cyan"
+            className="text-foreground hover:text-neon-cyan transition-colors"
           >
             <User className="mr-2 h-4 w-4" />
             {profile.username}
@@ -89,7 +89,7 @@ const Home = () => {
           <Button 
             variant="outline" 
             onClick={() => navigate("/auth")}
-            className="border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-background"
+            className="border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-background transition-all hover:scale-105"
           >
             <User className="mr-2 h-4 w-4" />
             Iniciar Sesión
@@ -100,27 +100,47 @@ const Home = () => {
       {/* Hero Section */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div 
-          className="absolute inset-0 bg-cover bg-center"
-          style={{ backgroundImage: `url(${heroImage})` }}
+          className="absolute inset-0 bg-cover bg-center animate-scale-in"
+          style={{ backgroundImage: `url(${heroImage})`, animationDuration: "1.5s" }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background"></div>
         </div>
         
+        {/* Animated background particles */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-purple/10 rounded-full blur-3xl animate-pulse" />
+          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+        </div>
+        
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
-          <h1 className="text-7xl md:text-9xl font-black mb-6 text-neon-purple font-aggressive">
+          <h1 
+            className="text-7xl md:text-9xl font-black mb-6 text-neon-purple font-aggressive animate-fade-in"
+            style={{ animationDuration: "0.8s" }}
+          >
             DIEGCUTZ
           </h1>
-          <p className="text-xl md:text-2xl text-neon-cyan mb-8 font-bold uppercase tracking-widest">
+          <p 
+            className="text-xl md:text-2xl text-neon-cyan mb-8 font-bold uppercase tracking-widest animate-fade-in"
+            style={{ animationDelay: "200ms", animationDuration: "0.8s" }}
+          >
             Urban Barbershop · Estilo Callejero
           </p>
           <Button 
             size="lg" 
             variant="neon"
             onClick={() => navigate("/booking")}
-            className="text-lg px-12 py-6 h-auto"
+            className="text-lg px-12 py-6 h-auto animate-fade-in hover:scale-105 transition-transform"
+            style={{ animationDelay: "400ms", animationDuration: "0.8s" }}
           >
             Reserva tu Cita
           </Button>
+        </div>
+        
+        {/* Scroll indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+          <div className="w-6 h-10 border-2 border-neon-cyan/50 rounded-full flex justify-center">
+            <div className="w-1.5 h-3 bg-neon-cyan rounded-full mt-2 animate-pulse" />
+          </div>
         </div>
       </section>
 
@@ -160,7 +180,7 @@ const Home = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple">
+            <div className="bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple transform transition-all hover:scale-105 hover:-translate-y-2 duration-300">
               <Scissors className="w-12 h-12 text-primary mb-4" />
               <h3 className="text-2xl font-bold mb-4 text-neon-purple">TRENDING CUTS</h3>
               <p className="text-foreground">
@@ -168,7 +188,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="bg-card p-8 rounded-lg border-2 border-secondary glow-neon-cyan">
+            <div className="bg-card p-8 rounded-lg border-2 border-secondary glow-neon-cyan transform transition-all hover:scale-105 hover:-translate-y-2 duration-300" style={{ transitionDelay: "50ms" }}>
               <Clock className="w-12 h-12 text-secondary mb-4" />
               <h3 className="text-2xl font-bold mb-4 text-neon-cyan">BEARD GAME</h3>
               <p className="text-foreground">
@@ -176,7 +196,7 @@ const Home = () => {
               </p>
             </div>
 
-            <div className="bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple">
+            <div className="bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple transform transition-all hover:scale-105 hover:-translate-y-2 duration-300" style={{ transitionDelay: "100ms" }}>
               <MapPin className="w-12 h-12 text-primary mb-4" />
               <h3 className="text-2xl font-bold mb-4 text-neon-purple">STYLE COACHING</h3>
               <p className="text-foreground">
