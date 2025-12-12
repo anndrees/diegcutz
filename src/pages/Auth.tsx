@@ -23,16 +23,16 @@ const sanitizeUsername = (value: string): string => {
 const generateUsernameSuggestions = (base: string): string[] => {
   const sanitized = sanitizeUsername(base);
   if (!sanitized) return [];
-  
+
   const suggestions: string[] = [];
   const randomNum1 = Math.floor(Math.random() * 999) + 1;
   const randomNum2 = Math.floor(Math.random() * 999) + 1;
   const year = new Date().getFullYear().toString().slice(-2);
-  
+
   suggestions.push(`${sanitized}${randomNum1}`);
   suggestions.push(`${sanitized}_${year}`);
   suggestions.push(`${sanitized}.${randomNum2}`);
-  
+
   return suggestions;
 };
 
@@ -53,7 +53,7 @@ const Auth = () => {
   const [signupContactValue, setSignupContactValue] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [signupConfirmPassword, setSignupConfirmPassword] = useState("");
-  
+
   // Username availability state
   const [checkingUsername, setCheckingUsername] = useState(false);
   const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
@@ -62,7 +62,7 @@ const Auth = () => {
   // Helper function to translate error messages
   const translateError = (error: any): string => {
     const message = error?.message || error?.toString() || "";
-    
+
     // Common Supabase auth errors
     if (message.includes("User already registered") || message.includes("user_already_exists")) {
       return "Este email o teléfono ya está registrado. Por favor, inicia sesión o usa otro.";
@@ -97,7 +97,7 @@ const Auth = () => {
     if (message.includes("Signups not allowed")) {
       return "Los registros están deshabilitados temporalmente.";
     }
-    
+
     // Generic fallback
     return "Ha ocurrido un error. Por favor, inténtalo de nuevo.";
   };
@@ -111,7 +111,7 @@ const Auth = () => {
 
   const checkUsernameAvailability = async () => {
     const username = signupUsername.trim();
-    
+
     if (!username || username.length < 3) {
       setUsernameAvailable(null);
       setUsernameSuggestions([]);
@@ -125,7 +125,7 @@ const Auth = () => {
     }
 
     setCheckingUsername(true);
-    
+
     try {
       const { data: existingProfile } = await supabase
         .from("profiles")
@@ -138,19 +138,19 @@ const Auth = () => {
         // Generate and check suggestions
         const suggestions = generateUsernameSuggestions(username);
         const availableSuggestions: string[] = [];
-        
+
         for (const suggestion of suggestions) {
           const { data } = await supabase
             .from("profiles")
             .select("username")
             .eq("username", suggestion)
             .single();
-          
+
           if (!data) {
             availableSuggestions.push(suggestion);
           }
         }
-        
+
         setUsernameSuggestions(availableSuggestions.slice(0, 3));
       } else {
         setUsernameAvailable(true);
@@ -413,8 +413,8 @@ const Auth = () => {
     }
 
     const successMessage = signupContactType === "email"
-      ? "Tu cuenta ha sido creada. Revisa tu email para confirmar tu cuenta antes de iniciar sesión."
-      : "¡Tu cuenta ha sido creada! Ya puedes iniciar sesión.";
+        ? "Tu cuenta ha sido creada. Revisa tu email para confirmar tu cuenta antes de iniciar sesión."
+        : "¡Tu cuenta ha sido creada! Ya puedes iniciar sesión.";
 
     toast({
       title: "¡Cuenta creada!",
@@ -560,28 +560,28 @@ const Auth = () => {
                       Solo letras minúsculas, números, punto (.) y guion bajo (_)
                     </p>
                     {usernameAvailable === false && usernameSuggestions.length > 0 && (
-                      <div className="mt-2 space-y-1">
+                        <div className="mt-2 space-y-1">
                         <p className="text-xs text-destructive">Este nombre no está disponible. Prueba con:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {usernameSuggestions.map((suggestion) => (
-                            <button
-                              key={suggestion}
-                              type="button"
-                              onClick={() => selectSuggestion(suggestion)}
-                              className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors"
-                            >
-                              {suggestion}
-                            </button>
-                          ))}
+                          <div className="flex flex-wrap gap-2">
+                            {usernameSuggestions.map((suggestion) => (
+                              <button
+                                key={suggestion}
+                                type="button"
+                                onClick={() => selectSuggestion(suggestion)}
+                                className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors"
+                              >
+                                {suggestion}
+                              </button>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
                   </div>
 
                   <div>
                     <Label className="mb-3 block">Método de contacto</Label>
-                    <RadioGroup 
-                      value={signupContactType} 
+                    <RadioGroup
+                      value={signupContactType}
                       onValueChange={(value) => {
                         setSignupContactType(value as "phone" | "email");
                         setSignupContactValue("");
@@ -592,8 +592,22 @@ const Auth = () => {
                         <Label htmlFor="signup-phone" className="cursor-pointer">Teléfono</Label>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="email" id="signup-email" disabled />
-                        <Label htmlFor="signup-email" className="cursor-pointer text-muted-foreground">Email</Label>
+                        <RadioGroupItem
+                          value="email"
+                          id="signup-email"
+                          disabled
+                        />
+                        <div className="flex items-center gap-2">
+                          <Label
+                            htmlFor="signup-email"
+                            className="cursor-pointer text-muted-foreground"
+                          >
+                            Email
+                          </Label>
+                          <span className="text-xs text-orange-500">
+                            (Temporalmente deshabilitado)
+                          </span>
+                        </div>
                       </div>
                     </RadioGroup>
                   </div>
