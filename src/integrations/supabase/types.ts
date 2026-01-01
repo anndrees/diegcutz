@@ -295,6 +295,47 @@ export type Database = {
         }
         Relationships: []
       }
+      password_reset_requests: {
+        Row: {
+          contact_value: string | null
+          created_at: string
+          id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          user_id: string | null
+          username: string | null
+        }
+        Insert: {
+          contact_value?: string | null
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          user_id?: string | null
+          username?: string | null
+        }
+        Update: {
+          contact_value?: string | null
+          created_at?: string
+          id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          user_id?: string | null
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "password_reset_requests_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           ban_reason: string | null
@@ -308,6 +349,9 @@ export type Database = {
           is_restricted: boolean | null
           restricted_at: string | null
           restriction_ends_at: string | null
+          temp_password: string | null
+          temp_password_active: boolean | null
+          temp_password_created_at: string | null
           username: string
         }
         Insert: {
@@ -322,6 +366,9 @@ export type Database = {
           is_restricted?: boolean | null
           restricted_at?: string | null
           restriction_ends_at?: string | null
+          temp_password?: string | null
+          temp_password_active?: boolean | null
+          temp_password_created_at?: string | null
           username: string
         }
         Update: {
@@ -336,6 +383,9 @@ export type Database = {
           is_restricted?: boolean | null
           restricted_at?: string | null
           restriction_ends_at?: string | null
+          temp_password?: string | null
+          temp_password_active?: boolean | null
+          temp_password_created_at?: string | null
           username?: string
         }
         Relationships: []
