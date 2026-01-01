@@ -502,6 +502,16 @@ const Auth = () => {
                   >
                     {loading ? "Iniciando..." : "Iniciar Sesión"}
                   </Button>
+
+                  <div className="text-center mt-4">
+                    <button
+                      type="button"
+                      onClick={() => navigate("/forgot-password")}
+                      className="text-sm text-muted-foreground hover:text-primary transition-colors"
+                    >
+                      ¿Has olvidado tu contraseña?
+                    </button>
+                  </div>
                 </form>
               </CardContent>
             </Card>

@@ -9,9 +9,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, LogOut, Calendar, Star, Gift } from "lucide-react";
+import { ArrowLeft, LogOut, Calendar, Star, Gift, X, RotateCcw } from "lucide-react";
 import { RatingDialog } from "@/components/RatingDialog";
 import { Progress } from "@/components/ui/progress";
+import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 interface Booking {
   id: string;
   booking_date: string;
@@ -19,6 +20,9 @@ interface Booking {
   services: any;
   total_price: number;
   created_at: string;
+  is_cancelled?: boolean;
+  cancelled_at?: string | null;
+  cancelled_by?: string | null;
   rating?: {
     id: string;
     rating: number;
@@ -47,6 +51,8 @@ export default function UserProfile() {
   const [contactValue, setContactValue] = useState("");
   const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [cancelDialogBooking, setCancelDialogBooking] = useState<Booking | null>(null);
+  const [cancelMode, setCancelMode] = useState<"cancel" | "reschedule">("cancel");
 
   // Check account status
   useEffect(() => {
@@ -181,8 +187,9 @@ export default function UserProfile() {
         <p className="text-muted-foreground">Cargando...</p>
       </div>;
   }
-  const currentBookings = bookings.filter(b => !isPastBooking(b.booking_date, b.booking_time));
-  const pastBookings = bookings.filter(b => isPastBooking(b.booking_date, b.booking_time));
+  const currentBookings = bookings.filter(b => !isPastBooking(b.booking_date, b.booking_time) && !b.is_cancelled);
+  const cancelledBookings = bookings.filter(b => b.is_cancelled);
+  const pastBookings = bookings.filter(b => isPastBooking(b.booking_date, b.booking_time) && !b.is_cancelled);
   return <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-8">
@@ -320,6 +327,7 @@ export default function UserProfile() {
                           <TableHead>Hora</TableHead>
                           <TableHead>Servicios</TableHead>
                           <TableHead className="text-right">Precio</TableHead>
+                          <TableHead className="text-right">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -330,6 +338,24 @@ export default function UserProfile() {
                               {Array.isArray(booking.services) && booking.services.map((s, i) => <div key={i}>{s}</div>)}
                             </TableCell>
                             <TableCell className="text-right font-bold">{booking.total_price}€</TableCell>
+                            <TableCell className="text-right space-x-1">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => { setCancelDialogBooking(booking); setCancelMode("reschedule"); }}
+                              >
+                                <RotateCcw className="h-3 w-3 mr-1" />
+                                Reubicar
+                              </Button>
+                              <Button
+                                variant="destructive"
+                                size="sm"
+                                onClick={() => { setCancelDialogBooking(booking); setCancelMode("cancel"); }}
+                              >
+                                <X className="h-3 w-3 mr-1" />
+                                Cancelar
+                              </Button>
+                            </TableCell>
                           </TableRow>)}
                       </TableBody>
                     </Table>
@@ -377,5 +403,15 @@ export default function UserProfile() {
       </div>
 
       {selectedBookingId && user && <RatingDialog bookingId={selectedBookingId} userId={user.id} open={ratingDialogOpen} onOpenChange={setRatingDialogOpen} onRatingSubmitted={handleRatingSubmitted} />}
+      
+      {cancelDialogBooking && (
+        <CancelBookingDialog
+          open={!!cancelDialogBooking}
+          onOpenChange={(open) => !open && setCancelDialogBooking(null)}
+          booking={cancelDialogBooking}
+          onSuccess={fetchBookings}
+          mode={cancelMode}
+        />
+      )}
     </div>;
 }

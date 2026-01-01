@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, addHours, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink, X, RotateCcw, CheckCircle } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -34,6 +34,9 @@ import { BusinessHoursManagement } from "@/components/admin/BusinessHoursManagem
 import { RatingsManagement } from "@/components/admin/RatingsManagement";
 import { GiveawaysManagement } from "@/components/admin/GiveawaysManagement";
 import { AdminActionsLog } from "@/components/admin/AdminActionsLog";
+import { NotificationsDropdown } from "@/components/admin/NotificationsDropdown";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 
 type Booking = {
   id: string;
@@ -44,6 +47,9 @@ type Booking = {
   services: string[];
   total_price: number;
   user_id?: string | null;
+  is_cancelled?: boolean;
+  cancelled_at?: string | null;
+  cancelled_by?: string | null;
   profile?: {
     full_name: string;
     username: string;
@@ -71,6 +77,10 @@ const Admin = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCalendarDate, setSelectedCalendarDate] = useState<Date | undefined>();
   const [showCalendarDialog, setShowCalendarDialog] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletingBookingId, setDeletingBookingId] = useState<string | null>(null);
+  const [cancelDialogBooking, setCancelDialogBooking] = useState<Booking | null>(null);
+  const [cancelMode, setCancelMode] = useState<"cancel" | "reschedule">("cancel");
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -133,10 +143,18 @@ const Admin = () => {
       profile: Array.isArray(booking.profile) ? booking.profile[0] : booking.profile
     })));
   };
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Seguro que quieres eliminar esta reserva?")) return;
+  const openDeleteConfirm = (id: string) => {
+    setDeletingBookingId(id);
+    setShowDeleteConfirm(true);
+  };
 
-    const { error } = await supabase.from("bookings").delete().eq("id", id);
+  const handleDelete = async () => {
+    if (!deletingBookingId) return;
+
+    const { error } = await supabase.from("bookings").delete().eq("id", deletingBookingId);
+
+    setShowDeleteConfirm(false);
+    setDeletingBookingId(null);
 
     if (error) {
       toast({
@@ -150,6 +168,38 @@ const Admin = () => {
     toast({
       title: "Reserva eliminada",
       description: "La reserva se eliminó correctamente",
+    });
+    
+    loadBookings();
+  };
+
+  const openCancelDialog = (booking: Booking, mode: "cancel" | "reschedule") => {
+    setCancelDialogBooking(booking);
+    setCancelMode(mode);
+  };
+
+  const handleReactivateBooking = async (bookingId: string) => {
+    const { error } = await supabase
+      .from("bookings")
+      .update({
+        is_cancelled: false,
+        cancelled_at: null,
+        cancelled_by: null,
+      })
+      .eq("id", bookingId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo reactivar la reserva",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Reserva reactivada",
+      description: "La reserva ha sido reactivada correctamente",
     });
     
     loadBookings();
@@ -259,16 +309,24 @@ const Admin = () => {
           </TableHeader>
           <TableBody>
             {bookingsToShow.map((booking) => (
-              <TableRow key={booking.id}>
-                <TableCell>
+              <TableRow 
+                key={booking.id}
+                className={booking.is_cancelled ? "bg-destructive/10" : ""}
+              >
+                <TableCell className={booking.is_cancelled ? "text-destructive" : ""}>
                   {format(new Date(booking.booking_date + "T00:00:00"), "d MMM yyyy", { locale: es })}
+                  {booking.is_cancelled && (
+                    <span className="block text-xs font-medium">CANCELADA</span>
+                  )}
                 </TableCell>
-                <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
-                <TableCell className="font-medium">
+                <TableCell className={booking.is_cancelled ? "text-destructive line-through" : ""}>
+                  {booking.booking_time.slice(0, 5)}
+                </TableCell>
+                <TableCell className={`font-medium ${booking.is_cancelled ? "text-destructive" : ""}`}>
                   {booking.user_id && booking.profile ? (
                     <Link 
                       to={`/admin/client/${booking.user_id}`}
-                      className="flex items-center gap-1 text-neon-cyan hover:underline"
+                      className={`flex items-center gap-1 ${booking.is_cancelled ? "text-destructive" : "text-neon-cyan"} hover:underline`}
                     >
                       {booking.profile.full_name}
                       <ExternalLink className="h-3 w-3" />
@@ -277,11 +335,11 @@ const Admin = () => {
                     booking.client_name
                   )}
                 </TableCell>
-                <TableCell>
+                <TableCell className={booking.is_cancelled ? "text-destructive" : ""}>
                   {booking.user_id && booking.profile ? booking.profile.contact_value : booking.client_contact}
                 </TableCell>
                 <TableCell>
-                  <div className="text-sm max-w-xs">
+                  <div className={`text-sm max-w-xs ${booking.is_cancelled ? "text-destructive line-through" : ""}`}>
                     {booking.services && booking.services.length > 0 ? (
                       booking.services.map((service, idx) => (
                         <div key={idx} className="text-xs truncate">{service}</div>
@@ -291,22 +349,65 @@ const Admin = () => {
                     )}
                   </div>
                 </TableCell>
-                <TableCell className="font-bold">{booking.total_price}€</TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => openEditDialog(booking)}
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(booking.id)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                <TableCell className={`font-bold ${booking.is_cancelled ? "text-destructive line-through" : ""}`}>
+                  {booking.total_price}€
+                </TableCell>
+                <TableCell className="text-right">
+                  {booking.is_cancelled ? (
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleReactivateBooking(booking.id)}
+                        title="Reactivar reserva"
+                      >
+                        <CheckCircle className="h-4 w-4 text-green-500" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openCancelDialog(booking, "reschedule")}
+                        title="Reubicar reserva"
+                      >
+                        <RotateCcw className="h-4 w-4 text-neon-cyan" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openDeleteConfirm(booking.id)}
+                        title="Eliminar permanentemente"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex justify-end gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openEditDialog(booking)}
+                        title="Editar"
+                      >
+                        <Edit2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openCancelDialog(booking, "cancel")}
+                        title="Cancelar reserva"
+                      >
+                        <X className="h-4 w-4 text-yellow-500" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openDeleteConfirm(booking.id)}
+                        title="Eliminar"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -383,10 +484,13 @@ const Admin = () => {
             Volver
           </Button>
           
-          <Button variant="destructive" onClick={handleLogout}>
-            <LogOut className="mr-2" />
-            Cerrar Sesión
-          </Button>
+          <div className="flex items-center gap-2">
+            <NotificationsDropdown />
+            <Button variant="destructive" onClick={handleLogout}>
+              <LogOut className="mr-2" />
+              Cerrar Sesión
+            </Button>
+          </div>
         </div>
 
         <div className="text-center mb-12">
@@ -655,6 +759,30 @@ const Admin = () => {
             </form>
           </DialogContent>
         </Dialog>
+
+        {/* Delete Confirm Dialog */}
+        <ConfirmDialog
+          open={showDeleteConfirm}
+          onOpenChange={setShowDeleteConfirm}
+          title="Eliminar Reserva"
+          description="¿Seguro que quieres eliminar esta reserva permanentemente? Esta acción no se puede deshacer."
+          confirmText="Eliminar"
+          cancelText="Cancelar"
+          onConfirm={handleDelete}
+          variant="destructive"
+        />
+
+        {/* Cancel/Reschedule Dialog */}
+        {cancelDialogBooking && (
+          <CancelBookingDialog
+            open={!!cancelDialogBooking}
+            onOpenChange={(open) => !open && setCancelDialogBooking(null)}
+            booking={cancelDialogBooking}
+            onSuccess={loadBookings}
+            mode={cancelMode}
+            isAdmin={true}
+          />
+        )}
       </div>
     </div>
   );
