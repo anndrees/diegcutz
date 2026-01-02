@@ -52,6 +52,30 @@ export type Database = {
           },
         ]
       }
+      app_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           booking_date: string
@@ -134,6 +158,68 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      chat_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+          unread_by_admin: boolean
+          unread_by_user: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          unread_by_admin?: boolean
+          unread_by_user?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          unread_by_admin?: boolean
+          unread_by_user?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          sender_type: string
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          sender_type: string
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       giveaway_participants: {
         Row: {
@@ -468,6 +554,36 @@ export type Database = {
           price?: number
           service_type?: string
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      special_hours: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          is_closed: boolean
+          note: string | null
+          time_ranges: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          is_closed?: boolean
+          note?: string | null
+          time_ranges?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          is_closed?: boolean
+          note?: string | null
+          time_ranges?: Json
+          updated_at?: string
         }
         Relationships: []
       }
