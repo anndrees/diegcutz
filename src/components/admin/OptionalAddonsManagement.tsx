@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Edit2, Trash2, Plus } from "lucide-react";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type OptionalAddon = {
   id: string;
@@ -28,6 +29,7 @@ export const OptionalAddonsManagement = () => {
     price: 0,
     coming_soon: false,
   });
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; addonId: string | null }>({ open: false, addonId: null });
 
   useEffect(() => {
     loadAddons();
@@ -94,17 +96,19 @@ export const OptionalAddonsManagement = () => {
     loadAddons();
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("¿Seguro que quieres eliminar este adicional?")) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.addonId) return;
 
-    const { error } = await supabase.from("optional_addons").delete().eq("id", id);
+    const { error } = await supabase.from("optional_addons").delete().eq("id", deleteDialog.addonId);
 
     if (error) {
       toast({ title: "Error", description: "No se pudo eliminar", variant: "destructive" });
+      setDeleteDialog({ open: false, addonId: null });
       return;
     }
 
     toast({ title: "Adicional eliminado" });
+    setDeleteDialog({ open: false, addonId: null });
     loadAddons();
   };
 
@@ -159,7 +163,7 @@ export const OptionalAddonsManagement = () => {
                     <Button variant="ghost" size="icon" onClick={() => handleEdit(addon)}>
                       <Edit2 className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDelete(addon.id)}>
+                    <Button variant="ghost" size="icon" onClick={() => setDeleteDialog({ open: true, addonId: addon.id })}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>
@@ -212,6 +216,17 @@ export const OptionalAddonsManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, addonId: deleteDialog.addonId })}
+        title="Eliminar adicional"
+        description="¿Seguro que quieres eliminar este adicional?"
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="destructive"
+        onConfirm={handleDeleteConfirm}
+      />
     </Card>
   );
 };

@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Edit2, Trash2, Plus, X } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OptionalAddonsManagement } from "./OptionalAddonsManagement";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type CustomExtra = {
   name: string;
@@ -47,6 +48,7 @@ export const ServicesManagement = () => {
   });
   const [newExtraName, setNewExtraName] = useState("");
   const [newExtraPrice, setNewExtraPrice] = useState(0);
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; service: Service | null }>({ open: false, service: null });
 
   useEffect(() => {
     loadServices();
@@ -160,7 +162,7 @@ export const ServicesManagement = () => {
     loadServices();
   };
 
-  const handleDelete = async (service: Service) => {
+  const handleDeleteClick = (service: Service) => {
     // Check if service is used in any pack
     if (service.service_type === 'service') {
       const packsUsingService = services.filter(
@@ -177,16 +179,22 @@ export const ServicesManagement = () => {
       }
     }
 
-    if (!confirm("¿Seguro que quieres eliminar este servicio?")) return;
+    setDeleteDialog({ open: true, service });
+  };
 
-    const { error } = await supabase.from("services").delete().eq("id", service.id);
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.service) return;
+
+    const { error } = await supabase.from("services").delete().eq("id", deleteDialog.service.id);
 
     if (error) {
       toast({ title: "Error", description: "No se pudo eliminar el servicio", variant: "destructive" });
+      setDeleteDialog({ open: false, service: null });
       return;
     }
 
     toast({ title: "Servicio eliminado", description: "El servicio se eliminó correctamente" });
+    setDeleteDialog({ open: false, service: null });
     loadServices();
   };
 
@@ -235,7 +243,7 @@ export const ServicesManagement = () => {
               <Button variant="ghost" size="icon" onClick={() => handleEdit(service)}>
                 <Edit2 className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => handleDelete(service)}>
+              <Button variant="ghost" size="icon" onClick={() => handleDeleteClick(service)}>
                 <Trash2 className="h-4 w-4 text-destructive" />
               </Button>
             </TableCell>
@@ -376,6 +384,17 @@ export const ServicesManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, service: deleteDialog.service })}
+        title="Eliminar servicio"
+        description={`¿Seguro que quieres eliminar el ${deleteDialog.service?.service_type === 'pack' ? 'pack' : 'servicio'} "${deleteDialog.service?.name}"?`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="destructive"
+        onConfirm={handleDeleteConfirm}
+      />
     </div>
   );
 };

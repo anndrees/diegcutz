@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Scissors, Clock, MapPin, MessageCircle, User, Gift } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
@@ -7,6 +7,19 @@ import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { RatingsCarousel } from "@/components/RatingsCarousel";
+
+// Custom hook for parallax effect
+const useParallax = () => {
+  const [scrollY, setScrollY] = useState(0);
+  
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+  
+  return scrollY;
+};
 
 type TimeRange = {
   start: string;
@@ -34,10 +47,33 @@ const Home = () => {
   const { user, profile } = useAuth();
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
+  const scrollY = useParallax();
+  
+  // Refs for scroll-triggered animations
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const [aboutVisible, setAboutVisible] = useState(false);
 
   useEffect(() => {
     loadBusinessHours();
     loadActiveGiveaway();
+    
+    // Intersection observer for scroll animations
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setAboutVisible(true);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    
+    if (aboutRef.current) {
+      observer.observe(aboutRef.current);
+    }
+    
+    return () => observer.disconnect();
   }, []);
 
   const loadBusinessHours = async () => {
@@ -97,19 +133,33 @@ const Home = () => {
         )}
       </div>
 
-      {/* Hero Section */}
+      {/* Hero Section with Parallax */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center animate-scale-in"
-          style={{ backgroundImage: `url(${heroImage})`, animationDuration: "1.5s" }}
+          style={{ 
+            backgroundImage: `url(${heroImage})`, 
+            animationDuration: "1.5s",
+            transform: `translateY(${scrollY * 0.5}px) scale(${1 + scrollY * 0.0002})`,
+          }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background"></div>
         </div>
         
-        {/* Animated background particles */}
+        {/* Animated background particles with parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-purple/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+          <div 
+            className="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-purple/10 rounded-full blur-3xl animate-pulse"
+            style={{ transform: `translateY(${scrollY * -0.3}px)` }}
+          />
+          <div 
+            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl animate-pulse"
+            style={{ animationDelay: "1s", transform: `translateY(${scrollY * -0.2}px)` }}
+          />
+          <div 
+            className="absolute top-1/2 left-1/2 w-48 h-48 bg-neon-pink/5 rounded-full blur-2xl animate-pulse"
+            style={{ animationDelay: "0.5s", transform: `translate(-50%, -50%) translateY(${scrollY * -0.4}px)` }}
+          />
         </div>
         
         <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
@@ -121,7 +171,12 @@ const Home = () => {
           </h1>
           <p 
             className="text-xl md:text-2xl text-neon-cyan mb-8 font-bold uppercase tracking-widest animate-fade-in"
-            style={{ animationDelay: "200ms", animationDuration: "0.8s" }}
+            style={{ 
+              animationDelay: "200ms", 
+              animationDuration: "0.8s",
+              transform: `translateY(${scrollY * 0.1}px)`,
+              opacity: Math.max(0, 1 - scrollY / 500)
+            }}
           >
             Urban Barbershop · Estilo Callejero
           </p>
@@ -167,10 +222,12 @@ const Home = () => {
         </section>
       )}
 
-      {/* About Section */}
-      <section className="py-20 px-4">
+      {/* About Section with scroll animations */}
+      <section className="py-20 px-4" ref={aboutRef}>
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
+          <div 
+            className={`text-center mb-16 transition-all duration-1000 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+          >
             <h2 className="text-5xl md:text-6xl font-black mb-6 text-neon-cyan">
               🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
             </h2>
@@ -180,24 +237,33 @@ const Home = () => {
           </div>
           
           <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple transform transition-all hover:scale-105 hover:-translate-y-2 duration-300">
-              <Scissors className="w-12 h-12 text-primary mb-4" />
+            <div 
+              className={`bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple transform transition-all hover:scale-105 hover:-translate-y-2 duration-500 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+              style={{ transitionDelay: "100ms" }}
+            >
+              <Scissors className="w-12 h-12 text-primary mb-4 animate-pulse" />
               <h3 className="text-2xl font-bold mb-4 text-neon-purple">TRENDING CUTS</h3>
               <p className="text-foreground">
                 Dominamos el fade que arrasa, los cortes con textura y el estilo que estás buscando.
               </p>
             </div>
 
-            <div className="bg-card p-8 rounded-lg border-2 border-secondary glow-neon-cyan transform transition-all hover:scale-105 hover:-translate-y-2 duration-300" style={{ transitionDelay: "50ms" }}>
-              <Clock className="w-12 h-12 text-secondary mb-4" />
+            <div 
+              className={`bg-card p-8 rounded-lg border-2 border-secondary glow-neon-cyan transform transition-all hover:scale-105 hover:-translate-y-2 duration-500 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+              style={{ transitionDelay: "200ms" }}
+            >
+              <Clock className="w-12 h-12 text-secondary mb-4 animate-pulse" style={{ animationDelay: "0.3s" }} />
               <h3 className="text-2xl font-bold mb-4 text-neon-cyan">BEARD GAME</h3>
               <p className="text-foreground">
                 Diseño de barba profesional y clean shaves a navaja para que salgas impecable.
               </p>
             </div>
 
-            <div className="bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple transform transition-all hover:scale-105 hover:-translate-y-2 duration-300" style={{ transitionDelay: "100ms" }}>
-              <MapPin className="w-12 h-12 text-primary mb-4" />
+            <div 
+              className={`bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple transform transition-all hover:scale-105 hover:-translate-y-2 duration-500 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+              style={{ transitionDelay: "300ms" }}
+            >
+              <MapPin className="w-12 h-12 text-primary mb-4 animate-pulse" style={{ animationDelay: "0.6s" }} />
               <h3 className="text-2xl font-bold mb-4 text-neon-purple">STYLE COACHING</h3>
               <p className="text-foreground">
                 Te asesoramos para que el corte le dé el toque a tu vibe. 🚨

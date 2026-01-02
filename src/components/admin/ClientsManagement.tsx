@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Edit2, Trash2, Search } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type Client = {
   id: string;
@@ -30,6 +31,7 @@ export const ClientsManagement = () => {
     username: "",
     contact_value: "",
   });
+  const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; client: Client | null }>({ open: false, client: null });
 
   useEffect(() => {
     loadClients();
@@ -100,12 +102,12 @@ export const ClientsManagement = () => {
     loadClients();
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (!confirm(`¿Seguro que quieres eliminar al cliente ${name}? Esto eliminará COMPLETAMENTE al usuario, incluyendo su cuenta, reservas y todos sus datos.`)) return;
+  const handleDeleteConfirm = async () => {
+    if (!deleteDialog.client) return;
 
     try {
       const { data, error } = await supabase.functions.invoke('delete-user', {
-        body: { userId: id }
+        body: { userId: deleteDialog.client.id }
       });
 
       if (error) {
@@ -140,6 +142,8 @@ export const ClientsManagement = () => {
         description: "Error inesperado al eliminar el cliente",
         variant: "destructive",
       });
+    } finally {
+      setDeleteDialog({ open: false, client: null });
     }
   };
 
@@ -204,7 +208,7 @@ export const ClientsManagement = () => {
                       <Button variant="ghost" size="icon" onClick={() => handleEdit(client)}>
                         <Edit2 className="h-4 w-4" />
                       </Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(client.id, client.full_name)}>
+                      <Button variant="ghost" size="icon" onClick={() => setDeleteDialog({ open: true, client })}>
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </TableCell>
@@ -268,6 +272,18 @@ export const ClientsManagement = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        open={deleteDialog.open}
+        onOpenChange={(open) => setDeleteDialog({ open, client: deleteDialog.client })}
+        title="Eliminar cliente"
+        description={`¿Seguro que quieres eliminar al cliente ${deleteDialog.client?.full_name}? Esto eliminará COMPLETAMENTE al usuario, incluyendo su cuenta, reservas y todos sus datos.`}
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        variant="destructive"
+        onConfirm={handleDeleteConfirm}
+      />
     </Card>
   );
 };
