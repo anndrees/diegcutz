@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { MessageCircle, Send, X, Minimize2 } from "lucide-react";
+import { MessageCircle, Send, Minimize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,17 +31,77 @@ export const FloatingChat = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const loadMessages = useCallback(async (convId: string) => {
+    const { data } = await supabase
+      .from("chat_messages")
+      .select("*")
+      .eq("conversation_id", convId)
+      .order("created_at", { ascending: true });
+
+    setMessages((data || []).map((msg) => ({
+      ...msg,
+      sender_type: msg.sender_type as "user" | "admin",
+    })));
+  }, []);
+
+  const markAsRead = useCallback(async (convId: string) => {
+    await supabase
+      .from("chat_conversations")
+      .update({ unread_by_user: false })
+      .eq("id", convId);
+
+    await supabase
+      .from("chat_messages")
+      .update({ is_read: true })
+      .eq("conversation_id", convId)
+      .eq("sender_type", "admin");
+  }, []);
+
+  const loadOrCreateConversation = useCallback(async (userId: string) => {
+    setLoading(true);
+
+    const { data: existingConv } = await supabase
+      .from("chat_conversations")
+      .select("id, unread_by_user")
+      .eq("user_id", userId)
+      .single();
+
+    if (existingConv) {
+      setConversationId(existingConv.id);
+      if (existingConv.unread_by_user) {
+        const { count } = await supabase
+          .from("chat_messages")
+          .select("*", { count: "exact", head: true })
+          .eq("conversation_id", existingConv.id)
+          .eq("sender_type", "admin")
+          .eq("is_read", false);
+        setUnreadCount(count || 0);
+      }
+    } else {
+      const { data: newConv, error } = await supabase
+        .from("chat_conversations")
+        .insert({ user_id: userId })
+        .select("id")
+        .single();
+
+      if (!error && newConv) {
+        setConversationId(newConv.id);
+      }
+    }
+
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
     if (user) {
-      loadOrCreateConversation();
+      loadOrCreateConversation(user.id);
     }
-  }, [user]);
+  }, [user, loadOrCreateConversation]);
 
   useEffect(() => {
     if (conversationId) {
-      loadMessages();
+      loadMessages(conversationId);
       
-      // Subscribe to real-time messages
       const channel = supabase
         .channel(`user-chat-${conversationId}`)
         .on(
@@ -67,14 +127,14 @@ export const FloatingChat = () => {
         supabase.removeChannel(channel);
       };
     }
-  }, [conversationId, isOpen]);
+  }, [conversationId, isOpen, loadMessages]);
 
   useEffect(() => {
     if (isOpen && conversationId) {
-      markAsRead();
+      markAsRead(conversationId);
       setUnreadCount(0);
     }
-  }, [isOpen, conversationId]);
+  }, [isOpen, conversationId, markAsRead]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -82,76 +142,6 @@ export const FloatingChat = () => {
 
   // Don't render if user is not logged in
   if (!user || !profile) return null;
-
-  const loadOrCreateConversation = async () => {
-    if (!user) return;
-
-    setLoading(true);
-
-    // Check if conversation exists
-    const { data: existingConv } = await supabase
-      .from("chat_conversations")
-      .select("id, unread_by_user")
-      .eq("user_id", user.id)
-      .single();
-
-    if (existingConv) {
-      setConversationId(existingConv.id);
-      if (existingConv.unread_by_user) {
-        // Count unread messages
-        const { count } = await supabase
-          .from("chat_messages")
-          .select("*", { count: "exact", head: true })
-          .eq("conversation_id", existingConv.id)
-          .eq("sender_type", "admin")
-          .eq("is_read", false);
-        setUnreadCount(count || 0);
-      }
-    } else {
-      // Create new conversation
-      const { data: newConv, error } = await supabase
-        .from("chat_conversations")
-        .insert({ user_id: user.id })
-        .select("id")
-        .single();
-
-      if (!error && newConv) {
-        setConversationId(newConv.id);
-      }
-    }
-
-    setLoading(false);
-  };
-
-  const loadMessages = async () => {
-    if (!conversationId) return;
-
-    const { data } = await supabase
-      .from("chat_messages")
-      .select("*")
-      .eq("conversation_id", conversationId)
-      .order("created_at", { ascending: true });
-
-    setMessages((data || []).map((msg) => ({
-      ...msg,
-      sender_type: msg.sender_type as "user" | "admin",
-    })));
-  };
-
-  const markAsRead = async () => {
-    if (!conversationId) return;
-
-    await supabase
-      .from("chat_conversations")
-      .update({ unread_by_user: false })
-      .eq("id", conversationId);
-
-    await supabase
-      .from("chat_messages")
-      .update({ is_read: true })
-      .eq("conversation_id", conversationId)
-      .eq("sender_type", "admin");
-  };
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,7 +165,6 @@ export const FloatingChat = () => {
       return;
     }
 
-    // Update conversation
     await supabase
       .from("chat_conversations")
       .update({
