@@ -60,11 +60,15 @@ export const FloatingChat = () => {
   const loadOrCreateConversation = useCallback(async (userId: string) => {
     setLoading(true);
 
-    const { data: existingConv } = await supabase
+    // Buscar conversación existente (puede haber múltiples por un bug anterior, tomamos la más reciente)
+    const { data: existingConvs } = await supabase
       .from("chat_conversations")
       .select("id, unread_by_user")
       .eq("user_id", userId)
-      .single();
+      .order("created_at", { ascending: false })
+      .limit(1);
+
+    const existingConv = existingConvs?.[0];
 
     if (existingConv) {
       setConversationId(existingConv.id);
