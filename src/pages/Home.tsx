@@ -597,21 +597,23 @@ const Home = () => {
       <footer className="py-8 px-4 text-center border-t border-border">
         <p className="text-muted-foreground">© 2025 DIEGCUTZ - Barbería Urbana</p>
         <div className="flex justify-center gap-4 mt-3">
-          <Button
-            variant="link"
-            onClick={() => navigate("/privacy")}
-            className="text-muted-foreground hover:text-primary text-sm"
+          <a
+            href="/privacy"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline"
           >
             Política de Privacidad
-          </Button>
+          </a>
           <span className="text-muted-foreground">|</span>
-          <Button
-            variant="link"
-            onClick={() => navigate("/terms")}
-            className="text-muted-foreground hover:text-primary text-sm"
+          <a
+            href="/terms"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline"
           >
             Términos de Servicio
-          </Button>
+          </a>
         </div>
         <Button
           variant="link"
