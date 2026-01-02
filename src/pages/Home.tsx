@@ -595,6 +595,7 @@ const Home = () => {
 
       {/* Footer */}
       <footer className="py-8 px-4 text-center border-t border-border">
+        <p className="text-muted-foreground/40 text-xs mb-3">Sistema de reservas online para barbería</p>
         <p className="text-muted-foreground">© 2025 DIEGCUTZ - Barbería Urbana</p>
         <div className="flex justify-center gap-4 mt-3">
           <a
