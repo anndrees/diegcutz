@@ -7,9 +7,11 @@ interface AuthContextType {
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  requiresPasswordChange: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   checkAccountStatus: () => Promise<{ isBanned: boolean; isRestricted: boolean; banReason?: string; restrictionEndsAt?: string }>;
+  clearPasswordChangeRequirement: () => void;
 }
 
 interface Profile {
@@ -24,6 +26,7 @@ interface Profile {
   is_restricted?: boolean;
   restriction_ends_at?: string;
   restricted_at?: string;
+  temp_password_active?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -31,9 +34,11 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   loading: true,
+  requiresPasswordChange: false,
   signOut: async () => {},
   refreshProfile: async () => {},
   checkAccountStatus: async () => ({ isBanned: false, isRestricted: false }),
+  clearPasswordChangeRequirement: () => {},
 });
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
@@ -41,6 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
 
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
@@ -78,6 +84,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           data.restriction_ends_at = null;
           data.restricted_at = null;
         }
+      }
+      
+      // Check if temp password is active
+      if (data.temp_password_active) {
+        setRequiresPasswordChange(true);
+      } else {
+        setRequiresPasswordChange(false);
       }
       
       setProfile(data);
@@ -168,10 +181,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setUser(null);
     setSession(null);
     setProfile(null);
+    setRequiresPasswordChange(false);
+  };
+
+  const clearPasswordChangeRequirement = () => {
+    setRequiresPasswordChange(false);
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, profile, loading, signOut, refreshProfile, checkAccountStatus }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      profile, 
+      loading, 
+      requiresPasswordChange,
+      signOut, 
+      refreshProfile, 
+      checkAccountStatus,
+      clearPasswordChangeRequirement 
+    }}>
       {children}
     </AuthContext.Provider>
   );
