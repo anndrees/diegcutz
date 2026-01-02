@@ -1,24 +1,51 @@
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin, MessageCircle, User, Gift } from "lucide-react";
+import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Sparkles, Zap } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { RatingsCarousel } from "@/components/RatingsCarousel";
 
-// Custom hook for parallax effect
+// Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
+  const frameRef = useRef<number>();
   
   useEffect(() => {
-    const handleScroll = () => setScrollY(window.scrollY);
+    const handleScroll = () => {
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      frameRef.current = requestAnimationFrame(() => {
+        setScrollY(window.scrollY);
+      });
+    };
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+    };
   }, []);
   
   return scrollY;
+};
+
+// Custom hook for mouse parallax
+const useMouseParallax = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({
+        x: (e.clientX / window.innerWidth - 0.5) * 2,
+        y: (e.clientY / window.innerHeight - 0.5) * 2,
+      });
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+  
+  return mousePos;
 };
 
 type TimeRange = {
@@ -42,16 +69,57 @@ type Giveaway = {
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
+// Floating particles component
+const FloatingParticles = ({ scrollY }: { scrollY: number }) => {
+  const particles = Array.from({ length: 20 }, (_, i) => ({
+    id: i,
+    size: Math.random() * 6 + 2,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    delay: Math.random() * 5,
+    duration: 3 + Math.random() * 4,
+  }));
+
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map((p) => (
+        <div
+          key={p.id}
+          className="absolute rounded-full bg-neon-cyan/30"
+          style={{
+            width: p.size,
+            height: p.size,
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            transform: `translateY(${scrollY * (0.1 + p.id * 0.02)}px)`,
+            animation: `float ${p.duration}s ease-in-out infinite`,
+            animationDelay: `${p.delay}s`,
+            boxShadow: `0 0 ${p.size * 2}px ${p.size / 2}px rgba(0, 245, 255, 0.3)`,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
 const Home = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
   const scrollY = useParallax();
+  const mousePos = useMouseParallax();
   
   // Refs for scroll-triggered animations
   const aboutRef = useRef<HTMLDivElement>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);
+  const locationRef = useRef<HTMLDivElement>(null);
+  const hoursRef = useRef<HTMLDivElement>(null);
+  
   const [aboutVisible, setAboutVisible] = useState(false);
+  const [servicesVisible, setServicesVisible] = useState(false);
+  const [locationVisible, setLocationVisible] = useState(false);
+  const [hoursVisible, setHoursVisible] = useState(false);
 
   useEffect(() => {
     loadBusinessHours();
@@ -62,16 +130,19 @@ const Home = () => {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            setAboutVisible(true);
+            if (entry.target === aboutRef.current) setAboutVisible(true);
+            if (entry.target === servicesRef.current) setServicesVisible(true);
+            if (entry.target === locationRef.current) setLocationVisible(true);
+            if (entry.target === hoursRef.current) setHoursVisible(true);
           }
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: "-50px" }
     );
     
-    if (aboutRef.current) {
-      observer.observe(aboutRef.current);
-    }
+    [aboutRef, servicesRef, locationRef, hoursRef].forEach(ref => {
+      if (ref.current) observer.observe(ref.current);
+    });
     
     return () => observer.disconnect();
   }, []);
@@ -109,14 +180,46 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
+      {/* CSS for custom animations */}
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        @keyframes glow-pulse {
+          0%, 100% { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5)); }
+          50% { filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.8)); }
+        }
+        @keyframes slide-up {
+          from { opacity: 0; transform: translateY(60px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes text-shimmer {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        .shimmer-text {
+          background: linear-gradient(90deg, #8B5CF6 0%, #00F5FF 25%, #8B5CF6 50%, #00F5FF 75%, #8B5CF6 100%);
+          background-size: 200% auto;
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          animation: text-shimmer 3s linear infinite;
+        }
+        .magnetic-button:hover {
+          transform: scale(1.05) translateY(-2px);
+          box-shadow: 0 20px 40px -10px rgba(139, 92, 246, 0.5);
+        }
+      `}</style>
+
       {/* Top Bar with Login/Profile */}
-      <div className="absolute top-0 right-0 z-50 p-4">
+      <div className="fixed top-0 right-0 z-50 p-4">
         {user && profile ? (
           <Button 
             variant="ghost" 
             onClick={() => navigate("/user")}
-            className="text-foreground hover:text-neon-cyan transition-colors"
+            className="text-foreground hover:text-neon-cyan transition-all duration-300 backdrop-blur-sm bg-background/30 hover:bg-background/50"
           >
             <User className="mr-2 h-4 w-4" />
             {profile.username}
@@ -125,7 +228,7 @@ const Home = () => {
           <Button 
             variant="outline" 
             onClick={() => navigate("/auth")}
-            className="border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-background transition-all hover:scale-105"
+            className="border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-background transition-all duration-300 magnetic-button backdrop-blur-sm bg-background/30"
           >
             <User className="mr-2 h-4 w-4" />
             Iniciar Sesión
@@ -133,68 +236,107 @@ const Home = () => {
         )}
       </div>
 
-      {/* Hero Section with Parallax */}
+      {/* Hero Section with Advanced Parallax */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
+        {/* Main background with deep parallax */}
         <div 
-          className="absolute inset-0 bg-cover bg-center animate-scale-in"
+          className="absolute inset-0 bg-cover bg-center"
           style={{ 
             backgroundImage: `url(${heroImage})`, 
-            animationDuration: "1.5s",
-            transform: `translateY(${scrollY * 0.5}px) scale(${1 + scrollY * 0.0002})`,
+            transform: `translateY(${scrollY * 0.4}px) scale(${1.1 + scrollY * 0.0003})`,
+            filter: `brightness(${Math.max(0.3, 0.6 - scrollY * 0.0005)})`,
           }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background"></div>
-        </div>
+        />
         
-        {/* Animated background particles with parallax */}
+        {/* Gradient overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/50 to-background" />
+        <div 
+          className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-background/80"
+          style={{ transform: `translateY(${scrollY * 0.2}px)` }}
+        />
+        
+        {/* Floating particles */}
+        <FloatingParticles scrollY={scrollY} />
+        
+        {/* Animated orbs with mouse parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           <div 
-            className="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-purple/10 rounded-full blur-3xl animate-pulse"
-            style={{ transform: `translateY(${scrollY * -0.3}px)` }}
+            className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/20 rounded-full blur-[100px]"
+            style={{ 
+              transform: `translate(${mousePos.x * 30}px, ${mousePos.y * 30 + scrollY * -0.3}px)`,
+              animation: "glow-pulse 4s ease-in-out infinite",
+            }}
           />
           <div 
-            className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-cyan/10 rounded-full blur-3xl animate-pulse"
-            style={{ animationDelay: "1s", transform: `translateY(${scrollY * -0.2}px)` }}
+            className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-neon-cyan/15 rounded-full blur-[120px]"
+            style={{ 
+              transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20 + scrollY * -0.2}px)`,
+              animation: "glow-pulse 5s ease-in-out infinite",
+              animationDelay: "1s",
+            }}
           />
           <div 
-            className="absolute top-1/2 left-1/2 w-48 h-48 bg-neon-pink/5 rounded-full blur-2xl animate-pulse"
-            style={{ animationDelay: "0.5s", transform: `translate(-50%, -50%) translateY(${scrollY * -0.4}px)` }}
+            className="absolute top-1/2 left-1/2 w-72 h-72 bg-neon-pink/10 rounded-full blur-[80px]"
+            style={{ 
+              transform: `translate(-50%, -50%) translate(${mousePos.x * 40}px, ${mousePos.y * 40 + scrollY * -0.4}px)`,
+              animation: "glow-pulse 3s ease-in-out infinite",
+              animationDelay: "0.5s",
+            }}
           />
         </div>
         
-        <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
+        {/* Content */}
+        <div 
+          className="relative z-10 text-center px-4 max-w-5xl mx-auto"
+          style={{ 
+            transform: `translateY(${scrollY * 0.15}px)`,
+            opacity: Math.max(0, 1 - scrollY / 400),
+          }}
+        >
+          {/* Decorative elements */}
+          <div className="flex justify-center gap-4 mb-4 animate-fade-in" style={{ animationDelay: "100ms" }}>
+            <Sparkles className="w-6 h-6 text-neon-cyan animate-pulse" />
+            <Zap className="w-6 h-6 text-neon-purple animate-pulse" style={{ animationDelay: "0.3s" }} />
+            <Sparkles className="w-6 h-6 text-neon-cyan animate-pulse" style={{ animationDelay: "0.6s" }} />
+          </div>
+          
           <h1 
-            className="text-7xl md:text-9xl font-black mb-6 text-neon-purple font-aggressive animate-fade-in"
-            style={{ animationDuration: "0.8s" }}
+            className="text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in shimmer-text"
+            style={{ animationDuration: "1s" }}
           >
             DIEGCUTZ
           </h1>
+          
           <p 
-            className="text-xl md:text-2xl text-neon-cyan mb-8 font-bold uppercase tracking-widest animate-fade-in"
+            className="text-xl md:text-3xl text-neon-cyan mb-10 font-bold uppercase tracking-[0.2em] animate-fade-in"
             style={{ 
-              animationDelay: "200ms", 
-              animationDuration: "0.8s",
-              transform: `translateY(${scrollY * 0.1}px)`,
-              opacity: Math.max(0, 1 - scrollY / 500)
+              animationDelay: "300ms", 
+              animationDuration: "1s",
             }}
           >
             Urban Barbershop · Estilo Callejero
           </p>
+          
           <Button 
             size="lg" 
             variant="neon"
             onClick={() => navigate("/booking")}
-            className="text-lg px-12 py-6 h-auto animate-fade-in hover:scale-105 transition-transform"
-            style={{ animationDelay: "400ms", animationDuration: "0.8s" }}
+            className="text-xl px-16 py-8 h-auto animate-fade-in magnetic-button transition-all duration-300"
+            style={{ animationDelay: "500ms", animationDuration: "1s" }}
           >
+            <Scissors className="mr-3 h-6 w-6" />
             Reserva tu Cita
           </Button>
         </div>
         
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 border-2 border-neon-cyan/50 rounded-full flex justify-center">
-            <div className="w-1.5 h-3 bg-neon-cyan rounded-full mt-2 animate-pulse" />
+        {/* Enhanced scroll indicator */}
+        <div 
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+          style={{ opacity: Math.max(0, 1 - scrollY / 200) }}
+        >
+          <span className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">Scroll</span>
+          <div className="w-6 h-10 border-2 border-neon-cyan/50 rounded-full flex justify-center relative overflow-hidden">
+            <div className="w-1.5 h-3 bg-neon-cyan rounded-full mt-2 animate-bounce" />
           </div>
         </div>
       </section>
@@ -222,26 +364,28 @@ const Home = () => {
         </section>
       )}
 
-      {/* About Section with scroll animations */}
-      <section className="py-20 px-4" ref={aboutRef}>
+      {/* About Section with staggered scroll animations */}
+      <section className="py-24 px-4 relative" ref={aboutRef}>
         <div className="max-w-6xl mx-auto">
           <div 
-            className={`text-center mb-16 transition-all duration-1000 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            className={`text-center mb-20 transition-all duration-1000 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}
           >
-            <h2 className="text-5xl md:text-6xl font-black mb-6 text-neon-cyan">
+            <h2 className="text-5xl md:text-7xl font-black mb-6 shimmer-text inline-block">
               🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
             </h2>
-            <p className="text-xl md:text-2xl text-foreground font-bold">
+            <p className="text-xl md:text-2xl text-foreground font-bold mt-4">
               En nuestro spot de Monóvar, el flow nunca falta.
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
+          <div className="grid md:grid-cols-3 gap-8 mb-20" ref={servicesRef}>
             <div 
-              className={`bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple transform transition-all hover:scale-105 hover:-translate-y-2 duration-500 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
               style={{ transitionDelay: "100ms" }}
             >
-              <Scissors className="w-12 h-12 text-primary mb-4 animate-pulse" />
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
+                <Scissors className="w-8 h-8 text-primary" />
+              </div>
               <h3 className="text-2xl font-bold mb-4 text-neon-purple">TRENDING CUTS</h3>
               <p className="text-foreground">
                 Dominamos el fade que arrasa, los cortes con textura y el estilo que estás buscando.
@@ -249,10 +393,12 @@ const Home = () => {
             </div>
 
             <div 
-              className={`bg-card p-8 rounded-lg border-2 border-secondary glow-neon-cyan transform transition-all hover:scale-105 hover:-translate-y-2 duration-500 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
-              style={{ transitionDelay: "200ms" }}
+              className={`bg-card p-8 rounded-2xl border-2 border-secondary glow-neon-cyan transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+              style={{ transitionDelay: "250ms" }}
             >
-              <Clock className="w-12 h-12 text-secondary mb-4 animate-pulse" style={{ animationDelay: "0.3s" }} />
+              <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mb-6">
+                <Clock className="w-8 h-8 text-secondary" />
+              </div>
               <h3 className="text-2xl font-bold mb-4 text-neon-cyan">BEARD GAME</h3>
               <p className="text-foreground">
                 Diseño de barba profesional y clean shaves a navaja para que salgas impecable.
@@ -260,10 +406,12 @@ const Home = () => {
             </div>
 
             <div 
-              className={`bg-card p-8 rounded-lg border-2 border-primary glow-neon-purple transform transition-all hover:scale-105 hover:-translate-y-2 duration-500 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
-              style={{ transitionDelay: "300ms" }}
+              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+              style={{ transitionDelay: "400ms" }}
             >
-              <MapPin className="w-12 h-12 text-primary mb-4 animate-pulse" style={{ animationDelay: "0.6s" }} />
+              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
+                <MapPin className="w-8 h-8 text-primary" />
+              </div>
               <h3 className="text-2xl font-bold mb-4 text-neon-purple">STYLE COACHING</h3>
               <p className="text-foreground">
                 Te asesoramos para que el corte le dé el toque a tu vibe. 🚨
@@ -271,25 +419,33 @@ const Home = () => {
             </div>
           </div>
 
-          {/* Booking Rules */}
-          <div className="bg-gradient-neon p-8 rounded-lg">
-            <h3 className="text-3xl font-black mb-6 text-center text-background">
-              🚨 BOOKING Y REGLAS CLARAS
-            </h3>
-            <div className="grid md:grid-cols-2 gap-6 text-background">
-              <div className="bg-background/20 p-6 rounded-lg backdrop-blur-sm">
-                <h4 className="text-xl font-bold mb-3 text-background">Cancelación</h4>
-                <p className="text-background font-medium">
-                  Tienes 48 horas (2 días) antes de la cita para <a href="https://wa.me/34641637576?text=Cancelar%20mi%20cita" target="_blank">cancelar</a> o <a href="https://wa.me/34641637576?text=Reubicar%20mi%20cita" target="_blank">reubicar</a> tu cita.
-                  ¡Máximo respeto por el tiempo!
-                </p>
-              </div>
-              <div className="bg-background/20 p-6 rounded-lg backdrop-blur-sm">
-                <h4 className="text-xl font-bold mb-3 text-background">Pago</h4>
-                <p className="text-background font-medium">
-                  Solo aceptamos efectivo (CASH). Por seguridad, se paga antes de empezar el servicio. 
-                  ¡Gracias por elegirnos!
-                </p>
+          {/* Booking Rules with animated border */}
+          <div 
+            className={`relative p-1 rounded-2xl bg-gradient-to-r from-neon-purple via-neon-cyan to-neon-purple bg-[length:200%_100%] transition-all duration-1000 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+            style={{ 
+              animation: aboutVisible ? "text-shimmer 4s linear infinite" : "none",
+              transitionDelay: "500ms" 
+            }}
+          >
+            <div className="bg-card p-8 rounded-xl">
+              <h3 className="text-3xl font-black mb-6 text-center text-foreground">
+                🚨 BOOKING Y REGLAS CLARAS
+              </h3>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="bg-background/50 p-6 rounded-lg border border-border">
+                  <h4 className="text-xl font-bold mb-3 text-neon-cyan">Cancelación</h4>
+                  <p className="text-muted-foreground">
+                    Tienes 48 horas (2 días) antes de la cita para <a href="https://wa.me/34641637576?text=Cancelar%20mi%20cita" target="_blank" className="text-neon-cyan hover:underline">cancelar</a> o <a href="https://wa.me/34641637576?text=Reubicar%20mi%20cita" target="_blank" className="text-neon-cyan hover:underline">reubicar</a> tu cita.
+                    ¡Máximo respeto por el tiempo!
+                  </p>
+                </div>
+                <div className="bg-background/50 p-6 rounded-lg border border-border">
+                  <h4 className="text-xl font-bold mb-3 text-neon-purple">Pago</h4>
+                  <p className="text-muted-foreground">
+                    Solo aceptamos efectivo (CASH). Por seguridad, se paga antes de empezar el servicio. 
+                    ¡Gracias por elegirnos!
+                  </p>
+                </div>
               </div>
             </div>
           </div>
@@ -321,37 +477,56 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Location Section */}
-      <section className="py-20 px-4 bg-background">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-5xl font-black text-center mb-6 text-neon-cyan">
-            <MapPin className="inline-block mr-2 mb-2" size={40} />
-            UBICACIÓN
-          </h2>
-          <p className="text-center text-lg mb-8 text-muted-foreground">
-            Carrer Sant Antoni, Monóvar, Alicante, España, 03640
-          </p>
-          <Map />
+      {/* Location Section with parallax */}
+      <section className="py-24 px-4 bg-background relative overflow-hidden" ref={locationRef}>
+        {/* Background decoration */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{ transform: `translateY(${(scrollY - 1500) * 0.1}px)` }}
+        >
+          <div className="absolute top-0 right-0 w-96 h-96 bg-neon-cyan/5 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-neon-purple/5 rounded-full blur-[100px]" />
+        </div>
+        
+        <div className="max-w-4xl mx-auto relative z-10">
+          <div className={`transition-all duration-1000 ${locationVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+            <h2 className="text-5xl md:text-6xl font-black text-center mb-6 text-neon-cyan">
+              <MapPin className="inline-block mr-2 mb-2 animate-bounce" size={48} />
+              UBICACIÓN
+            </h2>
+            <p className="text-center text-lg mb-10 text-muted-foreground">
+              Carrer Sant Antoni, Monóvar, Alicante, España, 03640
+            </p>
+          </div>
+          <div className={`transition-all duration-1000 delay-300 ${locationVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+            <Map />
+          </div>
         </div>
       </section>
 
-      {/* Hours Section */}
-      <section className="py-20 px-4 bg-card">
+      {/* Hours Section with staggered animation */}
+      <section className="py-24 px-4 bg-card relative" ref={hoursRef}>
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-5xl font-black text-center mb-16 text-neon-purple">
+          <h2 
+            className={`text-5xl md:text-6xl font-black text-center mb-16 text-neon-purple transition-all duration-1000 ${hoursVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+          >
             HORARIOS
           </h2>
           
           <div className="space-y-4 text-lg">
             {businessHours.length > 0 ? (
-              businessHours.map((day) => (
-                <div key={day.day_of_week} className="flex justify-between py-4 border-b border-border">
+              businessHours.map((day, index) => (
+                <div 
+                  key={day.day_of_week} 
+                  className={`flex justify-between py-4 border-b border-border transition-all duration-500 hover:bg-primary/5 hover:px-4 rounded ${hoursVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+                  style={{ transitionDelay: `${index * 100}ms` }}
+                >
                   <span className="font-bold">{DAYS[day.day_of_week]}</span>
                   <span className="text-muted-foreground">
                     {day.is_closed ? (
-                      <span className="text-destructive">Cerrado</span>
+                      <span className="text-destructive font-semibold">Cerrado</span>
                     ) : day.is_24h ? (
-                      "Abierto 24h"
+                      <span className="text-neon-cyan">Abierto 24h</span>
                     ) : (
                       day.time_ranges.map((range, i) => (
                         <span key={i}>
@@ -364,39 +539,39 @@ const Home = () => {
                 </div>
               ))
             ) : (
-              // Fallback si no hay datos
               <>
-                <div className="flex justify-between py-4 border-b border-border">
-                  <span className="font-bold">Lunes - Martes</span>
-                  <span className="text-muted-foreground">11:00 - 21:00</span>
-                </div>
-                <div className="flex justify-between py-4 border-b border-border">
-                  <span className="font-bold">Miércoles - Jueves</span>
-                  <span className="text-muted-foreground">12:00 - 21:00</span>
-                </div>
-                <div className="flex justify-between py-4 border-b border-border">
-                  <span className="font-bold">Viernes</span>
-                  <span className="text-muted-foreground">11:00 - 16:00</span>
-                </div>
-                <div className="flex justify-between py-4 border-b border-border">
-                  <span className="font-bold">Sábado</span>
-                  <span className="text-muted-foreground">11:00 - 17:00</span>
-                </div>
-                <div className="flex justify-between py-4 border-b border-border">
-                  <span className="font-bold">Domingo</span>
-                  <span className="text-destructive">Cerrado</span>
-                </div>
+                {[
+                  { day: "Lunes - Martes", hours: "11:00 - 21:00" },
+                  { day: "Miércoles - Jueves", hours: "12:00 - 21:00" },
+                  { day: "Viernes", hours: "11:00 - 16:00" },
+                  { day: "Sábado", hours: "11:00 - 17:00" },
+                  { day: "Domingo", hours: null },
+                ].map((item, index) => (
+                  <div 
+                    key={item.day} 
+                    className={`flex justify-between py-4 border-b border-border transition-all duration-500 ${hoursVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+                    style={{ transitionDelay: `${index * 100}ms` }}
+                  >
+                    <span className="font-bold">{item.day}</span>
+                    <span className={item.hours ? "text-muted-foreground" : "text-destructive"}>
+                      {item.hours || "Cerrado"}
+                    </span>
+                  </div>
+                ))}
               </>
             )}
           </div>
 
-          <div className="text-center mt-12">
+          <div 
+            className={`text-center mt-16 transition-all duration-1000 delay-700 ${hoursVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+          >
             <Button 
               size="lg" 
               variant="neonCyan"
               onClick={() => navigate("/booking")}
-              className="text-lg px-12 py-6 h-auto"
+              className="text-xl px-16 py-8 h-auto magnetic-button"
             >
+              <Scissors className="mr-3 h-6 w-6" />
               Reserva Ahora
             </Button>
           </div>
