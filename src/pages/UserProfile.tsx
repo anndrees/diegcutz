@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useGoogleAuthEnabled } from "@/hooks/useGoogleAuthEnabled";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -43,6 +44,7 @@ export default function UserProfile() {
     refreshProfile,
     checkAccountStatus
   } = useAuth();
+  const { isGoogleAuthEnabled } = useGoogleAuthEnabled();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loyaltyReward, setLoyaltyReward] = useState<LoyaltyReward | null>(null);
   const [loading, setLoading] = useState(true);
@@ -341,9 +343,10 @@ export default function UserProfile() {
                         variant="outline" 
                         size="sm" 
                         onClick={handleConnectGoogle}
-                        disabled={connectingGoogle}
+                        disabled={connectingGoogle || !isGoogleAuthEnabled}
+                        title={!isGoogleAuthEnabled ? "La vinculación con Google está temporalmente deshabilitada" : undefined}
                       >
-                        {connectingGoogle ? "Conectando..." : "Conectar"}
+                        {connectingGoogle ? "Conectando..." : !isGoogleAuthEnabled ? "No disponible" : "Conectar"}
                       </Button>
                     )}
                   </div>
