@@ -163,6 +163,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_archived: boolean
           last_message_at: string
           unread_by_admin: boolean
           unread_by_user: boolean
@@ -171,6 +172,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_archived?: boolean
           last_message_at?: string
           unread_by_admin?: boolean
           unread_by_user?: boolean
@@ -179,6 +181,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_archived?: boolean
           last_message_at?: string
           unread_by_admin?: boolean
           unread_by_user?: boolean
