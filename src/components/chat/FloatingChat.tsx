@@ -31,9 +31,6 @@ export const FloatingChat = () => {
   const [unreadCount, setUnreadCount] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Don't render if user is not logged in
-  if (!user || !profile) return null;
-
   useEffect(() => {
     if (user) {
       loadOrCreateConversation();
@@ -82,6 +79,9 @@ export const FloatingChat = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Don't render if user is not logged in
+  if (!user || !profile) return null;
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
