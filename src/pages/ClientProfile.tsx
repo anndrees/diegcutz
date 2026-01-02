@@ -24,6 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AdminGuard } from "@/components/admin/AdminGuard";
+import { PasswordResetSection } from "@/components/admin/PasswordResetSection";
 
 interface Profile {
   id: string;
@@ -38,6 +39,9 @@ interface Profile {
   is_restricted?: boolean;
   restriction_ends_at?: string;
   restricted_at?: string;
+  temp_password?: string | null;
+  temp_password_active?: boolean;
+  temp_password_created_at?: string | null;
 }
 
 interface Booking {
@@ -661,6 +665,9 @@ const ClientProfile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Password Reset Section */}
+        <PasswordResetSection profile={profile} onUpdate={loadClientData} />
 
         {/* Admin Actions */}
         <Card className="bg-card border-border mb-8">
