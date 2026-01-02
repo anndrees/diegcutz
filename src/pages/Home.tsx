@@ -12,7 +12,7 @@ import { RatingsCarousel } from "@/components/RatingsCarousel";
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
   const frameRef = useRef<number>();
-  
+
   useEffect(() => {
     const handleScroll = () => {
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
@@ -26,14 +26,14 @@ const useParallax = () => {
       if (frameRef.current) cancelAnimationFrame(frameRef.current);
     };
   }, []);
-  
+
   return scrollY;
 };
 
 // Custom hook for mouse parallax
 const useMouseParallax = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({
@@ -44,7 +44,7 @@ const useMouseParallax = () => {
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
-  
+
   return mousePos;
 };
 
@@ -109,13 +109,13 @@ const Home = () => {
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
   const scrollY = useParallax();
   const mousePos = useMouseParallax();
-  
+
   // Refs for scroll-triggered animations
   const aboutRef = useRef<HTMLDivElement>(null);
   const servicesRef = useRef<HTMLDivElement>(null);
   const locationRef = useRef<HTMLDivElement>(null);
   const hoursRef = useRef<HTMLDivElement>(null);
-  
+
   const [aboutVisible, setAboutVisible] = useState(false);
   const [servicesVisible, setServicesVisible] = useState(false);
   const [locationVisible, setLocationVisible] = useState(false);
@@ -124,7 +124,7 @@ const Home = () => {
   useEffect(() => {
     loadBusinessHours();
     loadActiveGiveaway();
-    
+
     // Intersection observer for scroll animations
     const observer = new IntersectionObserver(
       (entries) => {
@@ -137,26 +137,23 @@ const Home = () => {
           }
         });
       },
-      { threshold: 0.1, rootMargin: "-50px" }
+      { threshold: 0.1, rootMargin: "-50px" },
     );
-    
-    [aboutRef, servicesRef, locationRef, hoursRef].forEach(ref => {
+
+    [aboutRef, servicesRef, locationRef, hoursRef].forEach((ref) => {
       if (ref.current) observer.observe(ref.current);
     });
-    
+
     return () => observer.disconnect();
   }, []);
 
   const loadBusinessHours = async () => {
-    const { data } = await supabase
-      .from("business_hours")
-      .select("*")
-      .order("day_of_week", { ascending: true });
+    const { data } = await supabase.from("business_hours").select("*").order("day_of_week", { ascending: true });
 
     if (data) {
-      const formattedData = data.map(d => ({
+      const formattedData = data.map((d) => ({
         ...d,
-        time_ranges: Array.isArray(d.time_ranges) ? d.time_ranges as TimeRange[] : []
+        time_ranges: Array.isArray(d.time_ranges) ? (d.time_ranges as TimeRange[]) : [],
       }));
       setBusinessHours(formattedData);
     }
@@ -205,7 +202,7 @@ const Home = () => {
           -webkit-background-clip: text;
           background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: text-shimmer 8s linear infinite;
+          animation: text-shimmer 28s linear infinite;
         }
         .magnetic-button:hover {
           transform: scale(1.05) translateY(-2px);
@@ -216,8 +213,8 @@ const Home = () => {
       {/* Top Bar with Login/Profile */}
       <div className="fixed top-0 right-0 z-50 p-4">
         {user && profile ? (
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             onClick={() => navigate("/user")}
             className="text-foreground hover:text-neon-cyan transition-all duration-300 backdrop-blur-sm bg-background/30 hover:bg-background/50"
           >
@@ -225,8 +222,8 @@ const Home = () => {
             {profile.username}
           </Button>
         ) : (
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => navigate("/auth")}
             className="border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-background transition-all duration-300 magnetic-button backdrop-blur-sm bg-background/30"
           >
@@ -239,56 +236,56 @@ const Home = () => {
       {/* Hero Section with Advanced Parallax */}
       <section className="relative h-screen flex items-center justify-center overflow-hidden">
         {/* Main background with deep parallax */}
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center"
-          style={{ 
-            backgroundImage: `url(${heroImage})`, 
+          style={{
+            backgroundImage: `url(${heroImage})`,
             transform: `translateY(${scrollY * 0.4}px) scale(${1.1 + scrollY * 0.0003})`,
             filter: `brightness(${Math.max(0.3, 0.6 - scrollY * 0.0005)})`,
           }}
         />
-        
+
         {/* Gradient overlays */}
         <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/50 to-background" />
-        <div 
+        <div
           className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-background/80"
           style={{ transform: `translateY(${scrollY * 0.2}px)` }}
         />
-        
+
         {/* Floating particles */}
         <FloatingParticles scrollY={scrollY} />
-        
+
         {/* Animated orbs with mouse parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div 
+          <div
             className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/20 rounded-full blur-[100px]"
-            style={{ 
+            style={{
               transform: `translate(${mousePos.x * 30}px, ${mousePos.y * 30 + scrollY * -0.3}px)`,
               animation: "glow-pulse 4s ease-in-out infinite",
             }}
           />
-          <div 
+          <div
             className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-neon-cyan/15 rounded-full blur-[120px]"
-            style={{ 
+            style={{
               transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20 + scrollY * -0.2}px)`,
               animation: "glow-pulse 5s ease-in-out infinite",
               animationDelay: "1s",
             }}
           />
-          <div 
+          <div
             className="absolute top-1/2 left-1/2 w-72 h-72 bg-neon-pink/10 rounded-full blur-[80px]"
-            style={{ 
+            style={{
               transform: `translate(-50%, -50%) translate(${mousePos.x * 40}px, ${mousePos.y * 40 + scrollY * -0.4}px)`,
               animation: "glow-pulse 3s ease-in-out infinite",
               animationDelay: "0.5s",
             }}
           />
         </div>
-        
+
         {/* Content */}
-        <div 
+        <div
           className="relative z-10 text-center px-4 max-w-5xl mx-auto"
-          style={{ 
+          style={{
             transform: `translateY(${scrollY * 0.15}px)`,
             opacity: Math.max(0, 1 - scrollY / 400),
           }}
@@ -299,26 +296,26 @@ const Home = () => {
             <Zap className="w-6 h-6 text-neon-purple animate-pulse" style={{ animationDelay: "0.3s" }} />
             <Sparkles className="w-6 h-6 text-neon-cyan animate-pulse" style={{ animationDelay: "0.6s" }} />
           </div>
-          
-          <h1 
+
+          <h1
             className="text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in shimmer-text"
             style={{ animationDuration: "1s" }}
           >
             DIEGCUTZ
           </h1>
-          
-          <p 
+
+          <p
             className="text-xl md:text-3xl text-neon-cyan mb-10 font-bold uppercase tracking-[0.2em] animate-fade-in"
-            style={{ 
-              animationDelay: "300ms", 
+            style={{
+              animationDelay: "300ms",
               animationDuration: "1s",
             }}
           >
             Urban Barbershop · Estilo Callejero
           </p>
-          
-          <Button 
-            size="lg" 
+
+          <Button
+            size="lg"
             variant="neon"
             onClick={() => navigate("/booking")}
             className="text-xl px-16 py-8 h-auto animate-fade-in magnetic-button transition-all duration-300"
@@ -328,9 +325,9 @@ const Home = () => {
             Reserva tu Cita
           </Button>
         </div>
-        
+
         {/* Enhanced scroll indicator */}
-        <div 
+        <div
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           style={{ opacity: Math.max(0, 1 - scrollY / 200) }}
         >
@@ -345,18 +342,14 @@ const Home = () => {
       {activeGiveaway && (
         <section className="py-6 px-4 bg-gradient-neon">
           <div className="max-w-4xl mx-auto text-center">
-            <button 
+            <button
               onClick={() => navigate("/giveaways")}
               className="flex items-center justify-center gap-4 w-full group"
             >
               <Gift className="h-8 w-8 text-background animate-bounce" />
               <div>
-                <p className="text-lg font-black text-background uppercase">
-                  🎁 SORTEO ACTIVO: {activeGiveaway.title}
-                </p>
-                <p className="text-sm text-background/80">
-                  Premio: {activeGiveaway.prize} — ¡Participa ahora!
-                </p>
+                <p className="text-lg font-black text-background uppercase">🎁 SORTEO ACTIVO: {activeGiveaway.title}</p>
+                <p className="text-sm text-background/80">Premio: {activeGiveaway.prize} — ¡Participa ahora!</p>
               </div>
               <Gift className="h-8 w-8 text-background animate-bounce" />
             </button>
@@ -367,8 +360,8 @@ const Home = () => {
       {/* About Section with staggered scroll animations */}
       <section className="py-24 px-4 relative" ref={aboutRef}>
         <div className="max-w-6xl mx-auto">
-          <div 
-            className={`text-center mb-20 transition-all duration-1000 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}
+          <div
+            className={`text-center mb-20 transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
           >
             <h2 className="text-5xl md:text-7xl font-black mb-6 shimmer-text inline-block">
               🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
@@ -377,10 +370,10 @@ const Home = () => {
               En nuestro spot de Monóvar, el flow nunca falta.
             </p>
           </div>
-          
+
           <div className="grid md:grid-cols-3 gap-8 mb-20" ref={servicesRef}>
-            <div 
-              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+            <div
+              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               style={{ transitionDelay: "100ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
@@ -392,8 +385,8 @@ const Home = () => {
               </p>
             </div>
 
-            <div 
-              className={`bg-card p-8 rounded-2xl border-2 border-secondary glow-neon-cyan transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+            <div
+              className={`bg-card p-8 rounded-2xl border-2 border-secondary glow-neon-cyan transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               style={{ transitionDelay: "250ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mb-6">
@@ -405,45 +398,56 @@ const Home = () => {
               </p>
             </div>
 
-            <div 
-              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}
+            <div
+              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               style={{ transitionDelay: "400ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
                 <MapPin className="w-8 h-8 text-primary" />
               </div>
               <h3 className="text-2xl font-bold mb-4 text-neon-purple">STYLE COACHING</h3>
-              <p className="text-foreground">
-                Te asesoramos para que el corte le dé el toque a tu vibe. 🚨
-              </p>
+              <p className="text-foreground">Te asesoramos para que el corte le dé el toque a tu vibe. 🚨</p>
             </div>
           </div>
 
           {/* Booking Rules with animated border */}
-          <div 
-            className={`relative p-1 rounded-2xl bg-gradient-to-r from-neon-purple via-neon-cyan to-neon-purple bg-[length:200%_100%] transition-all duration-1000 ${aboutVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
-            style={{ 
+          <div
+            className={`relative p-1 rounded-2xl bg-gradient-to-r from-neon-purple via-neon-cyan to-neon-purple bg-[length:200%_100%] transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+            style={{
               animation: aboutVisible ? "text-shimmer 4s linear infinite" : "none",
-              transitionDelay: "500ms" 
+              transitionDelay: "500ms",
             }}
           >
             <div className="bg-card p-8 rounded-xl">
-              <h3 className="text-3xl font-black mb-6 text-center text-foreground">
-                🚨 BOOKING Y REGLAS CLARAS
-              </h3>
+              <h3 className="text-3xl font-black mb-6 text-center text-foreground">🚨 BOOKING Y REGLAS CLARAS</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-background/50 p-6 rounded-lg border border-border">
                   <h4 className="text-xl font-bold mb-3 text-neon-cyan">Cancelación</h4>
                   <p className="text-muted-foreground">
-                    Tienes 48 horas (2 días) antes de la cita para <a href="https://wa.me/34641637576?text=Cancelar%20mi%20cita" target="_blank" className="text-neon-cyan hover:underline">cancelar</a> o <a href="https://wa.me/34641637576?text=Reubicar%20mi%20cita" target="_blank" className="text-neon-cyan hover:underline">reubicar</a> tu cita.
-                    ¡Máximo respeto por el tiempo!
+                    Tienes 48 horas (2 días) antes de la cita para{" "}
+                    <a
+                      href="https://wa.me/34641637576?text=Cancelar%20mi%20cita"
+                      target="_blank"
+                      className="text-neon-cyan hover:underline"
+                    >
+                      cancelar
+                    </a>{" "}
+                    o{" "}
+                    <a
+                      href="https://wa.me/34641637576?text=Reubicar%20mi%20cita"
+                      target="_blank"
+                      className="text-neon-cyan hover:underline"
+                    >
+                      reubicar
+                    </a>{" "}
+                    tu cita. ¡Máximo respeto por el tiempo!
                   </p>
                 </div>
                 <div className="bg-background/50 p-6 rounded-lg border border-border">
                   <h4 className="text-xl font-bold mb-3 text-neon-purple">Pago</h4>
                   <p className="text-muted-foreground">
-                    Solo aceptamos efectivo (CASH). Por seguridad, se paga antes de empezar el servicio. 
-                    ¡Gracias por elegirnos!
+                    Solo aceptamos efectivo (CASH). Por seguridad, se paga antes de empezar el servicio. ¡Gracias por
+                    elegirnos!
                   </p>
                 </div>
               </div>
@@ -459,14 +463,10 @@ const Home = () => {
       <section className="py-16 px-4 bg-card/50">
         <div className="max-w-4xl mx-auto text-center">
           <Gift className="h-16 w-16 mx-auto text-neon-purple mb-4" />
-          <h2 className="text-4xl font-black mb-4 text-neon-purple">
-            ¡PARTICIPA EN NUESTROS SORTEOS!
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8">
-            Gana cortes gratis, productos exclusivos y más premios
-          </p>
-          <Button 
-            size="lg" 
+          <h2 className="text-4xl font-black mb-4 text-neon-purple">¡PARTICIPA EN NUESTROS SORTEOS!</h2>
+          <p className="text-xl text-muted-foreground mb-8">Gana cortes gratis, productos exclusivos y más premios</p>
+          <Button
+            size="lg"
             variant="neonCyan"
             onClick={() => navigate("/giveaways")}
             className="text-lg px-12 py-6 h-auto"
@@ -480,16 +480,18 @@ const Home = () => {
       {/* Location Section with parallax */}
       <section className="py-24 px-4 bg-background relative overflow-hidden" ref={locationRef}>
         {/* Background decoration */}
-        <div 
+        <div
           className="absolute inset-0 pointer-events-none"
           style={{ transform: `translateY(${(scrollY - 1500) * 0.1}px)` }}
         >
           <div className="absolute top-0 right-0 w-96 h-96 bg-neon-cyan/5 rounded-full blur-[100px]" />
           <div className="absolute bottom-0 left-0 w-96 h-96 bg-neon-purple/5 rounded-full blur-[100px]" />
         </div>
-        
+
         <div className="max-w-4xl mx-auto relative z-10">
-          <div className={`transition-all duration-1000 ${locationVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}>
+          <div
+            className={`transition-all duration-1000 ${locationVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+          >
             <h2 className="text-5xl md:text-6xl font-black text-center mb-6 text-neon-cyan">
               <MapPin className="inline-block mr-2 mb-2 animate-bounce" size={48} />
               UBICACIÓN
@@ -498,7 +500,9 @@ const Home = () => {
               Carrer Sant Antoni, Monóvar, Alicante, España, 03640
             </p>
           </div>
-          <div className={`transition-all duration-1000 delay-300 ${locationVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+          <div
+            className={`transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+          >
             <Map />
           </div>
         </div>
@@ -507,18 +511,18 @@ const Home = () => {
       {/* Hours Section with staggered animation */}
       <section className="py-24 px-4 bg-card relative" ref={hoursRef}>
         <div className="max-w-4xl mx-auto">
-          <h2 
-            className={`text-5xl md:text-6xl font-black text-center mb-16 text-neon-purple transition-all duration-1000 ${hoursVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+          <h2
+            className={`text-5xl md:text-6xl font-black text-center mb-16 text-neon-purple transition-all duration-1000 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
             HORARIOS
           </h2>
-          
+
           <div className="space-y-4 text-lg">
             {businessHours.length > 0 ? (
               businessHours.map((day, index) => (
-                <div 
-                  key={day.day_of_week} 
-                  className={`flex justify-between py-4 border-b border-border transition-all duration-500 hover:bg-primary/5 hover:px-4 rounded ${hoursVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+                <div
+                  key={day.day_of_week}
+                  className={`flex justify-between py-4 border-b border-border transition-all duration-500 hover:bg-primary/5 hover:px-4 rounded ${hoursVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}`}
                   style={{ transitionDelay: `${index * 100}ms` }}
                 >
                   <span className="font-bold">{DAYS[day.day_of_week]}</span>
@@ -547,9 +551,9 @@ const Home = () => {
                   { day: "Sábado", hours: "11:00 - 17:00" },
                   { day: "Domingo", hours: null },
                 ].map((item, index) => (
-                  <div 
-                    key={item.day} 
-                    className={`flex justify-between py-4 border-b border-border transition-all duration-500 ${hoursVisible ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-10'}`}
+                  <div
+                    key={item.day}
+                    className={`flex justify-between py-4 border-b border-border transition-all duration-500 ${hoursVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}`}
                     style={{ transitionDelay: `${index * 100}ms` }}
                   >
                     <span className="font-bold">{item.day}</span>
@@ -562,11 +566,11 @@ const Home = () => {
             )}
           </div>
 
-          <div 
-            className={`text-center mt-16 transition-all duration-1000 delay-700 ${hoursVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'}`}
+          <div
+            className={`text-center mt-16 transition-all duration-1000 delay-700 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               variant="neonCyan"
               onClick={() => navigate("/booking")}
               className="text-xl px-16 py-8 h-auto magnetic-button"
@@ -592,8 +596,8 @@ const Home = () => {
       {/* Footer */}
       <footer className="py-8 px-4 text-center border-t border-border">
         <p className="text-muted-foreground">© 2025 DIEGCUTZ - Barbería Urbana</p>
-        <Button 
-          variant="link" 
+        <Button
+          variant="link"
           onClick={() => navigate("/admin")}
           className="text-muted-foreground hover:text-primary mt-2"
         >
