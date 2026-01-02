@@ -60,6 +60,14 @@ type BusinessHour = {
   time_ranges: TimeRange[];
 };
 
+type SpecialHour = {
+  id: string;
+  date: string;
+  is_closed: boolean;
+  time_ranges: TimeRange[];
+  note: string | null;
+};
+
 type Giveaway = {
   id: string;
   title: string;
@@ -106,6 +114,7 @@ const Home = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+  const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
   const scrollY = useParallax();
   const mousePos = useMouseParallax();
@@ -123,6 +132,7 @@ const Home = () => {
 
   useEffect(() => {
     loadBusinessHours();
+    loadSpecialHours();
     loadActiveGiveaway();
 
     // Intersection observer for scroll animations
@@ -156,6 +166,33 @@ const Home = () => {
         time_ranges: Array.isArray(d.time_ranges) ? (d.time_ranges as TimeRange[]) : [],
       }));
       setBusinessHours(formattedData);
+    }
+  };
+
+  const loadSpecialHours = async () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split("T")[0];
+    
+    // Get special hours for the next 4 weeks
+    const fourWeeksLater = new Date(today);
+    fourWeeksLater.setDate(fourWeeksLater.getDate() + 28);
+    const fourWeeksStr = fourWeeksLater.toISOString().split("T")[0];
+
+    const { data } = await supabase
+      .from("special_hours")
+      .select("*")
+      .gte("date", todayStr)
+      .lte("date", fourWeeksStr)
+      .order("date", { ascending: true });
+
+    if (data) {
+      setSpecialHours(
+        data.map((d) => ({
+          ...d,
+          time_ranges: Array.isArray(d.time_ranges) ? (d.time_ranges as TimeRange[]) : [],
+        }))
+      );
     }
   };
 
@@ -519,29 +556,67 @@ const Home = () => {
 
           <div className="space-y-4 text-lg">
             {businessHours.length > 0 ? (
-              businessHours.map((day, index) => (
-                <div
-                  key={day.day_of_week}
-                  className={`flex justify-between py-4 border-b border-border transition-all duration-500 hover:bg-primary/5 hover:px-4 rounded ${hoursVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}`}
-                  style={{ transitionDelay: `${index * 100}ms` }}
-                >
-                  <span className="font-bold">{DAYS[day.day_of_week]}</span>
-                  <span className="text-muted-foreground">
-                    {day.is_closed ? (
-                      <span className="text-destructive font-semibold">Cerrado</span>
-                    ) : day.is_24h ? (
-                      <span className="text-neon-cyan">Abierto 24h</span>
-                    ) : (
-                      day.time_ranges.map((range, i) => (
-                        <span key={i}>
-                          {range.start.slice(0, 5)} - {range.end.slice(0, 5)}
-                          {i < day.time_ranges.length - 1 && ", "}
-                        </span>
-                      ))
+              businessHours.map((day, index) => {
+                // Get special hours for this day of week in the next 4 weeks
+                const daySpecialHours = specialHours.filter((sh) => {
+                  const shDate = new Date(sh.date + "T00:00:00");
+                  return shDate.getDay() === day.day_of_week;
+                });
+
+                return (
+                  <div
+                    key={day.day_of_week}
+                    className={`py-4 border-b border-border transition-all duration-500 hover:bg-primary/5 hover:px-4 rounded ${hoursVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}`}
+                    style={{ transitionDelay: `${index * 100}ms` }}
+                  >
+                    <div className="flex justify-between">
+                      <span className="font-bold">{DAYS[day.day_of_week]}</span>
+                      <span className="text-muted-foreground">
+                        {day.is_closed ? (
+                          <span className="text-destructive font-semibold">Cerrado</span>
+                        ) : day.is_24h ? (
+                          <span className="text-neon-cyan">Abierto 24h</span>
+                        ) : (
+                          day.time_ranges.map((range, i) => (
+                            <span key={i}>
+                              {range.start.slice(0, 5)} - {range.end.slice(0, 5)}
+                              {i < day.time_ranges.length - 1 && ", "}
+                            </span>
+                          ))
+                        )}
+                      </span>
+                    </div>
+                    {/* Special hours for this day */}
+                    {daySpecialHours.length > 0 && (
+                      <div className="mt-2 pl-4 border-l-2 border-neon-cyan/50">
+                        <p className="text-xs text-neon-cyan font-semibold mb-1">Horarios Especiales:</p>
+                        {daySpecialHours.map((sh) => {
+                          const shDate = new Date(sh.date + "T00:00:00");
+                          const dayNum = shDate.getDate();
+                          const monthName = shDate.toLocaleDateString("es-ES", { month: "short" });
+                          return (
+                            <div key={sh.id} className="text-xs text-muted-foreground flex justify-between">
+                              <span>{dayNum} {monthName}{sh.note ? ` - ${sh.note}` : ""}</span>
+                              <span>
+                                {sh.is_closed ? (
+                                  <span className="text-destructive">Cerrado</span>
+                                ) : (
+                                  sh.time_ranges.map((r, i) => (
+                                    <span key={i}>
+                                      {r.start.slice(0, 5)}-{r.end.slice(0, 5)}
+                                      {i < sh.time_ranges.length - 1 && ", "}
+                                    </span>
+                                  ))
+                                )}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
                     )}
-                  </span>
-                </div>
-              ))
+                  </div>
+                );
+              })
             ) : (
               <>
                 {[

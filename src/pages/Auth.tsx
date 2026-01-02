@@ -7,6 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useGoogleAuthEnabled } from "@/hooks/useGoogleAuthEnabled";
 import { ArrowLeft, LogIn, UserPlus, Check, X, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -41,6 +42,7 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { isGoogleAuthEnabled, loading: googleAuthSettingLoading } = useGoogleAuthEnabled();
   const [loading, setLoading] = useState(false);
 
   // Login state
@@ -690,7 +692,8 @@ const Auth = () => {
                     variant="outline"
                     className="w-full"
                     onClick={handleGoogleSignIn}
-                    disabled={googleLoading}
+                    disabled={googleLoading || !isGoogleAuthEnabled || googleAuthSettingLoading}
+                    title={!isGoogleAuthEnabled ? "Google Sign-In está deshabilitado" : undefined}
                   >
                     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                       <path
@@ -710,7 +713,7 @@ const Auth = () => {
                         fill="#EA4335"
                       />
                     </svg>
-                    {googleLoading ? "Conectando..." : "Google"}
+                    {googleLoading ? "Conectando..." : !isGoogleAuthEnabled ? "Google (Deshabilitado)" : "Google"}
                   </Button>
 
                   <div className="text-center mt-4">
@@ -893,7 +896,8 @@ const Auth = () => {
                     variant="outline"
                     className="w-full"
                     onClick={handleGoogleSignIn}
-                    disabled={googleLoading}
+                    disabled={googleLoading || !isGoogleAuthEnabled || googleAuthSettingLoading}
+                    title={!isGoogleAuthEnabled ? "Google Sign-In está deshabilitado" : undefined}
                   >
                     <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                       <path
@@ -913,7 +917,7 @@ const Auth = () => {
                         fill="#EA4335"
                       />
                     </svg>
-                    {googleLoading ? "Conectando..." : "Google"}
+                    {googleLoading ? "Conectando..." : !isGoogleAuthEnabled ? "Google (Deshabilitado)" : "Google"}
                   </Button>
                 </form>
               </CardContent>
