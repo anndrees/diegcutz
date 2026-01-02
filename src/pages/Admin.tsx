@@ -37,7 +37,7 @@ import { GiveawaysManagement } from "@/components/admin/GiveawaysManagement";
 import { AdminActionsLog } from "@/components/admin/AdminActionsLog";
 import { AdminMessagesSection } from "@/components/admin/AdminMessagesSection";
 import { NotificationsDropdown } from "@/components/admin/NotificationsDropdown";
-import { SettingsDropdown } from "@/components/admin/SettingsDropdown";
+import { SettingsModal } from "@/components/admin/SettingsModal";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
@@ -490,7 +490,7 @@ const Admin = () => {
           </Button>
           
           <div className="flex items-center gap-2 ml-auto">
-            <SettingsDropdown />
+            <SettingsModal />
             <NotificationsDropdown />
             <Button variant="destructive" onClick={handleLogout}>
               <LogOut className="mr-2 h-4 w-4" />
