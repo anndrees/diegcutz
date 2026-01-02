@@ -298,7 +298,7 @@ const Home = () => {
           </div>
 
           <h1
-            className="text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in shimmer-text"
+            className="text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,0.8)]"
             style={{ animationDuration: "1s" }}
           >
             DIEGCUTZ
@@ -363,7 +363,7 @@ const Home = () => {
           <div
             className={`text-center mb-20 transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
           >
-            <h2 className="text-5xl md:text-7xl font-black mb-6 shimmer-text inline-block">
+            <h2 className="text-5xl md:text-7xl font-black mb-6 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)] inline-block">
               🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
             </h2>
             <p className="text-xl md:text-2xl text-foreground font-bold mt-4">
