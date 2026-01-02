@@ -596,6 +596,23 @@ const Home = () => {
       {/* Footer */}
       <footer className="py-8 px-4 text-center border-t border-border">
         <p className="text-muted-foreground">© 2025 DIEGCUTZ - Barbería Urbana</p>
+        <div className="flex justify-center gap-4 mt-3">
+          <Button
+            variant="link"
+            onClick={() => navigate("/privacy")}
+            className="text-muted-foreground hover:text-primary text-sm"
+          >
+            Política de Privacidad
+          </Button>
+          <span className="text-muted-foreground">|</span>
+          <Button
+            variant="link"
+            onClick={() => navigate("/terms")}
+            className="text-muted-foreground hover:text-primary text-sm"
+          >
+            Términos de Servicio
+          </Button>
+        </div>
         <Button
           variant="link"
           onClick={() => navigate("/admin")}
@@ -603,7 +620,7 @@ const Home = () => {
         >
           Admin
         </Button>
-        <p>v 1.3.0</p>
+        <p className="text-muted-foreground text-xs mt-2">v 1.3.0</p>
       </footer>
     </div>
   );
