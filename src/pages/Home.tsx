@@ -205,7 +205,7 @@ const Home = () => {
           -webkit-background-clip: text;
           background-clip: text;
           -webkit-text-fill-color: transparent;
-          animation: text-shimmer 3s linear infinite;
+          animation: text-shimmer 8s linear infinite;
         }
         .magnetic-button:hover {
           transform: scale(1.05) translateY(-2px);
