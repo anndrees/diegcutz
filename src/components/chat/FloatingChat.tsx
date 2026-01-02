@@ -77,15 +77,11 @@ export const FloatingChat = () => {
   }, [isOpen, conversationId]);
 
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Don't render if user is not logged in
   if (!user || !profile) return null;
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
 
   const loadOrCreateConversation = async () => {
     if (!user) return;
