@@ -120,9 +120,12 @@ export type Database = {
           cancelled_by: string | null
           client_contact: string
           client_name: string
+          coupon_id: string | null
           created_at: string | null
+          discount_amount: number | null
           id: string
           is_cancelled: boolean | null
+          original_price: number | null
           playlist_url: string | null
           services: Json
           total_price: number
@@ -135,9 +138,12 @@ export type Database = {
           cancelled_by?: string | null
           client_contact: string
           client_name: string
+          coupon_id?: string | null
           created_at?: string | null
+          discount_amount?: number | null
           id?: string
           is_cancelled?: boolean | null
+          original_price?: number | null
           playlist_url?: string | null
           services?: Json
           total_price?: number
@@ -150,15 +156,25 @@ export type Database = {
           cancelled_by?: string | null
           client_contact?: string
           client_name?: string
+          coupon_id?: string | null
           created_at?: string | null
+          discount_amount?: number | null
           id?: string
           is_cancelled?: boolean | null
+          original_price?: number | null
           playlist_url?: string | null
           services?: Json
           total_price?: number
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "bookings_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "bookings_user_id_fkey"
             columns: ["user_id"]
@@ -262,6 +278,103 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      coupon_uses: {
+        Row: {
+          booking_id: string | null
+          coupon_id: string
+          discount_applied: number
+          id: string
+          used_at: string
+          user_id: string | null
+        }
+        Insert: {
+          booking_id?: string | null
+          coupon_id: string
+          discount_applied?: number
+          id?: string
+          used_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          booking_id?: string | null
+          coupon_id?: string
+          discount_applied?: number
+          id?: string
+          used_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_uses_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_uses_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_uses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          code: string
+          created_at: string
+          current_uses: number
+          description: string | null
+          discount_type: string
+          discount_value: number
+          end_date: string | null
+          id: string
+          is_active: boolean
+          max_uses: number | null
+          min_purchase: number | null
+          start_date: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_purchase?: number | null
+          start_date?: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          current_uses?: number
+          description?: string | null
+          discount_type?: string
+          discount_value?: number
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          max_uses?: number | null
+          min_purchase?: number | null
+          start_date?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       giveaway_participants: {
         Row: {
@@ -690,6 +803,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      validate_coupon: {
+        Args: { p_code: string; p_total?: number; p_user_id?: string }
+        Returns: Json
       }
     }
     Enums: {
