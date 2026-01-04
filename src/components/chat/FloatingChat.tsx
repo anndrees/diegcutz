@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { MessageCircle, Send, Minimize2 } from "lucide-react";
+import { MessageCircle, Send, Minimize2, Trash2, MoreVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -9,6 +9,13 @@ import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
 type Message = {
   id: string;
@@ -29,6 +36,8 @@ export const FloatingChat = () => {
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const [adminTyping, setAdminTyping] = useState(false);
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const loadMessages = useCallback(async (convId: string) => {
@@ -106,7 +115,8 @@ export const FloatingChat = () => {
     if (conversationId) {
       loadMessages(conversationId);
       
-      const channel = supabase
+      // Channel for messages
+      const messagesChannel = supabase
         .channel(`user-chat-${conversationId}`)
         .on(
           "postgres_changes",
@@ -119,16 +129,43 @@ export const FloatingChat = () => {
           (payload) => {
             const newMsg = payload.new as Message;
             setMessages((prev) => [...prev, newMsg]);
+            setAdminTyping(false); // Stop typing indicator when message arrives
             
             if (newMsg.sender_type === "admin" && !isOpen) {
               setUnreadCount((prev) => prev + 1);
             }
           }
         )
+        .on(
+          "postgres_changes",
+          {
+            event: "DELETE",
+            schema: "public",
+            table: "chat_messages",
+            filter: `conversation_id=eq.${conversationId}`,
+          },
+          () => {
+            // Reload messages when any are deleted (e.g., when history is cleared)
+            loadMessages(conversationId);
+          }
+        )
+        .subscribe();
+
+      // Channel for typing indicator (using presence)
+      const typingChannel = supabase
+        .channel(`typing-${conversationId}`)
+        .on("presence", { event: "sync" }, () => {
+          const state = typingChannel.presenceState();
+          const adminIsTyping = Object.values(state).some((presences: any) =>
+            presences.some((p: any) => p.role === "admin" && p.typing)
+          );
+          setAdminTyping(adminIsTyping);
+        })
         .subscribe();
 
       return () => {
-        supabase.removeChannel(channel);
+        supabase.removeChannel(messagesChannel);
+        supabase.removeChannel(typingChannel);
       };
     }
   }, [conversationId, isOpen, loadMessages]);
@@ -181,6 +218,31 @@ export const FloatingChat = () => {
     setSending(false);
   };
 
+  const clearChatHistory = async () => {
+    if (!conversationId) return;
+
+    const { error } = await supabase
+      .from("chat_messages")
+      .delete()
+      .eq("conversation_id", conversationId);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo limpiar el historial",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setMessages([]);
+    setClearDialogOpen(false);
+    toast({
+      title: "Historial limpiado",
+      description: "Se han eliminado todos los mensajes",
+    });
+  };
+
   return (
     <>
       {/* Chat bubble button */}
@@ -213,9 +275,31 @@ export const FloatingChat = () => {
         <div className="bg-neon-purple p-4 flex items-center justify-between text-white shrink-0">
           <div>
             <h3 className="font-bold">Chat con DIEGCUTZ</h3>
-            <p className="text-xs text-white/80">Te responderemos pronto</p>
+            <p className="text-xs text-white/80">
+              {adminTyping ? "Escribiendo..." : "Te responderemos pronto"}
+            </p>
           </div>
           <div className="flex gap-1">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-white hover:bg-white/20"
+                >
+                  <MoreVertical className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem
+                  onClick={() => setClearDialogOpen(true)}
+                  className="text-destructive focus:text-destructive"
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Limpiar historial
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               size="icon"
@@ -268,6 +352,17 @@ export const FloatingChat = () => {
                   </div>
                 </div>
               ))}
+              {adminTyping && (
+                <div className="flex justify-start">
+                  <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2">
+                    <div className="flex gap-1">
+                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                  </div>
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -289,6 +384,17 @@ export const FloatingChat = () => {
           </div>
         </form>
       </div>
+
+      <ConfirmDialog
+        open={clearDialogOpen}
+        onOpenChange={setClearDialogOpen}
+        title="Limpiar historial"
+        description="¿Estás seguro de que quieres eliminar todos los mensajes? Esta acción no se puede deshacer."
+        confirmText="Limpiar"
+        cancelText="Cancelar"
+        onConfirm={clearChatHistory}
+        variant="destructive"
+      />
     </>
   );
 };
