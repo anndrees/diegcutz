@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { RatingsCarousel } from "@/components/RatingsCarousel";
 import { NextAvailableSlot } from "@/components/home/NextAvailableSlot";
+import { InstagramFeed } from "@/components/home/InstagramFeed";
+import { LiveTestimonials } from "@/components/home/LiveTestimonials";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -663,6 +665,12 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Instagram Feed Section */}
+      <InstagramFeed />
+
+      {/* Live Testimonials */}
+      <LiveTestimonials />
 
       {/* WhatsApp Floating Button */}
       <a

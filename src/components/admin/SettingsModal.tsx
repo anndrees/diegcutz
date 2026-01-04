@@ -21,6 +21,7 @@ type SettingsState = {
   maintenance_mode: boolean;
   loyalty_program_enabled: boolean;
   chat_enabled: boolean;
+  instagram_feed_enabled: boolean;
 };
 
 export const SettingsModal = () => {
@@ -33,6 +34,7 @@ export const SettingsModal = () => {
     maintenance_mode: false,
     loyalty_program_enabled: true,
     chat_enabled: true,
+    instagram_feed_enabled: true,
   });
 
   useEffect(() => {
@@ -59,6 +61,8 @@ export const SettingsModal = () => {
           newSettings.loyalty_program_enabled = item.value === true;
         } else if (item.key === "chat_enabled") {
           newSettings.chat_enabled = item.value === true;
+        } else if (item.key === "instagram_feed_enabled") {
+          newSettings.instagram_feed_enabled = item.value === true;
         }
       });
       setSettings(newSettings);
@@ -117,6 +121,12 @@ export const SettingsModal = () => {
       key: "loyalty_program_enabled" as const,
       label: "Programa de fidelización",
       description: "Sistema de cortes gratis cada 10 reservas",
+      type: "switch",
+    },
+    {
+      key: "instagram_feed_enabled" as const,
+      label: "Feed de Instagram",
+      description: "Muestra la sección de Instagram en la homepage",
       type: "switch",
     },
     {
