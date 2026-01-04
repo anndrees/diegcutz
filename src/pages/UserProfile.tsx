@@ -15,6 +15,7 @@ import { RatingDialog } from "@/components/RatingDialog";
 import { Progress } from "@/components/ui/progress";
 import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 import { Separator } from "@/components/ui/separator";
+import { UserAchievements } from "@/components/UserAchievements";
 interface Booking {
   id: string;
   booking_date: string;
@@ -399,6 +400,11 @@ export default function UserProfile() {
               </div>
             </CardContent>
           </Card>
+
+          {/* Achievements Card - Full width */}
+          <div className="md:col-span-2">
+            {user && <UserAchievements userId={user.id} />}
+          </div>
         </div>
 
         {/* Bookings Section */}
