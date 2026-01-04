@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music } from "lucide-react";
+import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Check, Loader2 } from "lucide-react";
 
 type CustomExtra = {
   name: string;
@@ -78,6 +78,18 @@ const Booking = () => {
   const [isFreeCutReservation, setIsFreeCutReservation] = useState(false);
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
   const [playlistUrl, setPlaylistUrl] = useState<string>("");
+  
+  // Coupon state
+  const [couponCode, setCouponCode] = useState<string>("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    id: string;
+    code: string;
+    description: string | null;
+    discount_type: string;
+    discount_value: number;
+  } | null>(null);
+  const [couponLoading, setCouponLoading] = useState(false);
+  const [couponError, setCouponError] = useState<string>("");
 
   // Check account status on mount and periodically
   useEffect(() => {
@@ -367,32 +379,9 @@ const Booking = () => {
   }, [isFreeCutReservation, services]);
 
   const calculateTotal = () => {
-    let total = 0;
-    
-    if (selectedPack) {
-      const pack = packs.find(p => p.id === selectedPack);
-      if (pack) total += pack.price;
-    }
-    
-    selectedServices.forEach(serviceId => {
-      const service = services.find(s => s.id === serviceId);
-      if (service) {
-        // For free cut, DEGRADADO and VACIAR/TEXTURIZADO are free
-        if (isFreeCutReservation && (service.name.includes("DEGRADADO") || service.name.includes("VACIAR") || service.name.includes("TEXTURIZADO"))) {
-          // Free!
-        } else {
-          total += service.price;
-        }
-      }
-    });
-    
-    // Add selected addons
-    selectedAddons.forEach(addonId => {
-      const addon = optionalAddons.find(a => a.id === addonId);
-      if (addon) total += addon.price;
-    });
-    
-    return total;
+    const subtotal = calculateSubtotal();
+    const discount = calculateDiscount();
+    return Math.max(0, subtotal - discount);
   };
 
   const getSelectedItems = () => {
@@ -429,6 +418,93 @@ const Booking = () => {
     } else {
       setSelectedAddons([...selectedAddons, addonId]);
     }
+  };
+
+  // Coupon functions
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    
+    setCouponLoading(true);
+    setCouponError("");
+    
+    const subtotal = calculateSubtotal();
+    
+    const { data, error } = await supabase.rpc('validate_coupon', {
+      p_code: couponCode.trim(),
+      p_user_id: user?.id || null,
+      p_total: subtotal
+    });
+    
+    setCouponLoading(false);
+    
+    if (error) {
+      setCouponError("Error al validar el cupón");
+      return;
+    }
+    
+    const result = data as { valid: boolean; error?: string; coupon_id?: string; code?: string; description?: string; discount_type?: string; discount_value?: number };
+    
+    if (!result.valid) {
+      setCouponError(result.error || "Cupón no válido");
+      return;
+    }
+    
+    setAppliedCoupon({
+      id: result.coupon_id!,
+      code: result.code!,
+      description: result.description || null,
+      discount_type: result.discount_type!,
+      discount_value: result.discount_value!
+    });
+    setCouponCode("");
+    toast({
+      title: "¡Cupón aplicado!",
+      description: `Descuento de ${result.discount_type === 'percentage' ? result.discount_value + '%' : result.discount_value + '€'} aplicado`,
+    });
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponError("");
+  };
+
+  const calculateSubtotal = () => {
+    let total = 0;
+    
+    if (selectedPack) {
+      const pack = packs.find(p => p.id === selectedPack);
+      if (pack) total += pack.price;
+    }
+    
+    selectedServices.forEach(serviceId => {
+      const service = services.find(s => s.id === serviceId);
+      if (service) {
+        if (isFreeCutReservation && (service.name.includes("DEGRADADO") || service.name.includes("VACIAR") || service.name.includes("TEXTURIZADO"))) {
+          // Free!
+        } else {
+          total += service.price;
+        }
+      }
+    });
+    
+    selectedAddons.forEach(addonId => {
+      const addon = optionalAddons.find(a => a.id === addonId);
+      if (addon) total += addon.price;
+    });
+    
+    return total;
+  };
+
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+    
+    const subtotal = calculateSubtotal();
+    
+    if (appliedCoupon.discount_type === 'percentage') {
+      return Math.round((subtotal * appliedCoupon.discount_value / 100) * 100) / 100;
+    }
+    
+    return Math.min(appliedCoupon.discount_value, subtotal);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -547,16 +623,32 @@ const Booking = () => {
       return;
     }
 
-    const { error } = await supabase.from("bookings").insert({
+    const discountAmount = calculateDiscount();
+    const originalPrice = calculateSubtotal();
+
+    const { data: bookingData, error } = await supabase.from("bookings").insert({
       booking_date: format(selectedDate, "yyyy-MM-dd"),
       booking_time: selectedTime,
       client_name: profile.full_name,
       client_contact: profile.contact_value,
       services: servicesData,
       total_price: totalPrice,
+      original_price: originalPrice,
+      discount_amount: discountAmount,
+      coupon_id: appliedCoupon?.id || null,
       user_id: user.id,
       playlist_url: playlistUrl || null,
-    });
+    }).select().single();
+
+    // Record coupon use if applied
+    if (!error && bookingData && appliedCoupon) {
+      await supabase.from("coupon_uses").insert({
+        coupon_id: appliedCoupon.id,
+        user_id: user.id,
+        booking_id: bookingData.id,
+        discount_applied: discountAmount,
+      });
+    }
 
     if (error) {
       setLoading(false);
@@ -604,6 +696,9 @@ const Booking = () => {
     setSelectedPack(null);
     setIsFreeCutReservation(false);
     setPlaylistUrl("");
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
     
     // Navigate to home after booking
     navigate("/");
@@ -933,10 +1028,82 @@ const Booking = () => {
               </CardContent>
             </Card>
 
+            {/* Coupon Code */}
+            {!isFreeCutReservation && (selectedPack || selectedServices.length > 0) && (
+              <Card className="bg-card border-border">
+                <CardHeader>
+                  <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                    <Ticket className="text-primary" />
+                    Código de descuento
+                  </CardTitle>
+                  <CardDescription>
+                    ¿Tienes un cupón promocional? Aplícalo aquí
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {appliedCoupon ? (
+                    <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary rounded-lg">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-5 w-5 text-primary" />
+                        <div>
+                          <p className="font-semibold text-primary">{appliedCoupon.code}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {appliedCoupon.discount_type === 'percentage' 
+                              ? `${appliedCoupon.discount_value}% de descuento`
+                              : `${appliedCoupon.discount_value}€ de descuento`
+                            }
+                          </p>
+                        </div>
+                      </div>
+                      <Button variant="ghost" size="icon" onClick={removeCoupon}>
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex gap-2">
+                        <Input
+                          placeholder="Introduce tu código"
+                          value={couponCode}
+                          onChange={(e) => {
+                            setCouponCode(e.target.value.toUpperCase());
+                            setCouponError("");
+                          }}
+                          className="uppercase"
+                        />
+                        <Button 
+                          onClick={handleApplyCoupon} 
+                          disabled={couponLoading || !couponCode.trim()}
+                          variant="outline"
+                        >
+                          {couponLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
+                        </Button>
+                      </div>
+                      {couponError && (
+                        <p className="text-sm text-destructive">{couponError}</p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             {/* Total Price */}
             {(selectedPack || selectedServices.length > 0) && (
               <Card className={`border-0 ${isFreeCutReservation ? 'bg-gradient-to-r from-neon-cyan/20 to-neon-purple/20' : 'bg-gradient-neon'}`}>
                 <CardContent className="p-6">
+                  {appliedCoupon && (
+                    <div className={`mb-3 space-y-1 ${isFreeCutReservation ? 'text-foreground' : 'text-background/80'}`}>
+                      <div className="flex justify-between text-sm">
+                        <span>Subtotal:</span>
+                        <span>{calculateSubtotal()}€</span>
+                      </div>
+                      <div className="flex justify-between text-sm text-primary">
+                        <span>Descuento ({appliedCoupon.code}):</span>
+                        <span>-{calculateDiscount()}€</span>
+                      </div>
+                    </div>
+                  )}
                   <div className={`flex justify-between items-center ${isFreeCutReservation ? 'text-foreground' : 'text-background'}`}>
                     <div>
                       <span className="text-2xl font-black">TOTAL:</span>
