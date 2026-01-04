@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Menu,
   X,
+  Trophy,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ const menuItems = [
   { id: "clients", label: "Clientes", icon: Users },
   { id: "hours", label: "Horario", icon: Clock },
   { id: "ratings", label: "Valoraciones", icon: Star },
+  { id: "achievements", label: "Logros", icon: Trophy },
   { id: "giveaways", label: "Sorteos", icon: Gift },
   { id: "messages", label: "Mensajes", icon: MessageSquare },
   { id: "logs", label: "Historial", icon: History },

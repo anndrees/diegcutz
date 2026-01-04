@@ -4,6 +4,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -11,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift } from "lucide-react";
+import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music } from "lucide-react";
 
 type CustomExtra = {
   name: string;
@@ -76,6 +77,7 @@ const Booking = () => {
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [isFreeCutReservation, setIsFreeCutReservation] = useState(false);
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
+  const [playlistUrl, setPlaylistUrl] = useState<string>("");
 
   // Check account status on mount and periodically
   useEffect(() => {
@@ -525,6 +527,26 @@ const Booking = () => {
       }
     }
 
+    // Check if time slot is still available before inserting
+    const { data: existingBooking } = await supabase
+      .from("bookings")
+      .select("id")
+      .eq("booking_date", format(selectedDate, "yyyy-MM-dd"))
+      .eq("booking_time", selectedTime)
+      .or("is_cancelled.is.null,is_cancelled.eq.false")
+      .limit(1);
+
+    if (existingBooking && existingBooking.length > 0) {
+      setLoading(false);
+      toast({
+        title: "Hora no disponible",
+        description: "Esta hora acaba de ser reservada. Por favor elige otra.",
+        variant: "destructive",
+      });
+      loadBookedTimes();
+      return;
+    }
+
     const { error } = await supabase.from("bookings").insert({
       booking_date: format(selectedDate, "yyyy-MM-dd"),
       booking_time: selectedTime,
@@ -533,13 +555,14 @@ const Booking = () => {
       services: servicesData,
       total_price: totalPrice,
       user_id: user.id,
+      playlist_url: playlistUrl || null,
     });
 
     if (error) {
       setLoading(false);
       toast({
         title: "Error",
-        description: "Esta hora ya está reservada. Por favor elige otra.",
+        description: "No se pudo completar la reserva. Inténtalo de nuevo.",
         variant: "destructive",
       });
       loadBookedTimes();
@@ -580,6 +603,7 @@ const Booking = () => {
     setSelectedServices([]);
     setSelectedPack(null);
     setIsFreeCutReservation(false);
+    setPlaylistUrl("");
     
     // Navigate to home after booking
     navigate("/");
@@ -879,6 +903,35 @@ const Booking = () => {
                 </CardContent>
               </Card>
             )}
+
+            {/* Music Selection */}
+            <Card className="bg-card border-border">
+              <CardHeader>
+                <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                  <Music className="text-neon-cyan" />
+                  Elige tu música
+                </CardTitle>
+                <CardDescription>
+                  Añade un enlace a tu playlist favorita (Spotify, YouTube) para ponerla durante tu cita
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <Label htmlFor="playlist">Enlace de playlist (opcional)</Label>
+                  <Input
+                    id="playlist"
+                    type="url"
+                    placeholder="https://open.spotify.com/playlist/... o https://youtube.com/playlist?..."
+                    value={playlistUrl}
+                    onChange={(e) => setPlaylistUrl(e.target.value)}
+                    className="bg-background"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Añade tu playlist y la pondremos durante tu cita. ¡Disfruta de tu música favorita!
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Total Price */}
             {(selectedPack || selectedServices.length > 0) && (

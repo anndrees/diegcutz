@@ -25,6 +25,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { PasswordResetSection } from "@/components/admin/PasswordResetSection";
+import { ClientAchievements } from "@/components/admin/ClientAchievements";
 
 interface Profile {
   id: string;
@@ -665,6 +666,11 @@ const ClientProfile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Achievements */}
+        <div className="mb-8">
+          <ClientAchievements userId={profile.id} />
+        </div>
 
         {/* Password Reset Section */}
         <PasswordResetSection profile={profile} onUpdate={loadClientData} />
