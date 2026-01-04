@@ -13,6 +13,22 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Check, Loader2 } from "lucide-react";
+import { z } from "zod";
+
+// Validation schema for playlist URL
+const playlistUrlSchema = z.string().max(500, "URL demasiado larga").refine(
+  (val) => {
+    if (!val || val.trim() === "") return true; // Empty is OK
+    try {
+      const url = new URL(val);
+      // Only allow http/https protocols
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch {
+      return false;
+    }
+  },
+  { message: "Por favor ingresa una URL válida (ej: https://spotify.com/...)" }
+);
 
 type CustomExtra = {
   name: string;
@@ -78,6 +94,7 @@ const Booking = () => {
   const [isFreeCutReservation, setIsFreeCutReservation] = useState(false);
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
   const [playlistUrl, setPlaylistUrl] = useState<string>("");
+  const [playlistUrlError, setPlaylistUrlError] = useState<string>("");
   
   // Coupon state
   const [couponCode, setCouponCode] = useState<string>("");
@@ -581,6 +598,18 @@ const Booking = () => {
       return;
     }
 
+    // Validate playlist URL
+    const playlistValidation = playlistUrlSchema.safeParse(playlistUrl);
+    if (!playlistValidation.success) {
+      setPlaylistUrlError(playlistValidation.error.errors[0]?.message || "URL no válida");
+      toast({
+        title: "Error",
+        description: "Por favor corrige el enlace de la playlist",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const totalPrice = calculateTotal();
@@ -696,6 +725,7 @@ const Booking = () => {
     setSelectedPack(null);
     setIsFreeCutReservation(false);
     setPlaylistUrl("");
+    setPlaylistUrlError("");
     setAppliedCoupon(null);
     setCouponCode("");
     setCouponError("");
@@ -1018,12 +1048,20 @@ const Booking = () => {
                     type="url"
                     placeholder="https://open.spotify.com/playlist/... o https://youtube.com/playlist?..."
                     value={playlistUrl}
-                    onChange={(e) => setPlaylistUrl(e.target.value)}
-                    className="bg-background"
+                    onChange={(e) => {
+                      setPlaylistUrl(e.target.value);
+                      setPlaylistUrlError("");
+                    }}
+                    className={`bg-background ${playlistUrlError ? 'border-destructive' : ''}`}
+                    maxLength={500}
                   />
-                  <p className="text-xs text-muted-foreground">
-                    Añade tu playlist y la pondremos durante tu cita. ¡Disfruta de tu música favorita!
-                  </p>
+                  {playlistUrlError ? (
+                    <p className="text-xs text-destructive">{playlistUrlError}</p>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      Añade tu playlist y la pondremos durante tu cita. ¡Disfruta de tu música favorita!
+                    </p>
+                  )}
                 </div>
               </CardContent>
             </Card>
