@@ -7,7 +7,7 @@ import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { RatingsCarousel } from "@/components/RatingsCarousel";
-
+import { NextAvailableSlot } from "@/components/home/NextAvailableSlot";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -393,6 +393,13 @@ const Home = () => {
           </div>
         </section>
       )}
+
+      {/* Next Available Slot Widget */}
+      <section className="py-12 px-4">
+        <div className="max-w-2xl mx-auto">
+          <NextAvailableSlot />
+        </div>
+      </section>
 
       {/* About Section with staggered scroll animations */}
       <section className="py-24 px-4 relative" ref={aboutRef}>
