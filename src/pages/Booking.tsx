@@ -232,7 +232,8 @@ const Booking = () => {
     const { data, error } = await supabase
       .from("bookings")
       .select("booking_time")
-      .eq("booking_date", format(date, "yyyy-MM-dd"));
+      .eq("booking_date", format(date, "yyyy-MM-dd"))
+      .or("is_cancelled.is.null,is_cancelled.eq.false");
 
     if (!error && data) {
       const bookedTimesForDate = data.map((b) => b.booking_time);
@@ -262,7 +263,8 @@ const Booking = () => {
     const { data, error } = await supabase
       .from("bookings")
       .select("booking_time")
-      .eq("booking_date", format(selectedDate, "yyyy-MM-dd"));
+      .eq("booking_date", format(selectedDate, "yyyy-MM-dd"))
+      .or("is_cancelled.is.null,is_cancelled.eq.false");
 
     if (error) {
       console.error("Error loading bookings:", error);

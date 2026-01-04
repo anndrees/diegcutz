@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { MessageSquare, Send, ArrowLeft, User, Archive, Trash2, ArchiveRestore, ChevronDown, ChevronRight } from "lucide-react";
+import { MessageSquare, Send, ArrowLeft, User, Archive, Trash2, ArchiveRestore, ChevronDown, ChevronRight, Eraser } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -45,6 +45,10 @@ export const AdminMessagesSection = () => {
   const [showArchived, setShowArchived] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null);
+  const [clearHistoryDialogOpen, setClearHistoryDialogOpen] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
+  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeConversations = conversations.filter((c) => !c.is_archived);
@@ -218,11 +222,58 @@ export const AdminMessagesSection = () => {
       .eq("sender_type", "user");
   };
 
+  // Handle typing indicator
+  const handleTyping = () => {
+    if (!selectedConversation || !typingChannelRef.current) return;
+
+    if (!isTyping) {
+      setIsTyping(true);
+      typingChannelRef.current.track({ role: "admin", typing: true });
+    }
+
+    // Clear existing timeout
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+
+    // Set timeout to stop typing indicator
+    typingTimeoutRef.current = setTimeout(() => {
+      setIsTyping(false);
+      typingChannelRef.current?.track({ role: "admin", typing: false });
+    }, 2000);
+  };
+
+  // Setup typing channel when conversation is selected
+  useEffect(() => {
+    if (selectedConversation) {
+      typingChannelRef.current = supabase.channel(`typing-${selectedConversation.id}`);
+      typingChannelRef.current.subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await typingChannelRef.current?.track({ role: "admin", typing: false });
+        }
+      });
+
+      return () => {
+        if (typingChannelRef.current) {
+          supabase.removeChannel(typingChannelRef.current);
+          typingChannelRef.current = null;
+        }
+      };
+    }
+  }, [selectedConversation]);
+
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !selectedConversation) return;
 
     setSending(true);
+    setIsTyping(false);
+    
+    // Stop typing indicator
+    if (typingTimeoutRef.current) {
+      clearTimeout(typingTimeoutRef.current);
+    }
+    typingChannelRef.current?.track({ role: "admin", typing: false });
 
     const { error } = await supabase.from("chat_messages").insert({
       conversation_id: selectedConversation.id,
@@ -251,6 +302,31 @@ export const AdminMessagesSection = () => {
 
     setNewMessage("");
     setSending(false);
+  };
+
+  const clearChatHistory = async () => {
+    if (!selectedConversation) return;
+
+    const { error } = await supabase
+      .from("chat_messages")
+      .delete()
+      .eq("conversation_id", selectedConversation.id);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo limpiar el historial",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setMessages([]);
+    setClearHistoryDialogOpen(false);
+    toast({
+      title: "Historial limpiado",
+      description: "Se han eliminado todos los mensajes de esta conversación",
+    });
   };
 
   const archiveConversation = async (conv: Conversation) => {
@@ -512,6 +588,14 @@ export const AdminMessagesSection = () => {
                     <Button 
                       variant="ghost" 
                       size="icon"
+                      onClick={() => setClearHistoryDialogOpen(true)}
+                      title="Limpiar historial"
+                    >
+                      <Eraser className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
                       onClick={() => handleDeleteClick(selectedConversation)}
                       title="Eliminar"
                     >
@@ -567,7 +651,10 @@ export const AdminMessagesSection = () => {
                   <div className="flex gap-2">
                     <Input
                       value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
+                      onChange={(e) => {
+                        setNewMessage(e.target.value);
+                        handleTyping();
+                      }}
                       placeholder="Escribe un mensaje..."
                       disabled={sending}
                       className="flex-1"
@@ -598,6 +685,17 @@ export const AdminMessagesSection = () => {
         confirmText="Eliminar"
         cancelText="Cancelar"
         onConfirm={deleteConversation}
+        variant="destructive"
+      />
+
+      <ConfirmDialog
+        open={clearHistoryDialogOpen}
+        onOpenChange={setClearHistoryDialogOpen}
+        title="Limpiar historial"
+        description={`¿Estás seguro de que quieres eliminar todos los mensajes de esta conversación? La conversación se mantendrá pero sin historial.`}
+        confirmText="Limpiar"
+        cancelText="Cancelar"
+        onConfirm={clearChatHistory}
         variant="destructive"
       />
     </>
