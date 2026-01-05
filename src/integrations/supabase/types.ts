@@ -562,6 +562,50 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          booking_confirmations: boolean
+          booking_reminders: boolean
+          chat_messages: boolean
+          created_at: string
+          giveaways: boolean
+          id: string
+          promotions: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_confirmations?: boolean
+          booking_reminders?: boolean
+          chat_messages?: boolean
+          created_at?: string
+          giveaways?: boolean
+          id?: string
+          promotions?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_confirmations?: boolean
+          booking_reminders?: boolean
+          chat_messages?: boolean
+          created_at?: string
+          giveaways?: boolean
+          id?: string
+          promotions?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       optional_addons: {
         Row: {
           coming_soon: boolean

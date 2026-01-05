@@ -10,13 +10,13 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, LogOut, Calendar, Star, Gift, X, RotateCcw, Link2, Check, Bell } from "lucide-react";
+import { ArrowLeft, LogOut, Calendar, Star, Gift, X, RotateCcw, Link2, Check } from "lucide-react";
 import { RatingDialog } from "@/components/RatingDialog";
 import { Progress } from "@/components/ui/progress";
 import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 import { Separator } from "@/components/ui/separator";
 import { UserAchievements } from "@/components/UserAchievements";
-import { NotificationToggle } from "@/components/pwa/NotificationToggle";
+import { NotificationPreferences } from "@/components/pwa/NotificationPreferences";
 interface Booking {
   id: string;
   booking_date: string;
@@ -357,21 +357,11 @@ export default function UserProfile() {
 
               <Separator className="my-6" />
 
-              {/* Notifications Section */}
-              <div>
-                <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <Bell className="h-4 w-4" />
-                  Notificaciones
-                </h3>
-                <div className="p-3 border rounded-lg">
-                  <NotificationToggle />
-                  <p className="text-xs text-muted-foreground mt-2">
-                    Recibe avisos de tus citas y mensajes importantes.
-                  </p>
-                </div>
-              </div>
             </CardContent>
           </Card>
+
+          {/* Notification Preferences Card */}
+          <NotificationPreferences />
 
           {/* Loyalty Rewards Card */}
           <Card>
