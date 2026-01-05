@@ -1,10 +1,5 @@
-/// <reference lib="webworker" />
-/* eslint-disable no-restricted-globals */
-
-// This is the custom service worker for push notifications
-// It will be merged with the Workbox-generated service worker
-
-declare const self: ServiceWorkerGlobalScope;
+// Push notification handler for service worker
+// This file is imported by the Workbox-generated service worker
 
 // Handle push notifications
 self.addEventListener("push", (event) => {
@@ -19,7 +14,7 @@ self.addEventListener("push", (event) => {
     const data = event.data.json();
     console.log("[Service Worker] Push data:", data);
 
-    const options: NotificationOptions = {
+    const options = {
       body: data.body || "Tienes una nueva notificación",
       icon: data.icon || "/pwa-192x192.png",
       badge: data.badge || "/pwa-192x192.png",
@@ -91,26 +86,3 @@ self.addEventListener("notificationclick", (event) => {
 self.addEventListener("notificationclose", (event) => {
   console.log("[Service Worker] Notification closed:", event);
 });
-
-// Handle push subscription change
-self.addEventListener("pushsubscriptionchange", (event) => {
-  console.log("[Service Worker] Push subscription changed:", event);
-  
-  // Re-subscribe with the new subscription
-  event.waitUntil(
-    self.registration.pushManager
-      .subscribe({
-        userVisibleOnly: true,
-        // Note: applicationServerKey would need to be provided here
-      })
-      .then((subscription) => {
-        console.log("[Service Worker] New subscription:", subscription);
-        // You would need to send this to your server
-      })
-      .catch((error) => {
-        console.error("[Service Worker] Failed to resubscribe:", error);
-      })
-  );
-});
-
-export {};
