@@ -15,7 +15,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { WinnerAnimation } from "./WinnerAnimation";
-import { sendGiveawayWinnerNotification } from "@/lib/pushNotifications";
+import { sendGiveawayWinnerNotification, sendNewGiveawayNotification } from "@/lib/pushNotifications";
 
 type Giveaway = {
   id: string;
@@ -191,7 +191,7 @@ export const GiveawaysManagement = () => {
 
       toast({ title: "Sorteo actualizado", description: "Los cambios se guardaron correctamente" });
     } else {
-      const { error } = await supabase.from("giveaways").insert(payload);
+      const { data: newGiveaway, error } = await supabase.from("giveaways").insert(payload).select().single();
 
       if (error) {
         toast({ title: "Error", description: "No se pudo crear el sorteo", variant: "destructive" });
@@ -203,7 +203,12 @@ export const GiveawaysManagement = () => {
         description: `Creó el sorteo "${formData.title}"`,
       });
 
-      toast({ title: "Sorteo creado", description: "El sorteo se creó correctamente" });
+      // Send push notification to all users about the new giveaway
+      if (newGiveaway) {
+        sendNewGiveawayNotification(newGiveaway.title, newGiveaway.prize, newGiveaway.end_date);
+      }
+
+      toast({ title: "Sorteo creado", description: "El sorteo se creó correctamente y se notificó a todos los usuarios" });
     }
 
     setEditingGiveaway(null);

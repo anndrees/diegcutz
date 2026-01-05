@@ -12,6 +12,9 @@ verify_jwt = false
 [functions.send-push-notification]
 verify_jwt = false
 
+[functions.send-push-notification-all]
+verify_jwt = false
+
 [functions.get-vapid-key]
 verify_jwt = false
 

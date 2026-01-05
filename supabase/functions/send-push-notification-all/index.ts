@@ -13,14 +13,12 @@ interface NotificationPayload {
   badge?: string;
   tag?: string;
   data?: Record<string, unknown>;
-  actions?: Array<{ action: string; title: string }>;
 }
 
 interface RequestBody {
-  userId: string;
   notification: NotificationPayload;
-  notificationType?: string;
-  userName?: string;
+  notificationType: string;
+  metadata?: Record<string, unknown>;
 }
 
 // Web Push library for Deno
@@ -32,18 +30,16 @@ async function sendWebPush(
 ): Promise<Response> {
   const encoder = new TextEncoder();
 
-  // Create the JWT for VAPID
   const header = { alg: "ES256", typ: "JWT" };
   const now = Math.floor(Date.now() / 1000);
   const audience = new URL(subscription.endpoint).origin;
   
   const jwtPayload = {
     aud: audience,
-    exp: now + 12 * 60 * 60, // 12 hours
+    exp: now + 12 * 60 * 60,
     sub: "mailto:anndrees31@gmail.com",
   };
 
-  // Base64URL encode
   const base64url = (data: Uint8Array | string): string => {
     const str = typeof data === "string" ? data : String.fromCharCode(...data);
     return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
@@ -53,7 +49,6 @@ async function sendWebPush(
   const payloadB64 = base64url(JSON.stringify(jwtPayload));
   const unsignedToken = `${headerB64}.${payloadB64}`;
 
-  // Import the private key for signing
   const privateKeyBytes = Uint8Array.from(
     atob(vapidPrivateKey.replace(/-/g, "+").replace(/_/g, "/")),
     (c) => c.charCodeAt(0)
@@ -92,7 +87,6 @@ async function sendWebPush(
 }
 
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -113,23 +107,22 @@ serve(async (req) => {
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { userId, notification, notificationType, userName }: RequestBody = await req.json();
+    const { notification, notificationType, metadata }: RequestBody = await req.json();
 
-    console.log("Sending push notification to user:", userId);
+    console.log("Sending push notification to ALL users");
     console.log("Notification:", notification);
 
-    if (!userId || !notification) {
+    if (!notification) {
       return new Response(
-        JSON.stringify({ error: "User ID and notification are required" }),
+        JSON.stringify({ error: "Notification is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Get user's push subscriptions
+    // Get ALL push subscriptions from all users
     const { data: subscriptions, error: fetchError } = await supabase
       .from("push_subscriptions")
-      .select("*")
-      .eq("user_id", userId);
+      .select("*, profiles:user_id(full_name)");
 
     if (fetchError) {
       console.error("Error fetching subscriptions:", fetchError);
@@ -139,30 +132,18 @@ serve(async (req) => {
       );
     }
 
-    // Get user name if not provided
-    let resolvedUserName = userName;
-    if (!resolvedUserName) {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("full_name")
-        .eq("id", userId)
-        .single();
-      resolvedUserName = profile?.full_name || null;
-    }
-
     if (!subscriptions || subscriptions.length === 0) {
-      console.log("No push subscriptions found for user:", userId);
+      console.log("No push subscriptions found");
       
       // Log to history
       await supabase.from("notification_history").insert({
-        user_id: userId,
-        user_name: resolvedUserName,
-        notification_type: notificationType || "general",
+        notification_type: notificationType || "broadcast",
         title: notification.title,
         body: notification.body,
         status: "no_subscribers",
         sent_count: 0,
         total_subscriptions: 0,
+        metadata,
       });
 
       return new Response(
@@ -178,11 +159,11 @@ serve(async (req) => {
       badge: notification.badge || "/pwa-192x192.png",
       tag: notification.tag,
       data: notification.data,
-      actions: notification.actions,
     });
 
     let sentCount = 0;
     const errors: string[] = [];
+    const usersNotified = new Set<string>();
 
     // Send to all subscriptions
     for (const sub of subscriptions) {
@@ -196,9 +177,9 @@ serve(async (req) => {
 
         if (response.ok) {
           sentCount++;
+          usersNotified.add(sub.user_id);
           console.log("Push sent successfully to:", sub.endpoint.substring(0, 50));
         } else if (response.status === 410 || response.status === 404) {
-          // Subscription expired, remove it
           console.log("Subscription expired, removing:", sub.id);
           await supabase.from("push_subscriptions").delete().eq("id", sub.id);
         } else {
@@ -216,15 +197,14 @@ serve(async (req) => {
 
     // Log to notification history
     await supabase.from("notification_history").insert({
-      user_id: userId,
-      user_name: resolvedUserName,
-      notification_type: notificationType || "general",
+      notification_type: notificationType || "broadcast",
       title: notification.title,
       body: notification.body,
       status: sentCount > 0 ? "sent" : "failed",
       sent_count: sentCount,
       total_subscriptions: subscriptions.length,
       error_details: errors.length > 0 ? errors.join("; ") : null,
+      metadata: { ...metadata, users_notified: usersNotified.size },
     });
 
     return new Response(
@@ -232,12 +212,13 @@ serve(async (req) => {
         success: true,
         sent: sentCount,
         total: subscriptions.length,
+        usersNotified: usersNotified.size,
         errors: errors.length > 0 ? errors : undefined,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (error) {
-    console.error("Error in send-push-notification:", error);
+    console.error("Error in send-push-notification-all:", error);
     return new Response(
       JSON.stringify({ error: "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
