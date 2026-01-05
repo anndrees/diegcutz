@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { sendChatMessageNotification } from "@/lib/pushNotifications";
 
 type Conversation = {
   id: string;
@@ -299,6 +300,13 @@ export const AdminMessagesSection = () => {
         unread_by_user: true,
       })
       .eq("id", selectedConversation.id);
+
+    // Send push notification to user
+    try {
+      await sendChatMessageNotification(selectedConversation.user_id, newMessage.trim());
+    } catch (pushError) {
+      console.error("Error sending push notification:", pushError);
+    }
 
     setNewMessage("");
     setSending(false);

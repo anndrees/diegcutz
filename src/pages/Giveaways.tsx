@@ -126,7 +126,7 @@ const Giveaways = () => {
   const pastGiveaways = giveaways.filter(g => g.is_finished || g.winner_id || isPast(new Date(g.end_date)));
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-12 px-4 pt-safe">
       <div className="max-w-4xl mx-auto">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-8">
           <ArrowLeft className="mr-2" />

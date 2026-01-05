@@ -483,7 +483,7 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-12 px-4 pt-safe">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <Button variant="ghost" onClick={() => navigate("/")} className="hidden lg:flex">

@@ -58,7 +58,7 @@ export default function Install() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
+      <div className="container mx-auto px-4 py-8 max-w-2xl pt-safe">
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
