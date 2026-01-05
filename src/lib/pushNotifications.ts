@@ -14,13 +14,17 @@ interface NotificationPayload {
  */
 export const sendPushNotification = async (
   userId: string,
-  notification: NotificationPayload
+  notification: NotificationPayload,
+  notificationType?: string,
+  userName?: string
 ): Promise<{ success: boolean; sent?: number; error?: string }> => {
   try {
     const { data, error } = await supabase.functions.invoke("send-push-notification", {
       body: {
         userId,
-        notification
+        notification,
+        notificationType,
+        userName
       }
     });
 
@@ -32,6 +36,35 @@ export const sendPushNotification = async (
     return { success: true, sent: data.sent };
   } catch (error) {
     console.error("Error sending push notification:", error);
+    return { success: false, error: String(error) };
+  }
+};
+
+/**
+ * Send a push notification to ALL users (broadcast)
+ */
+export const sendPushNotificationToAll = async (
+  notification: NotificationPayload,
+  notificationType: string,
+  metadata?: Record<string, unknown>
+): Promise<{ success: boolean; sent?: number; error?: string }> => {
+  try {
+    const { data, error } = await supabase.functions.invoke("send-push-notification-all", {
+      body: {
+        notification,
+        notificationType,
+        metadata
+      }
+    });
+
+    if (error) {
+      console.error("Error sending push notification to all:", error);
+      return { success: false, error: error.message };
+    }
+
+    return { success: true, sent: data.sent };
+  } catch (error) {
+    console.error("Error sending push notification to all:", error);
     return { success: false, error: String(error) };
   }
 };
@@ -61,7 +94,7 @@ export const sendBookingReminder = async (
     actions: [
       { action: "view", title: "Ver detalles" }
     ]
-  });
+  }, "booking_reminder");
 };
 
 /**
@@ -87,7 +120,7 @@ export const sendBookingConfirmation = async (
       type: "booking-confirmation",
       url: "/user"
     }
-  });
+  }, "booking_confirmation");
 };
 
 /**
@@ -112,7 +145,7 @@ export const sendChatMessageNotification = async (
     actions: [
       { action: "view", title: "Ver mensaje" }
     ]
-  });
+  }, "chat_message");
 };
 
 /**
@@ -140,7 +173,7 @@ export const sendBookingCancellation = async (
       type: "booking-cancellation",
       url: "/booking"
     }
-  });
+  }, "booking_cancellation");
 };
 
 /**
@@ -159,5 +192,29 @@ export const sendGiveawayWinnerNotification = async (
       type: "giveaway-winner",
       url: "/giveaways"
     }
+  }, "giveaway_winner");
+};
+
+/**
+ * Send new giveaway notification to all users
+ */
+export const sendNewGiveawayNotification = async (
+  giveawayTitle: string,
+  prize: string,
+  endDate: string
+): Promise<{ success: boolean }> => {
+  const formattedEndDate = new Date(endDate).toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long"
   });
+
+  return sendPushNotificationToAll({
+    title: "🎁 ¡Nuevo Sorteo!",
+    body: `Participa en "${giveawayTitle}" y gana: ${prize}. Hasta el ${formattedEndDate}`,
+    tag: "new-giveaway",
+    data: {
+      type: "new-giveaway",
+      url: "/giveaways"
+    }
+  }, "new_giveaway", { giveawayTitle, prize });
 };

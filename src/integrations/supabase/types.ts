@@ -509,6 +509,59 @@ export type Database = {
           },
         ]
       }
+      notification_history: {
+        Row: {
+          body: string
+          created_at: string
+          error_details: string | null
+          id: string
+          metadata: Json | null
+          notification_type: string
+          sent_count: number | null
+          status: string
+          title: string
+          total_subscriptions: number | null
+          user_id: string | null
+          user_name: string | null
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          error_details?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_type: string
+          sent_count?: number | null
+          status?: string
+          title: string
+          total_subscriptions?: number | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          error_details?: string | null
+          id?: string
+          metadata?: Json | null
+          notification_type?: string
+          sent_count?: number | null
+          status?: string
+          title?: string
+          total_subscriptions?: number | null
+          user_id?: string | null
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       optional_addons: {
         Row: {
           coming_soon: boolean

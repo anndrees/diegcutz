@@ -39,6 +39,7 @@ import { AdminMessagesSection } from "@/components/admin/AdminMessagesSection";
 import { AchievementsManagement } from "@/components/admin/AchievementsManagement";
 import { CouponsManagement } from "@/components/admin/CouponsManagement";
 import { NotificationsDropdown } from "@/components/admin/NotificationsDropdown";
+import { NotificationHistoryManagement } from "@/components/admin/NotificationHistoryManagement";
 import { SettingsModal } from "@/components/admin/SettingsModal";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -632,6 +633,8 @@ const Admin = () => {
             {activeTab === "giveaways" && <GiveawaysManagement />}
 
             {activeTab === "messages" && <AdminMessagesSection />}
+
+            {activeTab === "notifications" && <NotificationHistoryManagement />}
 
             {activeTab === "logs" && <AdminActionsLog />}
           </main>

@@ -13,6 +13,7 @@ import {
   X,
   Trophy,
   Ticket,
+  Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ const menuItems = [
   { id: "coupons", label: "Cupones", icon: Ticket },
   { id: "giveaways", label: "Sorteos", icon: Gift },
   { id: "messages", label: "Mensajes", icon: MessageSquare },
+  { id: "notifications", label: "Notificaciones", icon: Bell },
   { id: "logs", label: "Historial", icon: History },
 ];
 
