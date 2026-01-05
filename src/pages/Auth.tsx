@@ -201,10 +201,10 @@ const Auth = () => {
 
     const normalizedLoginUsername = sanitizeUsername(loginUsername);
 
-    // First, get the profile to find the email associated with the username and check ban status
+    // First, get the profile to find the user and check ban status
     const { data: profileData, error: profileError } = await supabase
       .from("profiles")
-      .select("contact_value, contact_method, is_banned, ban_reason")
+      .select("id, contact_value, contact_method, is_banned, ban_reason")
       .eq("username", normalizedLoginUsername)
       .single();
 
@@ -231,21 +231,46 @@ const Auth = () => {
 
     let signInError = null;
 
-    if (profileData.contact_method === "email") {
+    // Determine the best way to login based on contact info
+    const contactValue = profileData.contact_value;
+    const isEmail = contactValue.includes('@');
+    
+    if (isEmail) {
+      // Contact value is an email, use it directly
       const { error } = await supabase.auth.signInWithPassword({
-        email: profileData.contact_value,
+        email: contactValue,
+        password: loginPassword,
+      });
+      signInError = error;
+    } else if (profileData.contact_method === "email") {
+      // Contact method says email but value doesn't look like email - try anyway
+      const { error } = await supabase.auth.signInWithPassword({
+        email: contactValue,
         password: loginPassword,
       });
       signInError = error;
     } else {
-      const normalizedPhone = profileData.contact_value.replace(/\s+/g, "");
+      // Phone user - try phone first, then fallback to common patterns
+      const normalizedPhone = contactValue.replace(/\s+/g, "");
       const phone = normalizedPhone.startsWith("+") ? normalizedPhone : `+34${normalizedPhone}`;
 
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error: phoneError } = await supabase.auth.signInWithPassword({
         phone,
         password: loginPassword,
       });
-      signInError = error;
+      
+      if (phoneError) {
+        // Phone login failed - this user might have been created via OAuth (Google)
+        // and their auth account uses email, not phone
+        // Try with a dummy email format as fallback
+        const dummyEmail = `${phone.replace('+', '')}@phone.diegcutz.local`;
+        const { error: dummyError } = await supabase.auth.signInWithPassword({
+          email: dummyEmail,
+          password: loginPassword,
+        });
+        
+        signInError = dummyError || phoneError;
+      }
     }
 
     setLoading(false);
