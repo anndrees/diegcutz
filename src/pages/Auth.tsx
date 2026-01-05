@@ -617,7 +617,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-12 px-4 pt-safe">
       <div className="max-w-md mx-auto">
         <Button
           variant="ghost"

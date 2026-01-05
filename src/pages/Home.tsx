@@ -10,6 +10,7 @@ import { RatingsCarousel } from "@/components/RatingsCarousel";
 import { NextAvailableSlot } from "@/components/home/NextAvailableSlot";
 import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { LiveTestimonials } from "@/components/home/LiveTestimonials";
+import { InstallBanner } from "@/components/pwa/InstallBanner";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -217,6 +218,8 @@ const Home = () => {
 
   return (
     <div className="min-h-screen overflow-x-hidden">
+      {/* PWA Install Banner - only shows in browser, not in PWA */}
+      <InstallBanner />
       {/* CSS for custom animations */}
       <style>{`
         @keyframes float {
@@ -250,7 +253,7 @@ const Home = () => {
       `}</style>
 
       {/* Top Bar with Login/Profile */}
-      <div className="fixed top-0 right-0 z-50 p-4">
+      <div className="fixed top-0 right-0 z-50 p-4 pt-safe">
         {user && profile ? (
           <Button
             variant="ghost"

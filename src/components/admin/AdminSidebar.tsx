@@ -92,7 +92,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm border border-border shadow-lg"
+            className="lg:hidden fixed top-4 left-4 z-50 bg-background/80 backdrop-blur-sm border border-border shadow-lg mt-safe"
           >
             <Menu className="h-5 w-5" />
           </Button>

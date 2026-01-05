@@ -8,14 +8,39 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 }
 
+// Check if app is running as installed PWA
+const isRunningAsPWA = (): boolean => {
+  // Check display-mode: standalone (most reliable for desktop)
+  if (window.matchMedia("(display-mode: standalone)").matches) {
+    return true;
+  }
+  
+  // Check if launched from home screen on iOS
+  if ((navigator as any).standalone === true) {
+    return true;
+  }
+  
+  // Check display-mode: fullscreen (some PWAs)
+  if (window.matchMedia("(display-mode: fullscreen)").matches) {
+    return true;
+  }
+  
+  // Check if in TWA (Trusted Web Activity)
+  if (document.referrer.includes("android-app://")) {
+    return true;
+  }
+  
+  return false;
+};
+
 export const InstallPrompt = () => {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if already installed
-    if (window.matchMedia("(display-mode: standalone)").matches) {
+    // Check if already running as PWA
+    if (isRunningAsPWA()) {
       setIsInstalled(true);
       return;
     }
@@ -74,7 +99,7 @@ export const InstallPrompt = () => {
   }
 
   return (
-    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 duration-300 md:left-auto md:right-4 md:max-w-sm">
+    <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 duration-300 md:left-auto md:right-4 md:max-w-sm safe-area-inset-bottom">
       <Card className="border-primary/30 bg-card/95 backdrop-blur-sm shadow-lg">
         <CardHeader className="pb-2 relative">
           <Button
@@ -110,3 +135,6 @@ export const InstallPrompt = () => {
     </div>
   );
 };
+
+// Export utility function for other components
+export { isRunningAsPWA };

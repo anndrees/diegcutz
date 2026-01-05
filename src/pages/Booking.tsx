@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { sendBookingConfirmation } from "@/lib/pushNotifications";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
@@ -707,6 +708,18 @@ const Booking = () => {
       console.error("Error sending email notification:", emailError);
     }
 
+    // Send push notification confirmation
+    try {
+      await sendBookingConfirmation(
+        user.id,
+        format(selectedDate, "yyyy-MM-dd"),
+        selectedTime,
+        servicesData
+      );
+    } catch (pushError) {
+      console.error("Error sending push notification:", pushError);
+    }
+
     setLoading(false);
 
     const message = isFreeCutReservation 
@@ -738,7 +751,7 @@ const Booking = () => {
   const totalPrice = calculateTotal();
 
   return (
-    <div className="min-h-screen py-12 px-4">
+    <div className="min-h-screen py-12 px-4 pt-safe">
       <div className="max-w-4xl mx-auto">
         <Button
           variant="ghost"

@@ -237,7 +237,7 @@ export default function UserProfile() {
   const cancelledBookings = bookings.filter(b => b.is_cancelled);
   const pastBookings = bookings.filter(b => isPastBooking(b.booking_date, b.booking_time) && !b.is_cancelled);
   return <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pt-safe">
         <div className="flex items-center justify-between mb-8">
           <Button variant="outline" onClick={() => navigate("/")} className="flex items-center gap-2">
             <ArrowLeft className="h-4 w-4" />
