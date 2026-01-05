@@ -23,6 +23,18 @@ interface RequestBody {
   userName?: string;
 }
 
+// Map notification types to preference fields
+const typeToPreference: Record<string, string> = {
+  booking_confirmation: "booking_confirmations",
+  booking_reminder: "booking_reminders",
+  chat_message: "chat_messages",
+  giveaway_winner: "giveaways",
+  new_giveaway: "giveaways",
+  admin_broadcast: "promotions",
+  admin_message: "promotions",
+  inactive_reminder: "promotions",
+};
+
 // Web Push library for Deno
 async function sendWebPush(
   subscription: { endpoint: string; p256dh: string; auth: string },
@@ -116,13 +128,48 @@ serve(async (req) => {
     const { userId, notification, notificationType, userName }: RequestBody = await req.json();
 
     console.log("Sending push notification to user:", userId);
-    console.log("Notification:", notification);
+    console.log("Notification type:", notificationType);
 
     if (!userId || !notification) {
       return new Response(
         JSON.stringify({ error: "User ID and notification are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
+    }
+
+    // Check user's notification preferences
+    const preferenceField = typeToPreference[notificationType || "general"];
+    if (preferenceField) {
+      const { data: prefs } = await supabase
+        .from("notification_preferences")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+      
+      // Check if this notification type is disabled
+      const isDisabled = prefs && (prefs as Record<string, unknown>)[preferenceField] === false;
+      
+      if (isDisabled) {
+        console.log(`User ${userId} has disabled ${preferenceField} notifications`);
+        
+        // Log but mark as skipped
+        await supabase.from("notification_history").insert({
+          user_id: userId,
+          user_name: userName,
+          notification_type: notificationType || "general",
+          title: notification.title,
+          body: notification.body,
+          status: "skipped",
+          sent_count: 0,
+          total_subscriptions: 0,
+          error_details: "Usuario desactivó este tipo de notificación",
+        });
+
+        return new Response(
+          JSON.stringify({ success: true, sent: 0, message: "User disabled this notification type" }),
+          { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
     }
 
     // Get user's push subscriptions

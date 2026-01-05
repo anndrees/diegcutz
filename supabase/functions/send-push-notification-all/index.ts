@@ -21,6 +21,14 @@ interface RequestBody {
   metadata?: Record<string, unknown>;
 }
 
+// Map notification types to preference fields
+const typeToPreference: Record<string, string> = {
+  new_giveaway: "giveaways",
+  admin_broadcast: "promotions",
+  inactive_reminder: "promotions",
+  broadcast: "promotions",
+};
+
 // Web Push library for Deno
 async function sendWebPush(
   subscription: { endpoint: string; p256dh: string; auth: string },
@@ -110,7 +118,7 @@ serve(async (req) => {
     const { notification, notificationType, metadata }: RequestBody = await req.json();
 
     console.log("Sending push notification to ALL users");
-    console.log("Notification:", notification);
+    console.log("Notification type:", notificationType);
 
     if (!notification) {
       return new Response(
@@ -152,6 +160,21 @@ serve(async (req) => {
       );
     }
 
+    // Get notification preferences for filtering
+    const preferenceField = typeToPreference[notificationType || "broadcast"];
+    let disabledUsers = new Set<string>();
+    
+    if (preferenceField) {
+      const { data: prefs } = await supabase
+        .from("notification_preferences")
+        .select("user_id")
+        .eq(preferenceField, false);
+      
+      if (prefs) {
+        disabledUsers = new Set(prefs.map(p => p.user_id));
+      }
+    }
+
     const payload = JSON.stringify({
       title: notification.title,
       body: notification.body,
@@ -162,11 +185,19 @@ serve(async (req) => {
     });
 
     let sentCount = 0;
+    let skippedCount = 0;
     const errors: string[] = [];
     const usersNotified = new Set<string>();
 
     // Send to all subscriptions
     for (const sub of subscriptions) {
+      // Check if user has disabled this notification type
+      if (disabledUsers.has(sub.user_id)) {
+        skippedCount++;
+        console.log(`Skipping user ${sub.user_id} - disabled ${preferenceField}`);
+        continue;
+      }
+
       try {
         const response = await sendWebPush(
           { endpoint: sub.endpoint, p256dh: sub.p256dh, auth: sub.auth },
@@ -193,7 +224,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`Push notifications sent: ${sentCount}/${subscriptions.length}`);
+    console.log(`Push notifications sent: ${sentCount}/${subscriptions.length} (skipped: ${skippedCount})`);
 
     // Log to notification history
     await supabase.from("notification_history").insert({
@@ -204,7 +235,7 @@ serve(async (req) => {
       sent_count: sentCount,
       total_subscriptions: subscriptions.length,
       error_details: errors.length > 0 ? errors.join("; ") : null,
-      metadata: { ...metadata, users_notified: usersNotified.size },
+      metadata: { ...metadata, users_notified: usersNotified.size, skipped: skippedCount },
     });
 
     return new Response(
@@ -213,6 +244,7 @@ serve(async (req) => {
         sent: sentCount,
         total: subscriptions.length,
         usersNotified: usersNotified.size,
+        skipped: skippedCount,
         errors: errors.length > 0 ? errors : undefined,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
