@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,6 +8,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useGoogleAuthEnabled } from "@/hooks/useGoogleAuthEnabled";
+import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, LogIn, UserPlus, Check, X, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -42,8 +43,17 @@ const Auth = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
   const { isGoogleAuthEnabled, loading: googleAuthSettingLoading } = useGoogleAuthEnabled();
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already authenticated (handles OAuth callback)
+  useEffect(() => {
+    if (!authLoading && user) {
+      const from = location.state?.from || "/";
+      navigate(from, { replace: true });
+    }
+  }, [user, authLoading, navigate, location.state]);
 
   // Login state
   const [loginUsername, setLoginUsername] = useState("");
