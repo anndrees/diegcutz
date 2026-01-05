@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { ForcePasswordChange } from "./components/ForcePasswordChange";
 import { CompleteProfileForm } from "./components/CompleteProfileForm";
 import { FloatingChat } from "./components/chat/FloatingChat";
+import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import Home from "./pages/Home";
 import Booking from "./pages/Booking";
 import Admin from "./pages/Admin";
@@ -17,6 +18,7 @@ import Giveaways from "./pages/Giveaways";
 import ForgotPassword from "./pages/ForgotPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -64,10 +66,12 @@ const AppContent = () => {
         <Route path="/giveaways" element={<Giveaways />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/install" element={<Install />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
       <FloatingChat />
+      <InstallPrompt />
     </>
   );
 };

@@ -2,3 +2,15 @@ project_id = "bnaqcsjummrfdwdmppkm"
 
 [functions.send-booking-email]
 verify_jwt = false
+
+[functions.push-subscribe]
+verify_jwt = false
+
+[functions.push-unsubscribe]
+verify_jwt = false
+
+[functions.send-push-notification]
+verify_jwt = false
+
+[functions.get-vapid-key]
+verify_jwt = false
