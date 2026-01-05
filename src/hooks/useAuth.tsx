@@ -8,6 +8,7 @@ interface AuthContextType {
   profile: Profile | null;
   loading: boolean;
   requiresPasswordChange: boolean;
+  requiresProfileCompletion: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
   checkAccountStatus: () => Promise<{ isBanned: boolean; isRestricted: boolean; banReason?: string; restrictionEndsAt?: string }>;
@@ -27,6 +28,7 @@ interface Profile {
   restriction_ends_at?: string;
   restricted_at?: string;
   temp_password_active?: boolean;
+  profile_complete?: boolean;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -35,6 +37,7 @@ const AuthContext = createContext<AuthContextType>({
   profile: null,
   loading: true,
   requiresPasswordChange: false,
+  requiresProfileCompletion: false,
   signOut: async () => {},
   refreshProfile: async () => {},
   checkAccountStatus: async () => ({ isBanned: false, isRestricted: false }),
@@ -47,6 +50,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
+  const [requiresProfileCompletion, setRequiresProfileCompletion] = useState(false);
 
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
@@ -91,6 +95,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setRequiresPasswordChange(true);
       } else {
         setRequiresPasswordChange(false);
+      }
+      
+      // Check if profile is complete
+      if (data.profile_complete === false) {
+        setRequiresProfileCompletion(true);
+      } else {
+        setRequiresProfileCompletion(false);
       }
       
       setProfile(data);
@@ -182,6 +193,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setSession(null);
     setProfile(null);
     setRequiresPasswordChange(false);
+    setRequiresProfileCompletion(false);
   };
 
   const clearPasswordChangeRequirement = () => {
@@ -195,6 +207,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       profile, 
       loading, 
       requiresPasswordChange,
+      requiresProfileCompletion,
       signOut, 
       refreshProfile, 
       checkAccountStatus,

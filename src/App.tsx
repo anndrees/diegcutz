@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { ForcePasswordChange } from "./components/ForcePasswordChange";
+import { CompleteProfileForm } from "./components/CompleteProfileForm";
 import { FloatingChat } from "./components/chat/FloatingChat";
 import Home from "./pages/Home";
 import Booking from "./pages/Booking";
@@ -20,9 +21,9 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
-// Wrapper to check for forced password change
+// Wrapper to check for forced password change and incomplete profile
 const AppContent = () => {
-  const { user, requiresPasswordChange, clearPasswordChangeRequirement, refreshProfile } = useAuth();
+  const { user, profile, requiresPasswordChange, requiresProfileCompletion, clearPasswordChangeRequirement, refreshProfile } = useAuth();
 
   // If user needs to change password, show only that screen
   if (user && requiresPasswordChange) {
@@ -33,6 +34,19 @@ const AppContent = () => {
           clearPasswordChangeRequirement();
           refreshProfile();
         }} 
+      />
+    );
+  }
+
+  // If user needs to complete their profile (Google OAuth users), show profile completion form
+  if (user && profile && requiresProfileCompletion) {
+    return (
+      <CompleteProfileForm
+        userId={user.id}
+        currentName={profile.full_name}
+        onProfileCompleted={() => {
+          refreshProfile();
+        }}
       />
     );
   }
