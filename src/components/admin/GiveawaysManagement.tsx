@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { WinnerAnimation } from "./WinnerAnimation";
+import { sendGiveawayWinnerNotification } from "@/lib/pushNotifications";
 
 type Giveaway = {
   id: string;
@@ -299,6 +300,9 @@ export const GiveawaysManagement = () => {
       target_user_id: winner.user_id,
       target_user_name: winnerProfile?.full_name,
     });
+
+    // Send push notification to the winner
+    sendGiveawayWinnerNotification(winner.user_id, giveaway.title, giveaway.prize);
 
     // Show winner animation
     setSelectedWinner({
