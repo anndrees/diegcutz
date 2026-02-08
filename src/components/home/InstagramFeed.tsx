@@ -3,7 +3,7 @@ import { Instagram, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 
-const INSTAGRAM_USERNAME = "diegcutzz";
+const INSTAGRAM_USERNAME = "diegcutz";
 
 // Instagram embed placeholders - Since Instagram API requires business account,
 // we'll create an attractive placeholder that links to the profile
