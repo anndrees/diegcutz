@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Download, X, Smartphone } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -39,9 +40,19 @@ export const InstallPrompt = () => {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if already running as PWA
+    // Check if already running as PWA and record it
     if (isRunningAsPWA()) {
       setIsInstalled(true);
+      // Record PWA usage if not already recorded
+      (async () => {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const { data: profile } = await supabase.from("profiles").select("pwa_installed_at").eq("id", user.id).single();
+          if (profile && !profile.pwa_installed_at) {
+            await supabase.from("profiles").update({ pwa_installed_at: new Date().toISOString() }).eq("id", user.id);
+          }
+        }
+      })();
       return;
     }
 
@@ -61,10 +72,15 @@ export const InstallPrompt = () => {
       setTimeout(() => setShowPrompt(true), 3000);
     };
 
-    const handleAppInstalled = () => {
+    const handleAppInstalled = async () => {
       setIsInstalled(true);
       setShowPrompt(false);
       setDeferredPrompt(null);
+      // Record PWA installation in profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from("profiles").update({ pwa_installed_at: new Date().toISOString() }).eq("id", user.id);
+      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstall);

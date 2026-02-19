@@ -7,7 +7,8 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Trash2, Search } from "lucide-react";
+import { Edit2, Trash2, Search, Smartphone } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 
@@ -18,6 +19,7 @@ type Client = {
   contact_method: string;
   contact_value: string;
   created_at: string;
+  pwa_installed_at: string | null;
 };
 
 export const ClientsManagement = () => {
@@ -192,7 +194,23 @@ export const ClientsManagement = () => {
               <TableBody>
                 {filteredClients.map((client) => (
                   <TableRow key={client.id}>
-                    <TableCell className="font-medium">{client.full_name}</TableCell>
+                    <TableCell className="font-medium">
+                      <div className="flex items-center gap-1.5">
+                        {client.full_name}
+                        {client.pwa_installed_at && (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <Smartphone className="h-3.5 w-3.5 text-primary" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>PWA instalada</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell>
                       <Link 
                         to={`/admin/client/${client.id}`}
