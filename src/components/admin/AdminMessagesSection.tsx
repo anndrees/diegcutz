@@ -372,7 +372,7 @@ export const AdminMessagesSection = () => {
   const deleteConversation = async () => {
     if (!conversationToDelete) return;
 
-    // First delete all messages
+    // Delete all messages
     const { error: messagesError } = await supabase
       .from("chat_messages")
       .delete()
@@ -387,7 +387,7 @@ export const AdminMessagesSection = () => {
       return;
     }
 
-    // Then delete the conversation
+    // Delete the conversation itself
     const { error } = await supabase
       .from("chat_conversations")
       .delete()

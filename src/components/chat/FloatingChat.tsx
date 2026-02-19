@@ -91,9 +91,10 @@ export const FloatingChat = () => {
         setUnreadCount(count || 0);
       }
     } else {
+      // Use upsert with onConflict to prevent duplicates
       const { data: newConv, error } = await supabase
         .from("chat_conversations")
-        .insert({ user_id: userId })
+        .upsert({ user_id: userId }, { onConflict: "user_id" })
         .select("id")
         .single();
 
