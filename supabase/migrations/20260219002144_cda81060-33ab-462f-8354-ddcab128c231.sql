@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN pwa_installed_at timestamp with time zone DEFAULT NULL;

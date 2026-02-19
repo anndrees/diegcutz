@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, User, Phone, Mail, Calendar, Clock, Package, Edit2, Trash2, 
-  Gift, Plus, Minus, Ban, ShieldOff, ShieldAlert, Save, X, AlertTriangle
+  Gift, Plus, Minus, Ban, ShieldOff, ShieldAlert, Save, X, AlertTriangle, Smartphone
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -43,6 +43,7 @@ interface Profile {
   temp_password?: string | null;
   temp_password_active?: boolean;
   temp_password_created_at?: string | null;
+  pwa_installed_at?: string | null;
 }
 
 interface Booking {
@@ -586,6 +587,19 @@ const ClientProfile = () => {
               <p className="text-lg font-semibold">
                 {format(new Date(profile.created_at), "d 'de' MMMM 'de' yyyy", { locale: es })}
               </p>
+            </div>
+            <div>
+              <p className="text-sm text-muted-foreground">App PWA</p>
+              {profile.pwa_installed_at ? (
+                <div className="flex items-center gap-2 text-primary">
+                  <Smartphone className="w-4 h-4" />
+                  <p className="text-lg font-semibold">
+                    Instalada el {format(new Date(profile.pwa_installed_at), "d/MM/yyyy", { locale: es })}
+                  </p>
+                </div>
+              ) : (
+                <p className="text-lg font-semibold text-muted-foreground">No instalada</p>
+              )}
             </div>
           </CardContent>
         </Card>

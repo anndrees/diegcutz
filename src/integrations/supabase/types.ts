@@ -686,6 +686,7 @@ export type Database = {
           is_banned: boolean | null
           is_restricted: boolean | null
           profile_complete: boolean | null
+          pwa_installed_at: string | null
           restricted_at: string | null
           restriction_ends_at: string | null
           temp_password: string | null
@@ -704,6 +705,7 @@ export type Database = {
           is_banned?: boolean | null
           is_restricted?: boolean | null
           profile_complete?: boolean | null
+          pwa_installed_at?: string | null
           restricted_at?: string | null
           restriction_ends_at?: string | null
           temp_password?: string | null
@@ -722,6 +724,7 @@ export type Database = {
           is_banned?: boolean | null
           is_restricted?: boolean | null
           profile_complete?: boolean | null
+          pwa_installed_at?: string | null
           restricted_at?: string | null
           restriction_ends_at?: string | null
           temp_password?: string | null
