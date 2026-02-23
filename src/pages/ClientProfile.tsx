@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, User, Phone, Mail, Calendar, Clock, Package, Edit2, Trash2, 
-  Gift, Plus, Minus, Ban, ShieldOff, ShieldAlert, Save, X, AlertTriangle, Smartphone, QrCode
+  Gift, Plus, Minus, Ban, ShieldOff, ShieldAlert, Save, X, AlertTriangle, Smartphone, QrCode, CalendarPlus
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
@@ -27,6 +27,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { PasswordResetSection } from "@/components/admin/PasswordResetSection";
 import { ClientAchievements } from "@/components/admin/ClientAchievements";
+import { AdminBookingDialog } from "@/components/admin/AdminBookingDialog";
 
 interface Profile {
   id: string;
@@ -98,6 +99,9 @@ const ClientProfile = () => {
   
   // Restriction countdown
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
+  
+  // Admin booking dialog
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
 
   useEffect(() => {
     if (id) {
@@ -559,10 +563,16 @@ const ClientProfile = () => {
               <User className="text-primary" />
               Información del Cliente
             </CardTitle>
-            <Button variant="outline" size="sm" onClick={openEditProfile}>
-              <Edit2 className="w-4 h-4 mr-2" />
-              Editar
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="neon" size="sm" onClick={() => setShowBookingDialog(true)}>
+                <CalendarPlus className="w-4 h-4 mr-2" />
+                Asignar Reserva
+              </Button>
+              <Button variant="outline" size="sm" onClick={openEditProfile}>
+                <Edit2 className="w-4 h-4 mr-2" />
+                Editar
+              </Button>
+            </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
@@ -1049,6 +1059,16 @@ const ClientProfile = () => {
           cancelText="Cancelar"
           onConfirm={handleDeleteClient}
           variant="destructive"
+        />
+
+        {/* Admin Booking Dialog */}
+        <AdminBookingDialog
+          open={showBookingDialog}
+          onOpenChange={setShowBookingDialog}
+          clientId={profile.id}
+          clientName={profile.full_name}
+          clientContact={profile.contact_value}
+          onBookingCreated={loadClientData}
         />
       </div>
     </div>
