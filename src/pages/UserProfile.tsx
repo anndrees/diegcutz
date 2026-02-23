@@ -375,40 +375,14 @@ export default function UserProfile() {
                 Programa de Fidelización
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <div className="flex justify-between mb-2">
-                  <p className="text-sm text-muted-foreground">Progreso hacia tu próximo corte gratis</p>
-                  <p className="text-sm font-bold text-primary">
-                    {loyaltyReward ? loyaltyReward.completed_bookings % 10 : 0}/10
-                  </p>
-                </div>
-                <Progress value={loyaltyReward ? loyaltyReward.completed_bookings % 10 / 10 * 100 : 0} className="h-3" />
-                <p className="text-xs text-muted-foreground mt-2">
-                  * Solo cuentan reservas de 5€ o más
-                </p>
-              </div>
-              
-              {loyaltyReward && loyaltyReward.free_cuts_available > 0 && <div className="p-4 bg-neon-cyan/10 border-2 border-neon-cyan rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Gift className="text-neon-cyan" />
-                    <p className="font-bold text-neon-cyan">
-                      ¡Tienes {loyaltyReward.free_cuts_available} corte{loyaltyReward.free_cuts_available > 1 ? 's' : ''} gratis disponible{loyaltyReward.free_cuts_available > 1 ? 's' : ''}!
-                    </p>
-                  </div>
-                  <p className="text-xs text-muted-foreground mb-3">
-                    Incluye: DEGRADADO + VACIAR/TEXTURIZADO
-                  </p>
-                  <Button onClick={() => navigate("/booking?free_cut=true")} className="w-full bg-neon-cyan hover:bg-neon-cyan/90 text-background font-bold">
-                    <Gift className="mr-2 h-4 w-4" />
-                    ¡Reclamar Corte Gratis!
-                  </Button>
-                </div>}
-              
-              <div className="text-sm text-muted-foreground">
-                <p><strong>Total de reservas válidas:</strong> {loyaltyReward?.completed_bookings || 0}</p>
-                <p className="mt-1">Cada 10 reservas, ¡te regalamos un corte!</p>
-              </div>
+            <CardContent>
+              <p className="text-sm text-muted-foreground mb-4">
+                Acumula puntos con cada visita y consigue cortes gratis.
+              </p>
+              <Button onClick={() => navigate("/loyalty")} className="w-full">
+                <Gift className="mr-2 h-4 w-4" />
+                Ver mi tarjeta de fidelización
+              </Button>
             </CardContent>
           </Card>
 

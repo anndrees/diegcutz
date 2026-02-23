@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { Star, MessageCircle } from "lucide-react";
+import { Star, MessageCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
@@ -30,14 +30,15 @@ const TestimonialToast = ({
   onComplete: (id: string) => void;
 }) => {
   const [isExiting, setIsExiting] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
-    // Start exit animation after 4 seconds
+    if (expanded) return; // Pause auto-dismiss when expanded
+
     const exitTimer = setTimeout(() => {
       setIsExiting(true);
     }, 4000);
 
-    // Remove completely after animation
     const removeTimer = setTimeout(() => {
       onComplete(notification.id);
     }, 4500);
@@ -46,7 +47,7 @@ const TestimonialToast = ({
       clearTimeout(exitTimer);
       clearTimeout(removeTimer);
     };
-  }, [notification.id, onComplete]);
+  }, [notification.id, onComplete, expanded]);
 
   const rating = notification.rating;
 
@@ -92,9 +93,26 @@ const TestimonialToast = ({
 
         {/* Comment */}
         {rating.comment && (
-          <p className="text-sm text-foreground line-clamp-2 mb-2 italic">
-            "{rating.comment}"
-          </p>
+          <div className="mb-2">
+            <p className={`text-sm text-foreground italic ${expanded ? "" : "line-clamp-2"}`}>
+              "{rating.comment}"
+            </p>
+            {rating.comment.length > 60 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setExpanded(!expanded);
+                }}
+                className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline mt-1"
+              >
+                {expanded ? (
+                  <>Ver menos <ChevronUp className="h-3 w-3" /></>
+                ) : (
+                  <>Ver más <ChevronDown className="h-3 w-3" /></>
+                )}
+              </button>
+            )}
+          </div>
         )}
 
         {/* Author */}
