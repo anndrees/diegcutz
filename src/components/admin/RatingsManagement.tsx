@@ -170,37 +170,21 @@ export const RatingsManagement = () => {
                   <TableCell>
                     {rating.comment ? (
                       <div className="max-w-xs">
-                        <p
-                          ref={(el) => {
-                            if (el && !expandedComments.has(rating.id)) {
-                              const isClamped = el.scrollHeight > el.clientHeight;
-                              el.dataset.clamped = isClamped ? "true" : "false";
-                            }
-                          }}
-                          className={`text-sm ${expandedComments.has(rating.id) ? "" : "line-clamp-2"}`}
-                        >
+                        <p className={`text-sm ${expandedComments.has(rating.id) ? "" : "line-clamp-2"}`}>
                           {rating.comment}
                         </p>
-                        <button
-                          onClick={() => toggleComment(rating.id)}
-                          className="items-center gap-1 text-xs text-neon-cyan hover:underline mt-1 hidden data-[show=true]:inline-flex"
-                          data-show="false"
-                          ref={(el) => {
-                            if (!el) return;
-                            const p = el.previousElementSibling as HTMLElement;
-                            if (!p) return;
-                            requestAnimationFrame(() => {
-                              const isClamped = p.scrollHeight > p.clientHeight;
-                              el.dataset.show = String(isClamped || expandedComments.has(rating.id));
-                            });
-                          }}
-                        >
-                          {expandedComments.has(rating.id) ? (
-                            <>Ver menos <ChevronUp className="h-3 w-3" /></>
-                          ) : (
-                            <>Ver más <ChevronDown className="h-3 w-3" /></>
-                          )}
-                        </button>
+                        {rating.comment.length > 60 && (
+                          <button
+                            onClick={() => toggleComment(rating.id)}
+                            className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline mt-1"
+                          >
+                            {expandedComments.has(rating.id) ? (
+                              <>Ver menos <ChevronUp className="h-3 w-3" /></>
+                            ) : (
+                              <>Ver más <ChevronDown className="h-3 w-3" /></>
+                            )}
+                          </button>
+                        )}
                       </div>
                     ) : (
                       <span className="text-muted-foreground text-sm">Sin comentario</span>
