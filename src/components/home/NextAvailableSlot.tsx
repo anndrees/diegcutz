@@ -1,7 +1,15 @@
 import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Clock, Zap, Calendar, ArrowRight } from "lucide-react";
+import { Clock, Zap, Calendar, ArrowRight, MessageCircle } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 
 type TimeRange = {
@@ -27,6 +35,7 @@ export const NextAvailableSlot = () => {
   const [nextSlot, setNextSlot] = useState<{ date: Date; hour: number } | null>(null);
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [loading, setLoading] = useState(true);
+  const [showContactModal, setShowContactModal] = useState(false);
 
   useEffect(() => {
     findNextAvailableSlot();
@@ -288,6 +297,45 @@ export const NextAvailableSlot = () => {
           </Button>
         </div>
       </div>
+
+      {/* Same-day contact modal */}
+      <Dialog open={showContactModal} onOpenChange={setShowContactModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5 text-primary" />
+              Reserva para hoy
+            </DialogTitle>
+            <DialogDescription>
+              Las reservas para el mismo día requieren confirmación directa con el barbero para asegurar disponibilidad.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            <p className="text-sm text-muted-foreground mb-4">
+              Contacta por WhatsApp para reservar el slot de las{" "}
+              <span className="font-bold text-foreground">
+                {nextSlot?.hour.toString().padStart(2, "0")}:00
+              </span>{" "}
+              de hoy.
+            </p>
+            <a
+              href={`https://wa.me/34641637576?text=${encodeURIComponent(`Hola! Me gustaría reservar el slot de las ${nextSlot?.hour.toString().padStart(2, "0")}:00 de hoy.`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="neon" size="lg" className="gap-2">
+                <MessageCircle className="h-5 w-5" />
+                Contactar por WhatsApp
+              </Button>
+            </a>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setShowContactModal(false)}>
+              Cerrar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
