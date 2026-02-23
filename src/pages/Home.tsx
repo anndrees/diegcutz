@@ -6,10 +6,11 @@ import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { RatingsCarousel } from "@/components/RatingsCarousel";
 import { NextAvailableSlot } from "@/components/home/NextAvailableSlot";
 import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { LiveTestimonials } from "@/components/home/LiveTestimonials";
+import { ReviewsShowcase } from "@/components/home/ReviewsShowcase";
+import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
@@ -399,6 +400,13 @@ const Home = () => {
         </section>
       )}
 
+      {/* Pending Rating Banner */}
+      <section className="py-6 px-4">
+        <div className="max-w-2xl mx-auto">
+          <PendingRatingBanner />
+        </div>
+      </section>
+
       {/* Next Available Slot Widget */}
       <section className="py-12 px-4">
         <div className="max-w-2xl mx-auto">
@@ -505,8 +513,8 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Ratings Carousel */}
-      <RatingsCarousel />
+      {/* Reviews Showcase */}
+      <ReviewsShowcase />
 
       {/* Giveaways CTA */}
       <section className="py-16 px-4 bg-card/50">
