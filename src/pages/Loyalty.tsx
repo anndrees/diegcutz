@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +15,8 @@ const Loyalty = () => {
   } | null>(null);
   const [loyaltyToken, setLoyaltyToken] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [newStampIndex, setNewStampIndex] = useState<number | null>(null);
+  const prevStampsRef = useRef<number>(0);
 
   useEffect(() => {
     if (!user) {
@@ -26,7 +28,7 @@ const Loyalty = () => {
 
   const loadData = async () => {
     if (!user) return;
-    setLoading(true);
+    setLoading(false);
 
     const [loyaltyRes, profileRes] = await Promise.all([
       supabase
@@ -41,7 +43,9 @@ const Loyalty = () => {
         .single(),
     ]);
 
-    setLoyaltyData(loyaltyRes.data || { completed_bookings: 0, free_cuts_available: 0 });
+    const data = loyaltyRes.data || { completed_bookings: 0, free_cuts_available: 0 };
+    setLoyaltyData(data);
+    prevStampsRef.current = data.completed_bookings % 10;
     setLoyaltyToken((profileRes.data as any)?.loyalty_token || null);
     setLoading(false);
   };
@@ -62,6 +66,16 @@ const Loyalty = () => {
         },
         (payload: any) => {
           if (payload.new) {
+            const newStamps = payload.new.completed_bookings % 10;
+            const oldStamps = prevStampsRef.current;
+            
+            // Trigger animation on the newly stamped circle
+            if (newStamps > oldStamps) {
+              setNewStampIndex(newStamps - 1); // 0-indexed
+              setTimeout(() => setNewStampIndex(null), 1500);
+            }
+            
+            prevStampsRef.current = newStamps;
             setLoyaltyData({
               completed_bookings: payload.new.completed_bookings,
               free_cuts_available: payload.new.free_cuts_available,
@@ -94,6 +108,21 @@ const Loyalty = () => {
           0% { transform: scale(0) rotate(-180deg); opacity: 0; }
           60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
           100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes stamp-pop {
+          0% { transform: scale(0) rotate(-360deg); opacity: 0; }
+          40% { transform: scale(1.6) rotate(20deg); opacity: 1; }
+          60% { transform: scale(0.9) rotate(-5deg); }
+          80% { transform: scale(1.15) rotate(3deg); }
+          100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes stamp-glow {
+          0% { box-shadow: 0 0 0 0 rgba(212,175,55,0.8); }
+          50% { box-shadow: 0 0 30px 10px rgba(212,175,55,0.6); }
+          100% { box-shadow: 0 0 15px 5px rgba(212,175,55,0.4); }
+        }
+        .stamp-pop-in {
+          animation: stamp-pop 0.8s ease-out forwards, stamp-glow 1.5s ease-out forwards;
         }
         @keyframes card-shine {
           0% { background-position: -200% 0; }
@@ -180,7 +209,7 @@ const Loyalty = () => {
                     `}
                   >
                     {isStamped ? (
-                      <div className="stamp-enter" style={{ animationDelay: `${i * 0.05}s` }}>
+                      <div className={i === newStampIndex ? "stamp-pop-in" : "stamp-enter"} style={i !== newStampIndex ? { animationDelay: `${i * 0.05}s` } : undefined}>
                         <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#1a1a2e]" fill="currentColor">
                           <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                         </svg>
