@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, Star } from "lucide-react";
+import { Trash2, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 
@@ -29,6 +29,16 @@ export const RatingsManagement = () => {
   const { toast } = useToast();
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState(false);
+  const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
+
+  const toggleComment = (id: string) => {
+    setExpandedComments(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
 
   useEffect(() => {
     loadRatings();
@@ -158,9 +168,27 @@ export const RatingsManagement = () => {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <p className="max-w-xs truncate text-sm">
-                      {rating.comment || <span className="text-muted-foreground">Sin comentario</span>}
-                    </p>
+                    {rating.comment ? (
+                      <div className="max-w-xs">
+                        <p className={`text-sm ${expandedComments.has(rating.id) ? "" : "line-clamp-2"}`}>
+                          {rating.comment}
+                        </p>
+                        {rating.comment.length > 80 && (
+                          <button
+                            onClick={() => toggleComment(rating.id)}
+                            className="flex items-center gap-1 text-xs text-neon-cyan hover:underline mt-1"
+                          >
+                            {expandedComments.has(rating.id) ? (
+                              <>Ver menos <ChevronUp className="h-3 w-3" /></>
+                            ) : (
+                              <>Ver más <ChevronDown className="h-3 w-3" /></>
+                            )}
+                          </button>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">Sin comentario</span>
+                    )}
                   </TableCell>
                   <TableCell>
                     <div className="text-xs max-w-xs">
