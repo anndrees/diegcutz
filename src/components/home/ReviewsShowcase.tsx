@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Star, Quote, ChevronLeft, ChevronRight, Sparkles } from "lucide-react";
+import { Star, Quote, ChevronLeft, ChevronRight, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
@@ -20,6 +20,7 @@ type Rating = {
 };
 
 const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
+  const [expanded, setExpanded] = useState(false);
   const initials = (rating.profile?.username || "AN").slice(0, 2).toUpperCase();
   
   // Generate a consistent color from username
@@ -83,9 +84,23 @@ const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
 
         {/* Comment */}
         {rating.comment ? (
-          <p className="text-sm text-foreground/90 leading-relaxed mb-4 line-clamp-4">
-            "{rating.comment}"
-          </p>
+          <div className="mb-4">
+            <p className={`text-sm text-foreground/90 leading-relaxed ${expanded ? "" : "line-clamp-4"}`}>
+              "{rating.comment}"
+            </p>
+            {rating.comment.length > 120 && (
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1.5"
+              >
+                {expanded ? (
+                  <>Ver menos <ChevronUp className="h-3 w-3" /></>
+                ) : (
+                  <>Ver más <ChevronDown className="h-3 w-3" /></>
+                )}
+              </button>
+            )}
+          </div>
         ) : (
           <div className="flex items-center gap-2 mb-4">
             <div className="flex gap-0.5">
