@@ -10,13 +10,15 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, LogOut, Calendar, Star, Gift, X, RotateCcw, Link2, Check } from "lucide-react";
+import { ArrowLeft, LogOut, Calendar, Star, Gift, X, RotateCcw, Link2, Check, ChevronRight, Clock, Package } from "lucide-react";
 import { RatingDialog } from "@/components/RatingDialog";
 import { Progress } from "@/components/ui/progress";
 import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 import { Separator } from "@/components/ui/separator";
 import { UserAchievements } from "@/components/UserAchievements";
 import { NotificationPreferences } from "@/components/pwa/NotificationPreferences";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 interface Booking {
   id: string;
   booking_date: string;
@@ -60,6 +62,8 @@ export default function UserProfile() {
   const [cancelMode, setCancelMode] = useState<"cancel" | "reschedule">("cancel");
   const [googleConnected, setGoogleConnected] = useState(false);
   const [connectingGoogle, setConnectingGoogle] = useState(false);
+  const [selectedBookingDetail, setSelectedBookingDetail] = useState<Booking | null>(null);
+  const isMobile = useIsMobile();
 
   // Check account status
   useEffect(() => {
@@ -428,79 +432,140 @@ export default function UserProfile() {
                 {/* Current Bookings */}
                 {currentBookings.length > 0 && <div>
                     <h3 className="text-lg font-semibold mb-4">Próximas Reservas</h3>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Fecha</TableHead>
-                          <TableHead>Hora</TableHead>
-                          <TableHead>Servicios</TableHead>
-                          <TableHead className="text-right">Precio</TableHead>
-                          <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {currentBookings.map(booking => <TableRow key={booking.id}>
-                            <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
-                            <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
-                            <TableCell>
-                              {Array.isArray(booking.services) && booking.services.map((s, i) => <div key={i}>{s}</div>)}
-                            </TableCell>
-                            <TableCell className="text-right font-bold">{booking.total_price}€</TableCell>
-                            <TableCell className="text-right space-x-1">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => { setCancelDialogBooking(booking); setCancelMode("reschedule"); }}
-                              >
-                                <RotateCcw className="h-3 w-3 mr-1" />
-                                Reubicar
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => { setCancelDialogBooking(booking); setCancelMode("cancel"); }}
-                              >
-                                <X className="h-3 w-3 mr-1" />
-                                Cancelar
-                              </Button>
-                            </TableCell>
-                          </TableRow>)}
-                      </TableBody>
-                    </Table>
+                    {isMobile ? (
+                      <div className="space-y-3">
+                        {currentBookings.map(booking => (
+                          <div
+                            key={booking.id}
+                            className="border border-border rounded-lg p-4 flex items-center justify-between gap-3 active:bg-muted/50 transition-colors cursor-pointer"
+                            onClick={() => setSelectedBookingDetail(booking)}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm">
+                                {new Date(booking.booking_date + "T00:00:00").toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" })}
+                              </p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                                <Clock className="w-3 h-3" />
+                                {booking.booking_time.slice(0, 5)}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-primary">{booking.total_price}€</span>
+                              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Fecha</TableHead>
+                            <TableHead>Hora</TableHead>
+                            <TableHead>Servicios</TableHead>
+                            <TableHead className="text-right">Precio</TableHead>
+                            <TableHead className="text-right">Acciones</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {currentBookings.map(booking => <TableRow key={booking.id}>
+                              <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
+                              <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
+                              <TableCell>
+                                {Array.isArray(booking.services) && booking.services.map((s, i) => <div key={i}>{s}</div>)}
+                              </TableCell>
+                              <TableCell className="text-right font-bold">{booking.total_price}€</TableCell>
+                              <TableCell className="text-right space-x-1">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => { setCancelDialogBooking(booking); setCancelMode("reschedule"); }}
+                                >
+                                  <RotateCcw className="h-3 w-3 mr-1" />
+                                  Reubicar
+                                </Button>
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  onClick={() => { setCancelDialogBooking(booking); setCancelMode("cancel"); }}
+                                >
+                                  <X className="h-3 w-3 mr-1" />
+                                  Cancelar
+                                </Button>
+                              </TableCell>
+                            </TableRow>)}
+                        </TableBody>
+                      </Table>
+                    )}
                   </div>}
 
                 {/* Past Bookings */}
                 {pastBookings.length > 0 && <div>
                     <h3 className="text-lg font-semibold mb-4">Reservas Pasadas</h3>
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Fecha</TableHead>
-                          <TableHead>Hora</TableHead>
-                          <TableHead>Servicios</TableHead>
-                          <TableHead className="text-right">Precio</TableHead>
-                          <TableHead className="text-right">Valoración</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {pastBookings.map(booking => <TableRow key={booking.id}>
-                            <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
-                            <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
-                            <TableCell>
-                              {Array.isArray(booking.services) && booking.services.map((s, i) => <div key={i}>{s}</div>)}
-                            </TableCell>
-                            <TableCell className="text-right font-bold">{booking.total_price}€</TableCell>
-                            <TableCell className="text-right">
-                              {booking.rating ? <div className="flex items-center justify-end gap-1">
-                                  <Star className="w-4 h-4 fill-primary text-primary" />
+                    {isMobile ? (
+                      <div className="space-y-3">
+                        {pastBookings.map(booking => (
+                          <div
+                            key={booking.id}
+                            className="border border-border rounded-lg p-4 flex items-center justify-between gap-3 active:bg-muted/50 transition-colors cursor-pointer"
+                            onClick={() => setSelectedBookingDetail(booking)}
+                          >
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm">
+                                {new Date(booking.booking_date + "T00:00:00").toLocaleDateString("es-ES", { weekday: "short", day: "numeric", month: "short" })}
+                              </p>
+                              <p className="text-xs text-muted-foreground flex items-center gap-1 mt-0.5">
+                                <Clock className="w-3 h-3" />
+                                {booking.booking_time.slice(0, 5)}
+                              </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {booking.rating ? (
+                                <div className="flex items-center gap-1 text-xs">
+                                  <Star className="w-3.5 h-3.5 fill-primary text-primary" />
                                   <span>{booking.rating.rating}/5</span>
-                                </div> : <Button variant="outline" size="sm" onClick={() => handleRateBooking(booking.id)}>
+                                </div>
+                              ) : (
+                                <Button variant="outline" size="sm" className="text-xs h-7" onClick={(e) => { e.stopPropagation(); handleRateBooking(booking.id); }}>
                                   Valorar
-                                </Button>}
-                            </TableCell>
-                          </TableRow>)}
-                      </TableBody>
-                    </Table>
+                                </Button>
+                              )}
+                              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Fecha</TableHead>
+                            <TableHead>Hora</TableHead>
+                            <TableHead>Servicios</TableHead>
+                            <TableHead className="text-right">Precio</TableHead>
+                            <TableHead className="text-right">Valoración</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {pastBookings.map(booking => <TableRow key={booking.id}>
+                              <TableCell>{new Date(booking.booking_date).toLocaleDateString()}</TableCell>
+                              <TableCell>{booking.booking_time.slice(0, 5)}</TableCell>
+                              <TableCell>
+                                {Array.isArray(booking.services) && booking.services.map((s, i) => <div key={i}>{s}</div>)}
+                              </TableCell>
+                              <TableCell className="text-right font-bold">{booking.total_price}€</TableCell>
+                              <TableCell className="text-right">
+                                {booking.rating ? <div className="flex items-center justify-end gap-1">
+                                    <Star className="w-4 h-4 fill-primary text-primary" />
+                                    <span>{booking.rating.rating}/5</span>
+                                  </div> : <Button variant="outline" size="sm" onClick={() => handleRateBooking(booking.id)}>
+                                    Valorar
+                                  </Button>}
+                              </TableCell>
+                            </TableRow>)}
+                        </TableBody>
+                      </Table>
+                    )}
                   </div>}
 
                 {bookings.length === 0 && <p className="text-center text-muted-foreground py-8">No tienes reservas aún</p>}
@@ -521,5 +586,85 @@ export default function UserProfile() {
           mode={cancelMode}
         />
       )}
+
+      {/* Mobile Booking Detail Modal */}
+      <Dialog open={!!selectedBookingDetail} onOpenChange={(open) => !open && setSelectedBookingDetail(null)}>
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Detalle de Reserva</DialogTitle>
+          </DialogHeader>
+          {selectedBookingDetail && (
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-primary" />
+                <span className="font-semibold">
+                  {new Date(selectedBookingDetail.booking_date + "T00:00:00").toLocaleDateString("es-ES", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <span>{selectedBookingDetail.booking_time.slice(0, 5)}</span>
+              </div>
+              <div>
+                <p className="text-sm text-muted-foreground mb-1 flex items-center gap-1">
+                  <Package className="w-3.5 h-3.5" /> Servicios
+                </p>
+                <div className="space-y-1">
+                  {Array.isArray(selectedBookingDetail.services) && selectedBookingDetail.services.map((s: string, i: number) => (
+                    <p key={i} className="text-sm">{s}</p>
+                  ))}
+                </div>
+              </div>
+              <div className="flex items-center justify-between pt-2 border-t border-border">
+                <span className="text-muted-foreground">Total</span>
+                <span className="text-xl font-bold text-primary">{selectedBookingDetail.total_price}€</span>
+              </div>
+              {selectedBookingDetail.rating && (
+                <div className="flex items-center gap-2 pt-2 border-t border-border">
+                  <Star className="w-4 h-4 fill-primary text-primary" />
+                  <span className="font-medium">{selectedBookingDetail.rating.rating}/5</span>
+                  {selectedBookingDetail.rating.comment && (
+                    <span className="text-sm text-muted-foreground ml-2">"{selectedBookingDetail.rating.comment}"</span>
+                  )}
+                </div>
+              )}
+              {/* Actions for current bookings */}
+              {!isPastBooking(selectedBookingDetail.booking_date, selectedBookingDetail.booking_time) && !selectedBookingDetail.is_cancelled && (
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => { setCancelDialogBooking(selectedBookingDetail); setCancelMode("reschedule"); setSelectedBookingDetail(null); }}
+                  >
+                    <RotateCcw className="h-3 w-3 mr-1" />
+                    Reubicar
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => { setCancelDialogBooking(selectedBookingDetail); setCancelMode("cancel"); setSelectedBookingDetail(null); }}
+                  >
+                    <X className="h-3 w-3 mr-1" />
+                    Cancelar
+                  </Button>
+                </div>
+              )}
+              {/* Rate button for past unrated bookings */}
+              {isPastBooking(selectedBookingDetail.booking_date, selectedBookingDetail.booking_time) && !selectedBookingDetail.rating && !selectedBookingDetail.is_cancelled && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => { handleRateBooking(selectedBookingDetail.id); setSelectedBookingDetail(null); }}
+                >
+                  <Star className="h-4 w-4 mr-2" />
+                  Valorar esta visita
+                </Button>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>;
 }

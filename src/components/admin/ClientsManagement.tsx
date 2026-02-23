@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Trash2, Search, Smartphone } from "lucide-react";
+import { Edit2, Trash2, Search, Smartphone, ArrowUpDown } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -22,12 +23,18 @@ type Client = {
   pwa_installed_at: string | null;
 };
 
+type LoyaltyMap = Record<string, number>;
+
+type SortOption = "newest" | "oldest" | "name_asc" | "name_desc" | "points_desc" | "points_asc";
+
 export const ClientsManagement = () => {
   const { toast } = useToast();
   const [clients, setClients] = useState<Client[]>([]);
+  const [loyaltyMap, setLoyaltyMap] = useState<LoyaltyMap>({});
   const [loading, setLoading] = useState(false);
   const [editingClient, setEditingClient] = useState<Client | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [formData, setFormData] = useState({
     full_name: "",
     username: "",
@@ -41,23 +48,26 @@ export const ClientsManagement = () => {
 
   const loadClients = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*")
-      .order("created_at", { ascending: false });
+
+    const [profilesRes, loyaltyRes] = await Promise.all([
+      supabase.from("profiles").select("*").order("created_at", { ascending: false }),
+      supabase.from("loyalty_rewards").select("user_id, completed_bookings"),
+    ]);
 
     setLoading(false);
 
-    if (error) {
-      toast({
-        title: "Error",
-        description: "No se pudieron cargar los clientes",
-        variant: "destructive",
-      });
+    if (profilesRes.error) {
+      toast({ title: "Error", description: "No se pudieron cargar los clientes", variant: "destructive" });
       return;
     }
 
-    setClients(data || []);
+    setClients(profilesRes.data || []);
+
+    const map: LoyaltyMap = {};
+    (loyaltyRes.data || []).forEach((lr) => {
+      map[lr.user_id] = lr.completed_bookings;
+    });
+    setLoyaltyMap(map);
   };
 
   const handleEdit = (client: Client) => {
@@ -71,35 +81,19 @@ export const ClientsManagement = () => {
 
   const handleSave = async () => {
     if (!formData.full_name || !formData.username || !formData.contact_value) {
-      toast({
-        title: "Error",
-        description: "Completa todos los campos requeridos",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Completa todos los campos requeridos", variant: "destructive" });
       return;
     }
-
     if (!editingClient) return;
 
-    const { error } = await supabase
-      .from("profiles")
-      .update(formData)
-      .eq("id", editingClient.id);
+    const { error } = await supabase.from("profiles").update(formData).eq("id", editingClient.id);
 
     if (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el cliente",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "No se pudo actualizar el cliente", variant: "destructive" });
       return;
     }
 
-    toast({
-      title: "Cliente actualizado",
-      description: "Los cambios se guardaron correctamente",
-    });
-
+    toast({ title: "Cliente actualizado", description: "Los cambios se guardaron correctamente" });
     setEditingClient(null);
     loadClients();
   };
@@ -113,68 +107,88 @@ export const ClientsManagement = () => {
       });
 
       if (error) {
-        console.error("Error calling delete-user function:", error);
-        toast({
-          title: "Error",
-          description: "No se pudo eliminar el cliente completamente",
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: "No se pudo eliminar el cliente completamente", variant: "destructive" });
         return;
       }
 
       if (data?.error) {
-        toast({
-          title: "Error",
-          description: data.error,
-          variant: "destructive",
-        });
+        toast({ title: "Error", description: data.error, variant: "destructive" });
         return;
       }
 
-      toast({
-        title: "Cliente eliminado",
-        description: "El cliente se eliminó completamente del sistema",
-      });
-
+      toast({ title: "Cliente eliminado", description: "El cliente se eliminó completamente del sistema" });
       loadClients();
     } catch (err) {
       console.error("Error deleting client:", err);
-      toast({
-        title: "Error",
-        description: "Error inesperado al eliminar el cliente",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Error inesperado al eliminar el cliente", variant: "destructive" });
     } finally {
       setDeleteDialog({ open: false, client: null });
     }
   };
 
-  const filteredClients = clients.filter(client =>
-    client.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    client.contact_value.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const getPoints = (clientId: string) => loyaltyMap[clientId] || 0;
+
+  const filteredAndSortedClients = clients
+    .filter(client =>
+      client.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      client.contact_value.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "newest":
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+        case "oldest":
+          return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+        case "name_asc":
+          return a.full_name.localeCompare(b.full_name);
+        case "name_desc":
+          return b.full_name.localeCompare(a.full_name);
+        case "points_desc":
+          return getPoints(b.id) - getPoints(a.id);
+        case "points_asc":
+          return getPoints(a.id) - getPoints(b.id);
+        default:
+          return 0;
+      }
+    });
 
   return (
     <Card>
       <CardHeader>
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <CardTitle>Gestión de Clientes ({clients.length})</CardTitle>
-          <div className="relative w-full max-w-xs">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar clientes..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
-            />
+          <div className="flex items-center gap-2 w-full sm:w-auto">
+            <div className="relative flex-1 sm:w-48">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={sortBy} onValueChange={(v) => setSortBy(v as SortOption)}>
+              <SelectTrigger className="w-[160px]">
+                <ArrowUpDown className="w-3.5 h-3.5 mr-1.5" />
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="newest">Más recientes</SelectItem>
+                <SelectItem value="oldest">Más antiguos</SelectItem>
+                <SelectItem value="name_asc">Nombre A-Z</SelectItem>
+                <SelectItem value="name_desc">Nombre Z-A</SelectItem>
+                <SelectItem value="points_desc">Más puntos</SelectItem>
+                <SelectItem value="points_asc">Menos puntos</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         {loading ? (
           <p className="text-center text-muted-foreground py-8">Cargando...</p>
-        ) : filteredClients.length === 0 ? (
+        ) : filteredAndSortedClients.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">
             {searchQuery ? "No se encontraron clientes" : "No hay clientes registrados"}
           </p>
@@ -192,11 +206,12 @@ export const ClientsManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredClients.map((client) => (
+                {filteredAndSortedClients.map((client) => (
                   <TableRow key={client.id}>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-1.5">
                         {client.full_name}
+                        <span className="text-xs text-muted-foreground">({getPoints(client.id)})</span>
                         {client.pwa_installed_at && (
                           <TooltipProvider>
                             <Tooltip>
@@ -243,50 +258,25 @@ export const ClientsManagement = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Editar Cliente</DialogTitle>
-            <DialogDescription>
-              Modifica los datos del cliente
-            </DialogDescription>
+            <DialogDescription>Modifica los datos del cliente</DialogDescription>
           </DialogHeader>
-
           <div className="space-y-4 py-4">
             <div>
               <Label htmlFor="full_name">Nombre Completo</Label>
-              <Input
-                id="full_name"
-                value={formData.full_name}
-                onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-                placeholder="Nombre completo"
-              />
+              <Input id="full_name" value={formData.full_name} onChange={(e) => setFormData({ ...formData, full_name: e.target.value })} placeholder="Nombre completo" />
             </div>
-
             <div>
               <Label htmlFor="username">Usuario</Label>
-              <Input
-                id="username"
-                value={formData.username}
-                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-                placeholder="Usuario"
-              />
+              <Input id="username" value={formData.username} onChange={(e) => setFormData({ ...formData, username: e.target.value })} placeholder="Usuario" />
             </div>
-
             <div>
               <Label htmlFor="contact_value">Contacto</Label>
-              <Input
-                id="contact_value"
-                value={formData.contact_value}
-                onChange={(e) => setFormData({ ...formData, contact_value: e.target.value })}
-                placeholder="Email o teléfono"
-              />
+              <Input id="contact_value" value={formData.contact_value} onChange={(e) => setFormData({ ...formData, contact_value: e.target.value })} placeholder="Email o teléfono" />
             </div>
           </div>
-
           <DialogFooter>
-            <Button variant="outline" onClick={() => setEditingClient(null)}>
-              Cancelar
-            </Button>
-            <Button onClick={handleSave} variant="neon">
-              Guardar
-            </Button>
+            <Button variant="outline" onClick={() => setEditingClient(null)}>Cancelar</Button>
+            <Button onClick={handleSave} variant="neon">Guardar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
