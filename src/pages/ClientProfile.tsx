@@ -5,8 +5,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, User, Phone, Mail, Calendar, Clock, Package, Edit2, Trash2, 
-  Gift, Plus, Minus, Ban, ShieldOff, ShieldAlert, Save, X, AlertTriangle, Smartphone, QrCode, CalendarPlus
+  Gift, Plus, Minus, Ban, ShieldOff, ShieldAlert, Save, X, AlertTriangle, Smartphone, QrCode, CalendarPlus,
+  MoreVertical, KeyRound, Trophy, MessageSquare
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
@@ -100,6 +109,8 @@ const ClientProfile = () => {
   // Restriction countdown
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
   
+  const isMobile = useIsMobile();
+
   // Admin booking dialog
   const [showBookingDialog, setShowBookingDialog] = useState(false);
 
@@ -563,16 +574,73 @@ const ClientProfile = () => {
               <User className="text-primary" />
               Información del Cliente
             </CardTitle>
-            <div className="flex gap-2">
-              <Button variant="neon" size="sm" onClick={() => setShowBookingDialog(true)}>
-                <CalendarPlus className="w-4 h-4 mr-2" />
-                Asignar Reserva
-              </Button>
-              <Button variant="outline" size="sm" onClick={openEditProfile}>
-                <Edit2 className="w-4 h-4 mr-2" />
-                Editar
-              </Button>
-            </div>
+            {isMobile ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <MoreVertical className="w-5 h-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-popover">
+                  <DropdownMenuItem onClick={() => setShowBookingDialog(true)}>
+                    <CalendarPlus className="w-4 h-4 mr-2" />
+                    Asignar Reserva
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={openEditProfile}>
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Editar Cliente
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleAddToCounter}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Añadir Punto Fidelización
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleGrantFreeCut}>
+                    <Gift className="w-4 h-4 mr-2" />
+                    Otorgar Corte Gratis
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {profile.is_restricted ? (
+                    <DropdownMenuItem onClick={handleRemoveRestriction}>
+                      <ShieldOff className="w-4 h-4 mr-2" />
+                      Quitar Restricción
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => setShowRestrictionDialog(true)}>
+                      <ShieldAlert className="w-4 h-4 mr-2" />
+                      Restringir Usuario
+                    </DropdownMenuItem>
+                  )}
+                  {profile.is_banned ? (
+                    <DropdownMenuItem onClick={handleUnban}>
+                      <Ban className="w-4 h-4 mr-2" />
+                      Desbanear
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem onClick={() => setShowBanDialog(true)} className="text-destructive">
+                      <Ban className="w-4 h-4 mr-2" />
+                      Banear Usuario
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => setShowDeleteConfirm(true)} className="text-destructive">
+                    <Trash2 className="w-4 h-4 mr-2" />
+                    Eliminar Cliente
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex gap-2">
+                <Button variant="neon" size="sm" onClick={() => setShowBookingDialog(true)}>
+                  <CalendarPlus className="w-4 h-4 mr-2" />
+                  Asignar Reserva
+                </Button>
+                <Button variant="outline" size="sm" onClick={openEditProfile}>
+                  <Edit2 className="w-4 h-4 mr-2" />
+                  Editar
+                </Button>
+              </div>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
