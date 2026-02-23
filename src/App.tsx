@@ -15,6 +15,7 @@ import Auth from "./pages/Auth";
 import ClientProfile from "./pages/ClientProfile";
 import UserProfile from "./pages/UserProfile";
 import Giveaways from "./pages/Giveaways";
+import Loyalty from "./pages/Loyalty";
 import ForgotPassword from "./pages/ForgotPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -64,6 +65,7 @@ const AppContent = () => {
         <Route path="/auth" element={<Auth />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/giveaways" element={<Giveaways />} />
+        <Route path="/loyalty" element={<Loyalty />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
         <Route path="/install" element={<Install />} />

@@ -125,6 +125,8 @@ export type Database = {
           discount_amount: number | null
           id: string
           is_cancelled: boolean | null
+          loyalty_credited: boolean | null
+          loyalty_credited_by: string | null
           original_price: number | null
           playlist_url: string | null
           services: Json
@@ -143,6 +145,8 @@ export type Database = {
           discount_amount?: number | null
           id?: string
           is_cancelled?: boolean | null
+          loyalty_credited?: boolean | null
+          loyalty_credited_by?: string | null
           original_price?: number | null
           playlist_url?: string | null
           services?: Json
@@ -161,6 +165,8 @@ export type Database = {
           discount_amount?: number | null
           id?: string
           is_cancelled?: boolean | null
+          loyalty_credited?: boolean | null
+          loyalty_credited_by?: string | null
           original_price?: number | null
           playlist_url?: string | null
           services?: Json
@@ -685,6 +691,7 @@ export type Database = {
           id: string
           is_banned: boolean | null
           is_restricted: boolean | null
+          loyalty_token: string | null
           profile_complete: boolean | null
           pwa_installed_at: string | null
           restricted_at: string | null
@@ -704,6 +711,7 @@ export type Database = {
           id: string
           is_banned?: boolean | null
           is_restricted?: boolean | null
+          loyalty_token?: string | null
           profile_complete?: boolean | null
           pwa_installed_at?: string | null
           restricted_at?: string | null
@@ -723,6 +731,7 @@ export type Database = {
           id?: string
           is_banned?: boolean | null
           is_restricted?: boolean | null
+          loyalty_token?: string | null
           profile_complete?: boolean | null
           pwa_installed_at?: string | null
           restricted_at?: string | null

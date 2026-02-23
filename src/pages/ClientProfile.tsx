@@ -5,11 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { supabase } from "@/integrations/supabase/client";
 import { 
   ArrowLeft, User, Phone, Mail, Calendar, Clock, Package, Edit2, Trash2, 
-  Gift, Plus, Minus, Ban, ShieldOff, ShieldAlert, Save, X, AlertTriangle, Smartphone
+  Gift, Plus, Minus, Ban, ShieldOff, ShieldAlert, Save, X, AlertTriangle, Smartphone, QrCode
 } from "lucide-react";
 import { format, formatDistanceToNow } from "date-fns";
 import { es } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
+import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
   DialogContent,
@@ -44,6 +45,7 @@ interface Profile {
   temp_password_active?: boolean;
   temp_password_created_at?: string | null;
   pwa_installed_at?: string | null;
+  loyalty_token?: string | null;
 }
 
 interface Booking {
@@ -680,6 +682,32 @@ const ClientProfile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Client Loyalty QR */}
+        {profile.loyalty_token && (
+          <Card className="bg-card border-border mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-2xl">
+                <QrCode className="text-[#D4AF37]" />
+                QR de Fidelización
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="flex flex-col items-center">
+              <div className="bg-white rounded-xl p-4">
+                <QRCodeSVG
+                  value={profile.loyalty_token}
+                  size={180}
+                  level="H"
+                  fgColor="#1a1a2e"
+                  bgColor="#ffffff"
+                />
+              </div>
+              <p className="text-xs text-muted-foreground mt-3 font-mono">
+                {profile.loyalty_token}
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Achievements */}
         <div className="mb-8">
