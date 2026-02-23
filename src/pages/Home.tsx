@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Sparkles, Zap } from "lucide-react";
+import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Sparkles, Zap, CreditCard } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
@@ -254,7 +254,18 @@ const Home = () => {
       `}</style>
 
       {/* Top Bar with Login/Profile */}
-      <div className="fixed top-0 right-0 z-50 p-4 pt-safe">
+      <div className="fixed top-0 right-0 z-50 p-4 pt-safe flex items-center gap-2">
+        {user && profile && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate("/loyalty")}
+            className="text-[#D4AF37] hover:text-[#D4AF37]/80 backdrop-blur-sm bg-background/30 hover:bg-background/50"
+            title="Tarjeta de fidelización"
+          >
+            <CreditCard className="h-5 w-5" />
+          </Button>
+        )}
         {user && profile ? (
           <Button
             variant="ghost"
