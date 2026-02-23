@@ -191,17 +191,24 @@ export const NextAvailableSlot = () => {
   };
 
   const handleBookSlot = () => {
-    if (nextSlot) {
-      // Save selected slot to localStorage for booking page
-      localStorage.setItem(
-        "preselected_slot",
-        JSON.stringify({
-          date: nextSlot.date.toISOString().split("T")[0],
-          hour: nextSlot.hour,
-        })
-      );
-      navigate("/booking");
+    if (!nextSlot) return;
+
+    const today = new Date();
+    const isToday = nextSlot.date.toDateString() === today.toDateString();
+
+    if (isToday) {
+      setShowContactModal(true);
+      return;
     }
+
+    localStorage.setItem(
+      "preselected_slot",
+      JSON.stringify({
+        date: nextSlot.date.toISOString().split("T")[0],
+        hour: nextSlot.hour,
+      })
+    );
+    navigate("/booking");
   };
 
   const urgencyLevel = useMemo(() => {
