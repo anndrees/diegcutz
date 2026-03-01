@@ -6,9 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { format, addHours, parseISO } from "date-fns";
+import { format, addHours, parseISO, differenceInMinutes } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink, X, RotateCcw, CheckCircle } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink, X, RotateCcw, CheckCircle, Music, Timer, Scissors, CreditCard, QrCode } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/dialog";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { StatisticsSection } from "@/components/admin/StatisticsSection";
 import { ServicesManagement } from "@/components/admin/ServicesManagement";
 import { ClientsManagement } from "@/components/admin/ClientsManagement";
@@ -45,6 +46,7 @@ import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 import { QrScanner } from "@/components/admin/QrScanner";
+import { ActiveAppointmentBanner } from "@/components/admin/ActiveAppointmentBanner";
 
 type Booking = {
   id: string;
@@ -58,6 +60,7 @@ type Booking = {
   is_cancelled?: boolean;
   cancelled_at?: string | null;
   cancelled_by?: string | null;
+  playlist_url?: string | null;
   profile?: {
     full_name: string;
     username: string;
@@ -68,6 +71,7 @@ type Booking = {
 const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
     return sessionStorage.getItem("adminAuth") === "true";
   });
@@ -297,6 +301,99 @@ const Admin = () => {
       })
     : [];
 
+  const BookingCard = ({ booking }: { booking: Booking }) => {
+    const [expanded, setExpanded] = useState(false);
+    return (
+      <div 
+        className={`border rounded-xl p-4 transition-all ${booking.is_cancelled ? "border-destructive/30 bg-destructive/5" : "border-border hover:border-primary/30"}`}
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="text-center shrink-0">
+              <p className={`text-lg font-bold ${booking.is_cancelled ? "text-destructive" : "text-foreground"}`}>
+                {booking.booking_time.slice(0, 5)}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                {format(new Date(booking.booking_date + "T00:00:00"), "d MMM", { locale: es })}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className={`font-semibold truncate ${booking.is_cancelled ? "text-destructive line-through" : ""}`}>
+                {booking.user_id && booking.profile ? (
+                  <Link 
+                    to={`/admin/client/${booking.user_id}`}
+                    className="text-neon-cyan hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {booking.profile.full_name}
+                  </Link>
+                ) : booking.client_name}
+              </p>
+              {booking.is_cancelled && <span className="text-xs font-bold text-destructive">CANCELADA</span>}
+              <div className="flex gap-1 flex-wrap mt-1">
+                {booking.services?.slice(0, 2).map((s, i) => (
+                  <span key={i} className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">{s}</span>
+                ))}
+                {booking.services && booking.services.length > 2 && (
+                  <span className="text-[10px] text-muted-foreground">+{booking.services.length - 2}</span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {booking.playlist_url && (
+              <a href={booking.playlist_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
+                <Music className="h-4 w-4 text-neon-cyan" />
+              </a>
+            )}
+            <span className={`text-lg font-bold ${booking.is_cancelled ? "text-destructive line-through" : "text-neon-purple"}`}>
+              {booking.total_price}€
+            </span>
+          </div>
+        </div>
+        
+        {expanded && (
+          <div className="mt-3 pt-3 border-t border-border/50 space-y-2" onClick={(e) => e.stopPropagation()}>
+            <p className="text-sm text-muted-foreground">
+              📞 {booking.user_id && booking.profile ? booking.profile.contact_value : booking.client_contact}
+            </p>
+            <div className="text-sm">
+              {booking.services?.map((s, i) => <p key={i} className="text-xs">{s}</p>)}
+            </div>
+            <div className="flex flex-wrap gap-2 pt-2">
+              {booking.is_cancelled ? (
+                <>
+                  <Button size="sm" variant="outline" onClick={() => handleReactivateBooking(booking.id)} className="text-green-500 border-green-500/30">
+                    <CheckCircle className="h-3 w-3 mr-1" /> Reactivar
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => openCancelDialog(booking, "reschedule")} className="text-neon-cyan border-neon-cyan/30">
+                    <RotateCcw className="h-3 w-3 mr-1" /> Reubicar
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => openDeleteConfirm(booking.id)} className="text-destructive border-destructive/30">
+                    <Trash2 className="h-3 w-3 mr-1" /> Eliminar
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button size="sm" variant="outline" onClick={() => openEditDialog(booking)}>
+                    <Edit2 className="h-3 w-3 mr-1" /> Editar
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => openCancelDialog(booking, "cancel")} className="text-yellow-500 border-yellow-500/30">
+                    <X className="h-3 w-3 mr-1" /> Cancelar
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => openDeleteConfirm(booking.id)} className="text-destructive border-destructive/30">
+                    <Trash2 className="h-3 w-3 mr-1" /> Eliminar
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   // Componente de tabla reutilizable
   const BookingsTable = ({ bookings: bookingsToShow }: { bookings: Booking[] }) => (
     <>
@@ -304,6 +401,12 @@ const Admin = () => {
         <p className="text-center text-muted-foreground py-8">
           No hay reservas {searchQuery ? "que coincidan con la búsqueda" : "registradas"}
         </p>
+      ) : isMobile ? (
+        <div className="space-y-3">
+          {bookingsToShow.map((booking) => (
+            <BookingCard key={booking.id} booking={booking} />
+          ))}
+        </div>
       ) : (
         <Table>
           <TableHeader>
@@ -314,6 +417,7 @@ const Admin = () => {
               <TableHead>Contacto</TableHead>
               <TableHead>Servicios</TableHead>
               <TableHead>Total</TableHead>
+              <TableHead>🎵</TableHead>
               <TableHead className="text-right">Acciones</TableHead>
             </TableRow>
           </TableHeader>
@@ -362,58 +466,37 @@ const Admin = () => {
                 <TableCell className={`font-bold ${booking.is_cancelled ? "text-destructive line-through" : ""}`}>
                   {booking.total_price}€
                 </TableCell>
+                <TableCell>
+                  {booking.playlist_url && (
+                    <a href={booking.playlist_url} target="_blank" rel="noopener noreferrer">
+                      <Button variant="ghost" size="icon" title="Abrir Playlist" className="text-neon-cyan hover:text-neon-cyan/80">
+                        <Music className="h-4 w-4" />
+                      </Button>
+                    </a>
+                  )}
+                </TableCell>
                 <TableCell className="text-right">
                   {booking.is_cancelled ? (
                     <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => handleReactivateBooking(booking.id)}
-                        title="Reactivar reserva"
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => handleReactivateBooking(booking.id)} title="Reactivar reserva">
                         <CheckCircle className="h-4 w-4 text-green-500" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openCancelDialog(booking, "reschedule")}
-                        title="Reubicar reserva"
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => openCancelDialog(booking, "reschedule")} title="Reubicar reserva">
                         <RotateCcw className="h-4 w-4 text-neon-cyan" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openDeleteConfirm(booking.id)}
-                        title="Eliminar permanentemente"
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => openDeleteConfirm(booking.id)} title="Eliminar permanentemente">
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
                   ) : (
                     <div className="flex justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEditDialog(booking)}
-                        title="Editar"
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => openEditDialog(booking)} title="Editar">
                         <Edit2 className="h-4 w-4" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openCancelDialog(booking, "cancel")}
-                        title="Cancelar reserva"
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => openCancelDialog(booking, "cancel")} title="Cancelar reserva">
                         <X className="h-4 w-4 text-yellow-500" />
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openDeleteConfirm(booking.id)}
-                        title="Eliminar"
-                      >
+                      <Button variant="ghost" size="icon" onClick={() => openDeleteConfirm(booking.id)} title="Eliminar">
                         <Trash2 className="h-4 w-4 text-destructive" />
                       </Button>
                     </div>
@@ -520,6 +603,9 @@ const Admin = () => {
             Gestiona todas las reservas, servicios y estadísticas
           </p>
         </div>
+
+        {/* Active Appointment Banner */}
+        <ActiveAppointmentBanner onOpenQrScanner={() => setShowQrScanner(true)} />
 
         {/* Layout with Sidebar */}
         <div className="flex gap-6">

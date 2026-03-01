@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Trash2, Star, ChevronDown, ChevronUp } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Rating = {
   id: string;
@@ -27,6 +28,7 @@ type Rating = {
 
 export const RatingsManagement = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedComments, setExpandedComments] = useState<Set<string>>(new Set());
@@ -127,9 +129,41 @@ export const RatingsManagement = () => {
       </CardHeader>
       <CardContent>
         {ratings.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">
-            No hay valoraciones registradas
-          </p>
+          <p className="text-center text-muted-foreground py-8">No hay valoraciones registradas</p>
+        ) : isMobile ? (
+          <div className="space-y-3">
+            {ratings.map((rating) => (
+              <div key={rating.id} className="border border-border rounded-xl p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div>
+                    <p className="font-semibold text-sm">{rating.profile?.full_name || "Desconocido"}</p>
+                    <p className="text-xs text-muted-foreground">@{rating.profile?.username || "anónimo"}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-0.5">
+                      {[1,2,3,4,5].map((s) => (
+                        <Star key={s} className={`h-3.5 w-3.5 ${s <= rating.rating ? "fill-neon-cyan text-neon-cyan" : "text-muted-foreground/30"}`} />
+                      ))}
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => handleDelete(rating.id)}>
+                      <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                    </Button>
+                  </div>
+                </div>
+                {rating.comment && (
+                  <div>
+                    <p className={`text-sm text-foreground/80 ${expandedComments.has(rating.id) ? "" : "line-clamp-2"}`}>"{rating.comment}"</p>
+                    {rating.comment.length > 60 && (
+                      <button onClick={() => toggleComment(rating.id)} className="text-xs text-neon-cyan hover:underline mt-1 inline-flex items-center gap-1">
+                        {expandedComments.has(rating.id) ? <>Ver menos <ChevronUp className="h-3 w-3" /></> : <>Ver más <ChevronDown className="h-3 w-3" /></>}
+                      </button>
+                    )}
+                  </div>
+                )}
+                <p className="text-xs text-muted-foreground mt-2">{format(new Date(rating.created_at), "d MMM yyyy", { locale: es })}</p>
+              </div>
+            ))}
+          </div>
         ) : (
           <Table>
             <TableHeader>
@@ -148,69 +182,39 @@ export const RatingsManagement = () => {
                   <TableCell className="font-medium">
                     <div>
                       <p>{rating.profile?.full_name || "Desconocido"}</p>
-                      <p className="text-xs text-muted-foreground">
-                        @{rating.profile?.username || "anónimo"}
-                      </p>
+                      <p className="text-xs text-muted-foreground">@{rating.profile?.username || "anónimo"}</p>
                     </div>
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star
-                          key={star}
-                          className={`h-4 w-4 ${
-                            star <= rating.rating
-                              ? "fill-neon-cyan text-neon-cyan"
-                              : "text-muted-foreground"
-                          }`}
-                        />
+                      {[1,2,3,4,5].map((star) => (
+                        <Star key={star} className={`h-4 w-4 ${star <= rating.rating ? "fill-neon-cyan text-neon-cyan" : "text-muted-foreground"}`} />
                       ))}
                     </div>
                   </TableCell>
                   <TableCell>
                     {rating.comment ? (
                       <div className="max-w-xs">
-                        <p className={`text-sm ${expandedComments.has(rating.id) ? "" : "line-clamp-2"}`}>
-                          {rating.comment}
-                        </p>
+                        <p className={`text-sm ${expandedComments.has(rating.id) ? "" : "line-clamp-2"}`}>{rating.comment}</p>
                         {rating.comment.length > 60 && (
-                          <button
-                            onClick={() => toggleComment(rating.id)}
-                            className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline mt-1"
-                          >
-                            {expandedComments.has(rating.id) ? (
-                              <>Ver menos <ChevronUp className="h-3 w-3" /></>
-                            ) : (
-                              <>Ver más <ChevronDown className="h-3 w-3" /></>
-                            )}
+                          <button onClick={() => toggleComment(rating.id)} className="inline-flex items-center gap-1 text-xs text-neon-cyan hover:underline mt-1">
+                            {expandedComments.has(rating.id) ? <>Ver menos <ChevronUp className="h-3 w-3" /></> : <>Ver más <ChevronDown className="h-3 w-3" /></>}
                           </button>
                         )}
                       </div>
-                    ) : (
-                      <span className="text-muted-foreground text-sm">Sin comentario</span>
-                    )}
+                    ) : <span className="text-muted-foreground text-sm">Sin comentario</span>}
                   </TableCell>
                   <TableCell>
                     <div className="text-xs max-w-xs">
-                      {rating.booking?.services?.slice(0, 2).map((s, i) => (
-                        <span key={i} className="block truncate">{s}</span>
-                      ))}
+                      {rating.booking?.services?.slice(0, 2).map((s, i) => <span key={i} className="block truncate">{s}</span>)}
                       {rating.booking?.services && rating.booking.services.length > 2 && (
-                        <span className="text-muted-foreground">
-                          +{rating.booking.services.length - 2} más
-                        </span>
+                        <span className="text-muted-foreground">+{rating.booking.services.length - 2} más</span>
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>
-                    {format(new Date(rating.created_at), "d MMM yyyy", { locale: es })}
-                  </TableCell>
+                  <TableCell>{format(new Date(rating.created_at), "d MMM yyyy", { locale: es })}</TableCell>
                   <TableCell className="text-right">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDelete(rating.id)}
-                    >
+                    <Button variant="ghost" size="icon" onClick={() => handleDelete(rating.id)}>
                       <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </TableCell>
