@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Star, Quote, ChevronLeft, ChevronRight, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,10 @@ type Rating = {
   } | null;
 };
 
-const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
+const ReviewCard = ({ rating, index, onInteraction }: { rating: Rating; index: number; onInteraction: () => void }) => {
   const [expanded, setExpanded] = useState(false);
   const initials = (rating.profile?.username || "AN").slice(0, 2).toUpperCase();
-  
-  // Generate a consistent color from username
+
   const colors = [
     "from-violet-500 to-purple-600",
     "from-cyan-500 to-blue-600",
@@ -34,7 +33,6 @@ const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
   ];
   const colorIndex = (rating.profile?.username || "").length % colors.length;
 
-  // Parse services - they come as JSON
   const services: string[] = (() => {
     if (!rating.booking?.services) return [];
     const raw = rating.booking.services;
@@ -46,14 +44,11 @@ const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
 
   return (
     <div
-      className="group relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-6 hover:border-primary/40 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_-15px_hsl(280_80%_60%/0.3)]"
-      style={{ animationDelay: `${index * 100}ms` }}
+      className="group relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-5 md:p-6 hover:border-primary/40 transition-all duration-500 hover:shadow-[0_20px_60px_-15px_hsl(280_80%_60%/0.3)] shrink-0 w-[85vw] sm:w-[340px] md:w-auto snap-center"
     >
-      {/* Subtle glow on hover */}
       <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-      
+
       <div className="relative">
-        {/* Header: Avatar + Username + Date */}
         <div className="flex items-center gap-3 mb-4">
           <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${colors[colorIndex]} flex items-center justify-center shrink-0 shadow-lg`}>
             <span className="text-sm font-black text-white tracking-tight">{initials}</span>
@@ -68,7 +63,6 @@ const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
           </div>
         </div>
 
-        {/* Stars */}
         <div className="flex gap-0.5 mb-3">
           {[1, 2, 3, 4, 5].map((star) => (
             <Star
@@ -82,7 +76,6 @@ const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
           ))}
         </div>
 
-        {/* Comment */}
         {rating.comment ? (
           <div className="mb-4">
             <p className={`text-sm text-foreground/90 leading-relaxed ${expanded ? "" : "line-clamp-4"}`}>
@@ -90,7 +83,10 @@ const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
             </p>
             {rating.comment.length > 120 && (
               <button
-                onClick={() => setExpanded(!expanded)}
+                onClick={() => {
+                  setExpanded(!expanded);
+                  onInteraction();
+                }}
                 className="inline-flex items-center gap-1 text-xs text-primary hover:underline mt-1.5"
               >
                 {expanded ? (
@@ -112,7 +108,6 @@ const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
           </div>
         )}
 
-        {/* Services tags */}
         {services.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {services.slice(0, 3).map((service, idx) => (
@@ -138,8 +133,11 @@ const ReviewCard = ({ rating, index }: { rating: Rating; index: number }) => {
 export const ReviewsShowcase = () => {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [loading, setLoading] = useState(true);
-  const [visibleCount, setVisibleCount] = useState(6);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  const [startIndex, setStartIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const VISIBLE_COUNT = 3;
+  const INTERVAL_MS = 10000;
 
   useEffect(() => {
     loadRatings();
@@ -171,12 +169,51 @@ export const ReviewsShowcase = () => {
     setLoading(false);
   };
 
+  const resetTimer = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    if (!isPaused && ratings.length > VISIBLE_COUNT) {
+      timerRef.current = setInterval(() => {
+        setStartIndex((prev) => (prev + 1) % ratings.length);
+      }, INTERVAL_MS);
+    }
+  }, [isPaused, ratings.length]);
+
+  useEffect(() => {
+    resetTimer();
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, [resetTimer]);
+
+  const goNext = () => {
+    setStartIndex((prev) => (prev + 1) % ratings.length);
+    resetTimer();
+  };
+
+  const goPrev = () => {
+    setStartIndex((prev) => (prev - 1 + ratings.length) % ratings.length);
+    resetTimer();
+  };
+
+  const handleInteraction = () => {
+    resetTimer();
+  };
+
+  const getVisibleRatings = () => {
+    if (ratings.length <= VISIBLE_COUNT) return ratings;
+    const visible: Rating[] = [];
+    for (let i = 0; i < VISIBLE_COUNT; i++) {
+      visible.push(ratings[(startIndex + i) % ratings.length]);
+    }
+    return visible;
+  };
+
   if (loading) {
     return (
       <section className="py-20 px-4">
         <div className="max-w-6xl mx-auto">
           <div className="h-8 bg-muted rounded w-48 mx-auto mb-12 animate-pulse" />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
               <div key={i} className="h-48 bg-muted rounded-2xl animate-pulse" />
             ))}
@@ -189,11 +226,11 @@ export const ReviewsShowcase = () => {
   if (ratings.length === 0) return null;
 
   const avgRating = ratings.reduce((acc, r) => acc + r.rating, 0) / ratings.length;
-  const displayed = ratings.slice(0, visibleCount);
+  const visibleRatings = getVisibleRatings();
+  const showArrows = ratings.length > VISIBLE_COUNT;
 
   return (
     <section className="py-20 px-4 relative overflow-hidden">
-      {/* Background accent */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
       </div>
@@ -227,25 +264,66 @@ export const ReviewsShowcase = () => {
           </p>
         </div>
 
-        {/* Reviews Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          {displayed.map((rating, index) => (
-            <ReviewCard key={rating.id} rating={rating} index={index} />
-          ))}
-        </div>
+        {/* Carousel */}
+        <div
+          className="relative"
+          onMouseEnter={() => setIsPaused(true)}
+          onMouseLeave={() => setIsPaused(false)}
+        >
+          {/* Arrows */}
+          {showArrows && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goPrev}
+                className="absolute -left-2 md:-left-14 top-1/2 -translate-y-1/2 z-10 bg-card/80 border border-border/50 hover:bg-primary/10 hover:border-primary/40 rounded-full shadow-lg h-10 w-10"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goNext}
+                className="absolute -right-2 md:-right-14 top-1/2 -translate-y-1/2 z-10 bg-card/80 border border-border/50 hover:bg-primary/10 hover:border-primary/40 rounded-full shadow-lg h-10 w-10"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
+            </>
+          )}
 
-        {/* Show more button */}
-        {visibleCount < ratings.length && (
-          <div className="text-center mt-10">
-            <Button
-              variant="outline"
-              onClick={() => setVisibleCount((prev) => prev + 6)}
-              className="border-primary/30 hover:border-primary/60 hover:bg-primary/5"
-            >
-              Ver más opiniones ({ratings.length - visibleCount} restantes)
-            </Button>
+          {/* Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 overflow-hidden px-6 md:px-0">
+            {visibleRatings.map((rating) => (
+              <ReviewCard
+                key={`${rating.id}-${startIndex}`}
+                rating={rating}
+                index={0}
+                onInteraction={handleInteraction}
+              />
+            ))}
           </div>
-        )}
+
+          {/* Dots */}
+          {showArrows && (
+            <div className="flex justify-center gap-1.5 mt-8">
+              {ratings.map((_, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => {
+                    setStartIndex(idx);
+                    resetTimer();
+                  }}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    idx === startIndex
+                      ? "bg-primary w-6"
+                      : "bg-muted-foreground/20 w-1.5 hover:bg-muted-foreground/40"
+                  }`}
+                />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </section>
   );
