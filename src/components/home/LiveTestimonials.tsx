@@ -37,11 +37,11 @@ const TestimonialToast = ({
 
     const exitTimer = setTimeout(() => {
       setIsExiting(true);
-    }, 4000);
+    }, 7000);
 
     const removeTimer = setTimeout(() => {
       onComplete(notification.id);
-    }, 4500);
+    }, 7500);
 
     return () => {
       clearTimeout(exitTimer);
@@ -54,9 +54,9 @@ const TestimonialToast = ({
   return (
     <div
       className={`
-        fixed right-4 z-50 w-80 max-w-[calc(100vw-2rem)]
+        fixed right-4 z-50 w-80 max-w-[calc(100vw-2rem)] md:w-80 w-64
         bg-gradient-to-br from-card to-background
-        border-2 border-neon-cyan/50 rounded-xl p-4
+        border-2 border-neon-cyan/50 rounded-xl p-3 md:p-4
         shadow-lg shadow-neon-cyan/20
         transition-all duration-500 ease-out
         ${notification.isVisible && !isExiting 
@@ -203,11 +203,11 @@ export const LiveTestimonials = () => {
       setCurrentIndex(prev => (prev + 1) % ratings.length);
     };
 
-    // Show first one after 3 seconds
-    const initialTimeout = setTimeout(showTestimonial, 3000);
+    // Show first one after 5 seconds
+    const initialTimeout = setTimeout(showTestimonial, 5000);
     
-    // Then show every 6 seconds
-    const interval = setInterval(showTestimonial, 6000);
+    // Then show every 10 seconds
+    const interval = setInterval(showTestimonial, 10000);
 
     return () => {
       clearTimeout(initialTimeout);
@@ -230,7 +230,7 @@ export const LiveTestimonials = () => {
       `}</style>
       
       {/* Floating section indicator */}
-      <div className="fixed bottom-4 right-4 z-40 flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-neon-cyan/30 rounded-full px-3 py-1.5">
+      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-neon-cyan/30 rounded-full px-3 py-1.5">
         <MessageCircle className="h-4 w-4 text-neon-cyan animate-pulse" />
         <span className="text-xs text-muted-foreground">
           {ratings.length} opiniones

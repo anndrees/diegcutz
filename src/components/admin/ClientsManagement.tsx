@@ -8,10 +8,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Trash2, Search, Smartphone, ArrowUpDown } from "lucide-react";
+import { Edit2, Trash2, Search, Smartphone, ArrowUpDown, ChevronRight } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Client = {
   id: string;
@@ -29,6 +30,7 @@ type SortOption = "newest" | "oldest" | "name_asc" | "name_desc" | "points_desc"
 
 export const ClientsManagement = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [clients, setClients] = useState<Client[]>([]);
   const [loyaltyMap, setLoyaltyMap] = useState<LoyaltyMap>({});
   const [loading, setLoading] = useState(false);
@@ -192,63 +194,78 @@ export const ClientsManagement = () => {
           <p className="text-center text-muted-foreground py-8">
             {searchQuery ? "No se encontraron clientes" : "No hay clientes registrados"}
           </p>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nombre</TableHead>
-                  <TableHead>Usuario</TableHead>
-                  <TableHead>Contacto</TableHead>
-                  <TableHead>Método</TableHead>
-                  <TableHead>Registro</TableHead>
-                  <TableHead className="text-right">Acciones</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAndSortedClients.map((client) => (
-                  <TableRow key={client.id}>
-                    <TableCell className="font-medium">
+        ) : isMobile ? (
+            <div className="space-y-2">
+              {filteredAndSortedClients.map((client) => (
+                <Link key={client.id} to={`/admin/client/${client.id}`} className="block">
+                  <div className="border border-border rounded-xl p-3 hover:border-primary/30 transition-all flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                      <span className="text-sm font-bold text-primary">{client.full_name.slice(0, 2).toUpperCase()}</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
-                        {client.full_name}
-                        <span className="text-xs text-muted-foreground">({getPoints(client.id)})</span>
-                        {client.pwa_installed_at && (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger>
-                                <Smartphone className="h-3.5 w-3.5 text-primary" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>PWA instalada</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
+                        <p className="font-semibold truncate">{client.full_name}</p>
+                        {client.pwa_installed_at && <Smartphone className="h-3 w-3 text-primary shrink-0" />}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Link 
-                        to={`/admin/client/${client.id}`}
-                        className="text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
-                      >
-                        {client.username}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{client.contact_value}</TableCell>
-                    <TableCell className="capitalize">{client.contact_method}</TableCell>
-                    <TableCell>{new Date(client.created_at).toLocaleDateString()}</TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(client)}>
-                        <Edit2 className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="icon" onClick={() => setDeleteDialog({ open: true, client })}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
+                      <p className="text-xs text-muted-foreground truncate">@{client.username} · {getPoints(client.id)} pts</p>
+                    </div>
+                    <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nombre</TableHead>
+                    <TableHead>Usuario</TableHead>
+                    <TableHead>Contacto</TableHead>
+                    <TableHead>Método</TableHead>
+                    <TableHead>Registro</TableHead>
+                    <TableHead className="text-right">Acciones</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {filteredAndSortedClients.map((client) => (
+                    <TableRow key={client.id}>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-1.5">
+                          {client.full_name}
+                          <span className="text-xs text-muted-foreground">({getPoints(client.id)})</span>
+                          {client.pwa_installed_at && (
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  <Smartphone className="h-3.5 w-3.5 text-primary" />
+                                </TooltipTrigger>
+                                <TooltipContent><p>PWA instalada</p></TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Link to={`/admin/client/${client.id}`} className="text-primary hover:text-primary/80 underline underline-offset-4 transition-colors">
+                          {client.username}
+                        </Link>
+                      </TableCell>
+                      <TableCell>{client.contact_value}</TableCell>
+                      <TableCell className="capitalize">{client.contact_method}</TableCell>
+                      <TableCell>{new Date(client.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Button variant="ghost" size="icon" onClick={() => handleEdit(client)}>
+                          <Edit2 className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => setDeleteDialog({ open: true, client })}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
           </div>
         )}
       </CardContent>

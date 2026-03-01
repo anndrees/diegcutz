@@ -47,7 +47,7 @@ export const InstallBanner = () => {
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-neon px-4 py-3 shadow-lg animate-in slide-in-from-top duration-300 safe-area-inset-top">
+    <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-neon px-4 pt-[env(safe-area-inset-top,12px)] pb-3 shadow-lg animate-in slide-in-from-top duration-300" style={{ paddingTop: `calc(env(safe-area-inset-top, 12px) + 12px)` }}>
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="shrink-0 w-10 h-10 bg-background/20 rounded-full flex items-center justify-center">

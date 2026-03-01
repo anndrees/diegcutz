@@ -702,6 +702,7 @@ const Booking = () => {
           services: servicesData,
           totalPrice,
           isFreeCut: isFreeCutReservation,
+          playlistUrl: playlistUrl || undefined,
         },
       });
     } catch (emailError) {

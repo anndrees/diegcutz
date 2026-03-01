@@ -15,6 +15,8 @@ interface BookingEmailRequest {
   bookingTime: string;
   services: string[];
   totalPrice: number;
+  playlistUrl?: string;
+  isFreeCut?: boolean;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -24,7 +26,7 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    const { clientName, clientContact, bookingDate, bookingTime, services, totalPrice }: BookingEmailRequest = await req.json();
+    const { clientName, clientContact, bookingDate, bookingTime, services, totalPrice, playlistUrl }: BookingEmailRequest = await req.json();
 
     console.log("Sending booking notification email for:", { clientName, bookingDate, bookingTime, totalPrice });
 
@@ -57,6 +59,8 @@ const handler = async (req: Request): Promise<Response> => {
                 <strong style="color: #00ffff;">Servicios:</strong><br>
                 ${services.map(s => `&nbsp;&nbsp;• ${s}`).join('<br>')}<br>
                 <strong style="color: #00ffff;">TOTAL:</strong> <span style="font-size: 20px; color: #ff00ff;">${totalPrice}€</span>
+                ${playlistUrl ? `<br><br><strong style="color: #00ffff;">🎵 Playlist:</strong> <a href="${playlistUrl}" style="color: #ff00ff;">${playlistUrl}</a>` : ''}
+              </p>
               </p>
             </div>
             <p style="color: #666; text-align: center; margin-top: 20px; font-size: 14px;">
