@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { sendChatMessageNotification } from "@/lib/pushNotifications";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Conversation = {
   id: string;
@@ -37,6 +38,7 @@ type Message = {
 
 export const AdminMessagesSection = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -58,7 +60,6 @@ export const AdminMessagesSection = () => {
   useEffect(() => {
     loadConversations();
 
-    // Subscribe to real-time updates for conversations
     const conversationsChannel = supabase
       .channel("admin-conversations")
       .on(
@@ -78,7 +79,6 @@ export const AdminMessagesSection = () => {
       loadMessages(selectedConversation.id);
       markAsRead(selectedConversation.id);
 
-      // Subscribe to real-time messages
       const messagesChannel = supabase
         .channel(`admin-messages-${selectedConversation.id}`)
         .on(
@@ -125,7 +125,6 @@ export const AdminMessagesSection = () => {
     setLoading(false);
 
     if (error) {
-      // If the error is about the foreign key, try without the join
       const { data: fallbackData, error: fallbackError } = await supabase
         .from("chat_conversations")
         .select("*")
@@ -136,7 +135,6 @@ export const AdminMessagesSection = () => {
         return;
       }
 
-      // Load profiles separately
       const conversationsWithProfiles = await Promise.all(
         (fallbackData || []).map(async (conv) => {
           const { data: profileData } = await supabase
@@ -145,7 +143,6 @@ export const AdminMessagesSection = () => {
             .eq("id", conv.user_id)
             .single();
 
-          // Get last message
           const { data: lastMsgData } = await supabase
             .from("chat_messages")
             .select("message")
@@ -169,7 +166,6 @@ export const AdminMessagesSection = () => {
       return;
     }
 
-    // Load last messages for each conversation
     const conversationsWithLastMessage = await Promise.all(
       (data || []).map(async (conv) => {
         const { data: lastMsgData } = await supabase
@@ -223,7 +219,6 @@ export const AdminMessagesSection = () => {
       .eq("sender_type", "user");
   };
 
-  // Handle typing indicator
   const handleTyping = () => {
     if (!selectedConversation || !typingChannelRef.current) return;
 
@@ -232,19 +227,16 @@ export const AdminMessagesSection = () => {
       typingChannelRef.current.track({ role: "admin", typing: true });
     }
 
-    // Clear existing timeout
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
-    // Set timeout to stop typing indicator
     typingTimeoutRef.current = setTimeout(() => {
       setIsTyping(false);
       typingChannelRef.current?.track({ role: "admin", typing: false });
     }, 2000);
   };
 
-  // Setup typing channel when conversation is selected
   useEffect(() => {
     if (selectedConversation) {
       typingChannelRef.current = supabase.channel(`typing-${selectedConversation.id}`);
@@ -270,7 +262,6 @@ export const AdminMessagesSection = () => {
     setSending(true);
     setIsTyping(false);
     
-    // Stop typing indicator
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
@@ -292,7 +283,6 @@ export const AdminMessagesSection = () => {
       return;
     }
 
-    // Update conversation
     await supabase
       .from("chat_conversations")
       .update({
@@ -354,9 +344,6 @@ export const AdminMessagesSection = () => {
 
     toast({
       title: conv.is_archived ? "Conversación restaurada" : "Conversación archivada",
-      description: conv.is_archived 
-        ? "La conversación ha sido restaurada" 
-        : "La conversación ha sido archivada",
     });
 
     if (selectedConversation?.id === conv.id) {
@@ -372,7 +359,6 @@ export const AdminMessagesSection = () => {
   const deleteConversation = async () => {
     if (!conversationToDelete) return;
 
-    // Delete all messages
     const { error: messagesError } = await supabase
       .from("chat_messages")
       .delete()
@@ -387,7 +373,6 @@ export const AdminMessagesSection = () => {
       return;
     }
 
-    // Delete the conversation itself
     const { error } = await supabase
       .from("chat_conversations")
       .delete()
@@ -404,7 +389,6 @@ export const AdminMessagesSection = () => {
 
     toast({
       title: "Conversación eliminada",
-      description: "La conversación ha sido eliminada permanentemente",
     });
 
     if (selectedConversation?.id === conversationToDelete.id) {
@@ -454,8 +438,11 @@ export const AdminMessagesSection = () => {
         </div>
       </button>
       
-      {/* Action buttons */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+      {/* Action buttons - visible on hover (desktop) or always visible on mobile */}
+      <div className={cn(
+        "absolute right-2 top-1/2 -translate-y-1/2 flex gap-1 transition-opacity",
+        isMobile ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+      )}>
         <Button
           variant="ghost"
           size="icon"
@@ -488,11 +475,122 @@ export const AdminMessagesSection = () => {
     </div>
   );
 
+  // Mobile WhatsApp-style: show either list or chat
+  if (isMobile && selectedConversation) {
+    return (
+      <>
+        <div className="flex flex-col h-[calc(100vh-12rem)]">
+          {/* Header */}
+          <div className="flex items-center gap-3 p-3 border-b border-border bg-card rounded-t-xl">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setSelectedConversation(null)}
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div className="w-9 h-9 rounded-full bg-neon-purple/20 flex items-center justify-center">
+              <User className="h-4 w-4 text-neon-purple" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-semibold text-sm truncate">
+                {selectedConversation.profile?.full_name || "Usuario"}
+              </p>
+              <p className="text-xs text-muted-foreground">
+                @{selectedConversation.profile?.username || "unknown"}
+              </p>
+            </div>
+            <div className="flex gap-1">
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => archiveConversation(selectedConversation)}>
+                {selectedConversation.is_archived ? <ArchiveRestore className="h-4 w-4 text-neon-cyan" /> : <Archive className="h-4 w-4" />}
+              </Button>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setClearHistoryDialogOpen(true)}>
+                <Eraser className="h-4 w-4" />
+              </Button>
+              <Link to={`/admin/client/${selectedConversation.user_id}`}>
+                <Button variant="outline" size="sm" className="text-xs h-8">Perfil</Button>
+              </Link>
+            </div>
+          </div>
+
+          {/* Messages */}
+          <ScrollArea className="flex-1 p-3">
+            <div className="space-y-3">
+              {messages.map((msg) => (
+                <div
+                  key={msg.id}
+                  className={cn(
+                    "flex",
+                    msg.sender_type === "admin" ? "justify-end" : "justify-start"
+                  )}
+                >
+                  <div
+                    className={cn(
+                      "max-w-[80%] rounded-2xl px-3 py-2",
+                      msg.sender_type === "admin"
+                        ? "bg-neon-purple text-white rounded-br-md"
+                        : "bg-muted rounded-bl-md"
+                    )}
+                  >
+                    <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                    <p
+                      className={cn(
+                        "text-[10px] mt-1",
+                        msg.sender_type === "admin" ? "text-white/70" : "text-muted-foreground"
+                      )}
+                    >
+                      {format(new Date(msg.created_at), "HH:mm", { locale: es })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          </ScrollArea>
+
+          {/* Input */}
+          <form onSubmit={sendMessage} className="p-3 border-t border-border">
+            <div className="flex gap-2">
+              <Input
+                value={newMessage}
+                onChange={(e) => {
+                  setNewMessage(e.target.value);
+                  handleTyping();
+                }}
+                placeholder="Escribe un mensaje..."
+                disabled={sending}
+                className="flex-1"
+              />
+              <Button type="submit" disabled={sending || !newMessage.trim()} variant="neon" size="icon">
+                <Send className="h-4 w-4" />
+              </Button>
+            </div>
+          </form>
+        </div>
+
+        <ConfirmDialog
+          open={clearHistoryDialogOpen}
+          onOpenChange={setClearHistoryDialogOpen}
+          title="Limpiar historial"
+          description="¿Estás seguro de que quieres eliminar todos los mensajes?"
+          confirmText="Limpiar"
+          cancelText="Cancelar"
+          onConfirm={clearChatHistory}
+          variant="destructive"
+        />
+      </>
+    );
+  }
+
+  // Mobile list view or Desktop full layout
   return (
     <>
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-20rem)]">
+      <div className={cn(
+        "h-[calc(100vh-20rem)]",
+        isMobile ? "flex flex-col" : "grid grid-cols-1 lg:grid-cols-3 gap-6"
+      )}>
         {/* Conversations list */}
-        <Card className="bg-card border-border lg:col-span-1">
+        <Card className={cn("bg-card border-border", isMobile ? "flex-1" : "lg:col-span-1")}>
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center gap-2">
               <MessageSquare className="h-5 w-5 text-neon-cyan" />
@@ -505,7 +603,7 @@ export const AdminMessagesSection = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[400px]">
+            <ScrollArea className={isMobile ? "h-[calc(100vh-20rem)]" : "h-[400px]"}>
               {loading ? (
                 <p className="text-center text-muted-foreground py-8">Cargando...</p>
               ) : conversations.length === 0 ? (
@@ -514,7 +612,6 @@ export const AdminMessagesSection = () => {
                 </p>
               ) : (
                 <div className="divide-y divide-border">
-                  {/* Archived folder */}
                   {archivedConversations.length > 0 && (
                     <div>
                       <button
@@ -545,7 +642,6 @@ export const AdminMessagesSection = () => {
                     </div>
                   )}
                   
-                  {/* Active conversations */}
                   {activeConversations.map((conv) => (
                     <ConversationItem key={conv.id} conv={conv} />
                   ))}
@@ -555,134 +651,128 @@ export const AdminMessagesSection = () => {
           </CardContent>
         </Card>
 
-        {/* Chat area */}
-        <Card className="bg-card border-border lg:col-span-2 flex flex-col">
-          {selectedConversation ? (
-            <>
-              <CardHeader className="border-b border-border pb-3">
-                <div className="flex items-center gap-3">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="lg:hidden"
-                    onClick={() => setSelectedConversation(null)}
-                  >
-                    <ArrowLeft className="h-4 w-4" />
-                  </Button>
-                  <div className="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
-                    <User className="h-5 w-5 text-neon-purple" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-semibold">
-                      {selectedConversation.profile?.full_name || "Usuario"}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      @{selectedConversation.profile?.username || "unknown"}
-                    </p>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => archiveConversation(selectedConversation)}
-                      title={selectedConversation.is_archived ? "Restaurar" : "Archivar"}
-                    >
-                      {selectedConversation.is_archived ? (
-                        <ArchiveRestore className="h-4 w-4 text-neon-cyan" />
-                      ) : (
-                        <Archive className="h-4 w-4" />
-                      )}
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => setClearHistoryDialogOpen(true)}
-                      title="Limpiar historial"
-                    >
-                      <Eraser className="h-4 w-4 text-muted-foreground" />
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="icon"
-                      onClick={() => handleDeleteClick(selectedConversation)}
-                      title="Eliminar"
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                    <Link to={`/admin/client/${selectedConversation.user_id}`}>
-                      <Button variant="outline" size="sm">
-                        Ver perfil
-                      </Button>
-                    </Link>
-                  </div>
-                </div>
-              </CardHeader>
-
-              <CardContent className="flex-1 p-0 flex flex-col">
-                <ScrollArea className="flex-1 p-4 h-[300px]">
-                  <div className="space-y-3">
-                    {messages.map((msg) => (
-                      <div
-                        key={msg.id}
-                        className={cn(
-                          "flex",
-                          msg.sender_type === "admin" ? "justify-end" : "justify-start"
-                        )}
+        {/* Chat area - only on desktop */}
+        {!isMobile && (
+          <Card className="bg-card border-border lg:col-span-2 flex flex-col">
+            {selectedConversation ? (
+              <>
+                <CardHeader className="border-b border-border pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-neon-purple/20 flex items-center justify-center">
+                      <User className="h-5 w-5 text-neon-purple" />
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold">
+                        {selectedConversation.profile?.full_name || "Usuario"}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        @{selectedConversation.profile?.username || "unknown"}
+                      </p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => archiveConversation(selectedConversation)}
+                        title={selectedConversation.is_archived ? "Restaurar" : "Archivar"}
                       >
+                        {selectedConversation.is_archived ? (
+                          <ArchiveRestore className="h-4 w-4 text-neon-cyan" />
+                        ) : (
+                          <Archive className="h-4 w-4" />
+                        )}
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => setClearHistoryDialogOpen(true)}
+                        title="Limpiar historial"
+                      >
+                        <Eraser className="h-4 w-4 text-muted-foreground" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon"
+                        onClick={() => handleDeleteClick(selectedConversation)}
+                        title="Eliminar"
+                      >
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                      <Link to={`/admin/client/${selectedConversation.user_id}`}>
+                        <Button variant="outline" size="sm">
+                          Ver perfil
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </CardHeader>
+
+                <CardContent className="flex-1 p-0 flex flex-col">
+                  <ScrollArea className="flex-1 p-4 h-[300px]">
+                    <div className="space-y-3">
+                      {messages.map((msg) => (
                         <div
+                          key={msg.id}
                           className={cn(
-                            "max-w-[80%] rounded-2xl px-4 py-2",
-                            msg.sender_type === "admin"
-                              ? "bg-neon-purple text-white rounded-br-md"
-                              : "bg-muted rounded-bl-md"
+                            "flex",
+                            msg.sender_type === "admin" ? "justify-end" : "justify-start"
                           )}
                         >
-                          <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
-                          <p
+                          <div
                             className={cn(
-                              "text-xs mt-1",
+                              "max-w-[80%] rounded-2xl px-4 py-2",
                               msg.sender_type === "admin"
-                                ? "text-white/70"
-                                : "text-muted-foreground"
+                                ? "bg-neon-purple text-white rounded-br-md"
+                                : "bg-muted rounded-bl-md"
                             )}
                           >
-                            {format(new Date(msg.created_at), "HH:mm", { locale: es })}
-                          </p>
+                            <p className="text-sm whitespace-pre-wrap break-words">{msg.message}</p>
+                            <p
+                              className={cn(
+                                "text-xs mt-1",
+                                msg.sender_type === "admin"
+                                  ? "text-white/70"
+                                  : "text-muted-foreground"
+                              )}
+                            >
+                              {format(new Date(msg.created_at), "HH:mm", { locale: es })}
+                            </p>
+                          </div>
                         </div>
-                      </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                  </div>
-                </ScrollArea>
+                      ))}
+                      <div ref={messagesEndRef} />
+                    </div>
+                  </ScrollArea>
 
-                <form onSubmit={sendMessage} className="p-4 border-t border-border">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newMessage}
-                      onChange={(e) => {
-                        setNewMessage(e.target.value);
-                        handleTyping();
-                      }}
-                      placeholder="Escribe un mensaje..."
-                      disabled={sending}
-                      className="flex-1"
-                    />
-                    <Button type="submit" disabled={sending || !newMessage.trim()} variant="neon">
-                      <Send className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </form>
+                  <form onSubmit={sendMessage} className="p-4 border-t border-border">
+                    <div className="flex gap-2">
+                      <Input
+                        value={newMessage}
+                        onChange={(e) => {
+                          setNewMessage(e.target.value);
+                          handleTyping();
+                        }}
+                        placeholder="Escribe un mensaje..."
+                        disabled={sending}
+                        className="flex-1"
+                      />
+                      <Button type="submit" disabled={sending || !newMessage.trim()} variant="neon">
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </form>
+                </CardContent>
+              </>
+            ) : (
+              <CardContent className="flex-1 flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Selecciona una conversación para ver los mensajes</p>
+                </div>
               </CardContent>
-            </>
-          ) : (
-            <CardContent className="flex-1 flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Selecciona una conversación para ver los mensajes</p>
-              </div>
-            </CardContent>
-          )}
-        </Card>
+            )}
+          </Card>
+        )}
       </div>
 
       <ConfirmDialog
@@ -700,7 +790,7 @@ export const AdminMessagesSection = () => {
         open={clearHistoryDialogOpen}
         onOpenChange={setClearHistoryDialogOpen}
         title="Limpiar historial"
-        description={`¿Estás seguro de que quieres eliminar todos los mensajes de esta conversación? La conversación se mantendrá pero sin historial.`}
+        description={`¿Estás seguro de que quieres eliminar todos los mensajes de esta conversación?`}
         confirmText="Limpiar"
         cancelText="Cancelar"
         onConfirm={clearChatHistory}
