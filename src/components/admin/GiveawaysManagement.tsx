@@ -10,12 +10,13 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Trash2, Plus, Trophy, Users, Ban, Shuffle, RotateCcw } from "lucide-react";
+import { Edit2, Trash2, Plus, Trophy, Users, Ban, Shuffle, RotateCcw, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { WinnerAnimation } from "./WinnerAnimation";
 import { sendGiveawayWinnerNotification, sendNewGiveawayNotification } from "@/lib/pushNotifications";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type Giveaway = {
   id: string;
@@ -51,6 +52,7 @@ type Profile = {
 
 export const GiveawaysManagement = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [giveaways, setGiveaways] = useState<Giveaway[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingGiveaway, setEditingGiveaway] = useState<Giveaway | null>(null);
@@ -63,7 +65,6 @@ export const GiveawaysManagement = () => {
   const [showReselectDialog, setShowReselectDialog] = useState<Giveaway | null>(null);
   const [excludePreviousWinner, setExcludePreviousWinner] = useState(true);
   
-  // Winner animation state
   const [showWinnerAnimation, setShowWinnerAnimation] = useState(false);
   const [selectedWinner, setSelectedWinner] = useState<{ name: string; username: string; giveawayTitle: string } | null>(null);
   
@@ -203,7 +204,6 @@ export const GiveawaysManagement = () => {
         description: `Creó el sorteo "${formData.title}"`,
       });
 
-      // Send push notification to all users about the new giveaway
       if (newGiveaway) {
         sendNewGiveawayNotification(newGiveaway.title, newGiveaway.prize, newGiveaway.end_date);
       }
@@ -258,7 +258,6 @@ export const GiveawaysManagement = () => {
   };
 
   const handleSelectWinner = async (giveaway: Giveaway, additionalExclusions: string[] = []) => {
-    // Get eligible participants (not excluded)
     const { data: participants } = await supabase
       .from("giveaway_participants")
       .select("user_id, profile:profiles(full_name, username)")
@@ -279,7 +278,6 @@ export const GiveawaysManagement = () => {
       return;
     }
 
-    // Select random winner
     const winner = eligibleParticipants[Math.floor(Math.random() * eligibleParticipants.length)];
     const winnerProfile = Array.isArray(winner.profile) ? winner.profile[0] : winner.profile;
 
@@ -306,10 +304,8 @@ export const GiveawaysManagement = () => {
       target_user_name: winnerProfile?.full_name,
     });
 
-    // Send push notification to the winner
     sendGiveawayWinnerNotification(winner.user_id, giveaway.title, giveaway.prize);
 
-    // Show winner animation
     setSelectedWinner({
       name: winnerProfile?.full_name || "Usuario",
       username: winnerProfile?.username || "usuario",
@@ -361,6 +357,77 @@ export const GiveawaysManagement = () => {
     return { label: "Activo", variant: "default" as const };
   };
 
+  const GiveawayCard = ({ giveaway }: { giveaway: Giveaway }) => {
+    const [expanded, setExpanded] = useState(false);
+    const status = getStatus(giveaway);
+
+    return (
+      <div
+        className="border border-border rounded-xl p-4 transition-all hover:border-primary/30 cursor-pointer"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-1">
+              <p className="font-semibold truncate">{giveaway.title}</p>
+              <Badge variant={status.variant} className="shrink-0 text-[10px]">{status.label}</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground">🎁 {giveaway.prize}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
+              {format(new Date(giveaway.start_date), "d MMM", { locale: es })} → {format(new Date(giveaway.end_date), "d MMM", { locale: es })}
+            </p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            {giveaway.winner_id && <Trophy className="h-4 w-4 text-yellow-500" />}
+            <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-90" : ""}`} />
+          </div>
+        </div>
+
+        {expanded && (
+          <div className="mt-3 pt-3 border-t border-border/50 space-y-3" onClick={(e) => e.stopPropagation()}>
+            {giveaway.winner_id && (
+              <div className="flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-yellow-500" />
+                <Link to={`/admin/client/${giveaway.winner_id}`} className="text-neon-cyan hover:underline text-sm font-medium">
+                  {giveaway.winner_name} (@{giveaway.winner_username})
+                </Link>
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" variant="outline" onClick={() => loadParticipants(giveaway.id)}>
+                <Users className="h-3 w-3 mr-1" /> Participantes
+              </Button>
+              <Button size="sm" variant="outline" onClick={() => loadAllUsers(giveaway)}>
+                <Ban className="h-3 w-3 mr-1" /> Excluir
+              </Button>
+              {!giveaway.winner_id && (
+                <Button size="sm" variant="outline" className="text-neon-cyan border-neon-cyan/30" onClick={() => handleSelectWinner(giveaway)}>
+                  <Shuffle className="h-3 w-3 mr-1" /> Sortear
+                </Button>
+              )}
+              {giveaway.winner_id && (
+                <Button size="sm" variant="outline" className="text-orange-500 border-orange-500/30" onClick={() => setShowReselectDialog(giveaway)}>
+                  <RotateCcw className="h-3 w-3 mr-1" /> Reelegir
+                </Button>
+              )}
+              {!giveaway.is_finished && !giveaway.winner_id && (
+                <Button size="sm" variant="outline" onClick={() => handleFinish(giveaway)}>
+                  <Trophy className="h-3 w-3 mr-1" /> Finalizar
+                </Button>
+              )}
+              <Button size="sm" variant="outline" onClick={() => handleEdit(giveaway)}>
+                <Edit2 className="h-3 w-3 mr-1" /> Editar
+              </Button>
+              <Button size="sm" variant="outline" className="text-destructive border-destructive/30" onClick={() => handleDelete(giveaway)}>
+                <Trash2 className="h-3 w-3 mr-1" /> Eliminar
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -375,6 +442,12 @@ export const GiveawaysManagement = () => {
       <CardContent>
         {giveaways.length === 0 ? (
           <p className="text-center text-muted-foreground py-8">No hay sorteos registrados</p>
+        ) : isMobile ? (
+          <div className="space-y-3">
+            {giveaways.map((giveaway) => (
+              <GiveawayCard key={giveaway.id} giveaway={giveaway} />
+            ))}
+          </div>
         ) : (
           <Table>
             <TableHeader>
@@ -456,7 +529,7 @@ export const GiveawaysManagement = () => {
 
       {/* Create/Edit Dialog */}
       <Dialog open={!!editingGiveaway || isCreating} onOpenChange={() => { setEditingGiveaway(null); setIsCreating(false); }}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{editingGiveaway ? "Editar" : "Crear"} Sorteo</DialogTitle>
           </DialogHeader>
@@ -475,15 +548,11 @@ export const GiveawaysManagement = () => {
             </div>
             <div>
               <Label>Requisitos</Label>
-              <Textarea value={formData.requirements} onChange={(e) => setFormData({ ...formData, requirements: e.target.value })} placeholder="Ej: Seguir en Instagram, compartir historia..." rows={2} />
+              <Textarea value={formData.requirements} onChange={(e) => setFormData({ ...formData, requirements: e.target.value })} placeholder="Requisitos para participar..." rows={2} />
             </div>
             <div>
-              <Label>Enlace de Instagram</Label>
-              <Input 
-                value={formData.instagram_url} 
-                onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })} 
-                placeholder="https://www.instagram.com/p/..." 
-              />
+              <Label>URL de Instagram</Label>
+              <Input value={formData.instagram_url} onChange={(e) => setFormData({ ...formData, instagram_url: e.target.value })} placeholder="https://instagram.com/..." />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -507,19 +576,20 @@ export const GiveawaysManagement = () => {
       <Dialog open={!!showParticipants} onOpenChange={() => setShowParticipants(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Participantes ({participants.length})</DialogTitle>
+            <DialogTitle>Participantes del sorteo</DialogTitle>
+            <DialogDescription>
+              {participants.length} participante{participants.length !== 1 ? "s" : ""}
+            </DialogDescription>
           </DialogHeader>
-          <div className="max-h-80 overflow-y-auto">
+          <div className="py-4 max-h-64 overflow-y-auto">
             {participants.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No hay participantes</p>
+              <p className="text-center text-muted-foreground">No hay participantes</p>
             ) : (
               <div className="space-y-2">
                 {participants.map((p) => (
-                  <div key={p.id} className="flex justify-between items-center p-2 bg-muted rounded">
-                    <div>
-                      <p className="font-medium">{p.profile?.full_name}</p>
-                      <p className="text-xs text-muted-foreground">@{p.profile?.username}</p>
-                    </div>
+                  <div key={p.id} className="flex items-center gap-3 p-2 bg-muted rounded-lg">
+                    <span className="font-medium">{p.profile?.full_name || "Desconocido"}</span>
+                    <span className="text-muted-foreground text-sm">@{p.profile?.username || "?"}</span>
                   </div>
                 ))}
               </div>
@@ -528,29 +598,25 @@ export const GiveawaysManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Exclude Users Dialog */}
+      {/* Exclude Dialog */}
       <Dialog open={!!showExcludeDialog} onOpenChange={() => setShowExcludeDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Excluir Usuarios</DialogTitle>
-            <DialogDescription>Selecciona usuarios que no pueden ganar</DialogDescription>
+            <DialogTitle>Excluir usuarios del sorteo</DialogTitle>
           </DialogHeader>
-          <div className="max-h-80 overflow-y-auto space-y-2">
-            {allUsers.map((user) => (
-              <div key={user.id} className="flex items-center space-x-2 p-2 hover:bg-muted rounded">
+          <div className="py-4 max-h-64 overflow-y-auto space-y-2">
+            {allUsers.map((u) => (
+              <div key={u.id} className="flex items-center gap-2 p-2">
                 <Checkbox
-                  checked={excludedIds.includes(user.id)}
+                  checked={excludedIds.includes(u.id)}
                   onCheckedChange={(checked) => {
-                    if (checked) {
-                      setExcludedIds([...excludedIds, user.id]);
-                    } else {
-                      setExcludedIds(excludedIds.filter(id => id !== user.id));
-                    }
+                    setExcludedIds(checked
+                      ? [...excludedIds, u.id]
+                      : excludedIds.filter(id => id !== u.id)
+                    );
                   }}
                 />
-                <Label className="cursor-pointer flex-1">
-                  {user.full_name} <span className="text-muted-foreground">@{user.username}</span>
-                </Label>
+                <span>{u.full_name} (@{u.username})</span>
               </div>
             ))}
           </div>
@@ -561,34 +627,27 @@ export const GiveawaysManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Reselect Winner Dialog */}
+      {/* Reselect Dialog */}
       <Dialog open={!!showReselectDialog} onOpenChange={() => setShowReselectDialog(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Reelegir Ganador</DialogTitle>
+            <DialogTitle>Reelegir ganador</DialogTitle>
             <DialogDescription>
-              El ganador actual es: <strong>{showReselectDialog?.winner_name}</strong>
-              {showReselectDialog?.winner_username && ` (@${showReselectDialog.winner_username})`}
+              ¿Deseas excluir al ganador anterior ({showReselectDialog?.winner_name}) de la nueva selección?
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <Checkbox
-                id="exclude-previous"
                 checked={excludePreviousWinner}
-                onCheckedChange={(checked) => setExcludePreviousWinner(!!checked)}
+                onCheckedChange={(v) => setExcludePreviousWinner(!!v)}
               />
-              <Label htmlFor="exclude-previous" className="cursor-pointer">
-                Excluir al ganador anterior de la nueva selección
-              </Label>
+              <Label>Excluir al ganador anterior</Label>
             </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowReselectDialog(null)}>Cancelar</Button>
-            <Button onClick={handleReselectWinner} variant="neon">
-              <RotateCcw className="mr-2 h-4 w-4" />
-              Reelegir
-            </Button>
+            <Button onClick={handleReselectWinner} variant="neon">Sortear nuevo ganador</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -597,13 +656,10 @@ export const GiveawaysManagement = () => {
       {selectedWinner && (
         <WinnerAnimation
           open={showWinnerAnimation}
-          onClose={() => {
-            setShowWinnerAnimation(false);
-            setSelectedWinner(null);
-          }}
           winnerName={selectedWinner.name}
           winnerUsername={selectedWinner.username}
           giveawayTitle={selectedWinner.giveawayTitle}
+          onClose={() => setShowWinnerAnimation(false)}
         />
       )}
     </Card>

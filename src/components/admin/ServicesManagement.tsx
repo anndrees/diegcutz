@@ -10,10 +10,11 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Trash2, Plus, X } from "lucide-react";
+import { Edit2, Trash2, Plus, X, ChevronRight } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { OptionalAddonsManagement } from "./OptionalAddonsManagement";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 type CustomExtra = {
   name: string;
@@ -33,6 +34,7 @@ type Service = {
 
 export const ServicesManagement = () => {
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [services, setServices] = useState<Service[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -163,7 +165,6 @@ export const ServicesManagement = () => {
   };
 
   const handleDeleteClick = (service: Service) => {
-    // Check if service is used in any pack
     if (service.service_type === 'service') {
       const packsUsingService = services.filter(
         s => s.service_type === 'pack' && s.included_service_ids?.includes(service.id)
@@ -204,6 +205,55 @@ export const ServicesManagement = () => {
   const getServiceName = (id: string) => {
     const service = services.find(s => s.id === id);
     return service?.name || id;
+  };
+
+  const ServiceCard = ({ service }: { service: Service }) => {
+    const [expanded, setExpanded] = useState(false);
+    return (
+      <div
+        className="border border-border rounded-xl p-4 transition-all hover:border-primary/30 cursor-pointer"
+        onClick={() => setExpanded(!expanded)}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2">
+              <p className="font-semibold truncate">{service.name}</p>
+              {service.coming_soon ? (
+                <span className="text-[10px] font-bold text-primary uppercase bg-primary/10 px-1.5 py-0.5 rounded">Pronto</span>
+              ) : (
+                <span className="text-[10px] font-bold text-green-500 uppercase bg-green-500/10 px-1.5 py-0.5 rounded">Activo</span>
+              )}
+            </div>
+            {service.service_type === 'pack' && service.included_service_ids && service.included_service_ids.length > 0 && (
+              <p className="text-[10px] text-muted-foreground mt-0.5 truncate">
+                {service.included_service_ids.map(id => getServiceName(id)).join(", ")}
+              </p>
+            )}
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-lg font-bold text-neon-purple">{service.price}€</span>
+            <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-90" : ""}`} />
+          </div>
+        </div>
+
+        {expanded && (
+          <div className="mt-3 pt-3 border-t border-border/50 space-y-2" onClick={(e) => e.stopPropagation()}>
+            {service.description && <p className="text-sm text-muted-foreground">{service.description}</p>}
+            {service.service_type === 'pack' && service.custom_extras && service.custom_extras.length > 0 && (
+              <p className="text-xs text-neon-cyan">Extras: {service.custom_extras.map(e => `${e.name} (${e.price}€)`).join(", ")}</p>
+            )}
+            <div className="flex gap-2 pt-1">
+              <Button size="sm" variant="outline" onClick={() => handleEdit(service)}>
+                <Edit2 className="h-3 w-3 mr-1" /> Editar
+              </Button>
+              <Button size="sm" variant="outline" className="text-destructive border-destructive/30" onClick={() => handleDeleteClick(service)}>
+                <Trash2 className="h-3 w-3 mr-1" /> Eliminar
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
   const ServiceTable = ({ items }: { items: Service[] }) => (
@@ -253,6 +303,20 @@ export const ServicesManagement = () => {
     </Table>
   );
 
+  const ServiceList = ({ items }: { items: Service[] }) => {
+    if (items.length === 0) {
+      return <p className="text-center text-muted-foreground py-8">No hay servicios</p>;
+    }
+    if (isMobile) {
+      return (
+        <div className="space-y-3">
+          {items.map(service => <ServiceCard key={service.id} service={service} />)}
+        </div>
+      );
+    }
+    return <ServiceTable items={items} />;
+  };
+
   return (
     <div className="space-y-6">
       <Card>
@@ -272,18 +336,10 @@ export const ServicesManagement = () => {
               <TabsTrigger value="packs">Packs ({packs.length})</TabsTrigger>
             </TabsList>
             <TabsContent value="services" className="mt-4">
-              {individualServices.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No hay servicios</p>
-              ) : (
-                <ServiceTable items={individualServices} />
-              )}
+              <ServiceList items={individualServices} />
             </TabsContent>
             <TabsContent value="packs" className="mt-4">
-              {packs.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">No hay packs</p>
-              ) : (
-                <ServiceTable items={packs} />
-              )}
+              <ServiceList items={packs} />
             </TabsContent>
           </Tabs>
         </CardContent>
