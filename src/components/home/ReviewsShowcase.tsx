@@ -136,7 +136,16 @@ export const ReviewsShowcase = () => {
   const [startIndex, setStartIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const VISIBLE_COUNT = 3;
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  const VISIBLE_COUNT = isMobile ? 1 : 3;
   const INTERVAL_MS = 10000;
 
   useEffect(() => {
@@ -293,7 +302,7 @@ export const ReviewsShowcase = () => {
           )}
 
           {/* Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 overflow-hidden px-6 md:px-0">
+          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-3'} gap-5 overflow-hidden px-6 md:px-0`}>
             {visibleRatings.map((rating) => (
               <ReviewCard
                 key={`${rating.id}-${startIndex}`}
