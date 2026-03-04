@@ -22,6 +22,8 @@ type SettingsState = {
   loyalty_program_enabled: boolean;
   chat_enabled: boolean;
   instagram_feed_enabled: boolean;
+  block_same_day_enabled: boolean;
+  block_same_day_from_hour: number;
 };
 
 export const SettingsModal = () => {
