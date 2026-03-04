@@ -37,6 +37,8 @@ export const SettingsModal = () => {
     loyalty_program_enabled: true,
     chat_enabled: true,
     instagram_feed_enabled: true,
+    block_same_day_enabled: false,
+    block_same_day_from_hour: 13,
   });
 
   useEffect(() => {
