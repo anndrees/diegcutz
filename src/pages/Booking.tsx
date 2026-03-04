@@ -96,6 +96,8 @@ const Booking = () => {
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
   const [playlistUrl, setPlaylistUrl] = useState<string>("");
   const [playlistUrlError, setPlaylistUrlError] = useState<string>("");
+  const [blockSameDayEnabled, setBlockSameDayEnabled] = useState(false);
+  const [blockSameDayFromHour, setBlockSameDayFromHour] = useState(13);
   
   // Coupon state
   const [couponCode, setCouponCode] = useState<string>("");
@@ -167,6 +169,7 @@ const Booking = () => {
   useEffect(() => {
     loadServicesFromDB();
     loadBusinessHours();
+    loadSameDaySettings();
   }, []);
 
   const loadBusinessHours = async () => {
@@ -181,6 +184,23 @@ const Booking = () => {
         time_ranges: Array.isArray(d.time_ranges) ? d.time_ranges as TimeRange[] : []
       }));
       setBusinessHours(formatted);
+    }
+  };
+
+  const loadSameDaySettings = async () => {
+    const { data } = await supabase
+      .from("app_settings")
+      .select("key, value")
+      .in("key", ["block_same_day_enabled", "block_same_day_from_hour"]);
+
+    if (data) {
+      data.forEach((item) => {
+        if (item.key === "block_same_day_enabled") {
+          setBlockSameDayEnabled(item.value === true);
+        } else if (item.key === "block_same_day_from_hour") {
+          setBlockSameDayFromHour(typeof item.value === "number" ? item.value : 13);
+        }
+      });
     }
   };
 
@@ -314,24 +334,57 @@ const Booking = () => {
     
     if (!dayConfig || dayConfig.is_closed) return [];
     
+    let hours: number[];
+    
     if (dayConfig.is_24h) {
-      // Return all hours except 23 (since reservation lasts 1 hour)
-      return Array.from({ length: 23 }, (_, i) => i);
+      hours = Array.from({ length: 23 }, (_, i) => i);
+    } else {
+      const hoursSet: Set<number> = new Set();
+      dayConfig.time_ranges.forEach(range => {
+        const startHour = parseInt(range.start.split(":")[0]);
+        const endHour = parseInt(range.end.split(":")[0]);
+        for (let h = startHour; h < endHour; h++) {
+          hoursSet.add(h);
+        }
+      });
+      hours = Array.from(hoursSet).sort((a, b) => a - b);
     }
     
-    const hours: Set<number> = new Set();
+    // For today: filter out hours that have already passed (with 30-min buffer)
+    const now = new Date();
+    const isToday = selectedDate.toDateString() === now.toDateString();
     
-    dayConfig.time_ranges.forEach(range => {
-      const startHour = parseInt(range.start.split(":")[0]);
-      const endHour = parseInt(range.end.split(":")[0]);
-      
-      // Last bookable hour is endHour - 1 (since reservations last 1 hour)
-      for (let h = startHour; h < endHour; h++) {
-        hours.add(h);
-      }
-    });
+    if (isToday) {
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      hours = hours.filter(hour => {
+        const slotMinutes = hour * 60;
+        // Need at least 30 minutes before the slot
+        return slotMinutes - currentMinutes >= 30;
+      });
+    }
     
-    return Array.from(hours).sort((a, b) => a - b);
+    return hours;
+  };
+
+  const isDayDisabled = (date: Date): boolean => {
+    // Past dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return true;
+    
+    // Closed days
+    if (isDayClosed(date)) return true;
+    
+    // Same-day blocking logic
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    
+    if (isToday && blockSameDayEnabled) {
+      const currentHour = now.getHours();
+      if (currentHour >= blockSameDayFromHour) return true;
+    }
+    
+    return false;
   };
 
   const isDayClosed = (date: Date): boolean => {
@@ -814,7 +867,7 @@ const Booking = () => {
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                disabled={(date) => date < new Date() || isDayClosed(date)}
+                disabled={isDayDisabled}
                 className="rounded-md border border-border pointer-events-auto scale-90 sm:scale-100"
               />
             </CardContent>

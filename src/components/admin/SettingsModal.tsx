@@ -22,6 +22,8 @@ type SettingsState = {
   loyalty_program_enabled: boolean;
   chat_enabled: boolean;
   instagram_feed_enabled: boolean;
+  block_same_day_enabled: boolean;
+  block_same_day_from_hour: number;
 };
 
 export const SettingsModal = () => {
@@ -35,6 +37,8 @@ export const SettingsModal = () => {
     loyalty_program_enabled: true,
     chat_enabled: true,
     instagram_feed_enabled: true,
+    block_same_day_enabled: false,
+    block_same_day_from_hour: 13,
   });
 
   useEffect(() => {
@@ -63,6 +67,10 @@ export const SettingsModal = () => {
           newSettings.chat_enabled = item.value === true;
         } else if (item.key === "instagram_feed_enabled") {
           newSettings.instagram_feed_enabled = item.value === true;
+        } else if (item.key === "block_same_day_enabled") {
+          newSettings.block_same_day_enabled = item.value === true;
+        } else if (item.key === "block_same_day_from_hour") {
+          newSettings.block_same_day_from_hour = typeof item.value === "number" ? item.value : 13;
         }
       });
       setSettings(newSettings);
@@ -143,6 +151,12 @@ export const SettingsModal = () => {
       type: "number",
       suffix: "horas",
     },
+    {
+      key: "block_same_day_enabled" as const,
+      label: "Bloquear reservas para el mismo día",
+      description: "Impide que los clientes reserven citas para el día actual a partir de cierta hora",
+      type: "switch",
+    },
   ];
 
   return (
@@ -209,6 +223,42 @@ export const SettingsModal = () => {
               </div>
             </div>
           ))}
+
+          {/* Conditional: block_same_day_from_hour selector */}
+          {settings.block_same_day_enabled && (
+            <>
+              <Separator className="mb-6" />
+              <div className="flex items-center justify-between">
+                <div className="space-y-1 flex-1 mr-4">
+                  <Label htmlFor="block_same_day_from_hour" className="text-sm font-medium">
+                    Bloquear a partir de las
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Hora a partir de la cual se bloquean las reservas para ese mismo día
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    id="block_same_day_from_hour"
+                    value={settings.block_same_day_from_hour}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setSettings((prev) => ({ ...prev, block_same_day_from_hour: val }));
+                      updateSetting("block_same_day_from_hour", val);
+                    }}
+                    disabled={loading}
+                    className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i.toString().padStart(2, "0")}:00
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
