@@ -223,6 +223,42 @@ export const SettingsModal = () => {
               </div>
             </div>
           ))}
+
+          {/* Conditional: block_same_day_from_hour selector */}
+          {settings.block_same_day_enabled && (
+            <>
+              <Separator className="mb-6" />
+              <div className="flex items-center justify-between">
+                <div className="space-y-1 flex-1 mr-4">
+                  <Label htmlFor="block_same_day_from_hour" className="text-sm font-medium">
+                    Bloquear a partir de las
+                  </Label>
+                  <p className="text-xs text-muted-foreground">
+                    Hora a partir de la cual se bloquean las reservas para ese mismo día
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select
+                    id="block_same_day_from_hour"
+                    value={settings.block_same_day_from_hour}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setSettings((prev) => ({ ...prev, block_same_day_from_hour: val }));
+                      updateSetting("block_same_day_from_hour", val);
+                    }}
+                    disabled={loading}
+                    className="h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i.toString().padStart(2, "0")}:00
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </DialogContent>
     </Dialog>
