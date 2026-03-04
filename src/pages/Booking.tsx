@@ -187,6 +187,23 @@ const Booking = () => {
     }
   };
 
+  const loadSameDaySettings = async () => {
+    const { data } = await supabase
+      .from("app_settings")
+      .select("key, value")
+      .in("key", ["block_same_day_enabled", "block_same_day_from_hour"]);
+
+    if (data) {
+      data.forEach((item) => {
+        if (item.key === "block_same_day_enabled") {
+          setBlockSameDayEnabled(item.value === true);
+        } else if (item.key === "block_same_day_from_hour") {
+          setBlockSameDayFromHour(typeof item.value === "number" ? item.value : 13);
+        }
+      });
+    }
+  };
+
   const loadServicesFromDB = async () => {
     setLoadingServices(true);
     
