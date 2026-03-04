@@ -47,6 +47,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 import { QrScanner } from "@/components/admin/QrScanner";
 import { ActiveAppointmentBanner } from "@/components/admin/ActiveAppointmentBanner";
+import { AvailableHoursModal } from "@/components/admin/AvailableHoursModal";
 
 type Booking = {
   id: string;
