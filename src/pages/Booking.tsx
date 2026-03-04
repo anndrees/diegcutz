@@ -366,6 +366,27 @@ const Booking = () => {
     return hours;
   };
 
+  const isDayDisabled = (date: Date): boolean => {
+    // Past dates
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    if (date < today) return true;
+    
+    // Closed days
+    if (isDayClosed(date)) return true;
+    
+    // Same-day blocking logic
+    const now = new Date();
+    const isToday = date.toDateString() === now.toDateString();
+    
+    if (isToday && blockSameDayEnabled) {
+      const currentHour = now.getHours();
+      if (currentHour >= blockSameDayFromHour) return true;
+    }
+    
+    return false;
+  };
+
   const isDayClosed = (date: Date): boolean => {
     if (businessHours.length === 0) return false;
     const dayOfWeek = date.getDay();
