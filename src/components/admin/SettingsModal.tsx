@@ -67,6 +67,10 @@ export const SettingsModal = () => {
           newSettings.chat_enabled = item.value === true;
         } else if (item.key === "instagram_feed_enabled") {
           newSettings.instagram_feed_enabled = item.value === true;
+        } else if (item.key === "block_same_day_enabled") {
+          newSettings.block_same_day_enabled = item.value === true;
+        } else if (item.key === "block_same_day_from_hour") {
+          newSettings.block_same_day_from_hour = typeof item.value === "number" ? item.value : 13;
         }
       });
       setSettings(newSettings);
