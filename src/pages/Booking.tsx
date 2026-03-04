@@ -867,7 +867,7 @@ const Booking = () => {
                 mode="single"
                 selected={selectedDate}
                 onSelect={setSelectedDate}
-                disabled={(date) => date < new Date() || isDayClosed(date)}
+                disabled={isDayDisabled}
                 className="rounded-md border border-border pointer-events-auto scale-90 sm:scale-100"
               />
             </CardContent>
