@@ -169,6 +169,7 @@ const Booking = () => {
   useEffect(() => {
     loadServicesFromDB();
     loadBusinessHours();
+    loadSameDaySettings();
   }, []);
 
   const loadBusinessHours = async () => {
