@@ -633,7 +633,7 @@ const Admin = () => {
                         selected={selectedCalendarDate}
                         onSelect={(date) => {
                           setSelectedCalendarDate(date);
-                          if (date) setShowCalendarDialog(true);
+                          if (date) setShowDayOptionsDialog(true);
                         }}
                         className="rounded-md border border-border pointer-events-auto"
                         modifiers={{
