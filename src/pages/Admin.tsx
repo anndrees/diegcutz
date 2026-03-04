@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, addHours, parseISO, differenceInMinutes } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink, X, RotateCcw, CheckCircle, Music, Timer, Scissors, CreditCard, QrCode } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink, X, RotateCcw, CheckCircle, Music, Timer, Scissors, CreditCard, QrCode, Clock } from "lucide-react";
 import {
   Table,
   TableBody,
