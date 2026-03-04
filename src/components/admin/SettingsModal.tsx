@@ -151,6 +151,12 @@ export const SettingsModal = () => {
       type: "number",
       suffix: "horas",
     },
+    {
+      key: "block_same_day_enabled" as const,
+      label: "Bloquear reservas para el mismo día",
+      description: "Impide que los clientes reserven citas para el día actual a partir de cierta hora",
+      type: "switch",
+    },
   ];
 
   return (
