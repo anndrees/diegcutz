@@ -334,24 +334,36 @@ const Booking = () => {
     
     if (!dayConfig || dayConfig.is_closed) return [];
     
+    let hours: number[];
+    
     if (dayConfig.is_24h) {
-      // Return all hours except 23 (since reservation lasts 1 hour)
-      return Array.from({ length: 23 }, (_, i) => i);
+      hours = Array.from({ length: 23 }, (_, i) => i);
+    } else {
+      const hoursSet: Set<number> = new Set();
+      dayConfig.time_ranges.forEach(range => {
+        const startHour = parseInt(range.start.split(":")[0]);
+        const endHour = parseInt(range.end.split(":")[0]);
+        for (let h = startHour; h < endHour; h++) {
+          hoursSet.add(h);
+        }
+      });
+      hours = Array.from(hoursSet).sort((a, b) => a - b);
     }
     
-    const hours: Set<number> = new Set();
+    // For today: filter out hours that have already passed (with 30-min buffer)
+    const now = new Date();
+    const isToday = selectedDate.toDateString() === now.toDateString();
     
-    dayConfig.time_ranges.forEach(range => {
-      const startHour = parseInt(range.start.split(":")[0]);
-      const endHour = parseInt(range.end.split(":")[0]);
-      
-      // Last bookable hour is endHour - 1 (since reservations last 1 hour)
-      for (let h = startHour; h < endHour; h++) {
-        hours.add(h);
-      }
-    });
+    if (isToday) {
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
+      hours = hours.filter(hour => {
+        const slotMinutes = hour * 60;
+        // Need at least 30 minutes before the slot
+        return slotMinutes - currentMinutes >= 30;
+      });
+    }
     
-    return Array.from(hours).sort((a, b) => a - b);
+    return hours;
   };
 
   const isDayClosed = (date: Date): boolean => {
