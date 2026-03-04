@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format, addHours, parseISO, differenceInMinutes } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink, X, RotateCcw, CheckCircle, Music, Timer, Scissors, CreditCard, QrCode } from "lucide-react";
+import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink, X, RotateCcw, CheckCircle, Music, Timer, Scissors, CreditCard, QrCode, Clock } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -47,6 +47,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 import { QrScanner } from "@/components/admin/QrScanner";
 import { ActiveAppointmentBanner } from "@/components/admin/ActiveAppointmentBanner";
+import { AvailableHoursModal } from "@/components/admin/AvailableHoursModal";
 
 type Booking = {
   id: string;
@@ -95,6 +96,8 @@ const Admin = () => {
   const [cancelMode, setCancelMode] = useState<"cancel" | "reschedule">("cancel");
   const [activeTab, setActiveTab] = useState("bookings");
   const [showQrScanner, setShowQrScanner] = useState(false);
+  const [showDayOptionsDialog, setShowDayOptionsDialog] = useState(false);
+  const [showAvailableHoursModal, setShowAvailableHoursModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -630,7 +633,7 @@ const Admin = () => {
                         selected={selectedCalendarDate}
                         onSelect={(date) => {
                           setSelectedCalendarDate(date);
-                          if (date) setShowCalendarDialog(true);
+                          if (date) setShowDayOptionsDialog(true);
                         }}
                         className="rounded-md border border-border pointer-events-auto"
                         modifiers={{
@@ -736,6 +739,47 @@ const Admin = () => {
           </main>
         </div>
 
+        {/* Day Options Dialog */}
+        <Dialog open={showDayOptionsDialog} onOpenChange={setShowDayOptionsDialog}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-center">
+                {selectedCalendarDate && format(selectedCalendarDate, "d 'de' MMMM 'de' yyyy", { locale: es })}
+              </DialogTitle>
+              <DialogDescription className="text-center">
+                ¿Qué quieres consultar?
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex flex-col gap-3 py-4">
+              <Button
+                variant="outline"
+                className="h-14 text-base border-primary/30 hover:bg-primary/10 hover:border-primary/60"
+                onClick={() => {
+                  setShowDayOptionsDialog(false);
+                  setShowCalendarDialog(true);
+                }}
+              >
+                <CalendarIcon className="h-5 w-5 mr-3 text-primary" />
+                Ver reservas
+                <span className="ml-auto text-sm text-muted-foreground">
+                  {bookingsForSelectedDate.length}
+                </span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-14 text-base border-secondary/30 hover:bg-secondary/10 hover:border-secondary/60"
+                onClick={() => {
+                  setShowDayOptionsDialog(false);
+                  setShowAvailableHoursModal(true);
+                }}
+              >
+                <Clock className="h-5 w-5 mr-3 text-secondary" />
+                Ver horas libres
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {/* Dialog para mostrar reservas del día seleccionado */}
         <Dialog open={showCalendarDialog} onOpenChange={setShowCalendarDialog}>
           <DialogContent className="max-w-2xl">
@@ -778,7 +822,7 @@ const Admin = () => {
                             </div>
                           </div>
                           <div className="text-right">
-                            <p className="text-2xl font-bold text-neon-purple">{booking.total_price}€</p>
+                            <p className="text-2xl font-bold text-primary">{booking.total_price}€</p>
                           </div>
                         </div>
                       </CardContent>
@@ -789,6 +833,16 @@ const Admin = () => {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Available Hours Modal for Social Media */}
+        {selectedCalendarDate && (
+          <AvailableHoursModal
+            open={showAvailableHoursModal}
+            onOpenChange={setShowAvailableHoursModal}
+            date={selectedCalendarDate}
+            bookedTimes={bookingsForSelectedDate.map(b => b.booking_time)}
+          />
+        )}
 
         {/* Edit Dialog */}
         <Dialog open={!!editingBooking} onOpenChange={() => setEditingBooking(null)}>
