@@ -96,6 +96,8 @@ const Admin = () => {
   const [cancelMode, setCancelMode] = useState<"cancel" | "reschedule">("cancel");
   const [activeTab, setActiveTab] = useState("bookings");
   const [showQrScanner, setShowQrScanner] = useState(false);
+  const [showDayOptionsDialog, setShowDayOptionsDialog] = useState(false);
+  const [showAvailableHoursModal, setShowAvailableHoursModal] = useState(false);
 
   useEffect(() => {
     if (isAuthenticated) {
