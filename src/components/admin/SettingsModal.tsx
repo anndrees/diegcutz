@@ -80,27 +80,18 @@ export const SettingsModal = () => {
   const updateSetting = async (key: keyof SettingsState, value: boolean | number) => {
     setLoading(true);
 
-    // Try to update, if not exists, insert
-    const { error: updateError } = await supabase
+    const { error } = await supabase
       .from("app_settings")
-      .update({ value: value, updated_at: new Date().toISOString() })
-      .eq("key", key);
+      .upsert({ key, value: value, updated_at: new Date().toISOString() }, { onConflict: "key" });
 
-    if (updateError) {
-      // Try insert if update failed (row doesn't exist)
-      const { error: insertError } = await supabase
-        .from("app_settings")
-        .insert({ key, value: value });
-
-      if (insertError) {
-        toast({
-          title: "Error",
-          description: "No se pudo actualizar la configuración",
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
+    if (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la configuración",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
     }
 
     setSettings((prev) => ({ ...prev, [key]: value }));
