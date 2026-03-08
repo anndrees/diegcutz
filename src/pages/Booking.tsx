@@ -174,6 +174,7 @@ const Booking = () => {
     loadServicesFromDB();
     loadBusinessHours();
     loadSameDaySettings();
+    loadMembershipBenefits();
   }, []);
 
   const loadBusinessHours = async () => {
