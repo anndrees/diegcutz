@@ -214,6 +214,7 @@ export const ClientMembership = ({ userId, userName }: Props) => {
     }).eq("id", activeMembership.id);
 
     toast({ title: "Renovada", description: `Membresía renovada hasta ${newEnd.toISOString().split("T")[0]}` });
+    sendMembershipRenewedNotification(userId, membership.name, newEnd.toISOString().split("T")[0]);
     loadData();
   };
 
