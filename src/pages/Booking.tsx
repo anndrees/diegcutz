@@ -499,7 +499,14 @@ const Booking = () => {
     // Add selected addons
     selectedAddons.forEach(addonId => {
       const addon = optionalAddons.find(a => a.id === addonId);
-      if (addon) items.push(`${addon.name} (${addon.price}€)`);
+      if (addon) {
+        if (membershipDiscount > 0) {
+          const discounted = Math.round((addon.price * (1 - membershipDiscount / 100)) * 100) / 100;
+          items.push(`${addon.name} (${discounted}€ — ${membershipDiscount}% dto. membresía)`);
+        } else {
+          items.push(`${addon.name} (${addon.price}€)`);
+        }
+      }
     });
     
     return items;
