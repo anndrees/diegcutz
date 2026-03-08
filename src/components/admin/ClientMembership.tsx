@@ -110,6 +110,11 @@ export const ClientMembership = ({ userId, userName }: Props) => {
     });
 
     toast({ title: "Membresía activada", description: `${membership.name} activada para ${userName}` });
+    
+    // Send push notification
+    const endDateStr = endDate.toISOString().split("T")[0];
+    sendMembershipActivatedNotification(userId, membership.name, endDateStr);
+    
     loadData();
   };
 
