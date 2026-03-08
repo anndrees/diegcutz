@@ -358,7 +358,7 @@ const ClientProfile = () => {
       .upsert({
         user_id: profile.id,
         completed_bookings: loyaltyReward?.completed_bookings || 0,
-        free_cuts_available: 1, // Max 1 at a time (non-cumulative)
+        free_cuts_available: (loyaltyReward?.free_cuts_available || 0) + 1,
       }, { onConflict: "user_id" });
 
     if (error) {
@@ -376,7 +376,7 @@ const ClientProfile = () => {
     const { error } = await supabase
       .from("loyalty_rewards")
       .update({
-        free_cuts_available: 0,
+        free_cuts_available: loyaltyReward.free_cuts_available - 1,
       })
       .eq("user_id", profile.id);
 
@@ -386,6 +386,26 @@ const ClientProfile = () => {
     }
 
     toast({ title: "Éxito", description: "Corte gratis quitado" });
+    loadClientData();
+  };
+
+  const handleSetFreeCuts = async (value: number) => {
+    if (!profile || value < 0) return;
+
+    const { error } = await supabase
+      .from("loyalty_rewards")
+      .upsert({
+        user_id: profile.id,
+        completed_bookings: loyaltyReward?.completed_bookings || 0,
+        free_cuts_available: value,
+      }, { onConflict: "user_id" });
+
+    if (error) {
+      toast({ title: "Error", description: "No se pudo actualizar", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Éxito", description: `Cortes gratis actualizados a ${value}` });
     loadClientData();
   };
 
@@ -713,16 +733,36 @@ const ClientProfile = () => {
               </div>
 
               {/* Free cuts available */}
-              {loyaltyReward && loyaltyReward.free_cuts_available > 0 && (
-                <div className="p-4 bg-neon-cyan/20 rounded-lg border border-neon-cyan">
-                  <p className="font-bold text-neon-cyan">
-                    🎉 ¡Tiene {loyaltyReward.free_cuts_available} corte(s) gratis disponible(s)!
+              <div className={`p-4 rounded-lg border ${loyaltyReward && loyaltyReward.free_cuts_available > 0 ? 'bg-neon-cyan/20 border-neon-cyan' : 'bg-muted/50 border-border'}`}>
+                <div className="flex items-center justify-between">
+                  <p className={`font-bold ${loyaltyReward && loyaltyReward.free_cuts_available > 0 ? 'text-neon-cyan' : 'text-muted-foreground'}`}>
+                    {loyaltyReward && loyaltyReward.free_cuts_available > 0
+                      ? `🎉 ¡Tiene ${loyaltyReward.free_cuts_available} corte(s) gratis disponible(s)!`
+                      : '✂️ No tiene cortes gratis disponibles'}
                   </p>
+                  <div className="flex items-center gap-2">
+                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={handleRemoveFreeCut} disabled={!loyaltyReward || loyaltyReward.free_cuts_available <= 0}>
+                      <Minus className="w-3 h-3" />
+                    </Button>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={loyaltyReward?.free_cuts_available || 0}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value);
+                        if (!isNaN(val) && val >= 0) handleSetFreeCuts(val);
+                      }}
+                      className="w-16 h-8 text-center"
+                    />
+                    <Button size="icon" variant="outline" className="h-8 w-8" onClick={handleGrantFreeCut}>
+                      <Plus className="w-3 h-3" />
+                    </Button>
+                  </div>
                 </div>
-              )}
+              </div>
 
               {/* Admin Controls */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <Button 
                   variant="outline" 
                   onClick={handleAddToCounter}
@@ -739,23 +779,6 @@ const ClientProfile = () => {
                 >
                   <Minus className="w-4 h-4" />
                   -1 al contador
-                </Button>
-                <Button 
-                  variant="neon" 
-                  onClick={handleGrantFreeCut}
-                  className="flex items-center gap-2"
-                >
-                  <Gift className="w-4 h-4" />
-                  Otorgar corte
-                </Button>
-                <Button 
-                  variant="destructive" 
-                  onClick={handleRemoveFreeCut}
-                  disabled={!loyaltyReward || loyaltyReward.free_cuts_available <= 0}
-                  className="flex items-center gap-2"
-                >
-                  <X className="w-4 h-4" />
-                  Quitar corte
                 </Button>
               </div>
             </div>
