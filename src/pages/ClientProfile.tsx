@@ -36,6 +36,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { PasswordResetSection } from "@/components/admin/PasswordResetSection";
 import { ClientAchievements } from "@/components/admin/ClientAchievements";
+import { ClientMembership } from "@/components/admin/ClientMembership";
 import { AdminBookingDialog } from "@/components/admin/AdminBookingDialog";
 
 interface Profile {
