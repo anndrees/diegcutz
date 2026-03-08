@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Sparkles, Zap, CreditCard } from "lucide-react";
+import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Sparkles, Zap, CreditCard, Crown } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
