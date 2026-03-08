@@ -14,6 +14,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Crown, AlertTriangle, ArrowUp, ArrowDown, X, RotateCcw } from "lucide-react";
+import {
+  sendMembershipActivatedNotification,
+  sendMembershipRenewedNotification,
+  sendMembershipCancelledNotification,
+  sendMembershipUpgradedNotification,
+  sendMembershipDowngradeScheduledNotification,
+} from "@/lib/pushNotifications";
 
 interface Membership {
   id: string;
@@ -103,6 +110,11 @@ export const ClientMembership = ({ userId, userName }: Props) => {
     });
 
     toast({ title: "Membresía activada", description: `${membership.name} activada para ${userName}` });
+    
+    // Send push notification
+    const endDateStr = endDate.toISOString().split("T")[0];
+    sendMembershipActivatedNotification(userId, membership.name, endDateStr);
+    
     loadData();
   };
 
@@ -134,6 +146,10 @@ export const ClientMembership = ({ userId, userName }: Props) => {
     });
 
     toast({ title: "Upgrade completado", description: `Membresía actualizada a ${upgradeMembership.name}` });
+    
+    const upgradeEndDate = endDate.toISOString().split("T")[0];
+    sendMembershipUpgradedNotification(userId, upgradeMembership.name, upgradeEndDate);
+    
     setShowUpgradeDialog(false);
     setUpgradeMembership(null);
     loadData();
@@ -154,13 +170,16 @@ export const ClientMembership = ({ userId, userName }: Props) => {
       target_user_name: userName,
     });
 
+    const currentMembershipData = memberships.find(m => m.id === activeMembership.membership_id);
     toast({ title: "Downgrade programado", description: `Al finalizar la membresía actual, se activará ${membership.name}` });
+    sendMembershipDowngradeScheduledNotification(userId, currentMembershipData?.name || "actual", membership.name);
     loadData();
   };
 
   const cancelMembership = async () => {
     if (!activeMembership) return;
 
+    const membershipData = memberships.find(m => m.id === activeMembership.membership_id);
     await supabase.from("user_memberships").update({ status: "cancelled" }).eq("id", activeMembership.id);
 
     await supabase.from("admin_action_logs").insert({
@@ -171,6 +190,7 @@ export const ClientMembership = ({ userId, userName }: Props) => {
     });
 
     toast({ title: "Membresía cancelada", description: "La membresía ha sido cancelada" });
+    sendMembershipCancelledNotification(userId, membershipData?.name || "");
     setConfirmAction(null);
     loadData();
   };
@@ -194,6 +214,7 @@ export const ClientMembership = ({ userId, userName }: Props) => {
     }).eq("id", activeMembership.id);
 
     toast({ title: "Renovada", description: `Membresía renovada hasta ${newEnd.toISOString().split("T")[0]}` });
+    sendMembershipRenewedNotification(userId, membership.name, newEnd.toISOString().split("T")[0]);
     loadData();
   };
 

@@ -218,3 +218,100 @@ export const sendNewGiveawayNotification = async (
     }
   }, "new_giveaway", { giveawayTitle, prize });
 };
+
+/**
+ * Send membership activation notification
+ */
+export const sendMembershipActivatedNotification = async (
+  userId: string,
+  membershipName: string,
+  endDate: string
+): Promise<{ success: boolean }> => {
+  const formattedEndDate = new Date(endDate).toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  return sendPushNotification(userId, {
+    title: "👑 ¡Membresía activada!",
+    body: `Tu membresía ${membershipName} está activa hasta el ${formattedEndDate}. ¡Disfruta de tus beneficios!`,
+    tag: "membership-activated",
+    data: { type: "membership-activated", url: "/membership" }
+  }, "membership_activated");
+};
+
+/**
+ * Send membership renewal notification
+ */
+export const sendMembershipRenewedNotification = async (
+  userId: string,
+  membershipName: string,
+  newEndDate: string
+): Promise<{ success: boolean }> => {
+  const formattedEndDate = new Date(newEndDate).toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  return sendPushNotification(userId, {
+    title: "🔄 Membresía renovada",
+    body: `Tu membresía ${membershipName} ha sido renovada hasta el ${formattedEndDate}. ¡Seguimos!`,
+    tag: "membership-renewed",
+    data: { type: "membership-renewed", url: "/membership" }
+  }, "membership_renewed");
+};
+
+/**
+ * Send membership cancellation notification
+ */
+export const sendMembershipCancelledNotification = async (
+  userId: string,
+  membershipName: string
+): Promise<{ success: boolean }> => {
+  return sendPushNotification(userId, {
+    title: "😢 Membresía cancelada",
+    body: `Tu membresía ${membershipName} ha sido cancelada. Contacta con nosotros si quieres reactivarla.`,
+    tag: "membership-cancelled",
+    data: { type: "membership-cancelled", url: "/membership" }
+  }, "membership_cancelled");
+};
+
+/**
+ * Send membership upgrade notification
+ */
+export const sendMembershipUpgradedNotification = async (
+  userId: string,
+  newMembershipName: string,
+  endDate: string
+): Promise<{ success: boolean }> => {
+  const formattedEndDate = new Date(endDate).toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  });
+
+  return sendPushNotification(userId, {
+    title: "⬆️ ¡Upgrade de membresía!",
+    body: `Has sido actualizado a ${newMembershipName} hasta el ${formattedEndDate}. ¡Disfruta de más beneficios!`,
+    tag: "membership-upgraded",
+    data: { type: "membership-upgraded", url: "/membership" }
+  }, "membership_upgraded");
+};
+
+/**
+ * Send membership downgrade scheduled notification
+ */
+export const sendMembershipDowngradeScheduledNotification = async (
+  userId: string,
+  currentName: string,
+  newName: string
+): Promise<{ success: boolean }> => {
+  return sendPushNotification(userId, {
+    title: "📋 Cambio de membresía programado",
+    body: `Al finalizar tu membresía ${currentName}, se activará automáticamente ${newName}.`,
+    tag: "membership-downgrade",
+    data: { type: "membership-downgrade", url: "/membership" }
+  }, "membership_downgrade");
+};
