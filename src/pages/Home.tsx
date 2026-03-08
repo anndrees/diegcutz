@@ -12,6 +12,7 @@ import { LiveTestimonials } from "@/components/home/LiveTestimonials";
 import { ReviewsShowcase } from "@/components/home/ReviewsShowcase";
 import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
+import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
