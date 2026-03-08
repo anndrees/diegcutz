@@ -14,6 +14,13 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Crown, AlertTriangle, ArrowUp, ArrowDown, X, RotateCcw } from "lucide-react";
+import {
+  sendMembershipActivatedNotification,
+  sendMembershipRenewedNotification,
+  sendMembershipCancelledNotification,
+  sendMembershipUpgradedNotification,
+  sendMembershipDowngradeScheduledNotification,
+} from "@/lib/pushNotifications";
 
 interface Membership {
   id: string;
