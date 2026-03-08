@@ -730,6 +730,8 @@ const Admin = () => {
 
             {activeTab === "coupons" && <CouponsManagement />}
 
+            {activeTab === "memberships" && <MembershipsManagement />}
+
             {activeTab === "giveaways" && <GiveawaysManagement />}
 
             {activeTab === "messages" && <AdminMessagesSection />}
