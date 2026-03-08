@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Sparkles, Zap, CreditCard } from "lucide-react";
+import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Sparkles, Zap, CreditCard, Crown } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
@@ -12,6 +12,7 @@ import { LiveTestimonials } from "@/components/home/LiveTestimonials";
 import { ReviewsShowcase } from "@/components/home/ReviewsShowcase";
 import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
+import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -413,7 +414,8 @@ const Home = () => {
 
       {/* Pending Rating Banner */}
       <section className="py-6 px-4">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto space-y-4">
+          <MembershipExpirationBanner />
           <PendingRatingBanner />
         </div>
       </section>
@@ -526,6 +528,23 @@ const Home = () => {
 
       {/* Reviews Showcase */}
       <ReviewsShowcase />
+
+      {/* Memberships CTA */}
+      <section className="py-16 px-4 bg-gradient-to-b from-background to-card/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <Crown className="h-16 w-16 mx-auto text-[#D4AF37] mb-4" />
+          <h2 className="text-4xl font-black mb-4 text-[#D4AF37]">MEMBRESÍAS EXCLUSIVAS</h2>
+          <p className="text-xl text-muted-foreground mb-8">Planes mensuales con cortes gratis, descuentos y beneficios VIP</p>
+          <Button
+            size="lg"
+            className="text-lg px-12 py-6 h-auto bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#B8860B] hover:to-[#D4AF37] text-background font-bold"
+            onClick={() => navigate("/membership")}
+          >
+            <Crown className="mr-2 h-5 w-5" />
+            Ver Membresías
+          </Button>
+        </div>
+      </section>
 
       {/* Giveaways CTA */}
       <section className="py-16 px-4 bg-card/50">
@@ -711,23 +730,17 @@ const Home = () => {
       <footer className="py-8 px-4 text-center border-t border-border">
         <p className="text-muted-foreground/40 text-xs mb-3">Sistema de reservas online para barbería</p>
         <p className="text-muted-foreground">© 2025 DIEGCUTZ - Barbería Urbana</p>
-        <div className="flex justify-center gap-4 mt-3">
-          <a
-            href="/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline"
-          >
+        <div className="flex justify-center gap-4 mt-3 flex-wrap">
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
             Política de Privacidad
           </a>
           <span className="text-muted-foreground">|</span>
-          <a
-            href="/terms"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline"
-          >
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
             Términos de Servicio
+          </a>
+          <span className="text-muted-foreground">|</span>
+          <a href="/membership-policy" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
+            Política de Membresías
           </a>
         </div>
         <Button

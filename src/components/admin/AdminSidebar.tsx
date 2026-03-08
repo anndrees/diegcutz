@@ -14,6 +14,7 @@ import {
   Trophy,
   Ticket,
   Bell,
+  Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,7 @@ const menuItems = [
   { id: "ratings", label: "Valoraciones", icon: Star },
   { id: "achievements", label: "Logros", icon: Trophy },
   { id: "coupons", label: "Cupones", icon: Ticket },
+  { id: "memberships", label: "Membresías", icon: Crown },
   { id: "giveaways", label: "Sorteos", icon: Gift },
   { id: "messages", label: "Mensajes", icon: MessageSquare },
   { id: "notifications", label: "Notificaciones", icon: Bell },

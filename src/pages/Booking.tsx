@@ -98,6 +98,10 @@ const Booking = () => {
   const [playlistUrlError, setPlaylistUrlError] = useState<string>("");
   const [blockSameDayEnabled, setBlockSameDayEnabled] = useState(false);
   const [blockSameDayFromHour, setBlockSameDayFromHour] = useState(13);
+  const [membershipDiscount, setMembershipDiscount] = useState(0);
+  const [membershipFreeServices, setMembershipFreeServices] = useState(0);
+  const [useMembershipService, setUseMembershipService] = useState(false);
+  const [membershipName, setMembershipName] = useState("");
   
   // Coupon state
   const [couponCode, setCouponCode] = useState<string>("");
@@ -170,6 +174,7 @@ const Booking = () => {
     loadServicesFromDB();
     loadBusinessHours();
     loadSameDaySettings();
+    loadMembershipBenefits();
   }, []);
 
   const loadBusinessHours = async () => {
@@ -201,6 +206,23 @@ const Booking = () => {
           setBlockSameDayFromHour(typeof item.value === "number" ? item.value : 13);
         }
       });
+    }
+  };
+
+  const loadMembershipBenefits = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("user_memberships")
+      .select("free_services_remaining, membership:memberships(name, product_discount_percent)")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (data) {
+      const membership = Array.isArray(data.membership) ? data.membership[0] : data.membership;
+      setMembershipDiscount((membership as any)?.product_discount_percent || 0);
+      setMembershipFreeServices(data.free_services_remaining || 0);
+      setMembershipName((membership as any)?.name || "");
     }
   };
 
@@ -477,7 +499,14 @@ const Booking = () => {
     // Add selected addons
     selectedAddons.forEach(addonId => {
       const addon = optionalAddons.find(a => a.id === addonId);
-      if (addon) items.push(`${addon.name} (${addon.price}€)`);
+      if (addon) {
+        if (membershipDiscount > 0) {
+          const discounted = Math.round((addon.price * (1 - membershipDiscount / 100)) * 100) / 100;
+          items.push(`${addon.name} (${discounted}€ — ${membershipDiscount}% dto. membresía)`);
+        } else {
+          items.push(`${addon.name} (${addon.price}€)`);
+        }
+      }
     });
     
     return items;
@@ -560,7 +589,12 @@ const Booking = () => {
     
     selectedAddons.forEach(addonId => {
       const addon = optionalAddons.find(a => a.id === addonId);
-      if (addon) total += addon.price;
+      if (addon) {
+        const discountedPrice = membershipDiscount > 0 
+          ? Math.round((addon.price * (1 - membershipDiscount / 100)) * 100) / 100 
+          : addon.price;
+        total += discountedPrice;
+      }
     });
     
     return total;
