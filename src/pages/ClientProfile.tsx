@@ -358,7 +358,7 @@ const ClientProfile = () => {
       .upsert({
         user_id: profile.id,
         completed_bookings: loyaltyReward?.completed_bookings || 0,
-        free_cuts_available: 1, // Max 1 at a time (non-cumulative)
+        free_cuts_available: (loyaltyReward?.free_cuts_available || 0) + 1,
       }, { onConflict: "user_id" });
 
     if (error) {
@@ -376,7 +376,7 @@ const ClientProfile = () => {
     const { error } = await supabase
       .from("loyalty_rewards")
       .update({
-        free_cuts_available: 0,
+        free_cuts_available: loyaltyReward.free_cuts_available - 1,
       })
       .eq("user_id", profile.id);
 
@@ -386,6 +386,26 @@ const ClientProfile = () => {
     }
 
     toast({ title: "Éxito", description: "Corte gratis quitado" });
+    loadClientData();
+  };
+
+  const handleSetFreeCuts = async (value: number) => {
+    if (!profile || value < 0) return;
+
+    const { error } = await supabase
+      .from("loyalty_rewards")
+      .upsert({
+        user_id: profile.id,
+        completed_bookings: loyaltyReward?.completed_bookings || 0,
+        free_cuts_available: value,
+      }, { onConflict: "user_id" });
+
+    if (error) {
+      toast({ title: "Error", description: "No se pudo actualizar", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "Éxito", description: `Cortes gratis actualizados a ${value}` });
     loadClientData();
   };
 
