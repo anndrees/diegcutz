@@ -515,6 +515,66 @@ export type Database = {
           },
         ]
       }
+      memberships: {
+        Row: {
+          benefits: Json
+          created_at: string
+          description: string | null
+          emoji: string | null
+          free_product_period_months: number
+          free_products_per_period: number
+          free_services_per_month: number
+          id: string
+          image_consulting: boolean
+          includes_beard_count: number
+          is_active: boolean
+          is_coming_soon: boolean
+          name: string
+          price: number
+          product_discount_percent: number
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          benefits?: Json
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          free_product_period_months?: number
+          free_products_per_period?: number
+          free_services_per_month?: number
+          id?: string
+          image_consulting?: boolean
+          includes_beard_count?: number
+          is_active?: boolean
+          is_coming_soon?: boolean
+          name: string
+          price: number
+          product_discount_percent?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          benefits?: Json
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          free_product_period_months?: number
+          free_products_per_period?: number
+          free_services_per_month?: number
+          id?: string
+          image_consulting?: boolean
+          includes_beard_count?: number
+          is_active?: boolean
+          is_coming_soon?: boolean
+          name?: string
+          price?: number
+          product_discount_percent?: number
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       notification_history: {
         Row: {
           body: string
@@ -923,6 +983,73 @@ export type Database = {
             columns: ["achievement_id"]
             isOneToOne: false
             referencedRelation: "achievements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_memberships: {
+        Row: {
+          beard_services_remaining: number
+          created_at: string
+          end_date: string
+          free_services_remaining: number
+          id: string
+          membership_id: string
+          pending_membership_id: string | null
+          renewed_at: string | null
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          beard_services_remaining?: number
+          created_at?: string
+          end_date: string
+          free_services_remaining?: number
+          id?: string
+          membership_id: string
+          pending_membership_id?: string | null
+          renewed_at?: string | null
+          start_date: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          beard_services_remaining?: number
+          created_at?: string
+          end_date?: string
+          free_services_remaining?: number
+          id?: string
+          membership_id?: string
+          pending_membership_id?: string | null
+          renewed_at?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_memberships_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_memberships_pending_membership_id_fkey"
+            columns: ["pending_membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_memberships_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
