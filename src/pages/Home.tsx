@@ -529,6 +529,23 @@ const Home = () => {
       {/* Reviews Showcase */}
       <ReviewsShowcase />
 
+      {/* Memberships CTA */}
+      <section className="py-16 px-4 bg-gradient-to-b from-background to-card/50">
+        <div className="max-w-4xl mx-auto text-center">
+          <Crown className="h-16 w-16 mx-auto text-[#D4AF37] mb-4" />
+          <h2 className="text-4xl font-black mb-4 text-[#D4AF37]">MEMBRESÍAS EXCLUSIVAS</h2>
+          <p className="text-xl text-muted-foreground mb-8">Planes mensuales con cortes gratis, descuentos y beneficios VIP</p>
+          <Button
+            size="lg"
+            className="text-lg px-12 py-6 h-auto bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#B8860B] hover:to-[#D4AF37] text-background font-bold"
+            onClick={() => navigate("/membership")}
+          >
+            <Crown className="mr-2 h-5 w-5" />
+            Ver Membresías
+          </Button>
+        </div>
+      </section>
+
       {/* Giveaways CTA */}
       <section className="py-16 px-4 bg-card/50">
         <div className="max-w-4xl mx-auto text-center">
