@@ -98,6 +98,10 @@ const Booking = () => {
   const [playlistUrlError, setPlaylistUrlError] = useState<string>("");
   const [blockSameDayEnabled, setBlockSameDayEnabled] = useState(false);
   const [blockSameDayFromHour, setBlockSameDayFromHour] = useState(13);
+  const [membershipDiscount, setMembershipDiscount] = useState(0);
+  const [membershipFreeServices, setMembershipFreeServices] = useState(0);
+  const [useMembershipService, setUseMembershipService] = useState(false);
+  const [membershipName, setMembershipName] = useState("");
   
   // Coupon state
   const [couponCode, setCouponCode] = useState<string>("");
