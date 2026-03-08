@@ -788,6 +788,9 @@ const ClientProfile = () => {
           </Card>
         )}
 
+        {/* Membership */}
+        <ClientMembership userId={profile.id} userName={profile.full_name} />
+
         {/* Achievements */}
         <div className="mb-8">
           <ClientAchievements userId={profile.id} />

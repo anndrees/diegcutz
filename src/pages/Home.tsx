@@ -730,23 +730,17 @@ const Home = () => {
       <footer className="py-8 px-4 text-center border-t border-border">
         <p className="text-muted-foreground/40 text-xs mb-3">Sistema de reservas online para barbería</p>
         <p className="text-muted-foreground">© 2025 DIEGCUTZ - Barbería Urbana</p>
-        <div className="flex justify-center gap-4 mt-3">
-          <a
-            href="/privacy"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline"
-          >
+        <div className="flex justify-center gap-4 mt-3 flex-wrap">
+          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
             Política de Privacidad
           </a>
           <span className="text-muted-foreground">|</span>
-          <a
-            href="/terms"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline"
-          >
+          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
             Términos de Servicio
+          </a>
+          <span className="text-muted-foreground">|</span>
+          <a href="/membership-policy" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
+            Política de Membresías
           </a>
         </div>
         <Button

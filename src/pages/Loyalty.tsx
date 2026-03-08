@@ -238,14 +238,21 @@ const Loyalty = () => {
 
             {/* Free cut badge */}
             {loyaltyData && loyaltyData.free_cuts_available > 0 && (
-              <div className="bg-gradient-to-r from-[#D4AF37]/20 to-[#B8860B]/20 border border-[#D4AF37]/50 rounded-xl p-3 text-center mb-4">
+              <div className="bg-gradient-to-r from-[#D4AF37]/20 to-[#B8860B]/20 border border-[#D4AF37]/50 rounded-xl p-3 text-center mb-4 space-y-2">
                 <div className="flex items-center justify-center gap-2">
                   <Sparkles className="w-5 h-5 text-[#D4AF37] animate-pulse" />
                   <span className="text-[#D4AF37] font-bold text-lg">
-                    ¡CORTE GRATIS DISPONIBLE!
+                    ¡{loyaltyData.free_cuts_available} CORTE{loyaltyData.free_cuts_available > 1 ? "S" : ""} GRATIS DISPONIBLE{loyaltyData.free_cuts_available > 1 ? "S" : ""}!
                   </span>
                   <Sparkles className="w-5 h-5 text-[#D4AF37] animate-pulse" />
                 </div>
+                <Button
+                  size="sm"
+                  className="bg-[#D4AF37] hover:bg-[#B8860B] text-background font-bold"
+                  onClick={() => navigate("/booking?free_cut=true")}
+                >
+                  ✂️ Reservar corte gratis
+                </Button>
               </div>
             )}
 
