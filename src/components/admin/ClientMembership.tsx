@@ -179,6 +179,7 @@ export const ClientMembership = ({ userId, userName }: Props) => {
   const cancelMembership = async () => {
     if (!activeMembership) return;
 
+    const membershipData = memberships.find(m => m.id === activeMembership.membership_id);
     await supabase.from("user_memberships").update({ status: "cancelled" }).eq("id", activeMembership.id);
 
     await supabase.from("admin_action_logs").insert({
@@ -189,6 +190,7 @@ export const ClientMembership = ({ userId, userName }: Props) => {
     });
 
     toast({ title: "Membresía cancelada", description: "La membresía ha sido cancelada" });
+    sendMembershipCancelledNotification(userId, membershipData?.name || "");
     setConfirmAction(null);
     loadData();
   };
