@@ -146,6 +146,10 @@ export const ClientMembership = ({ userId, userName }: Props) => {
     });
 
     toast({ title: "Upgrade completado", description: `Membresía actualizada a ${upgradeMembership.name}` });
+    
+    const upgradeEndDate = endDate.toISOString().split("T")[0];
+    sendMembershipUpgradedNotification(userId, upgradeMembership.name, upgradeEndDate);
+    
     setShowUpgradeDialog(false);
     setUpgradeMembership(null);
     loadData();
