@@ -70,6 +70,8 @@ const AppContent = () => {
         <Route path="/loyalty" element={<Loyalty />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/terms" element={<TermsOfService />} />
+        <Route path="/membership" element={<MembershipPage />} />
+        <Route path="/membership-policy" element={<MembershipPolicy />} />
         <Route path="/install" element={<Install />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
