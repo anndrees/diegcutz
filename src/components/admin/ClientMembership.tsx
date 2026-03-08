@@ -170,7 +170,9 @@ export const ClientMembership = ({ userId, userName }: Props) => {
       target_user_name: userName,
     });
 
+    const currentMembershipData = memberships.find(m => m.id === activeMembership.membership_id);
     toast({ title: "Downgrade programado", description: `Al finalizar la membresía actual, se activará ${membership.name}` });
+    sendMembershipDowngradeScheduledNotification(userId, currentMembershipData?.name || "actual", membership.name);
     loadData();
   };
 
