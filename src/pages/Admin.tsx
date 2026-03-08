@@ -38,6 +38,7 @@ import { GiveawaysManagement } from "@/components/admin/GiveawaysManagement";
 import { AdminActionsLog } from "@/components/admin/AdminActionsLog";
 import { AdminMessagesSection } from "@/components/admin/AdminMessagesSection";
 import { AchievementsManagement } from "@/components/admin/AchievementsManagement";
+import { MembershipsManagement } from "@/components/admin/MembershipsManagement";
 import { CouponsManagement } from "@/components/admin/CouponsManagement";
 import { NotificationsDropdown } from "@/components/admin/NotificationsDropdown";
 import { NotificationHistoryManagement } from "@/components/admin/NotificationHistoryManagement";
