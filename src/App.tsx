@@ -19,6 +19,8 @@ import Loyalty from "./pages/Loyalty";
 import ForgotPassword from "./pages/ForgotPassword";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import MembershipPage from "./pages/Membership";
+import MembershipPolicy from "./pages/MembershipPolicy";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
 
