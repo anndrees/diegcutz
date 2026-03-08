@@ -414,7 +414,8 @@ const Home = () => {
 
       {/* Pending Rating Banner */}
       <section className="py-6 px-4">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto space-y-4">
+          <MembershipExpirationBanner />
           <PendingRatingBanner />
         </div>
       </section>
