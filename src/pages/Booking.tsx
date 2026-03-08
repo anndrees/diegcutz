@@ -209,6 +209,23 @@ const Booking = () => {
     }
   };
 
+  const loadMembershipBenefits = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("user_memberships")
+      .select("free_services_remaining, membership:memberships(name, product_discount_percent)")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .maybeSingle();
+
+    if (data) {
+      const membership = Array.isArray(data.membership) ? data.membership[0] : data.membership;
+      setMembershipDiscount((membership as any)?.product_discount_percent || 0);
+      setMembershipFreeServices(data.free_services_remaining || 0);
+      setMembershipName((membership as any)?.name || "");
+    }
+  };
+
   const loadServicesFromDB = async () => {
     setLoadingServices(true);
     
