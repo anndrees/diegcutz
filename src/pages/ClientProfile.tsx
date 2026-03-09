@@ -38,6 +38,7 @@ import { PasswordResetSection } from "@/components/admin/PasswordResetSection";
 import { ClientAchievements } from "@/components/admin/ClientAchievements";
 import { ClientMembership } from "@/components/admin/ClientMembership";
 import { AdminBookingDialog } from "@/components/admin/AdminBookingDialog";
+import { MembershipHistory } from "@/components/admin/MembershipHistory";
 
 interface Profile {
   id: string;
