@@ -50,7 +50,7 @@ export const MyMembershipSection = () => {
     setLoading(false);
   };
 
-  if (loading) return null;
+  if (loading || authLoading) return null;
 
   if (!membership || !plan) {
     return (
