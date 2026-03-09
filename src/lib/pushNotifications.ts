@@ -315,3 +315,34 @@ export const sendMembershipDowngradeScheduledNotification = async (
     data: { type: "membership-downgrade", url: "/membership" }
   }, "membership_downgrade");
 };
+
+/**
+ * Send benefits expiring notification
+ */
+export const sendBenefitsExpiringNotification = async (
+  userId: string,
+  servicesRemaining: number,
+  daysLeft: number
+): Promise<{ success: boolean }> => {
+  return sendPushNotification(userId, {
+    title: "⏳ ¡Beneficios a punto de perderse!",
+    body: `Te quedan ${servicesRemaining} servicio${servicesRemaining > 1 ? "s" : ""} gratis y tu membresía termina en ${daysLeft} día${daysLeft > 1 ? "s" : ""}. ¡No los pierdas!`,
+    tag: "benefits-expiring",
+    data: { type: "benefits-expiring", url: "/user" }
+  }, "membership_benefits_expiring");
+};
+
+/**
+ * Send membership welcome message notification
+ */
+export const sendMembershipWelcomeNotification = async (
+  userId: string,
+  membershipName: string
+): Promise<{ success: boolean }> => {
+  return sendPushNotification(userId, {
+    title: "🎉 ¡Bienvenido a tu membresía!",
+    body: `Ya eres miembro de ${membershipName}. Revisa tu perfil para ver todos tus beneficios disponibles.`,
+    tag: "membership-welcome",
+    data: { type: "membership-welcome", url: "/user" }
+  }, "membership_welcome");
+};
