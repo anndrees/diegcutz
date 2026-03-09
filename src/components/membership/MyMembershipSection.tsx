@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dialog";
 
 export const MyMembershipSection = () => {
-  const { user, profile } = useAuth();
+  const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [membership, setMembership] = useState<any>(null);
   const [plan, setPlan] = useState<any>(null);
@@ -25,8 +25,13 @@ export const MyMembershipSection = () => {
   const [loyaltyToken, setLoyaltyToken] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) loadMembership();
-  }, [user]);
+    if (authLoading) return;
+    if (user) {
+      loadMembership();
+    } else {
+      setLoading(false);
+    }
+  }, [user, authLoading]);
 
   const loadMembership = async () => {
     if (!user) return;
