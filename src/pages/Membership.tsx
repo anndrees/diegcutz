@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, Crown, Check, AlertTriangle, MessageCircle } from "lucide-react";
+import { PlanComparator } from "@/components/membership/PlanComparator";
 import {
   Dialog,
   DialogContent,
