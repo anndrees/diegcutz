@@ -538,10 +538,19 @@ export default function UserProfile() {
         </CardContent>
       </Card>
 
+      {/* Membership Survey */}
+      <MembershipSurvey />
+
+      {/* My Membership */}
+      <MyMembershipSection />
+
       {/* Notification Preferences */}
       <div className="mb-6">
         <NotificationPreferences />
       </div>
+
+      {/* Member Ranking */}
+      <MemberRanking />
 
       {/* Achievements */}
       <div className="mb-6">
