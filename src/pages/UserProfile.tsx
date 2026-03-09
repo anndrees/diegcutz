@@ -549,8 +549,6 @@ export default function UserProfile() {
         <NotificationPreferences />
       </div>
 
-      {/* Member Ranking */}
-      <MemberRanking />
 
       {/* Achievements */}
       <div className="mb-6">
