@@ -35,6 +35,7 @@ export const MyMembershipSection = () => {
       supabase.from("profiles").select("loyalty_token").eq("id", user.id).single(),
     ]);
 
+    console.log("MyMembership subRes:", subRes.data, subRes.error);
     if (subRes.data) {
       const sub = subRes.data as any;
       setMembership(sub);
