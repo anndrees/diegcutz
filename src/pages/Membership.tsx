@@ -144,6 +144,17 @@ const Membership = () => {
           })}
         </div>
 
+        {/* Plan Comparator */}
+        <div className="bg-card rounded-2xl border border-border mb-8 overflow-hidden">
+          <div className="p-6 pb-2">
+            <h2 className="text-2xl font-bold text-foreground mb-2">📊 Compara los planes</h2>
+            <p className="text-sm text-muted-foreground">Encuentra el plan perfecto para ti</p>
+          </div>
+          <div className="px-4 pb-6">
+            <PlanComparator activeMembershipId={activeMembershipId} />
+          </div>
+        </div>
+
         {/* Info Section */}
         <div className="bg-card rounded-2xl p-8 border border-border mb-8">
           <h2 className="text-2xl font-bold mb-4 text-foreground">ℹ️ Información importante</h2>
