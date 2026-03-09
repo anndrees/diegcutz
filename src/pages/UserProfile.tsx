@@ -18,7 +18,7 @@ import { UserAchievements } from "@/components/UserAchievements";
 import { NotificationPreferences } from "@/components/pwa/NotificationPreferences";
 import { MyMembershipSection } from "@/components/membership/MyMembershipSection";
 import { MembershipSurvey } from "@/components/membership/MembershipSurvey";
-import { MemberRanking } from "@/components/membership/MemberRanking";
+
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -549,8 +549,6 @@ export default function UserProfile() {
         <NotificationPreferences />
       </div>
 
-      {/* Member Ranking */}
-      <MemberRanking />
 
       {/* Achievements */}
       <div className="mb-6">
