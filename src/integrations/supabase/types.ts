@@ -515,6 +515,93 @@ export type Database = {
           },
         ]
       }
+      membership_history: {
+        Row: {
+          action: string
+          admin_note: string | null
+          created_at: string
+          details: string | null
+          id: string
+          membership_id: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          admin_note?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          membership_id?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          admin_note?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          membership_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_history_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membership_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      membership_surveys: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          membership_id: string | null
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          membership_id?: string | null
+          rating: number
+          user_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          membership_id?: string | null
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "membership_surveys_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "membership_surveys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           benefits: Json
@@ -745,6 +832,7 @@ export type Database = {
           avatar_url: string | null
           ban_reason: string | null
           banned_at: string | null
+          birthday: string | null
           contact_method: string
           contact_value: string
           created_at: string | null
@@ -766,6 +854,7 @@ export type Database = {
           avatar_url?: string | null
           ban_reason?: string | null
           banned_at?: string | null
+          birthday?: string | null
           contact_method: string
           contact_value: string
           created_at?: string | null
@@ -787,6 +876,7 @@ export type Database = {
           avatar_url?: string | null
           ban_reason?: string | null
           banned_at?: string | null
+          birthday?: string | null
           contact_method?: string
           contact_value?: string
           created_at?: string | null
@@ -989,12 +1079,17 @@ export type Database = {
       }
       user_memberships: {
         Row: {
+          admin_notes: string | null
           beard_services_remaining: number
           created_at: string
           end_date: string
           free_services_remaining: number
           id: string
+          is_paused: boolean
           membership_id: string
+          pause_end_date: string | null
+          paused_at: string | null
+          payment_status: string
           pending_membership_id: string | null
           renewed_at: string | null
           start_date: string
@@ -1003,12 +1098,17 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          admin_notes?: string | null
           beard_services_remaining?: number
           created_at?: string
           end_date: string
           free_services_remaining?: number
           id?: string
+          is_paused?: boolean
           membership_id: string
+          pause_end_date?: string | null
+          paused_at?: string | null
+          payment_status?: string
           pending_membership_id?: string | null
           renewed_at?: string | null
           start_date: string
@@ -1017,12 +1117,17 @@ export type Database = {
           user_id: string
         }
         Update: {
+          admin_notes?: string | null
           beard_services_remaining?: number
           created_at?: string
           end_date?: string
           free_services_remaining?: number
           id?: string
+          is_paused?: boolean
           membership_id?: string
+          pause_end_date?: string | null
+          paused_at?: string | null
+          payment_status?: string
           pending_membership_id?: string | null
           renewed_at?: string | null
           start_date?: string

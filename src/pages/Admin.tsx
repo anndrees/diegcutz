@@ -29,6 +29,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { StatisticsSection } from "@/components/admin/StatisticsSection";
+import { MembershipStatsSection } from "@/components/admin/MembershipStatsSection";
 import { ServicesManagement } from "@/components/admin/ServicesManagement";
 import { ClientsManagement } from "@/components/admin/ClientsManagement";
 import { BusinessHoursManagement } from "@/components/admin/BusinessHoursManagement";
@@ -711,7 +712,12 @@ const Admin = () => {
               </div>
             )}
 
-            {activeTab === "statistics" && <StatisticsSection bookings={bookings} />}
+            {activeTab === "statistics" && (
+              <div className="space-y-8">
+                <StatisticsSection bookings={bookings} />
+                <MembershipStatsSection />
+              </div>
+            )}
 
             {activeTab === "services" && <ServicesManagement />}
 

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, Crown, Check, AlertTriangle, MessageCircle } from "lucide-react";
+import { PlanComparator } from "@/components/membership/PlanComparator";
 import {
   Dialog,
   DialogContent,
@@ -141,6 +142,17 @@ const Membership = () => {
               </div>
             );
           })}
+        </div>
+
+        {/* Plan Comparator */}
+        <div className="bg-card rounded-2xl border border-border mb-8 overflow-hidden">
+          <div className="p-6 pb-2">
+            <h2 className="text-2xl font-bold text-foreground mb-2">📊 Compara los planes</h2>
+            <p className="text-sm text-muted-foreground">Encuentra el plan perfecto para ti</p>
+          </div>
+          <div className="px-4 pb-6">
+            <PlanComparator activeMembershipId={activeMembershipId} />
+          </div>
         </div>
 
         {/* Info Section */}
