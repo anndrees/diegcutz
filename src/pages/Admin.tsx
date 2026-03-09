@@ -40,6 +40,7 @@ import { AdminActionsLog } from "@/components/admin/AdminActionsLog";
 import { AdminMessagesSection } from "@/components/admin/AdminMessagesSection";
 import { AchievementsManagement } from "@/components/admin/AchievementsManagement";
 import { MembershipsManagement } from "@/components/admin/MembershipsManagement";
+import { MemberRanking } from "@/components/membership/MemberRanking";
 import { CouponsManagement } from "@/components/admin/CouponsManagement";
 import { NotificationsDropdown } from "@/components/admin/NotificationsDropdown";
 import { NotificationHistoryManagement } from "@/components/admin/NotificationHistoryManagement";
