@@ -98,11 +98,20 @@ export const MembershipStatsSection = () => {
       }));
 
     // Unused benefits alerts (>50% unused with <7 days left)
-    const unusedBenefits = benefitUsage.filter(b => {
-      if (b.servicesTotal === 0) return false;
-      const usagePercent = b.servicesUsed / b.servicesTotal;
-      return usagePercent < 0.5 && b.daysLeft <= 7 && b.daysLeft > 0;
-    });
+    const unusedBenefits = benefitUsage
+      .filter(b => {
+        if (b.servicesTotal === 0) return false;
+        const usagePercent = b.servicesUsed / b.servicesTotal;
+        return usagePercent < 0.5 && b.daysLeft <= 7 && b.daysLeft > 0;
+      })
+      .map(b => ({
+        userId: b.userId,
+        userName: b.userName,
+        membershipName: b.membershipName,
+        servicesRemaining: b.servicesTotal - b.servicesUsed,
+        servicesTotal: b.servicesTotal,
+        daysLeft: b.daysLeft,
+      }));
 
     setStats({
       totalActive: active.length,
