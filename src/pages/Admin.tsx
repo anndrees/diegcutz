@@ -51,6 +51,7 @@ import { CancelBookingDialog } from "@/components/booking/CancelBookingDialog";
 import { QrScanner } from "@/components/admin/QrScanner";
 import { ActiveAppointmentBanner } from "@/components/admin/ActiveAppointmentBanner";
 import { AvailableHoursModal } from "@/components/admin/AvailableHoursModal";
+import { AdminHelpCenter } from "@/components/admin/AdminHelpCenter";
 
 type Booking = {
   id: string;
@@ -751,6 +752,8 @@ const Admin = () => {
             {activeTab === "notifications" && <NotificationHistoryManagement />}
 
             {activeTab === "logs" && <AdminActionsLog />}
+
+            {activeTab === "help" && <AdminHelpCenter />}
           </main>
         </div>
 
