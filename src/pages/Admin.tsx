@@ -752,6 +752,8 @@ const Admin = () => {
             {activeTab === "notifications" && <NotificationHistoryManagement />}
 
             {activeTab === "logs" && <AdminActionsLog />}
+
+            {activeTab === "help" && <AdminHelpCenter />}
           </main>
         </div>
 

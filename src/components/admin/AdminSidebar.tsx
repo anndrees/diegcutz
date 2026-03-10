@@ -41,6 +41,7 @@ const menuItems = [
   { id: "messages", label: "Mensajes", icon: MessageSquare },
   { id: "notifications", label: "Notificaciones", icon: Bell },
   { id: "logs", label: "Historial", icon: History },
+  { id: "help", label: "Ayuda", icon: HelpCircle },
 ];
 
 const SidebarContent = ({
