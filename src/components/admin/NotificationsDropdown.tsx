@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react";
-import { Bell, KeyRound, X, Check, ExternalLink } from "lucide-react";
+import { Bell, KeyRound, X, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -23,6 +22,7 @@ interface PasswordResetRequest {
   contact_value: string;
   status: string;
   created_at: string;
+  matched_profile_id?: string | null;
 }
 
 export const NotificationsDropdown = () => {
@@ -34,7 +34,6 @@ export const NotificationsDropdown = () => {
   useEffect(() => {
     loadRequests();
     
-    // Set up realtime subscription
     const channel = supabase
       .channel("password-reset-requests")
       .on(
@@ -56,7 +55,37 @@ export const NotificationsDropdown = () => {
       .eq("status", "pending")
       .order("created_at", { ascending: false });
 
-    setRequests((data as PasswordResetRequest[]) || []);
+    if (!data) {
+      setRequests([]);
+      return;
+    }
+
+    const enriched = await Promise.all(
+      (data as PasswordResetRequest[]).map(async (req) => {
+        if (req.user_id) {
+          return { ...req, matched_profile_id: req.user_id };
+        }
+        // Try matching by username or contact_value
+        const filters: string[] = [];
+        if (req.username) filters.push(`username.eq.${req.username}`);
+        if (req.contact_value) filters.push(`contact_value.eq.${req.contact_value}`);
+        
+        if (filters.length === 0) return { ...req, matched_profile_id: null };
+
+        const { data: profiles } = await supabase
+          .from("profiles")
+          .select("id")
+          .or(filters.join(","))
+          .limit(1);
+        
+        return {
+          ...req,
+          matched_profile_id: profiles && profiles.length > 0 ? profiles[0].id : null,
+        };
+      })
+    );
+
+    setRequests(enriched);
   };
 
   const handleDismiss = async (id: string) => {
@@ -71,16 +100,8 @@ export const NotificationsDropdown = () => {
     setLoading(false);
   };
 
-  const handleGoToClient = (request: PasswordResetRequest) => {
-    if (request.user_id) {
-      navigate(`/admin/client/${request.user_id}`);
-    } else {
-      toast({
-        title: "Usuario no encontrado",
-        description: "No se pudo encontrar una cuenta asociada a esta solicitud",
-        variant: "destructive",
-      });
-    }
+  const handleGoToClient = (profileId: string) => {
+    navigate(`/admin/client/${profileId}`);
   };
 
   const pendingCount = requests.length;
@@ -133,12 +154,12 @@ export const NotificationsDropdown = () => {
                   </div>
                 </div>
                 <div className="flex gap-2 mt-2 ml-11">
-                  {request.user_id && (
+                  {request.matched_profile_id && (
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="h-7 text-xs"
-                      onClick={() => handleGoToClient(request)}
+                      onClick={() => handleGoToClient(request.matched_profile_id!)}
                     >
                       <ExternalLink className="w-3 h-3 mr-1" />
                       Ver ficha
