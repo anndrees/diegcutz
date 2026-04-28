@@ -335,6 +335,18 @@ All colors MUST be HSL.
     transition: background 0.2s ease;
   }
 
+  /* Hide native cursor when custom neon cursor is active (desktop only) */
+  html.neon-cursor-active,
+  html.neon-cursor-active body,
+  html.neon-cursor-active * {
+    cursor: none !important;
+  }
+  html.neon-cursor-active input,
+  html.neon-cursor-active textarea,
+  html.neon-cursor-active [contenteditable="true"] {
+    cursor: text !important;
+  }
+
   /* Safe area utilities for PWA with notch/dynamic island */
   .safe-area-inset-top {
     padding-top: var(--safe-area-top);
