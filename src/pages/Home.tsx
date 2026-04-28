@@ -682,14 +682,15 @@ const Home = () => {
           >
             <h2 className="text-5xl md:text-6xl font-black text-center mb-6 text-neon-cyan">
               <MapPin className="inline-block mr-2 mb-2 animate-bounce" size={48} />
-              UBICACIÓN
+              <span data-text="UBICACIÓN" className="glitch">UBICACIÓN</span>
             </h2>
             <p className="text-center text-lg mb-10 text-muted-foreground">
               Carrer Sant Antoni, Monóvar, Alicante, España, 03640
             </p>
+            <div className="neon-divider mb-10 max-w-md mx-auto" />
           </div>
           <div
-            className={`transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+            className={`neon-border rounded-2xl overflow-hidden transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
           >
             <Map />
           </div>
@@ -697,10 +698,12 @@ const Home = () => {
       </section>
 
       {/* Hours Section with staggered animation */}
-      <section className="py-24 px-4 bg-card relative" ref={hoursRef}>
-        <div className="max-w-4xl mx-auto">
+      <section className="py-24 px-4 bg-card relative overflow-hidden" ref={hoursRef}>
+        <div className="aurora" />
+        <div className="max-w-4xl mx-auto relative z-10">
           <h2
-            className={`text-5xl md:text-6xl font-black text-center mb-16 text-neon-purple transition-all duration-1000 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+            data-text="HORARIOS"
+            className={`glitch text-5xl md:text-6xl font-black text-center mb-16 text-neon-purple transition-all duration-1000 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
             HORARIOS
           </h2>
