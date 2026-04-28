@@ -935,13 +935,16 @@ const Booking = () => {
                     <p className="text-destructive">Cerrado este día</p>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {availableHours.map((hour) => {
-                        const timeString = `${hour.toString().padStart(2, "0")}:00:00`;
+                      {availableHours.map((slotMin) => {
+                        const hh = Math.floor(slotMin / 60).toString().padStart(2, "0");
+                        const mm = (slotMin % 60).toString().padStart(2, "0");
+                        const timeString = `${hh}:${mm}:00`;
+                        const label = `${hh}:${mm}`;
                         const isBooked = bookedTimes.includes(timeString);
-                        
+
                         return (
                           <Button
-                            key={hour}
+                            key={slotMin}
                             variant={selectedTime === timeString ? "neon" : "outline"}
                             disabled={isBooked}
                             onClick={() => setSelectedTime(timeString)}
@@ -957,7 +960,7 @@ const Booking = () => {
                                 </svg>
                               </span>
                             )}
-                            <span className={isBooked ? 'opacity-30' : ''}>{hour}:00</span>
+                            <span className={isBooked ? 'opacity-30' : ''}>{label}</span>
                           </Button>
                         );
                       })}
