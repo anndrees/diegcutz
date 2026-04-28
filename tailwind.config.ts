@@ -88,12 +88,23 @@ export default {
           "0%": { transform: "translateX(-40px)", opacity: "0" },
           "100%": { transform: "translateX(0)", opacity: "1" },
         },
+        "tab-underline": {
+          "0%":   { transform: "scaleX(0)", opacity: "0", transformOrigin: "left center" },
+          "60%":  { transform: "scaleX(1.05)", opacity: "1" },
+          "100%": { transform: "scaleX(1)", opacity: "1" },
+        },
+        "tab-fade-in": {
+          "0%":   { opacity: "0", transform: "translateY(8px) scale(0.985)", filter: "blur(4px)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)", filter: "blur(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "slide-in-from-right": "slide-in-from-right 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
         "slide-in-from-left": "slide-in-from-left 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
+        "tab-underline": "tab-underline 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
+        "tab-fade-in": "tab-fade-in 0.45s cubic-bezier(0.22, 1, 0.36, 1)",
       },
     },
   },
