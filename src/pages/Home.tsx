@@ -490,21 +490,31 @@ const Home = () => {
 
       {/* About Section with staggered scroll animations */}
       <section className="py-24 px-4 relative" ref={aboutRef}>
-        <div className="max-w-6xl mx-auto">
+        <div className="aurora" />
+        <div className="max-w-6xl mx-auto relative z-10">
           <div
             className={`text-center mb-20 transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
           >
-            <h2 className="text-5xl md:text-7xl font-black mb-6 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)] inline-block">
+            <h2
+              data-text="🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ"
+              className="glitch text-5xl md:text-7xl font-black mb-6 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)] inline-block"
+            >
               🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
             </h2>
             <p className="text-xl md:text-2xl text-foreground font-bold mt-4">
               En nuestro spot de Monóvar, el flow nunca falta.
             </p>
+            <div className="neon-divider mt-8 max-w-md mx-auto" />
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-20" ref={servicesRef}>
             <div
-              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-purple transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              }}
               style={{ transitionDelay: "100ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
@@ -517,7 +527,12 @@ const Home = () => {
             </div>
 
             <div
-              className={`bg-card p-8 rounded-2xl border-2 border-secondary glow-neon-cyan transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-cyan transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              }}
               style={{ transitionDelay: "250ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mb-6">
@@ -530,7 +545,12 @@ const Home = () => {
             </div>
 
             <div
-              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-purple transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              }}
               style={{ transitionDelay: "400ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
