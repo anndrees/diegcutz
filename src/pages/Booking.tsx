@@ -348,44 +348,54 @@ const Booking = () => {
     setBookedTimes(data.map((b) => b.booking_time));
   };
 
+  // Returns available 1h slots as minutes-from-midnight, considering:
+  // - exact range start times (supports non-:00 starts like 14:40)
+  // - slot must fully fit inside its range (slot + 60 <= range.end)
+  // - overlaps with existing bookings (each booking occupies 60 min)
+  // - 30-min safety buffer for today
+  const toMinutes = (hhmm: string): number => {
+    const [h, m] = hhmm.split(":").map((n) => parseInt(n));
+    return (h || 0) * 60 + (m || 0);
+  };
+
   const getAvailableHours = (): number[] => {
     if (!selectedDate || businessHours.length === 0) return [];
-    
+
     const dayOfWeek = selectedDate.getDay();
     const dayConfig = businessHours.find(h => h.day_of_week === dayOfWeek);
-    
     if (!dayConfig || dayConfig.is_closed) return [];
-    
-    let hours: number[];
-    
+
+    const slotsSet: Set<number> = new Set();
+
     if (dayConfig.is_24h) {
-      hours = Array.from({ length: 23 }, (_, i) => i);
+      for (let h = 0; h < 23; h++) slotsSet.add(h * 60);
     } else {
-      const hoursSet: Set<number> = new Set();
       dayConfig.time_ranges.forEach(range => {
-        const startHour = parseInt(range.start.split(":")[0]);
-        const endHour = parseInt(range.end.split(":")[0]);
-        for (let h = startHour; h < endHour; h++) {
-          hoursSet.add(h);
+        const startMin = toMinutes(range.start);
+        const endMin = toMinutes(range.end);
+        // Generate 60-min slots starting at range.start, step 60, must fit fully
+        for (let s = startMin; s + 60 <= endMin; s += 60) {
+          slotsSet.add(s);
         }
       });
-      hours = Array.from(hoursSet).sort((a, b) => a - b);
     }
-    
-    // For today: filter out hours that have already passed (with 30-min buffer)
+
+    // Filter out slots that overlap with any existing booking (bookings last 60 min)
+    const bookedMinutes = bookedTimes.map((t) => toMinutes(t));
+    let slots = Array.from(slotsSet).filter((s) => {
+      // overlap if |s - b| < 60 for any booked b
+      return !bookedMinutes.some((b) => Math.abs(s - b) < 60);
+    });
+
+    // For today: 30-min buffer
     const now = new Date();
     const isToday = selectedDate.toDateString() === now.toDateString();
-    
     if (isToday) {
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
-      hours = hours.filter(hour => {
-        const slotMinutes = hour * 60;
-        // Need at least 30 minutes before the slot
-        return slotMinutes - currentMinutes >= 30;
-      });
+      slots = slots.filter((s) => s - currentMinutes >= 30);
     }
-    
-    return hours;
+
+    return slots.sort((a, b) => a - b);
   };
 
   const isDayDisabled = (date: Date): boolean => {
