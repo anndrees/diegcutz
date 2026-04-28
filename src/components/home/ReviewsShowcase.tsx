@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useLayoutEffect } from "react";
 import { Star, Quote, ChevronLeft, ChevronRight, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -137,6 +137,9 @@ export const ReviewsShowcase = () => {
   const [isPaused, setIsPaused] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [direction, setDirection] = useState<1 | -1>(1);
+  const [containerHeight, setContainerHeight] = useState<number | "auto">("auto");
+  const measureRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -151,6 +154,30 @@ export const ReviewsShowcase = () => {
   useEffect(() => {
     loadRatings();
   }, []);
+
+  const reorderNoConsecutiveSameUser = (items: Rating[]): Rating[] => {
+    if (items.length <= 1) return items;
+    const remaining = [...items];
+    const result: Rating[] = [];
+    const userKey = (r: Rating) => r.profile?.username || r.id;
+    result.push(remaining.shift()!);
+    while (remaining.length > 0) {
+      const lastUser = userKey(result[result.length - 1]);
+      const isLastIteration = remaining.length === 1;
+      const firstUser = userKey(result[0]);
+      let pickIdx = remaining.findIndex((r) => {
+        if (userKey(r) === lastUser) return false;
+        if (isLastIteration && userKey(r) === firstUser) return false;
+        return true;
+      });
+      if (pickIdx === -1) {
+        pickIdx = remaining.findIndex((r) => userKey(r) !== lastUser);
+      }
+      if (pickIdx === -1) pickIdx = 0;
+      result.push(remaining.splice(pickIdx, 1)[0]);
+    }
+    return result;
+  };
 
   const loadRatings = async () => {
     const { data, error } = await supabase
@@ -173,7 +200,7 @@ export const ReviewsShowcase = () => {
         profile: Array.isArray(r.profile) ? r.profile[0] : r.profile,
         booking: Array.isArray(r.booking) ? r.booking[0] : r.booking,
       })) as Rating[];
-      setRatings(formattedRatings);
+      setRatings(reorderNoConsecutiveSameUser(formattedRatings));
     }
     setLoading(false);
   };
@@ -182,6 +209,7 @@ export const ReviewsShowcase = () => {
     if (timerRef.current) clearInterval(timerRef.current);
     if (!isPaused && ratings.length > VISIBLE_COUNT) {
       timerRef.current = setInterval(() => {
+        setDirection(1);
         setStartIndex((prev) => (prev + 1) % ratings.length);
       }, INTERVAL_MS);
     }
@@ -194,12 +222,32 @@ export const ReviewsShowcase = () => {
     };
   }, [resetTimer]);
 
+  // Animate container height when content changes (slide change or expand/collapse)
+  useLayoutEffect(() => {
+    if (!measureRef.current) return;
+    const newHeight = measureRef.current.offsetHeight;
+    setContainerHeight(newHeight);
+  }, [startIndex, isMobile, ratings.length]);
+
+  // Observe content size changes (e.g. ver más / ver menos)
+  useEffect(() => {
+    if (!measureRef.current || typeof ResizeObserver === "undefined") return;
+    const el = measureRef.current;
+    const ro = new ResizeObserver(() => {
+      setContainerHeight(el.offsetHeight);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [startIndex]);
+
   const goNext = () => {
+    setDirection(1);
     setStartIndex((prev) => (prev + 1) % ratings.length);
     resetTimer();
   };
 
   const goPrev = () => {
+    setDirection(-1);
     setStartIndex((prev) => (prev - 1 + ratings.length) % ratings.length);
     resetTimer();
   };
@@ -301,16 +349,33 @@ export const ReviewsShowcase = () => {
             </>
           )}
 
-          {/* Cards */}
-          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-3'} gap-5 overflow-hidden px-6 md:px-0`}>
-            {visibleRatings.map((rating) => (
-              <ReviewCard
-                key={`${rating.id}-${startIndex}`}
-                rating={rating}
-                index={0}
-                onInteraction={handleInteraction}
-              />
-            ))}
+          {/* Cards with slide + height animation */}
+          <div
+            className="overflow-hidden px-6 md:px-0 transition-[height] duration-500 ease-in-out"
+            style={{ height: containerHeight === "auto" ? undefined : containerHeight }}
+          >
+            <div
+              ref={measureRef}
+              key={`slide-${startIndex}`}
+              className={`grid ${isMobile ? "grid-cols-1" : "grid-cols-3"} gap-5 ${
+                direction === 1 ? "animate-slide-in-from-right" : "animate-slide-in-from-left"
+              }`}
+            >
+              {visibleRatings.map((rating) => (
+                <ReviewCard
+                  key={`${rating.id}-${startIndex}`}
+                  rating={rating}
+                  index={0}
+                  onInteraction={() => {
+                    handleInteraction();
+                    // Re-measure after expand/collapse
+                    requestAnimationFrame(() => {
+                      if (measureRef.current) setContainerHeight(measureRef.current.offsetHeight);
+                    });
+                  }}
+                />
+              ))}
+            </div>
           </div>
 
           {/* Dots */}
