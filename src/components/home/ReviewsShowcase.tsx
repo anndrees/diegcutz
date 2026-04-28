@@ -222,6 +222,24 @@ export const ReviewsShowcase = () => {
     };
   }, [resetTimer]);
 
+  // Animate container height when content changes (slide change or expand/collapse)
+  useLayoutEffect(() => {
+    if (!measureRef.current) return;
+    const newHeight = measureRef.current.offsetHeight;
+    setContainerHeight(newHeight);
+  }, [startIndex, isMobile, ratings.length]);
+
+  // Observe content size changes (e.g. ver más / ver menos)
+  useEffect(() => {
+    if (!measureRef.current || typeof ResizeObserver === "undefined") return;
+    const el = measureRef.current;
+    const ro = new ResizeObserver(() => {
+      setContainerHeight(el.offsetHeight);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [startIndex]);
+
   const goNext = () => {
     setDirection(1);
     setStartIndex((prev) => (prev + 1) % ratings.length);
