@@ -13,6 +13,7 @@ import { ReviewsShowcase } from "@/components/home/ReviewsShowcase";
 import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
+import { Tilt3D } from "@/components/fx/Tilt3D";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -508,6 +509,7 @@ const Home = () => {
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-20" ref={servicesRef}>
+            <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "100ms" }}>
             <div
               className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-purple transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               onMouseMove={(e) => {
@@ -525,7 +527,9 @@ const Home = () => {
                 Dominamos el fade que arrasa, los cortes con textura y el estilo que estás buscando.
               </p>
             </div>
+            </Tilt3D>
 
+            <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "250ms" }}>
             <div
               className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-cyan transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               onMouseMove={(e) => {
@@ -543,7 +547,9 @@ const Home = () => {
                 Diseño de barba profesional y clean shaves a navaja para que salgas impecable.
               </p>
             </div>
+            </Tilt3D>
 
+            <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "400ms" }}>
             <div
               className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-purple transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               onMouseMove={(e) => {
@@ -559,6 +565,7 @@ const Home = () => {
               <h3 className="text-2xl font-bold mb-4 text-neon-purple">STYLE COACHING</h3>
               <p className="text-foreground">Te asesoramos para que el corte le dé el toque a tu vibe. 🚨</p>
             </div>
+            </Tilt3D>
           </div>
 
           {/* Booking Rules with animated border */}

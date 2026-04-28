@@ -8,6 +8,10 @@ import { ForcePasswordChange } from "./components/ForcePasswordChange";
 import { CompleteProfileForm } from "./components/CompleteProfileForm";
 import { FloatingChat } from "./components/chat/FloatingChat";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
+import { NeonCursor } from "./components/fx/NeonCursor";
+import { RouteTransition } from "./components/fx/RouteTransition";
+import { SplashScreen } from "./components/fx/SplashScreen";
+import { ScrollTrail } from "./components/fx/ScrollTrail";
 import Home from "./pages/Home";
 import Booking from "./pages/Booking";
 import Admin from "./pages/Admin";
@@ -58,7 +62,8 @@ const AppContent = () => {
 
   return (
     <>
-      <Routes>
+      <RouteTransition>
+        <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/admin" element={<Admin />} />
@@ -75,7 +80,8 @@ const AppContent = () => {
         <Route path="/install" element={<Install />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
-      </Routes>
+        </Routes>
+      </RouteTransition>
       <FloatingChat />
       <InstallPrompt />
     </>
@@ -89,6 +95,9 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <SplashScreen />
+          <ScrollTrail />
+          <NeonCursor />
           <AppContent />
         </BrowserRouter>
       </TooltipProvider>
