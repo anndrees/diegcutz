@@ -206,9 +206,9 @@ export const AvailableHoursModal = ({ open, onOpenChange, date, bookedTimes }: A
                   
                   {/* Hour pills */}
                   <div className="grid grid-cols-3 gap-2.5 w-full max-w-[300px] mx-auto">
-                    {freeHours.map((hour, i) => (
+                    {freeHours.map((slotMin, i) => (
                       <div
-                        key={hour}
+                        key={slotMin}
                         className="relative flex items-center justify-center py-3.5 rounded-2xl overflow-hidden group"
                         style={{
                           background: `linear-gradient(135deg, hsl(280 80% 60% / ${0.12 + i * 0.02}) 0%, hsl(190 95% 50% / ${0.08 + i * 0.01}) 100%)`,
@@ -223,7 +223,7 @@ export const AvailableHoursModal = ({ open, onOpenChange, date, bookedTimes }: A
                         <span className="relative text-xl font-black text-white tracking-wider" style={{
                           textShadow: '0 0 15px hsl(280 100% 70% / 0.5)',
                         }}>
-                          {hour.toString().padStart(2, "0")}:00
+                          {`${Math.floor(slotMin / 60).toString().padStart(2, "0")}:${(slotMin % 60).toString().padStart(2, "0")}`}
                         </span>
                       </div>
                     ))}
