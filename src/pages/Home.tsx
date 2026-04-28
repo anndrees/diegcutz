@@ -219,7 +219,29 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden relative">
+      {/* Global ambient FX layers (decoration only, behind everything) */}
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-neon-grid opacity-60" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-noise opacity-[0.18] mix-blend-overlay" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-scanlines opacity-40" />
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div
+          className="absolute -top-32 -left-32 w-[55vw] h-[55vw] rounded-full blur-[140px] opacity-30"
+          style={{
+            background: "radial-gradient(circle, hsl(var(--neon-purple) / 0.85), transparent 60%)",
+            transform: `translate3d(${mousePos.x * 25}px, ${mousePos.y * 25}px, 0)`,
+            transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        />
+        <div
+          className="absolute -bottom-32 -right-32 w-[55vw] h-[55vw] rounded-full blur-[140px] opacity-25"
+          style={{
+            background: "radial-gradient(circle, hsl(var(--neon-cyan) / 0.85), transparent 60%)",
+            transform: `translate3d(${mousePos.x * -25}px, ${mousePos.y * -25}px, 0)`,
+            transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        />
+      </div>
       {/* PWA Install Banner - only shows in browser, not in PWA */}
       <InstallBanner />
       {/* CSS for custom animations */}
@@ -252,6 +274,14 @@ const Home = () => {
           transform: scale(1.05) translateY(-2px);
           box-shadow: 0 20px 40px -10px rgba(139, 92, 246, 0.5);
         }
+        @keyframes title-flicker {
+          0%, 100% { opacity: 1; text-shadow: 0 0 30px rgba(34,211,238,0.85), 0 0 60px rgba(34,211,238,0.5); }
+          42%      { opacity: 0.92; }
+          43%      { opacity: 0.6; text-shadow: 0 0 6px rgba(34,211,238,0.4); }
+          45%      { opacity: 1; }
+          75%      { opacity: 0.95; }
+        }
+        .title-flicker { animation: title-flicker 5.5s ease-in-out infinite; }
       `}</style>
 
       {/* Top Bar with Login/Profile */}
@@ -353,7 +383,8 @@ const Home = () => {
           </div>
 
           <h1
-            className="text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,0.8)]"
+            data-text="DIEGCUTZ"
+            className="glitch title-flicker text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,0.8)]"
             style={{ animationDuration: "1s" }}
           >
             DIEGCUTZ
@@ -392,6 +423,36 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* Marquee tagline strip */}
+      <div className="relative border-y border-neon-cyan/30 bg-background/40 backdrop-blur-sm py-3 overflow-hidden">
+        <div className="marquee">
+          <div className="marquee-track text-sm md:text-base font-black uppercase tracking-[0.3em]">
+            {Array.from({ length: 2 }).map((_, dup) => (
+              <div key={dup} className="flex items-center gap-12 pr-12">
+                {[
+                  "✦ FADES PRECISOS",
+                  "★ DESDE MONÓVAR",
+                  "✦ STREET STYLE",
+                  "★ CASH ONLY",
+                  "✦ BEARD GAME",
+                  "★ NEXT-LEVEL LOOK",
+                  "✦ BOOK NOW",
+                  "★ DIEGCUTZ",
+                ].map((t, i) => (
+                  <span
+                    key={i}
+                    className={i % 2 === 0 ? "text-neon-cyan" : "text-neon-purple"}
+                    style={{ textShadow: "0 0 12px currentColor" }}
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
 
       {/* Active Giveaway Banner */}
       {activeGiveaway && (
