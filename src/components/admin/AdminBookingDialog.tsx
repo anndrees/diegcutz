@@ -116,20 +116,34 @@ export const AdminBookingDialog = ({
     setBookedTimes(data?.map((b) => b.booking_time) || []);
   };
 
+  const toMinutes = (hhmm: string): number => {
+    const [h, m] = hhmm.split(":").map((n) => parseInt(n));
+    return (h || 0) * 60 + (m || 0);
+  };
+
+  // Returns available 1h slots as minutes-from-midnight.
   const getAvailableHours = (): number[] => {
     if (!selectedDate || businessHours.length === 0) return [];
     const dayOfWeek = selectedDate.getDay();
     const dayConfig = businessHours.find((h) => h.day_of_week === dayOfWeek);
     if (!dayConfig || dayConfig.is_closed) return [];
-    if (dayConfig.is_24h) return Array.from({ length: 23 }, (_, i) => i);
 
-    const hours: Set<number> = new Set();
-    dayConfig.time_ranges.forEach((range) => {
-      const startH = parseInt(range.start.split(":")[0]);
-      const endH = parseInt(range.end.split(":")[0]);
-      for (let h = startH; h < endH; h++) hours.add(h);
-    });
-    return Array.from(hours).sort((a, b) => a - b);
+    const slotsSet: Set<number> = new Set();
+    if (dayConfig.is_24h) {
+      for (let h = 0; h < 23; h++) slotsSet.add(h * 60);
+    } else {
+      dayConfig.time_ranges.forEach((range) => {
+        const startMin = toMinutes(range.start);
+        const endMin = toMinutes(range.end);
+        for (let s = startMin; s + 60 <= endMin; s += 60) slotsSet.add(s);
+      });
+    }
+
+    const bookedMinutes = bookedTimes.map((t) => toMinutes(t));
+    const slots = Array.from(slotsSet).filter(
+      (s) => !bookedMinutes.some((b) => Math.abs(s - b) < 60)
+    );
+    return slots.sort((a, b) => a - b);
   };
 
   const isDayClosed = (date: Date): boolean => {
@@ -284,21 +298,24 @@ export const AdminBookingDialog = ({
                   <p className="text-sm text-muted-foreground">No hay horarios disponibles</p>
                 ) : (
                   <div className="grid grid-cols-4 gap-2">
-                    {availableHours.map((hour) => {
-                      const timeStr = `${hour.toString().padStart(2, "0")}:00:00`;
+                    {availableHours.map((slotMin) => {
+                      const hh = Math.floor(slotMin / 60).toString().padStart(2, "0");
+                      const mm = (slotMin % 60).toString().padStart(2, "0");
+                      const timeStr = `${hh}:${mm}:00`;
+                      const label = `${hh}:${mm}`;
                       const isBooked = bookedTimes.includes(timeStr);
                       const isSelected = selectedTime === timeStr;
 
                       return (
                         <Button
-                          key={hour}
+                          key={slotMin}
                           variant={isSelected ? "neon" : "outline"}
                           size="sm"
                           disabled={isBooked}
                           onClick={() => setSelectedTime(timeStr)}
                           className={isBooked ? "opacity-40 line-through" : ""}
                         >
-                          {`${hour.toString().padStart(2, "0")}:00`}
+                          {label}
                         </Button>
                       );
                     })}
