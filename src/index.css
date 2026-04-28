@@ -104,6 +104,237 @@ All colors MUST be HSL.
     background: var(--gradient-neon);
   }
 
+  /* === VISUAL FX UTILITIES === */
+
+  /* Animated neon grid background */
+  .bg-neon-grid {
+    background-image:
+      linear-gradient(hsl(var(--neon-cyan) / 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, hsl(var(--neon-cyan) / 0.08) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-position: center center;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+
+  /* Subtle film grain / noise overlay */
+  .bg-noise {
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.07 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  }
+
+  /* Diagonal scanlines */
+  .bg-scanlines {
+    background-image: repeating-linear-gradient(
+      0deg,
+      hsl(var(--neon-cyan) / 0.04) 0,
+      hsl(var(--neon-cyan) / 0.04) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  }
+
+  /* Animated conic neon border (use as wrapper > inner card) */
+  .neon-border {
+    position: relative;
+    isolation: isolate;
+  }
+  .neon-border::before {
+    content: "";
+    position: absolute;
+    inset: -1.5px;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: conic-gradient(
+      from var(--angle, 0deg),
+      hsl(var(--neon-purple)) 0%,
+      hsl(var(--neon-cyan)) 25%,
+      hsl(var(--neon-pink)) 50%,
+      hsl(var(--neon-cyan)) 75%,
+      hsl(var(--neon-purple)) 100%
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: spin-border 6s linear infinite;
+    z-index: -1;
+    opacity: 0.55;
+    transition: opacity 0.4s ease;
+  }
+  .neon-border:hover::before {
+    opacity: 1;
+  }
+  @property --angle {
+    syntax: "<angle>";
+    initial-value: 0deg;
+    inherits: false;
+  }
+  @keyframes spin-border {
+    to { --angle: 360deg; }
+  }
+
+  /* Glitch text effect on hover */
+  .glitch {
+    position: relative;
+    display: inline-block;
+  }
+  .glitch::before,
+  .glitch::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+  .glitch::before {
+    color: hsl(var(--neon-cyan));
+    transform: translate(-2px, 0);
+    mix-blend-mode: screen;
+  }
+  .glitch::after {
+    color: hsl(var(--neon-pink));
+    transform: translate(2px, 0);
+    mix-blend-mode: screen;
+  }
+  .glitch:hover::before,
+  .glitch:hover::after {
+    opacity: 0.85;
+    animation: glitch-shift 0.4s steps(2, end) infinite;
+  }
+  @keyframes glitch-shift {
+    0%   { transform: translate(-2px, -1px); }
+    25%  { transform: translate(2px, 1px); }
+    50%  { transform: translate(-1px, 2px); }
+    75%  { transform: translate(2px, -2px); }
+    100% { transform: translate(-2px, -1px); }
+  }
+
+  /* Soft lift on hover (3D-ish without breaking layout) */
+  .lift-card {
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.4s ease,
+                border-color 0.4s ease;
+  }
+  .lift-card:hover {
+    transform: translateY(-6px) rotateX(2deg) rotateY(-1deg);
+    box-shadow:
+      0 30px 60px -20px hsl(var(--neon-purple) / 0.45),
+      0 10px 30px -15px hsl(var(--neon-cyan) / 0.35);
+  }
+
+  /* Gradient divider line */
+  .neon-divider {
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--neon-purple) / 0.6) 25%,
+      hsl(var(--neon-cyan) / 0.8) 50%,
+      hsl(var(--neon-purple) / 0.6) 75%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: divider-flow 6s linear infinite;
+  }
+  @keyframes divider-flow {
+    0%   { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+  }
+
+  /* Aurora background blobs (decoration only) */
+  .aurora {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .aurora::before,
+  .aurora::after {
+    content: "";
+    position: absolute;
+    width: 60vw;
+    height: 60vw;
+    border-radius: 9999px;
+    filter: blur(120px);
+    opacity: 0.35;
+    animation: aurora-drift 22s ease-in-out infinite alternate;
+  }
+  .aurora::before {
+    top: -20%;
+    left: -10%;
+    background: radial-gradient(circle, hsl(var(--neon-purple) / 0.7), transparent 60%);
+  }
+  .aurora::after {
+    bottom: -25%;
+    right: -15%;
+    background: radial-gradient(circle, hsl(var(--neon-cyan) / 0.6), transparent 60%);
+    animation-delay: -8s;
+  }
+  @keyframes aurora-drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(4%, -3%) scale(1.08); }
+    100% { transform: translate(-3%, 4%) scale(0.96); }
+  }
+
+  /* Marquee */
+  .marquee {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+    -webkit-mask-image: linear-gradient(90deg, transparent, black 8%, black 92%, transparent);
+  }
+  .marquee-track {
+    display: flex;
+    gap: 3rem;
+    animation: marquee-scroll 40s linear infinite;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  @keyframes marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* Shiny text */
+  .shiny-text {
+    background: linear-gradient(
+      110deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--foreground)) 40%,
+      hsl(var(--neon-cyan)) 50%,
+      hsl(var(--foreground)) 60%,
+      hsl(var(--foreground)) 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shiny-sweep 6s linear infinite;
+  }
+  @keyframes shiny-sweep {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Spotlight cursor effect (use on a wrapper) */
+  .spotlight {
+    position: relative;
+    overflow: hidden;
+  }
+  .spotlight::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      400px circle at var(--mx, 50%) var(--my, 50%),
+      hsl(var(--neon-cyan) / 0.10),
+      transparent 70%
+    );
+    pointer-events: none;
+    transition: background 0.2s ease;
+  }
+
   /* Safe area utilities for PWA with notch/dynamic island */
   .safe-area-inset-top {
     padding-top: var(--safe-area-top);

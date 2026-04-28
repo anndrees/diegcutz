@@ -219,7 +219,29 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden">
+    <div className="min-h-screen overflow-x-hidden relative">
+      {/* Global ambient FX layers (decoration only, behind everything) */}
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-neon-grid opacity-60" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-noise opacity-[0.18] mix-blend-overlay" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-scanlines opacity-40" />
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        <div
+          className="absolute -top-32 -left-32 w-[55vw] h-[55vw] rounded-full blur-[140px] opacity-30"
+          style={{
+            background: "radial-gradient(circle, hsl(var(--neon-purple) / 0.85), transparent 60%)",
+            transform: `translate3d(${mousePos.x * 25}px, ${mousePos.y * 25}px, 0)`,
+            transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        />
+        <div
+          className="absolute -bottom-32 -right-32 w-[55vw] h-[55vw] rounded-full blur-[140px] opacity-25"
+          style={{
+            background: "radial-gradient(circle, hsl(var(--neon-cyan) / 0.85), transparent 60%)",
+            transform: `translate3d(${mousePos.x * -25}px, ${mousePos.y * -25}px, 0)`,
+            transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
+          }}
+        />
+      </div>
       {/* PWA Install Banner - only shows in browser, not in PWA */}
       <InstallBanner />
       {/* CSS for custom animations */}
@@ -252,6 +274,14 @@ const Home = () => {
           transform: scale(1.05) translateY(-2px);
           box-shadow: 0 20px 40px -10px rgba(139, 92, 246, 0.5);
         }
+        @keyframes title-flicker {
+          0%, 100% { opacity: 1; text-shadow: 0 0 30px rgba(34,211,238,0.85), 0 0 60px rgba(34,211,238,0.5); }
+          42%      { opacity: 0.92; }
+          43%      { opacity: 0.6; text-shadow: 0 0 6px rgba(34,211,238,0.4); }
+          45%      { opacity: 1; }
+          75%      { opacity: 0.95; }
+        }
+        .title-flicker { animation: title-flicker 5.5s ease-in-out infinite; }
       `}</style>
 
       {/* Top Bar with Login/Profile */}
@@ -353,7 +383,8 @@ const Home = () => {
           </div>
 
           <h1
-            className="text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,0.8)]"
+            data-text="DIEGCUTZ"
+            className="glitch title-flicker text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,0.8)]"
             style={{ animationDuration: "1s" }}
           >
             DIEGCUTZ
@@ -393,6 +424,36 @@ const Home = () => {
         </div>
       </section>
 
+      {/* Marquee tagline strip */}
+      <div className="relative border-y border-neon-cyan/30 bg-background/40 backdrop-blur-sm py-3 overflow-hidden">
+        <div className="marquee">
+          <div className="marquee-track text-sm md:text-base font-black uppercase tracking-[0.3em]">
+            {Array.from({ length: 2 }).map((_, dup) => (
+              <div key={dup} className="flex items-center gap-12 pr-12">
+                {[
+                  "✦ FADES PRECISOS",
+                  "★ DESDE MONÓVAR",
+                  "✦ STREET STYLE",
+                  "★ CASH ONLY",
+                  "✦ BEARD GAME",
+                  "★ NEXT-LEVEL LOOK",
+                  "✦ BOOK NOW",
+                  "★ DIEGCUTZ",
+                ].map((t, i) => (
+                  <span
+                    key={i}
+                    className={i % 2 === 0 ? "text-neon-cyan" : "text-neon-purple"}
+                    style={{ textShadow: "0 0 12px currentColor" }}
+                  >
+                    {t}
+                  </span>
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
       {/* Active Giveaway Banner */}
       {activeGiveaway && (
         <section className="py-6 px-4 bg-gradient-neon">
@@ -429,21 +490,31 @@ const Home = () => {
 
       {/* About Section with staggered scroll animations */}
       <section className="py-24 px-4 relative" ref={aboutRef}>
-        <div className="max-w-6xl mx-auto">
+        <div className="aurora" />
+        <div className="max-w-6xl mx-auto relative z-10">
           <div
             className={`text-center mb-20 transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
           >
-            <h2 className="text-5xl md:text-7xl font-black mb-6 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)] inline-block">
+            <h2
+              data-text="🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ"
+              className="glitch text-5xl md:text-7xl font-black mb-6 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)] inline-block"
+            >
               🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
             </h2>
             <p className="text-xl md:text-2xl text-foreground font-bold mt-4">
               En nuestro spot de Monóvar, el flow nunca falta.
             </p>
+            <div className="neon-divider mt-8 max-w-md mx-auto" />
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-20" ref={servicesRef}>
             <div
-              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-purple transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              }}
               style={{ transitionDelay: "100ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
@@ -456,7 +527,12 @@ const Home = () => {
             </div>
 
             <div
-              className={`bg-card p-8 rounded-2xl border-2 border-secondary glow-neon-cyan transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-cyan transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              }}
               style={{ transitionDelay: "250ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mb-6">
@@ -469,7 +545,12 @@ const Home = () => {
             </div>
 
             <div
-              className={`bg-card p-8 rounded-2xl border-2 border-primary glow-neon-purple transform transition-all duration-700 hover:scale-105 hover:-translate-y-4 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-purple transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              onMouseMove={(e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
+                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
+              }}
               style={{ transitionDelay: "400ms" }}
             >
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
@@ -530,38 +611,58 @@ const Home = () => {
       <ReviewsShowcase />
 
       {/* Memberships CTA */}
-      <section className="py-16 px-4 bg-gradient-to-b from-background to-card/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <Crown className="h-16 w-16 mx-auto text-[#D4AF37] mb-4" />
-          <h2 className="text-4xl font-black mb-4 text-[#D4AF37]">MEMBRESÍAS EXCLUSIVAS</h2>
+      <section className="relative py-16 px-4 bg-gradient-to-b from-background to-card/50 overflow-hidden">
+        <div className="aurora" />
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <Crown
+            className="h-16 w-16 mx-auto text-[#D4AF37] mb-4 drop-shadow-[0_0_25px_rgba(212,175,55,0.6)]"
+            style={{ animation: "glow-pulse 3s ease-in-out infinite" }}
+          />
+          <h2
+            data-text="MEMBRESÍAS EXCLUSIVAS"
+            className="glitch text-4xl font-black mb-4 text-[#D4AF37] drop-shadow-[0_0_20px_rgba(212,175,55,0.5)]"
+          >
+            MEMBRESÍAS EXCLUSIVAS
+          </h2>
           <p className="text-xl text-muted-foreground mb-8">Planes mensuales con cortes gratis, descuentos y beneficios VIP</p>
           <Button
             size="lg"
-            className="text-lg px-12 py-6 h-auto bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#B8860B] hover:to-[#D4AF37] text-background font-bold"
+            className="magnetic-button text-lg px-12 py-6 h-auto bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#B8860B] hover:to-[#D4AF37] text-background font-bold shadow-[0_0_40px_rgba(212,175,55,0.4)]"
             onClick={() => navigate("/membership")}
           >
             <Crown className="mr-2 h-5 w-5" />
             Ver Membresías
           </Button>
         </div>
+        <div className="neon-divider mt-16" />
       </section>
 
       {/* Giveaways CTA */}
-      <section className="py-16 px-4 bg-card/50">
-        <div className="max-w-4xl mx-auto text-center">
-          <Gift className="h-16 w-16 mx-auto text-neon-purple mb-4" />
-          <h2 className="text-4xl font-black mb-4 text-neon-purple">¡PARTICIPA EN NUESTROS SORTEOS!</h2>
+      <section className="relative py-16 px-4 bg-card/50 overflow-hidden">
+        <div className="aurora" />
+        <div className="max-w-4xl mx-auto text-center relative z-10">
+          <Gift
+            className="h-16 w-16 mx-auto text-neon-purple mb-4"
+            style={{ animation: "glow-pulse 3s ease-in-out infinite" }}
+          />
+          <h2
+            data-text="¡PARTICIPA EN NUESTROS SORTEOS!"
+            className="glitch text-4xl font-black mb-4 text-neon-purple"
+          >
+            ¡PARTICIPA EN NUESTROS SORTEOS!
+          </h2>
           <p className="text-xl text-muted-foreground mb-8">Gana cortes gratis, productos exclusivos y más premios</p>
           <Button
             size="lg"
             variant="neonCyan"
             onClick={() => navigate("/giveaways")}
-            className="text-lg px-12 py-6 h-auto"
+            className="text-lg px-12 py-6 h-auto magnetic-button"
           >
             <Gift className="mr-2 h-5 w-5" />
             Ver Sorteos
           </Button>
         </div>
+        <div className="neon-divider mt-16" />
       </section>
 
       {/* Location Section with parallax */}
@@ -581,14 +682,15 @@ const Home = () => {
           >
             <h2 className="text-5xl md:text-6xl font-black text-center mb-6 text-neon-cyan">
               <MapPin className="inline-block mr-2 mb-2 animate-bounce" size={48} />
-              UBICACIÓN
+              <span data-text="UBICACIÓN" className="glitch">UBICACIÓN</span>
             </h2>
             <p className="text-center text-lg mb-10 text-muted-foreground">
               Carrer Sant Antoni, Monóvar, Alicante, España, 03640
             </p>
+            <div className="neon-divider mb-10 max-w-md mx-auto" />
           </div>
           <div
-            className={`transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+            className={`neon-border rounded-2xl overflow-hidden transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
           >
             <Map />
           </div>
@@ -596,10 +698,12 @@ const Home = () => {
       </section>
 
       {/* Hours Section with staggered animation */}
-      <section className="py-24 px-4 bg-card relative" ref={hoursRef}>
-        <div className="max-w-4xl mx-auto">
+      <section className="py-24 px-4 bg-card relative overflow-hidden" ref={hoursRef}>
+        <div className="aurora" />
+        <div className="max-w-4xl mx-auto relative z-10">
           <h2
-            className={`text-5xl md:text-6xl font-black text-center mb-16 text-neon-purple transition-all duration-1000 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+            data-text="HORARIOS"
+            className={`glitch text-5xl md:text-6xl font-black text-center mb-16 text-neon-purple transition-all duration-1000 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
             HORARIOS
           </h2>
