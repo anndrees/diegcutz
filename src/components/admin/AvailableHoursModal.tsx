@@ -43,26 +43,33 @@ export const AvailableHoursModal = ({ open, onOpenChange, date, bookedTimes }: A
     setLoading(false);
   };
 
+  const toMinutes = (hhmm: string): number => {
+    const [h, m] = hhmm.split(":").map((n) => parseInt(n));
+    return (h || 0) * 60 + (m || 0);
+  };
+
+  // Returns 1h slots as minutes-from-midnight
   const getAvailableHours = (): number[] => {
     if (businessHours.length === 0) return [];
     const dayOfWeek = date.getDay();
     const dayConfig = businessHours.find(h => h.day_of_week === dayOfWeek);
     if (!dayConfig || dayConfig.is_closed) return [];
-    if (dayConfig.is_24h) return Array.from({ length: 23 }, (_, i) => i);
-    const hours: Set<number> = new Set();
-    dayConfig.time_ranges.forEach(range => {
-      const startHour = parseInt(range.start.split(":")[0]);
-      const endHour = parseInt(range.end.split(":")[0]);
-      for (let h = startHour; h < endHour; h++) hours.add(h);
-    });
-    return Array.from(hours).sort((a, b) => a - b);
+    const slotsSet: Set<number> = new Set();
+    if (dayConfig.is_24h) {
+      for (let h = 0; h < 23; h++) slotsSet.add(h * 60);
+    } else {
+      dayConfig.time_ranges.forEach(range => {
+        const startMin = toMinutes(range.start);
+        const endMin = toMinutes(range.end);
+        for (let s = startMin; s + 60 <= endMin; s += 60) slotsSet.add(s);
+      });
+    }
+    return Array.from(slotsSet).sort((a, b) => a - b);
   };
 
   const allHours = getAvailableHours();
-  const freeHours = allHours.filter(h => {
-    const timeString = `${h.toString().padStart(2, "0")}:00:00`;
-    return !bookedTimes.includes(timeString);
-  });
+  const bookedMinutes = bookedTimes.map((t) => toMinutes(t));
+  const freeHours = allHours.filter((s) => !bookedMinutes.some((b) => Math.abs(s - b) < 60));
   const isClosed = allHours.length === 0;
 
   const dayName = format(date, "EEEE", { locale: es });
