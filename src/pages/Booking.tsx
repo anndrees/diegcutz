@@ -1130,8 +1130,10 @@ const Booking = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="mt-8 space-y-6"
+            className="mt-8 space-y-6 pb-24 md:pb-0"
           >
+            <MobileStep isMobile={isMobile} active={mobileStep === 3} step={3} currentStep={mobileStep}>
+            <div className="space-y-6">
             {/* Packs - Hidden for free cut reservations */}
             {!isFreeCutReservation && packs.length > 0 && (
               <Card className="bg-card/60 backdrop-blur-xl border-neon-cyan/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.1)] overflow-hidden">
