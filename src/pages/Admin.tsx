@@ -36,6 +36,7 @@ import { BusinessHoursManagement } from "@/components/admin/BusinessHoursManagem
 import { SpecialHoursManagement } from "@/components/admin/SpecialHoursManagement";
 import { RatingsManagement } from "@/components/admin/RatingsManagement";
 import { GiveawaysManagement } from "@/components/admin/GiveawaysManagement";
+import { MarqueeManagement } from "@/components/admin/MarqueeManagement";
 import { AdminActionsLog } from "@/components/admin/AdminActionsLog";
 import { AdminMessagesSection } from "@/components/admin/AdminMessagesSection";
 import { AchievementsManagement } from "@/components/admin/AchievementsManagement";
@@ -746,6 +747,7 @@ const Admin = () => {
             )}
 
             {activeTab === "giveaways" && <GiveawaysManagement />}
+            {activeTab === "marquee" && <MarqueeManagement />}
 
             {activeTab === "messages" && <AdminMessagesSection />}
 

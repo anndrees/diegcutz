@@ -50,7 +50,7 @@ export const AdminMessagesSection = () => {
   const [conversationToDelete, setConversationToDelete] = useState<Conversation | null>(null);
   const [clearHistoryDialogOpen, setClearHistoryDialogOpen] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
-  const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const typingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const typingChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 

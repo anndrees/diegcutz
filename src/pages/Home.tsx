@@ -14,6 +14,7 @@ import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
 import { Tilt3D } from "@/components/fx/Tilt3D";
+import { colorClassFor } from "@/components/admin/MarqueeManagement";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -122,6 +123,7 @@ const Home = () => {
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
+  const [marqueeItems, setMarqueeItems] = useState<{ id: string; text: string; color: string }[]>([]);
   const scrollY = useParallax();
   const mousePos = useMouseParallax();
 
@@ -140,6 +142,7 @@ const Home = () => {
     loadBusinessHours();
     loadSpecialHours();
     loadActiveGiveaway();
+    loadMarquee();
 
     // Intersection observer for scroll animations
     const observer = new IntersectionObserver(
@@ -217,6 +220,15 @@ const Home = () => {
     if (data) {
       setActiveGiveaway(data as Giveaway);
     }
+  };
+
+  const loadMarquee = async () => {
+    const { data } = await supabase
+      .from("marquee_items")
+      .select("id, text, color")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    setMarqueeItems((data as any[]) || []);
   };
 
   return (
@@ -431,22 +443,13 @@ const Home = () => {
           <div className="marquee-track text-sm md:text-base font-black uppercase tracking-[0.3em]">
             {Array.from({ length: 2 }).map((_, dup) => (
               <div key={dup} className="flex items-center gap-12 pr-12">
-                {[
-                  "✦ FADES PRECISOS",
-                  "★ DESDE MONÓVAR",
-                  "✦ STREET STYLE",
-                  "★ CASH ONLY",
-                  "✦ BEARD GAME",
-                  "★ NEXT-LEVEL LOOK",
-                  "✦ BOOK NOW",
-                  "★ DIEGCUTZ",
-                ].map((t, i) => (
+                {marqueeItems.map((item) => (
                   <span
-                    key={i}
-                    className={i % 2 === 0 ? "text-neon-cyan" : "text-neon-purple"}
+                    key={`${dup}-${item.id}`}
+                    className={colorClassFor(item.color)}
                     style={{ textShadow: "0 0 12px currentColor" }}
                   >
-                    {t}
+                    {item.text}
                   </span>
                 ))}
               </div>
