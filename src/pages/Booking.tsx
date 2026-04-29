@@ -17,6 +17,8 @@ import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Che
 import { CalendarDays, Scissors, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
+import { MobileStep } from "@/components/booking/MobileStep";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Validation schema for playlist URL
 const playlistUrlSchema = z.string().max(500, "URL demasiado larga").refine(
@@ -155,16 +157,7 @@ const Booking = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Auto-scroll to hours section on mobile when date is selected
-  useEffect(() => {
-    if (selectedDate && isMobile && hoursRef.current) {
-      setTimeout(() => {
-        hoursRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  }, [selectedDate, isMobile]);
-
-  // Mobile wizard auto-advance
+  // Mobile wizard auto-advance + scroll-to-top on step change
   useEffect(() => {
     if (!isMobile) return;
     if (selectedDate && mobileStep === 1) setMobileStep(2);
@@ -173,6 +166,10 @@ const Booking = () => {
     if (!isMobile) return;
     if (selectedTime && mobileStep === 2) setMobileStep(3);
   }, [selectedTime, isMobile]);
+  useEffect(() => {
+    if (!isMobile) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [mobileStep, isMobile]);
 
   // Check if this is a free cut reservation from URL params
   useEffect(() => {
@@ -909,12 +906,12 @@ const Booking = () => {
           )}
         </motion.div>
 
-        {/* Stepper */}
+        {/* Stepper — desktop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="mb-10 flex items-center justify-center gap-2 sm:gap-4"
+          className="mb-10 hidden md:flex items-center justify-center gap-2 sm:gap-4"
         >
           {[
             { n: 1, label: "Fecha", icon: CalendarDays, active: !!selectedDate },
@@ -944,6 +941,49 @@ const Booking = () => {
           ))}
         </motion.div>
 
+        {/* Mobile wizard header */}
+        {isMobile && (
+          <div className="md:hidden mb-6 sticky top-0 z-30 -mx-4 px-4 py-3 bg-background/85 backdrop-blur-xl border-b border-neon-cyan/20">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Paso {mobileStep} de 4
+              </span>
+              <span className="text-sm font-black uppercase text-neon-cyan font-aggressive tracking-wider">
+                {mobileStep === 1 && "Fecha"}
+                {mobileStep === 2 && "Hora"}
+                {mobileStep === 3 && "Servicios"}
+                {mobileStep === 4 && "Confirmar"}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-neon-purple via-neon-cyan to-neon-cyan shadow-[0_0_12px_hsl(var(--neon-cyan)/0.8)]"
+                initial={false}
+                animate={{ width: `${(mobileStep / 4) * 100}%` }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
+            <div className="flex justify-between mt-2">
+              {[1, 2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => {
+                    // Allow going back; only allow forward if previous steps complete
+                    if (n < mobileStep) setMobileStep(n as 1 | 2 | 3 | 4);
+                    else if (n === 2 && selectedDate) setMobileStep(2);
+                    else if (n === 3 && selectedDate && selectedTime) setMobileStep(3);
+                    else if (n === 4 && selectedDate && selectedTime && (selectedPack || selectedServices.length > 0)) setMobileStep(4);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    n === mobileStep ? "bg-neon-cyan scale-150 shadow-[0_0_8px_hsl(var(--neon-cyan))]" : n < mobileStep ? "bg-neon-cyan/60" : "bg-border"
+                  }`}
+                  aria-label={`Ir al paso ${n}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Restriction Alert */}
         {profile?.is_restricted && restrictionTimeLeft && (
           <motion.div
@@ -961,8 +1001,9 @@ const Booking = () => {
           </motion.div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Calendar */}
+        <div className="grid md:grid-cols-2 gap-8 pb-24 md:pb-0">
+          {/* Calendar — Step 1 on mobile */}
+          <MobileStep isMobile={isMobile} active={mobileStep === 1} step={1} currentStep={mobileStep}>
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -987,8 +1028,10 @@ const Booking = () => {
               </CardContent>
             </Card>
           </motion.div>
+          </MobileStep>
 
-          {/* Time Selection */}
+          {/* Time Selection — Step 2 on mobile */}
+          <MobileStep isMobile={isMobile} active={mobileStep === 2} step={2} currentStep={mobileStep}>
           <div className="space-y-6" ref={hoursRef}>
             <AnimatePresence mode="wait">
               {selectedDate && (
@@ -1076,6 +1119,7 @@ const Booking = () => {
               )}
             </AnimatePresence>
           </div>
+          </MobileStep>
         </div>
 
         {/* Services Selection */}
@@ -1086,8 +1130,10 @@ const Booking = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="mt-8 space-y-6"
+            className="mt-8 space-y-6 pb-24 md:pb-0"
           >
+            <MobileStep isMobile={isMobile} active={mobileStep === 3} step={3} currentStep={mobileStep}>
+            <div className="space-y-6">
             {/* Packs - Hidden for free cut reservations */}
             {!isFreeCutReservation && packs.length > 0 && (
               <Card className="bg-card/60 backdrop-blur-xl border-neon-cyan/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.1)] overflow-hidden">
@@ -1352,7 +1398,11 @@ const Booking = () => {
                 </CardContent>
               </Card>
             )}
+            </div>
+            </MobileStep>
 
+            <MobileStep isMobile={isMobile} active={mobileStep === 4} step={4} currentStep={mobileStep}>
+            <div className="space-y-6">
             {/* Total Price */}
             {(selectedPack || selectedServices.length > 0) && (
               <motion.div
@@ -1455,10 +1505,46 @@ const Booking = () => {
                 )}
               </CardContent>
             </Card>
+            </div>
+            </MobileStep>
           </motion.div>
         )}
         </AnimatePresence>
       </div>
+
+      {/* Mobile bottom nav */}
+      {isMobile && (
+        <div
+          className="md:hidden fixed bottom-0 inset-x-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 bg-background/90 backdrop-blur-xl border-t border-neon-cyan/20"
+        >
+          <div className="flex items-center gap-2 max-w-md mx-auto">
+            <Button
+              variant="outline"
+              size="lg"
+              disabled={mobileStep === 1}
+              onClick={() => setMobileStep((s) => (Math.max(1, s - 1) as 1 | 2 | 3 | 4))}
+              className="flex-1 border-neon-purple/40"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" /> Atrás
+            </Button>
+            <Button
+              variant="neon"
+              size="lg"
+              disabled={
+                (mobileStep === 1 && !selectedDate) ||
+                (mobileStep === 2 && !selectedTime) ||
+                (mobileStep === 3 && !selectedPack && selectedServices.length === 0) ||
+                mobileStep === 4
+              }
+              onClick={() => setMobileStep((s) => (Math.min(4, s + 1) as 1 | 2 | 3 | 4))}
+              className="flex-1"
+            >
+              {mobileStep === 4 ? "Confirma arriba" : "Siguiente"}
+              {mobileStep !== 4 && <ChevronRight className="h-4 w-4 ml-1" />}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
