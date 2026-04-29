@@ -1505,6 +1505,8 @@ const Booking = () => {
                 )}
               </CardContent>
             </Card>
+            </div>
+            </MobileStep>
           </motion.div>
         )}
         </AnimatePresence>
