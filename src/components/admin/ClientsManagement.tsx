@@ -8,13 +8,12 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Edit2, Trash2, Search, Smartphone, ArrowUpDown, ChevronRight, Crown } from "lucide-react";
+import { Edit2, Trash2, Search, Smartphone, ArrowUpDown, ChevronRight, Crown, Users } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MergeUsersDialog } from "@/components/admin/MergeUsersDialog";
-import { Users } from "lucide-react";
 
 type Client = {
   id: string; full_name: string; username: string; contact_method: string;
