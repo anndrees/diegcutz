@@ -11,6 +11,7 @@ import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import { NeonCursor } from "./components/fx/NeonCursor";
 import { RouteTransition } from "./components/fx/RouteTransition";
 import { SplashScreen } from "./components/fx/SplashScreen";
+import { KonamiCode } from "./components/fx/KonamiCode";
 import Home from "./pages/Home";
 import Booking from "./pages/Booking";
 import Admin from "./pages/Admin";
@@ -96,6 +97,7 @@ const App = () => (
         <BrowserRouter>
           <SplashScreen />
           <NeonCursor />
+          <KonamiCode />
           <AppContent />
         </BrowserRouter>
       </TooltipProvider>
