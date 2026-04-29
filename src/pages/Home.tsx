@@ -14,6 +14,7 @@ import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
 import { Tilt3D } from "@/components/fx/Tilt3D";
+import { colorClassFor } from "@/components/admin/MarqueeManagement";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -122,6 +123,7 @@ const Home = () => {
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
+  const [marqueeItems, setMarqueeItems] = useState<{ id: string; text: string; color: string }[]>([]);
   const scrollY = useParallax();
   const mousePos = useMouseParallax();
 
@@ -140,6 +142,7 @@ const Home = () => {
     loadBusinessHours();
     loadSpecialHours();
     loadActiveGiveaway();
+    loadMarquee();
 
     // Intersection observer for scroll animations
     const observer = new IntersectionObserver(
