@@ -98,6 +98,7 @@ const Booking = () => {
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
   const [playlistUrl, setPlaylistUrl] = useState<string>("");
   const [playlistUrlError, setPlaylistUrlError] = useState<string>("");
+  const [mobileStep, setMobileStep] = useState<1 | 2 | 3 | 4>(1);
   const [blockSameDayEnabled, setBlockSameDayEnabled] = useState(false);
   const [blockSameDayFromHour, setBlockSameDayFromHour] = useState(13);
   const [membershipDiscount, setMembershipDiscount] = useState(0);
