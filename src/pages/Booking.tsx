@@ -906,12 +906,12 @@ const Booking = () => {
           )}
         </motion.div>
 
-        {/* Stepper */}
+        {/* Stepper — desktop */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
-          className="mb-10 flex items-center justify-center gap-2 sm:gap-4"
+          className="mb-10 hidden md:flex items-center justify-center gap-2 sm:gap-4"
         >
           {[
             { n: 1, label: "Fecha", icon: CalendarDays, active: !!selectedDate },
@@ -940,6 +940,49 @@ const Booking = () => {
             </div>
           ))}
         </motion.div>
+
+        {/* Mobile wizard header */}
+        {isMobile && (
+          <div className="md:hidden mb-6 sticky top-0 z-30 -mx-4 px-4 py-3 bg-background/85 backdrop-blur-xl border-b border-neon-cyan/20">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                Paso {mobileStep} de 4
+              </span>
+              <span className="text-sm font-black uppercase text-neon-cyan font-aggressive tracking-wider">
+                {mobileStep === 1 && "Fecha"}
+                {mobileStep === 2 && "Hora"}
+                {mobileStep === 3 && "Servicios"}
+                {mobileStep === 4 && "Confirmar"}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
+              <motion.div
+                className="h-full bg-gradient-to-r from-neon-purple via-neon-cyan to-neon-cyan shadow-[0_0_12px_hsl(var(--neon-cyan)/0.8)]"
+                initial={false}
+                animate={{ width: `${(mobileStep / 4) * 100}%` }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              />
+            </div>
+            <div className="flex justify-between mt-2">
+              {[1, 2, 3, 4].map((n) => (
+                <button
+                  key={n}
+                  onClick={() => {
+                    // Allow going back; only allow forward if previous steps complete
+                    if (n < mobileStep) setMobileStep(n as 1 | 2 | 3 | 4);
+                    else if (n === 2 && selectedDate) setMobileStep(2);
+                    else if (n === 3 && selectedDate && selectedTime) setMobileStep(3);
+                    else if (n === 4 && selectedDate && selectedTime && (selectedPack || selectedServices.length > 0)) setMobileStep(4);
+                  }}
+                  className={`w-2 h-2 rounded-full transition-all ${
+                    n === mobileStep ? "bg-neon-cyan scale-150 shadow-[0_0_8px_hsl(var(--neon-cyan))]" : n < mobileStep ? "bg-neon-cyan/60" : "bg-border"
+                  }`}
+                  aria-label={`Ir al paso ${n}`}
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Restriction Alert */}
         {profile?.is_restricted && restrictionTimeLeft && (
