@@ -72,6 +72,10 @@ export default {
             height: "var(--radix-accordion-content-height)",
           },
         },
+        shimmer: {
+          "0%": { transform: "translateX(0) skewX(12deg)" },
+          "100%": { transform: "translateX(400%) skewX(12deg)" },
+        },
         "accordion-up": {
           from: {
             height: "var(--radix-accordion-content-height)",

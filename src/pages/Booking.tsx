@@ -14,6 +14,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Check, Loader2 } from "lucide-react";
+import { CalendarDays, Scissors, CheckCircle2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
 
 // Validation schema for playlist URL
@@ -849,21 +851,31 @@ const Booking = () => {
   const totalPrice = calculateTotal();
 
   return (
-    <div className="min-h-screen py-12 px-4 pt-safe">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
+      {/* Decorative neon background */}
+      <div className="pointer-events-none absolute inset-0 bg-neon-grid opacity-40" />
+      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-neon-purple/20 blur-3xl animate-pulse" />
+      <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-neon-cyan/20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+
+      <div className="max-w-5xl mx-auto relative">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
-          className="mb-8"
+          className="mb-8 hover:text-neon-cyan transition-colors"
         >
           <ArrowLeft className="mr-2" />
           Volver
         </Button>
 
-        <div className="text-center mb-12">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="text-center mb-10"
+        >
           {isFreeCutReservation ? (
             <>
-              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-4">
+              <div className="inline-flex items-center gap-2 bg-primary/10 text-primary px-4 py-2 rounded-full mb-4 border border-primary/40 shadow-[0_0_20px_hsl(var(--primary)/0.3)]">
                 <Gift className="h-5 w-5" />
                 <span className="font-bold">CORTE GRATIS</span>
               </div>
@@ -880,15 +892,54 @@ const Booking = () => {
                 RESERVA TU CITA
               </h1>
               <p className="text-xl text-muted-foreground">
-                Elige tu fecha, hora y servicios
+                Elige tu fecha, hora y servicios en pocos pasos
               </p>
             </>
           )}
-        </div>
+        </motion.div>
+
+        {/* Stepper */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.2, duration: 0.5 }}
+          className="mb-10 flex items-center justify-center gap-2 sm:gap-4"
+        >
+          {[
+            { n: 1, label: "Fecha", icon: CalendarDays, active: !!selectedDate },
+            { n: 2, label: "Hora", icon: Clock, active: !!selectedTime },
+            { n: 3, label: "Servicios", icon: Scissors, active: !!(selectedPack || selectedServices.length > 0) },
+            { n: 4, label: "Confirmar", icon: CheckCircle2, active: false },
+          ].map((step, i, arr) => (
+            <div key={step.n} className="flex items-center gap-2 sm:gap-4">
+              <div className="flex flex-col items-center gap-1">
+                <div
+                  className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
+                    step.active
+                      ? 'border-neon-cyan bg-neon-cyan/20 text-neon-cyan shadow-[0_0_20px_hsl(var(--neon-cyan)/0.6)]'
+                      : 'border-border bg-card/40 text-muted-foreground'
+                  }`}
+                >
+                  <step.icon className="h-4 w-4 sm:h-5 sm:w-5" />
+                </div>
+                <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${step.active ? 'text-neon-cyan' : 'text-muted-foreground'}`}>
+                  {step.label}
+                </span>
+              </div>
+              {i < arr.length - 1 && (
+                <div className={`h-[2px] w-6 sm:w-12 transition-all duration-500 ${arr[i + 1].active || step.active ? 'bg-gradient-to-r from-neon-purple to-neon-cyan' : 'bg-border'}`} />
+              )}
+            </div>
+          ))}
+        </motion.div>
 
         {/* Restriction Alert */}
         {profile?.is_restricted && restrictionTimeLeft && (
-          <div className="mb-8 p-4 bg-yellow-500/20 border border-yellow-500 rounded-lg">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-8 p-4 bg-yellow-500/20 border border-yellow-500 rounded-lg shadow-[0_0_30px_rgb(234_179_8/0.3)]"
+          >
             <div className="flex items-center gap-2 text-yellow-500 font-bold mb-1">
               <span>⚠️ CUENTA RESTRINGIDA</span>
             </div>
@@ -896,89 +947,140 @@ const Booking = () => {
               No puedes hacer reservas temporalmente. Podrás volver a reservar en:{" "}
               <span className="font-mono text-yellow-500">{restrictionTimeLeft}</span>
             </p>
-          </div>
+          </motion.div>
         )}
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Calendar */}
-          <Card className="bg-card border-border">
-            <CardHeader>
-              <CardTitle className="text-xl md:text-2xl">Selecciona una fecha</CardTitle>
-              <CardDescription>Los días marcados como cerrados no están disponibles</CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center overflow-x-auto">
-              <Calendar
-                mode="single"
-                selected={selectedDate}
-                onSelect={setSelectedDate}
-                disabled={isDayDisabled}
-                className="rounded-md border border-border pointer-events-auto scale-90 sm:scale-100"
-              />
-            </CardContent>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+          >
+            <Card className="bg-card/60 backdrop-blur-xl border-neon-purple/30 shadow-[0_0_40px_hsl(var(--neon-purple)/0.15)] hover:shadow-[0_0_60px_hsl(var(--neon-purple)/0.3)] transition-shadow duration-500 overflow-hidden">
+              <CardHeader className="border-b border-neon-purple/20 bg-gradient-to-r from-neon-purple/10 to-transparent">
+                <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                  <CalendarDays className="text-neon-purple" />
+                  Selecciona una fecha
+                </CardTitle>
+                <CardDescription>Los días cerrados no están disponibles</CardDescription>
+              </CardHeader>
+              <CardContent className="flex justify-center overflow-x-auto p-4">
+                <Calendar
+                  mode="single"
+                  selected={selectedDate}
+                  onSelect={setSelectedDate}
+                  disabled={isDayDisabled}
+                  className="rounded-md pointer-events-auto scale-90 sm:scale-100"
+                />
+              </CardContent>
+            </Card>
+          </motion.div>
 
           {/* Time Selection */}
           <div className="space-y-6" ref={hoursRef}>
-            {selectedDate && (
-              <Card className="bg-card border-border">
-                <CardHeader>
-                  <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                    <Clock className="text-secondary" />
-                    Horas disponibles
-                  </CardTitle>
-                  <CardDescription className="text-sm md:text-base">
-                    {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {availableHours.length === 0 ? (
-                    <p className="text-destructive">Cerrado este día</p>
-                  ) : (
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {availableHours.map((slotMin) => {
-                        const hh = Math.floor(slotMin / 60).toString().padStart(2, "0");
-                        const mm = (slotMin % 60).toString().padStart(2, "0");
-                        const timeString = `${hh}:${mm}:00`;
-                        const label = `${hh}:${mm}`;
-                        const isBooked = bookedTimes.includes(timeString);
+            <AnimatePresence mode="wait">
+              {selectedDate && (
+                <motion.div
+                  key={selectedDate.toISOString()}
+                  initial={{ opacity: 0, x: 30 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -30 }}
+                  transition={{ duration: 0.4 }}
+                >
+                  <Card className="bg-card/60 backdrop-blur-xl border-neon-cyan/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.15)] hover:shadow-[0_0_60px_hsl(var(--neon-cyan)/0.3)] transition-shadow duration-500 overflow-hidden">
+                    <CardHeader className="border-b border-neon-cyan/20 bg-gradient-to-r from-neon-cyan/10 to-transparent">
+                      <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
+                        <Clock className="text-neon-cyan animate-pulse" />
+                        Horas disponibles
+                      </CardTitle>
+                      <CardDescription className="text-sm md:text-base capitalize">
+                        {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-4">
+                      {availableHours.length === 0 ? (
+                        <p className="text-destructive py-4 text-center">Cerrado este día</p>
+                      ) : (
+                        <motion.div
+                          initial="hidden"
+                          animate="visible"
+                          variants={{
+                            visible: { transition: { staggerChildren: 0.03 } },
+                          }}
+                          className="grid grid-cols-3 sm:grid-cols-3 gap-2"
+                        >
+                          {availableHours.map((slotMin) => {
+                            const hh = Math.floor(slotMin / 60).toString().padStart(2, "0");
+                            const mm = (slotMin % 60).toString().padStart(2, "0");
+                            const timeString = `${hh}:${mm}:00`;
+                            const label = `${hh}:${mm}`;
+                            const isBooked = bookedTimes.includes(timeString);
+                            const isSelected = selectedTime === timeString;
 
-                        return (
-                          <Button
-                            key={slotMin}
-                            variant={selectedTime === timeString ? "neon" : "outline"}
-                            disabled={isBooked}
-                            onClick={() => setSelectedTime(timeString)}
-                            className={`h-10 sm:h-12 text-sm sm:text-base relative ${
-                              isBooked ? 'opacity-50' : ''
-                            }`}
-                          >
-                            {isBooked && (
-                              <span className="absolute inset-0 flex items-center justify-center">
-                                <svg className="w-full h-full text-neon-cyan opacity-80" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-                                  <line x1="4" y1="4" x2="20" y2="20"></line>
-                                  <line x1="20" y1="4" x2="4" y2="20"></line>
-                                </svg>
-                              </span>
-                            )}
-                            <span className={isBooked ? 'opacity-30' : ''}>{label}</span>
-                          </Button>
-                        );
-                      })}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                            return (
+                              <motion.button
+                                key={slotMin}
+                                variants={{
+                                  hidden: { opacity: 0, y: 10 },
+                                  visible: { opacity: 1, y: 0 },
+                                }}
+                                whileHover={!isBooked ? { scale: 1.05, y: -2 } : {}}
+                                whileTap={!isBooked ? { scale: 0.95 } : {}}
+                                disabled={isBooked}
+                                onClick={() => !isBooked && setSelectedTime(timeString)}
+                                className={`relative h-12 sm:h-14 rounded-lg font-bold text-sm sm:text-base font-mono tracking-wider border-2 transition-all duration-300 overflow-hidden group ${
+                                  isBooked
+                                    ? 'border-destructive/30 bg-destructive/5 text-muted-foreground cursor-not-allowed'
+                                    : isSelected
+                                    ? 'border-neon-cyan bg-gradient-to-br from-neon-cyan/30 to-neon-purple/30 text-foreground shadow-[0_0_25px_hsl(var(--neon-cyan)/0.6)]'
+                                    : 'border-border/60 bg-card/40 text-foreground hover:border-neon-cyan hover:bg-neon-cyan/10 hover:text-neon-cyan'
+                                }`}
+                              >
+                                {isSelected && !isBooked && (
+                                  <motion.span
+                                    layoutId="selectedTimeGlow"
+                                    className="absolute inset-0 bg-gradient-to-br from-neon-cyan/20 to-neon-purple/20"
+                                  />
+                                )}
+                                <span className={`relative z-10 ${isBooked ? 'line-through opacity-50' : ''}`}>
+                                  {label}
+                                </span>
+                                {isBooked && (
+                                  <span className="absolute top-1 right-1 text-[8px] font-black uppercase text-destructive/80 z-10">
+                                    ✕
+                                  </span>
+                                )}
+                                {!isBooked && !isSelected && (
+                                  <span className="absolute inset-x-0 bottom-0 h-[2px] bg-gradient-to-r from-transparent via-neon-cyan to-transparent scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                                )}
+                              </motion.button>
+                            );
+                          })}
+                        </motion.div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
 
         {/* Services Selection */}
+        <AnimatePresence>
         {selectedTime && !loadingServices && (
-          <div className="mt-8 space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-8 space-y-6"
+          >
             {/* Packs - Hidden for free cut reservations */}
             {!isFreeCutReservation && packs.length > 0 && (
-              <Card className="bg-card border-border">
-                <CardHeader>
+              <Card className="bg-card/60 backdrop-blur-xl border-neon-cyan/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.1)] overflow-hidden">
+                <CardHeader className="border-b border-neon-cyan/20 bg-gradient-to-r from-neon-cyan/10 to-transparent">
                   <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                     <Package className="text-neon-cyan" />
                     Selecciona un Pack
@@ -1075,10 +1177,10 @@ const Booking = () => {
 
             {/* Services */}
             {services.length > 0 && (
-              <Card className="bg-card border-border">
-                <CardHeader>
+              <Card className="bg-card/60 backdrop-blur-xl border-neon-purple/30 shadow-[0_0_40px_hsl(var(--neon-purple)/0.1)] overflow-hidden">
+                <CardHeader className="border-b border-neon-purple/20 bg-gradient-to-r from-neon-purple/10 to-transparent">
                   <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                    <Sparkles className="text-primary" />
+                    <Sparkles className="text-neon-purple" />
                     {isFreeCutReservation ? "Servicios (DEGRADADO y VACIAR incluidos)" : "Servicios Adicionales"}
                   </CardTitle>
                   <CardDescription>
@@ -1144,10 +1246,10 @@ const Booking = () => {
             )}
 
             {/* Music Selection */}
-            <Card className="bg-card border-border">
-              <CardHeader>
+            <Card className="bg-card/60 backdrop-blur-xl border-neon-pink/30 shadow-[0_0_40px_hsl(var(--neon-pink)/0.1)] overflow-hidden">
+              <CardHeader className="border-b border-neon-pink/20 bg-gradient-to-r from-neon-pink/10 to-transparent">
                 <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                  <Music className="text-neon-cyan" />
+                  <Music className="text-neon-pink animate-pulse" />
                   Elige tu música
                 </CardTitle>
                 <CardDescription>
@@ -1182,8 +1284,8 @@ const Booking = () => {
 
             {/* Coupon Code */}
             {!isFreeCutReservation && (selectedPack || selectedServices.length > 0) && (
-              <Card className="bg-card border-border">
-                <CardHeader>
+              <Card className="bg-card/60 backdrop-blur-xl border-primary/30 overflow-hidden">
+                <CardHeader className="border-b border-primary/20 bg-gradient-to-r from-primary/10 to-transparent">
                   <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                     <Ticket className="text-primary" />
                     Código de descuento
@@ -1242,8 +1344,17 @@ const Booking = () => {
 
             {/* Total Price */}
             {(selectedPack || selectedServices.length > 0) && (
-              <Card className={`border-0 ${isFreeCutReservation ? 'bg-gradient-to-r from-neon-cyan/20 to-neon-purple/20' : 'bg-gradient-neon'}`}>
-                <CardContent className="p-6">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+              >
+              <Card className={`border-0 relative overflow-hidden ${isFreeCutReservation ? 'bg-gradient-to-r from-neon-cyan/20 to-neon-purple/20' : 'bg-gradient-neon'} shadow-[0_0_50px_hsl(var(--neon-purple)/0.4)]`}>
+                {/* Animated shimmer */}
+                <div className="absolute inset-0 opacity-30 pointer-events-none">
+                  <div className="absolute inset-y-0 -left-1/2 w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 animate-[shimmer_3s_infinite]" />
+                </div>
+                <CardContent className="p-6 relative">
                   {appliedCoupon && (
                     <div className={`mb-3 space-y-1 ${isFreeCutReservation ? 'text-foreground' : 'text-background/80'}`}>
                       <div className="flex justify-between text-sm">
@@ -1263,15 +1374,23 @@ const Booking = () => {
                         <p className="text-sm text-neon-cyan">¡Es tu corte gratis!</p>
                       )}
                     </div>
-                    <span className="text-4xl font-black">{totalPrice}€</span>
+                    <motion.span
+                      key={totalPrice}
+                      initial={{ scale: 1.3, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      className="text-5xl font-black tabular-nums"
+                    >
+                      {totalPrice}€
+                    </motion.span>
                   </div>
                 </CardContent>
               </Card>
+              </motion.div>
             )}
 
             {/* User Info / Login Prompt */}
-            <Card className="bg-card border-border">
-              <CardHeader>
+            <Card className="bg-card/60 backdrop-blur-xl border-neon-cyan/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.15)] overflow-hidden">
+              <CardHeader className="border-b border-neon-cyan/20 bg-gradient-to-r from-neon-cyan/10 to-transparent">
                 <CardTitle className="text-xl md:text-2xl">
                   {user && profile ? "Tu perfil" : "Inicia sesión"}
                 </CardTitle>
@@ -1325,8 +1444,9 @@ const Booking = () => {
                 )}
               </CardContent>
             </Card>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
       </div>
     </div>
   );
