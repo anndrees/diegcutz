@@ -232,7 +232,7 @@ export const NextAvailableSlot = () => {
   }
 
   return (
-    <div className="relative overflow-hidden">
+    <div className="relative">
       {/* Animated background glow */}
       <div
         className={`absolute inset-0 rounded-2xl blur-xl opacity-30 ${
@@ -249,7 +249,7 @@ export const NextAvailableSlot = () => {
         {/* Urgency badge */}
         {urgencyLevel !== "low" && (
           <div
-            className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
+            className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-20 shadow-lg whitespace-nowrap ${
               urgencyLevel === "high"
                 ? "bg-destructive text-destructive-foreground animate-bounce"
                 : "bg-primary text-primary-foreground"
