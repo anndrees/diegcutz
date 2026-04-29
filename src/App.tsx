@@ -11,7 +11,6 @@ import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import { NeonCursor } from "./components/fx/NeonCursor";
 import { RouteTransition } from "./components/fx/RouteTransition";
 import { SplashScreen } from "./components/fx/SplashScreen";
-import { ScrollTrail } from "./components/fx/ScrollTrail";
 import Home from "./pages/Home";
 import Booking from "./pages/Booking";
 import Admin from "./pages/Admin";
@@ -96,7 +95,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <SplashScreen />
-          <ScrollTrail />
           <NeonCursor />
           <AppContent />
         </BrowserRouter>
