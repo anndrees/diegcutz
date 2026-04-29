@@ -157,16 +157,7 @@ const Booking = () => {
     return () => clearInterval(interval);
   }, [user]);
 
-  // Auto-scroll to hours section on mobile when date is selected
-  useEffect(() => {
-    if (selectedDate && isMobile && hoursRef.current) {
-      setTimeout(() => {
-        hoursRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    }
-  }, [selectedDate, isMobile]);
-
-  // Mobile wizard auto-advance
+  // Mobile wizard auto-advance + scroll-to-top on step change
   useEffect(() => {
     if (!isMobile) return;
     if (selectedDate && mobileStep === 1) setMobileStep(2);
@@ -175,6 +166,10 @@ const Booking = () => {
     if (!isMobile) return;
     if (selectedTime && mobileStep === 2) setMobileStep(3);
   }, [selectedTime, isMobile]);
+  useEffect(() => {
+    if (!isMobile) return;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [mobileStep, isMobile]);
 
   // Check if this is a free cut reservation from URL params
   useEffect(() => {
