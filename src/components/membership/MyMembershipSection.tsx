@@ -35,16 +35,28 @@ export const MyMembershipSection = () => {
 
   const loadMembership = async () => {
     if (!user) return;
+    // Two separate queries because there is no FK between user_memberships and memberships
     const [subRes, tokenRes] = await Promise.all([
-      supabase.from("user_memberships").select("*, membership:memberships(*)").eq("user_id", user.id).eq("status", "active").maybeSingle(),
+      supabase
+        .from("user_memberships")
+        .select("*")
+        .eq("user_id", user.id)
+        .eq("status", "active")
+        .order("end_date", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
       supabase.from("profiles").select("loyalty_token").eq("id", user.id).single(),
     ]);
 
-    console.log("MyMembership subRes:", subRes.data, subRes.error);
     if (subRes.data) {
       const sub = subRes.data as any;
       setMembership(sub);
-      setPlan(Array.isArray(sub.membership) ? sub.membership[0] : sub.membership);
+      const { data: planData } = await supabase
+        .from("memberships")
+        .select("*")
+        .eq("id", sub.membership_id)
+        .maybeSingle();
+      if (planData) setPlan(planData);
     }
     setLoyaltyToken((tokenRes.data as any)?.loyalty_token || null);
     setLoading(false);
