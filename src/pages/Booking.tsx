@@ -1511,6 +1511,40 @@ const Booking = () => {
         )}
         </AnimatePresence>
       </div>
+
+      {/* Mobile bottom nav */}
+      {isMobile && (
+        <div
+          className="md:hidden fixed bottom-0 inset-x-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 bg-background/90 backdrop-blur-xl border-t border-neon-cyan/20"
+        >
+          <div className="flex items-center gap-2 max-w-md mx-auto">
+            <Button
+              variant="outline"
+              size="lg"
+              disabled={mobileStep === 1}
+              onClick={() => setMobileStep((s) => (Math.max(1, s - 1) as 1 | 2 | 3 | 4))}
+              className="flex-1 border-neon-purple/40"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" /> Atrás
+            </Button>
+            <Button
+              variant="neon"
+              size="lg"
+              disabled={
+                (mobileStep === 1 && !selectedDate) ||
+                (mobileStep === 2 && !selectedTime) ||
+                (mobileStep === 3 && !selectedPack && selectedServices.length === 0) ||
+                mobileStep === 4
+              }
+              onClick={() => setMobileStep((s) => (Math.min(4, s + 1) as 1 | 2 | 3 | 4))}
+              className="flex-1"
+            >
+              {mobileStep === 4 ? "Confirma arriba" : "Siguiente"}
+              {mobileStep !== 4 && <ChevronRight className="h-4 w-4 ml-1" />}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
