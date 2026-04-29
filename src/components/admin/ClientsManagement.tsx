@@ -13,6 +13,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { MergeUsersDialog } from "@/components/admin/MergeUsersDialog";
+import { Users } from "lucide-react";
 
 type Client = {
   id: string; full_name: string; username: string; contact_method: string;
@@ -45,6 +47,7 @@ export const ClientsManagement = () => {
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [formData, setFormData] = useState({ full_name: "", username: "", contact_value: "" });
   const [deleteDialog, setDeleteDialog] = useState<{ open: boolean; client: Client | null }>({ open: false, client: null });
+  const [mergeOpen, setMergeOpen] = useState(false);
 
   useEffect(() => { loadClients(); }, []);
 
@@ -123,6 +126,9 @@ export const ClientsManagement = () => {
         <div className="flex justify-between items-center gap-4 flex-wrap">
           <CardTitle>Gestión de Clientes ({clients.length})</CardTitle>
           <div className="flex items-center gap-2 w-full sm:w-auto">
+            <Button variant="outline" size="sm" onClick={() => setMergeOpen(true)} className="border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10">
+              <Users className="w-3.5 h-3.5 mr-1.5" /> Fusionar
+            </Button>
             <div className="relative flex-1 sm:w-48">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input placeholder="Buscar..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-10" />
@@ -249,6 +255,8 @@ export const ClientsManagement = () => {
       <ConfirmDialog open={deleteDialog.open} onOpenChange={(open) => setDeleteDialog({ open, client: deleteDialog.client })}
         title="Eliminar cliente" description={`¿Eliminar a ${deleteDialog.client?.full_name}? Se borrará COMPLETAMENTE.`}
         confirmText="Eliminar" cancelText="Cancelar" variant="destructive" onConfirm={handleDeleteConfirm} />
+
+      <MergeUsersDialog open={mergeOpen} onOpenChange={setMergeOpen} onMerged={loadClients} />
     </Card>
   );
 };
