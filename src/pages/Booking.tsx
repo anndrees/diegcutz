@@ -965,7 +965,7 @@ const Booking = () => {
                 </CardTitle>
                 <CardDescription>Los días cerrados no están disponibles</CardDescription>
               </CardHeader>
-              <CardContent className="flex justify-center overflow-x-auto p-4">
+              <CardContent className="flex justify-center overflow-x-auto p-4 pt-6">
                 <Calendar
                   mode="single"
                   selected={selectedDate}
@@ -998,7 +998,7 @@ const Booking = () => {
                         {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
                       </CardDescription>
                     </CardHeader>
-                    <CardContent className="p-4">
+                    <CardContent className="p-4 pt-6">
                       {availableHours.length === 0 ? (
                         <p className="text-destructive py-4 text-center">Cerrado este día</p>
                       ) : (
@@ -1087,7 +1087,7 @@ const Booking = () => {
                   </CardTitle>
                   <CardDescription>Solo puedes seleccionar un pack</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 pt-6">
                   {packs.map((pack) => {
                     // Build the "Incluye" text with services + custom extras
                     const includedServiceNames = pack.included_service_ids?.map(sid => 
@@ -1190,7 +1190,7 @@ const Booking = () => {
                     }
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 pt-6">
                   {services.map((service) => {
                     const isFreeCutService = isFreeCutReservation && 
                       (service.name.includes("DEGRADADO") || service.name.includes("VACIAR") || service.name.includes("TEXTURIZADO"));
@@ -1256,7 +1256,7 @@ const Booking = () => {
                   Añade un enlace a tu playlist favorita (Spotify, YouTube) para ponerla durante tu cita
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 <div className="space-y-2">
                   <Label htmlFor="playlist">Enlace de playlist (opcional)</Label>
                   <Input
@@ -1294,7 +1294,7 @@ const Booking = () => {
                     ¿Tienes un cupón promocional? Aplícalo aquí
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="pt-6">
                   {appliedCoupon ? (
                     <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary rounded-lg">
                       <div className="flex items-center gap-2">
@@ -1401,7 +1401,7 @@ const Booking = () => {
                   }
                 </CardDescription>
               </CardHeader>
-              <CardContent>
+              <CardContent className="pt-6">
                 {authLoading ? (
                   <p className="text-center py-4">Cargando...</p>
                 ) : user && profile ? (
