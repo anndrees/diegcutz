@@ -1398,7 +1398,11 @@ const Booking = () => {
                 </CardContent>
               </Card>
             )}
+            </div>
+            </MobileStep>
 
+            <MobileStep isMobile={isMobile} active={mobileStep === 4} step={4} currentStep={mobileStep}>
+            <div className="space-y-6">
             {/* Total Price */}
             {(selectedPack || selectedServices.length > 0) && (
               <motion.div
