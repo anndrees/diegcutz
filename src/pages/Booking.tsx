@@ -1001,8 +1001,9 @@ const Booking = () => {
           </motion.div>
         )}
 
-        <div className="grid md:grid-cols-2 gap-8">
-          {/* Calendar */}
+        <div className="grid md:grid-cols-2 gap-8 pb-24 md:pb-0">
+          {/* Calendar — Step 1 on mobile */}
+          <MobileStep isMobile={isMobile} active={mobileStep === 1} step={1} currentStep={mobileStep}>
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             animate={{ opacity: 1, x: 0 }}
@@ -1027,8 +1028,10 @@ const Booking = () => {
               </CardContent>
             </Card>
           </motion.div>
+          </MobileStep>
 
-          {/* Time Selection */}
+          {/* Time Selection — Step 2 on mobile */}
+          <MobileStep isMobile={isMobile} active={mobileStep === 2} step={2} currentStep={mobileStep}>
           <div className="space-y-6" ref={hoursRef}>
             <AnimatePresence mode="wait">
               {selectedDate && (
@@ -1116,6 +1119,7 @@ const Booking = () => {
               )}
             </AnimatePresence>
           </div>
+          </MobileStep>
         </div>
 
         {/* Services Selection */}
