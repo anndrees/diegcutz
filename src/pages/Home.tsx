@@ -443,22 +443,13 @@ const Home = () => {
           <div className="marquee-track text-sm md:text-base font-black uppercase tracking-[0.3em]">
             {Array.from({ length: 2 }).map((_, dup) => (
               <div key={dup} className="flex items-center gap-12 pr-12">
-                {[
-                  "✦ FADES PRECISOS",
-                  "★ DESDE MONÓVAR",
-                  "✦ STREET STYLE",
-                  "★ CASH ONLY",
-                  "✦ BEARD GAME",
-                  "★ NEXT-LEVEL LOOK",
-                  "✦ BOOK NOW",
-                  "★ DIEGCUTZ",
-                ].map((t, i) => (
+                {marqueeItems.map((item) => (
                   <span
-                    key={i}
-                    className={i % 2 === 0 ? "text-neon-cyan" : "text-neon-purple"}
+                    key={`${dup}-${item.id}`}
+                    className={colorClassFor(item.color)}
                     style={{ textShadow: "0 0 12px currentColor" }}
                   >
-                    {t}
+                    {item.text}
                   </span>
                 ))}
               </div>
