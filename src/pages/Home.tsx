@@ -438,25 +438,27 @@ const Home = () => {
       </section>
 
       {/* Marquee tagline strip */}
-      <div className="relative border-y border-neon-cyan/30 bg-background/40 backdrop-blur-sm py-3 overflow-hidden">
-        <div className="marquee">
-          <div className="marquee-track text-sm md:text-base font-black uppercase tracking-[0.3em]">
-            {Array.from({ length: 2 }).map((_, dup) => (
-              <div key={dup} className="flex items-center gap-12 pr-12">
-                {marqueeItems.map((item) => (
-                  <span
-                    key={`${dup}-${item.id}`}
-                    className={colorClassFor(item.color)}
-                    style={{ textShadow: "0 0 12px currentColor" }}
-                  >
-                    {item.text}
-                  </span>
-                ))}
-              </div>
-            ))}
+      {marqueeItems.length > 0 && (
+        <div className="relative border-y border-neon-cyan/30 bg-background/40 backdrop-blur-sm py-3 overflow-hidden">
+          <div className="marquee">
+            <div className="marquee-track text-sm md:text-base font-black uppercase tracking-[0.3em]">
+              {Array.from({ length: 2 }).map((_, dup) => (
+                <div key={dup} className="flex items-center gap-12 pr-12" aria-hidden={dup === 1}>
+                  {marqueeItems.map((item) => (
+                    <span
+                      key={`${dup}-${item.id}`}
+                      className={colorClassFor(item.color)}
+                      style={{ textShadow: "0 0 12px currentColor" }}
+                    >
+                      {item.text}
+                    </span>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Active Giveaway Banner */}
       {activeGiveaway && (
