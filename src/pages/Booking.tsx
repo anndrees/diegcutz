@@ -164,6 +164,16 @@ const Booking = () => {
     }
   }, [selectedDate, isMobile]);
 
+  // Mobile wizard auto-advance
+  useEffect(() => {
+    if (!isMobile) return;
+    if (selectedDate && mobileStep === 1) setMobileStep(2);
+  }, [selectedDate, isMobile]);
+  useEffect(() => {
+    if (!isMobile) return;
+    if (selectedTime && mobileStep === 2) setMobileStep(3);
+  }, [selectedTime, isMobile]);
+
   // Check if this is a free cut reservation from URL params
   useEffect(() => {
     const params = new URLSearchParams(location.search);
