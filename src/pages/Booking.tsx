@@ -17,6 +17,8 @@ import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Che
 import { CalendarDays, Scissors, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
+import { MobileStep } from "@/components/booking/MobileStep";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 // Validation schema for playlist URL
 const playlistUrlSchema = z.string().max(500, "URL demasiado larga").refine(
