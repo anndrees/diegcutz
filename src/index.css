@@ -406,3 +406,68 @@ All colors MUST be HSL.
   color: white !important;
   font-weight: bold !important;
 }
+
+/* ===== Konami Code Easter Egg ===== */
+@keyframes konami-fall {
+  0% {
+    transform: translate3d(0, -10vh, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0px), 110vh, 0) rotate(720deg);
+    opacity: 0.9;
+  }
+}
+
+@keyframes konami-flash {
+  0% { opacity: 0; }
+  15% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@keyframes konami-pop {
+  0% { transform: scale(0.4) rotate(-8deg); opacity: 0; filter: blur(8px); }
+  40% { transform: scale(1.15) rotate(2deg); opacity: 1; filter: blur(0); }
+  60% { transform: scale(0.95) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+}
+
+@keyframes konami-rave-hue {
+  0%   { filter: hue-rotate(0deg) saturate(1.4); }
+  50%  { filter: hue-rotate(180deg) saturate(1.8); }
+  100% { filter: hue-rotate(360deg) saturate(1.4); }
+}
+
+.konami-particle {
+  animation-name: konami-fall;
+  animation-timing-function: cubic-bezier(0.4, 0.1, 0.6, 1);
+  animation-fill-mode: forwards;
+  filter: drop-shadow(0 0 8px hsl(var(--neon-cyan) / 0.7));
+  will-change: transform, opacity;
+}
+
+.konami-flash {
+  background: radial-gradient(
+    circle at center,
+    hsl(var(--neon-cyan) / 0.45) 0%,
+    hsl(var(--neon-purple) / 0.35) 35%,
+    transparent 70%
+  );
+  animation: konami-flash 1.2s ease-out forwards;
+}
+
+.konami-title {
+  animation: konami-pop 0.9s cubic-bezier(0.22, 1.4, 0.36, 1) forwards;
+}
+
+html.konami-rave body {
+  animation: konami-rave-hue 2s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.konami-rave body { animation: none; }
+  .konami-particle { animation-duration: 0.01ms !important; }
+}
