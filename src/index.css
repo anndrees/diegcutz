@@ -287,9 +287,13 @@ All colors MUST be HSL.
   .marquee-track {
     display: flex;
     gap: 3rem;
-    animation: marquee-scroll 40s linear infinite;
+    animation: marquee-scroll 50s linear infinite;
     white-space: nowrap;
     flex-shrink: 0;
+    will-change: transform;
+  }
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
   }
   @keyframes marquee-scroll {
     from { transform: translateX(0); }
