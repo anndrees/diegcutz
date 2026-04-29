@@ -14,6 +14,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Check, Loader2 } from "lucide-react";
+import { CalendarDays, Scissors, CheckCircle2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
 
 // Validation schema for playlist URL
