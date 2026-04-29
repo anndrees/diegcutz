@@ -222,6 +222,15 @@ const Home = () => {
     }
   };
 
+  const loadMarquee = async () => {
+    const { data } = await supabase
+      .from("marquee_items")
+      .select("id, text, color")
+      .eq("is_active", true)
+      .order("sort_order", { ascending: true });
+    setMarqueeItems((data as any[]) || []);
+  };
+
   return (
     <div className="min-h-screen overflow-x-hidden relative">
       {/* Global ambient FX layers (decoration only, behind everything) */}
