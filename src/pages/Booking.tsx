@@ -13,7 +13,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
-import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Check, Loader2, ClipboardPaste } from "lucide-react";
 import { CalendarDays, Scissors, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
@@ -1316,18 +1316,75 @@ const Booking = () => {
               <CardContent className="pt-6">
                 <div className="space-y-2">
                   <Label htmlFor="playlist">Enlace de playlist (opcional)</Label>
-                  <Input
-                    id="playlist"
-                    type="url"
-                    placeholder="https://open.spotify.com/playlist/... o https://youtube.com/playlist?..."
-                    value={playlistUrl}
-                    onChange={(e) => {
-                      setPlaylistUrl(e.target.value);
-                      setPlaylistUrlError("");
-                    }}
-                    className={`bg-background ${playlistUrlError ? 'border-destructive' : ''}`}
-                    maxLength={500}
-                  />
+                  {(() => {
+                    const url = playlistUrl.toLowerCase();
+                    const isSpotify = /spotify\.com|spotify:/i.test(url);
+                    const isYoutube = /youtube\.com|youtu\.be/i.test(url);
+                    const showSpotify = !url || isSpotify;
+                    const showYoutube = !url || isYoutube;
+                    return (
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-2 pointer-events-none z-10">
+                          {showSpotify && (
+                            <svg
+                              viewBox="0 0 24 24"
+                              className={`w-5 h-5 transition-all ${isSpotify ? 'opacity-100 scale-110' : 'opacity-50'}`}
+                              fill="#1DB954"
+                              aria-label="Spotify"
+                            >
+                              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.42 1.56-.299.421-1.02.599-1.559.3z"/>
+                            </svg>
+                          )}
+                          {showYoutube && (
+                            <svg
+                              viewBox="0 0 24 24"
+                              className={`w-5 h-5 transition-all ${isYoutube ? 'opacity-100 scale-110' : 'opacity-50'}`}
+                              fill="#FF0000"
+                              aria-label="YouTube"
+                            >
+                              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                            </svg>
+                          )}
+                        </div>
+                        <Input
+                          id="playlist"
+                          type="url"
+                          placeholder="https://open.spotify.com/playlist/... o https://youtube.com/..."
+                          value={playlistUrl}
+                          onChange={(e) => {
+                            setPlaylistUrl(e.target.value);
+                            setPlaylistUrlError("");
+                          }}
+                          className={`bg-background pr-12 ${showSpotify && showYoutube ? 'pl-16' : 'pl-11'} ${playlistUrlError ? 'border-destructive' : ''}`}
+                          maxLength={500}
+                        />
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            try {
+                              const text = await navigator.clipboard.readText();
+                              if (text) {
+                                setPlaylistUrl(text.trim());
+                                setPlaylistUrlError("");
+                                toast({ title: "Pegado", description: "Enlace pegado desde el portapapeles" });
+                              }
+                            } catch {
+                              toast({
+                                title: "No se pudo pegar",
+                                description: "Permite el acceso al portapapeles o pégalo manualmente",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-md bg-neon-pink/10 hover:bg-neon-pink/20 text-neon-pink hover:text-neon-pink transition-all hover:scale-110 active:scale-95 z-10"
+                          title="Pegar del portapapeles"
+                          aria-label="Pegar enlace del portapapeles"
+                        >
+                          <ClipboardPaste className="w-4 h-4" />
+                        </button>
+                      </div>
+                    );
+                  })()}
                   {playlistUrlError ? (
                     <p className="text-xs text-destructive">{playlistUrlError}</p>
                   ) : (
