@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { format, isToday, isThisWeek, parseISO, addHours, isThisMonth } from "date-fns";
 import { es } from "date-fns/locale";
 import {
-  CalendarIcon, Clock, Search, Edit2, Trash2, X, RotateCcw, CheckCircle,
+  CalendarIcon, Search, Edit2, Trash2, X, RotateCcw, CheckCircle,
   Music, ExternalLink, Sparkles, Users, TrendingUp, Activity, Flame, Calendar as CalIcon,
   SlidersHorizontal, RotateCw,
 } from "lucide-react";
