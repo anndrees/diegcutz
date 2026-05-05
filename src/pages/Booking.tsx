@@ -1085,13 +1085,69 @@ const Booking = () => {
                 <CardDescription>Los días cerrados no están disponibles</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center overflow-x-auto p-4 pt-6">
-                <Calendar
-                  mode="single"
-                  selected={selectedDate}
-                  onSelect={setSelectedDate}
-                  disabled={isDayDisabled}
-                  className="rounded-md pointer-events-auto scale-90 sm:scale-100"
-                />
+                <div className="w-full">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={setSelectedDate}
+                    disabled={isDayDisabled}
+                    className="rounded-md pointer-events-auto scale-90 sm:scale-100"
+                    modifiers={{
+                      dayFull: (d: Date) => getDayAvailability(d) === "full",
+                      dayFew:  (d: Date) => getDayAvailability(d) === "few",
+                      dayOpen: (d: Date) => getDayAvailability(d) === "open",
+                    }}
+                    modifiersClassNames={{
+                      dayFull: "relative !bg-destructive/15 !text-destructive font-bold ring-1 ring-destructive/40 rounded-full",
+                      dayFew:  "relative !bg-yellow-500/15 !text-yellow-400 font-bold ring-1 ring-yellow-500/40 rounded-full",
+                      dayOpen: "relative !bg-neon-cyan/10 !text-neon-cyan font-bold ring-1 ring-neon-cyan/30 rounded-full",
+                    }}
+                    components={{
+                      DayContent: ({ date }: any) => {
+                        const av = getDayAvailability(date);
+                        const free = Math.max(0, slotsForDate(date) - (bookingsByDate[format(date, "yyyy-MM-dd")] || 0));
+                        const title =
+                          av === "closed" ? "Cerrado" :
+                          av === "full"   ? "Día completo" :
+                          av === "few"    ? `Solo ${free} ${free === 1 ? "hora libre" : "horas libres"}` :
+                                            `${free} horas libres`;
+                        return (
+                          <span title={title} className="relative inline-flex items-center justify-center w-full h-full">
+                            {date.getDate()}
+                            {av !== "closed" && (
+                              <span
+                                className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${
+                                  av === "full" ? "bg-destructive shadow-[0_0_4px_hsl(var(--destructive))]" :
+                                  av === "few"  ? "bg-yellow-400 shadow-[0_0_4px_rgb(250_204_21)]" :
+                                                  "bg-neon-cyan shadow-[0_0_4px_hsl(var(--neon-cyan))]"
+                                }`}
+                              />
+                            )}
+                          </span>
+                        );
+                      },
+                    }}
+                  />
+                  {/* Legend */}
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] uppercase tracking-widest">
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-neon-cyan/30 bg-neon-cyan/5">
+                      <span className="w-2 h-2 rounded-full bg-neon-cyan shadow-[0_0_6px_hsl(var(--neon-cyan))]" />
+                      <span className="text-neon-cyan font-bold">Libre</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-yellow-500/30 bg-yellow-500/5">
+                      <span className="w-2 h-2 rounded-full bg-yellow-400 shadow-[0_0_6px_rgb(250_204_21)]" />
+                      <span className="text-yellow-400 font-bold">Casi lleno</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-destructive/30 bg-destructive/5">
+                      <span className="w-2 h-2 rounded-full bg-destructive shadow-[0_0_6px_hsl(var(--destructive))]" />
+                      <span className="text-destructive font-bold">Ocupado</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-muted/20">
+                      <span className="w-2 h-2 rounded-full bg-muted-foreground/60" />
+                      <span className="text-muted-foreground font-bold">Cerrado</span>
+                    </div>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </motion.div>
