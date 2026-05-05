@@ -578,8 +578,12 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 pt-safe">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
+      {/* Neon ambient background */}
+      <div className="pointer-events-none absolute inset-0 bg-neon-grid opacity-20" />
+      <div className="pointer-events-none absolute -top-40 -left-40 w-[28rem] h-[28rem] rounded-full bg-neon-purple/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[28rem] h-[28rem] rounded-full bg-neon-cyan/10 blur-3xl" />
+      <div className="max-w-7xl mx-auto relative">
         <div className="flex justify-between items-center mb-8">
           <Button variant="ghost" onClick={() => navigate("/")} className="hidden lg:flex">
             <ArrowLeft className="mr-2" />
@@ -605,7 +609,7 @@ const Admin = () => {
         </div>
 
         <div className="text-center mb-8 lg:mb-12">
-          <h1 className="text-3xl lg:text-5xl font-black mb-2 lg:mb-4 text-neon-cyan">
+          <h1 className="text-3xl lg:text-5xl font-black mb-2 lg:mb-4 text-neon-cyan font-aggressive tracking-wider" style={{ textShadow: "0 0 18px hsl(var(--neon-cyan) / 0.6)" }}>
             PANEL DE ADMINISTRACIÓN
           </h1>
           <p className="text-sm lg:text-xl text-muted-foreground">
