@@ -110,6 +110,33 @@ export const AdminBookingsSection = ({
 }: Props) => {
   const isMobile = useIsMobile();
   const [searchQuery, setSearchQuery] = useState("");
+  const [statusFilter, setStatusFilter] = useState<"all" | "upcoming" | "today" | "past" | "cancelled">("all");
+  const [serviceFilter, setServiceFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+  const [dateTo, setDateTo] = useState<string>("");
+
+  const allServiceLabels = useMemo(() => {
+    const set = new Set<string>();
+    bookings.forEach(b => b.services?.forEach(s => {
+      // Strip price suffix if present, e.g. "Corte (15€)" -> "Corte"
+      const clean = s.replace(/\s*\(.*\)\s*$/, "").trim();
+      if (clean) set.add(clean);
+    }));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [bookings]);
+
+  const activeFilterCount =
+    (statusFilter !== "all" ? 1 : 0) +
+    (serviceFilter !== "all" ? 1 : 0) +
+    (dateFrom ? 1 : 0) +
+    (dateTo ? 1 : 0);
+
+  const resetFilters = () => {
+    setStatusFilter("all");
+    setServiceFilter("all");
+    setDateFrom("");
+    setDateTo("");
+  };
 
   const stats = useMemo(() => {
     const active = bookings.filter(b => !b.is_cancelled);
