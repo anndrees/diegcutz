@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { MobileStep } from "@/components/booking/MobileStep";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { PlaylistPreview } from "@/components/booking/PlaylistPreview";
 
 // Validation schema for playlist URL
 const playlistUrlSchema = z.string().max(500, "URL demasiado larga").refine(
