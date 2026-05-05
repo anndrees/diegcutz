@@ -187,6 +187,7 @@ const Booking = () => {
     loadBusinessHours();
     loadSameDaySettings();
     loadMembershipBenefits();
+    loadUpcomingBookingsCounts();
   }, []);
 
   const loadBusinessHours = async () => {
@@ -358,6 +359,50 @@ const Booking = () => {
     }
 
     setBookedTimes(data.map((b) => b.booking_time));
+  };
+
+  // Load booking counts for the next ~60 days, used to color the calendar.
+  const loadUpcomingBookingsCounts = async () => {
+    const today = new Date();
+    const end = new Date();
+    end.setDate(end.getDate() + 60);
+    const { data, error } = await supabase
+      .from("bookings")
+      .select("booking_date")
+      .gte("booking_date", format(today, "yyyy-MM-dd"))
+      .lte("booking_date", format(end, "yyyy-MM-dd"))
+      .or("is_cancelled.is.null,is_cancelled.eq.false");
+    if (error || !data) return;
+    const counts: Record<string, number> = {};
+    data.forEach((b: any) => {
+      counts[b.booking_date] = (counts[b.booking_date] || 0) + 1;
+    });
+    setBookingsByDate(counts);
+  };
+
+  // Count of free 1h slots in a given date based on business hours.
+  const slotsForDate = (date: Date): number => {
+    if (businessHours.length === 0) return 0;
+    const dc = businessHours.find(h => h.day_of_week === date.getDay());
+    if (!dc || dc.is_closed) return 0;
+    if (dc.is_24h) return 23;
+    let n = 0;
+    dc.time_ranges.forEach(r => {
+      const s = toMinutes(r.start), e = toMinutes(r.end);
+      for (let i = s; i + 60 <= e; i += 60) n++;
+    });
+    return n;
+  };
+
+  const getDayAvailability = (date: Date): "full" | "few" | "open" | "closed" => {
+    if (isDayClosed(date)) return "closed";
+    const total = slotsForDate(date);
+    if (total === 0) return "closed";
+    const booked = bookingsByDate[format(date, "yyyy-MM-dd")] || 0;
+    const free = Math.max(0, total - booked);
+    if (free === 0) return "full";
+    if (free <= 2) return "few";
+    return "open";
   };
 
   // Returns available 1h slots as minutes-from-midnight, considering:
