@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music2, ExternalLink, Loader2, AlertCircle, Check, Globe } from "lucide-react";
+import { Music2, ExternalLink, Loader2, Check, Globe } from "lucide-react";
 
 type Provider = "spotify" | "youtube" | "other";
 
