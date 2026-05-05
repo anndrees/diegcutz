@@ -97,6 +97,7 @@ const Booking = () => {
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [loadingServices, setLoadingServices] = useState(true);
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
+  const [bookingsByDate, setBookingsByDate] = useState<Record<string, number>>({});
   const [isFreeCutReservation, setIsFreeCutReservation] = useState(false);
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
   const [playlistUrl, setPlaylistUrl] = useState<string>("");
