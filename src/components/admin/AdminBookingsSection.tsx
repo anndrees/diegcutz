@@ -1,10 +1,11 @@
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { format, addDays, startOfWeek, isToday, isThisWeek, parseISO, addHours, isThisMonth, isAfter } from "date-fns";
+import { format, isToday, isThisWeek, parseISO, addHours, isThisMonth } from "date-fns";
 import { es } from "date-fns/locale";
 import {
   CalendarIcon, Clock, Search, Edit2, Trash2, X, RotateCcw, CheckCircle,
   Music, ExternalLink, Sparkles, Users, TrendingUp, Activity, Flame, Calendar as CalIcon,
+  SlidersHorizontal, RotateCw,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -12,7 +13,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar } from "@/components/ui/calendar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 export type AdminBooking = {
