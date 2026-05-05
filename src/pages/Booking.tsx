@@ -1075,7 +1075,32 @@ const Booking = () => {
                     </CardHeader>
                     <CardContent className="p-4 pt-6">
                       {availableHours.length === 0 ? (
-                        <p className="text-destructive py-4 text-center">Cerrado este día</p>
+                        (() => {
+                          const allSlots = getAllDaySlots();
+                          if (allSlots.length === 0) return <p className="text-destructive py-4 text-center">Cerrado este día</p>;
+                          return (
+                            <div className="space-y-3">
+                              <div className="rounded-lg border-2 border-destructive/60 bg-destructive/10 px-3 py-2 flex items-center gap-2 shadow-[0_0_25px_hsl(var(--destructive)/0.4)]">
+                                <span className="relative flex h-2.5 w-2.5">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
+                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
+                                </span>
+                                <span className="text-sm font-bold uppercase tracking-wider text-destructive">Día completo · prueba otro día</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 opacity-60">
+                                {allSlots.map((s) => {
+                                  const hh = Math.floor(s / 60).toString().padStart(2, "0");
+                                  const mm = (s % 60).toString().padStart(2, "0");
+                                  return (
+                                    <div key={s} className="h-12 sm:h-14 rounded-lg border-2 border-destructive/40 bg-destructive/5 text-destructive/70 flex items-center justify-center font-mono font-bold tracking-wider line-through text-sm">
+                                      {hh}:{mm}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })()
                       ) : (
                         <>
                           {(() => {
