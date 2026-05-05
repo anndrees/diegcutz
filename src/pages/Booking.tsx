@@ -1483,6 +1483,7 @@ const Booking = () => {
                       Añade tu playlist y la pondremos durante tu cita. ¡Disfruta de tu música favorita!
                     </p>
                   )}
+                  {!playlistUrlError && playlistUrl && <PlaylistPreview url={playlistUrl} />}
                 </div>
               </CardContent>
             </Card>
