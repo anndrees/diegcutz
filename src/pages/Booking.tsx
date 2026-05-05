@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { MobileStep } from "@/components/booking/MobileStep";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { PlaylistPreview } from "@/components/booking/PlaylistPreview";
 
 // Validation schema for playlist URL
 const playlistUrlSchema = z.string().max(500, "URL demasiado larga").refine(
@@ -406,6 +407,26 @@ const Booking = () => {
     }
 
     return slots.sort((a, b) => a - b);
+  };
+
+  // Returns ALL day slots (open ranges), regardless of booked/availability.
+  // Used to render occupied slots visibly in the grid.
+  const getAllDaySlots = (): number[] => {
+    if (!selectedDate || businessHours.length === 0) return [];
+    const dayOfWeek = selectedDate.getDay();
+    const dayConfig = businessHours.find(h => h.day_of_week === dayOfWeek);
+    if (!dayConfig || dayConfig.is_closed) return [];
+    const slotsSet: Set<number> = new Set();
+    if (dayConfig.is_24h) {
+      for (let h = 0; h < 23; h++) slotsSet.add(h * 60);
+    } else {
+      dayConfig.time_ranges.forEach(range => {
+        const startMin = toMinutes(range.start);
+        const endMin = toMinutes(range.end);
+        for (let s = startMin; s + 60 <= endMin; s += 60) slotsSet.add(s);
+      });
+    }
+    return Array.from(slotsSet).sort((a, b) => a - b);
   };
 
   const isDayDisabled = (date: Date): boolean => {
@@ -1054,8 +1075,76 @@ const Booking = () => {
                     </CardHeader>
                     <CardContent className="p-4 pt-6">
                       {availableHours.length === 0 ? (
-                        <p className="text-destructive py-4 text-center">Cerrado este día</p>
+                        (() => {
+                          const allSlots = getAllDaySlots();
+                          if (allSlots.length === 0) return <p className="text-destructive py-4 text-center">Cerrado este día</p>;
+                          return (
+                            <div className="space-y-3">
+                              <div className="rounded-lg border-2 border-destructive/60 bg-destructive/10 px-3 py-2 flex items-center gap-2 shadow-[0_0_25px_hsl(var(--destructive)/0.4)]">
+                                <span className="relative flex h-2.5 w-2.5">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
+                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
+                                </span>
+                                <span className="text-sm font-bold uppercase tracking-wider text-destructive">Día completo · prueba otro día</span>
+                              </div>
+                              <div className="grid grid-cols-3 gap-2 opacity-60">
+                                {allSlots.map((s) => {
+                                  const hh = Math.floor(s / 60).toString().padStart(2, "0");
+                                  const mm = (s % 60).toString().padStart(2, "0");
+                                  return (
+                                    <div key={s} className="h-12 sm:h-14 rounded-lg border-2 border-destructive/40 bg-destructive/5 text-destructive/70 flex items-center justify-center font-mono font-bold tracking-wider line-through text-sm">
+                                      {hh}:{mm}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })()
                       ) : (
+                        <>
+                          {(() => {
+                            const totalSlots = availableHours.length + bookedTimes.filter(b => {
+                              // count bookings inside today's open ranges only (rough)
+                              return true;
+                            }).length;
+                            const freeCount = availableHours.length;
+                            const bookedCount = bookedTimes.length;
+                            const isFull = freeCount === 0;
+                            return (
+                              <div className="mb-4 space-y-2">
+                                <div className={`relative overflow-hidden rounded-lg border-2 px-3 py-2 flex items-center justify-between gap-3 ${
+                                  isFull
+                                    ? 'border-destructive/60 bg-destructive/10 shadow-[0_0_25px_hsl(var(--destructive)/0.4)]'
+                                    : freeCount <= 2
+                                    ? 'border-yellow-500/60 bg-yellow-500/10 shadow-[0_0_25px_rgb(234_179_8/0.4)]'
+                                    : 'border-neon-cyan/60 bg-neon-cyan/10 shadow-[0_0_25px_hsl(var(--neon-cyan)/0.4)]'
+                                }`}>
+                                  <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                                    <span className={`relative flex h-2.5 w-2.5`}>
+                                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                                        isFull ? 'bg-destructive' : freeCount <= 2 ? 'bg-yellow-500' : 'bg-neon-cyan'
+                                      }`} />
+                                      <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                                        isFull ? 'bg-destructive' : freeCount <= 2 ? 'bg-yellow-500' : 'bg-neon-cyan'
+                                      }`} />
+                                    </span>
+                                    <span className={isFull ? 'text-destructive' : freeCount <= 2 ? 'text-yellow-500' : 'text-neon-cyan'}>
+                                      {isFull ? 'Día completo' : freeCount <= 2 ? `¡Solo ${freeCount} ${freeCount === 1 ? 'hora' : 'horas'}!` : `${freeCount} horas libres`}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <span className="text-muted-foreground">{bookedCount} reservadas</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
+                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-neon-cyan/30 border border-neon-cyan" /> Libre</span>
+                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-neon-cyan to-neon-purple" /> Seleccionada</span>
+                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-destructive/30 border border-destructive" /> Ocupada</span>
+                                </div>
+                              </div>
+                            );
+                          })()}
                         <motion.div
                           initial="hidden"
                           animate="visible"
@@ -1064,12 +1153,13 @@ const Booking = () => {
                           }}
                           className="grid grid-cols-3 sm:grid-cols-3 gap-2"
                         >
-                          {availableHours.map((slotMin) => {
+                          {getAllDaySlots().map((slotMin) => {
                             const hh = Math.floor(slotMin / 60).toString().padStart(2, "0");
                             const mm = (slotMin % 60).toString().padStart(2, "0");
                             const timeString = `${hh}:${mm}:00`;
                             const label = `${hh}:${mm}`;
-                            const isBooked = bookedTimes.includes(timeString);
+                            const isAvailable = availableHours.includes(slotMin);
+                            const isBooked = !isAvailable;
                             const isSelected = selectedTime === timeString;
 
                             return (
@@ -1112,6 +1202,7 @@ const Booking = () => {
                             );
                           })}
                         </motion.div>
+                        </>
                       )}
                     </CardContent>
                   </Card>
@@ -1392,6 +1483,7 @@ const Booking = () => {
                       Añade tu playlist y la pondremos durante tu cita. ¡Disfruta de tu música favorita!
                     </p>
                   )}
+                  {!playlistUrlError && playlistUrl && <PlaylistPreview url={playlistUrl} />}
                 </div>
               </CardContent>
             </Card>

@@ -53,6 +53,7 @@ import { QrScanner } from "@/components/admin/QrScanner";
 import { ActiveAppointmentBanner } from "@/components/admin/ActiveAppointmentBanner";
 import { AvailableHoursModal } from "@/components/admin/AvailableHoursModal";
 import { AdminHelpCenter } from "@/components/admin/AdminHelpCenter";
+import { AdminBookingsSection } from "@/components/admin/AdminBookingsSection";
 
 type Booking = {
   id: string;
@@ -577,8 +578,12 @@ const Admin = () => {
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 pt-safe">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
+      {/* Neon ambient background */}
+      <div className="pointer-events-none absolute inset-0 bg-neon-grid opacity-20" />
+      <div className="pointer-events-none absolute -top-40 -left-40 w-[28rem] h-[28rem] rounded-full bg-neon-purple/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[28rem] h-[28rem] rounded-full bg-neon-cyan/10 blur-3xl" />
+      <div className="max-w-7xl mx-auto relative">
         <div className="flex justify-between items-center mb-8">
           <Button variant="ghost" onClick={() => navigate("/")} className="hidden lg:flex">
             <ArrowLeft className="mr-2" />
@@ -604,7 +609,7 @@ const Admin = () => {
         </div>
 
         <div className="text-center mb-8 lg:mb-12">
-          <h1 className="text-3xl lg:text-5xl font-black mb-2 lg:mb-4 text-neon-cyan">
+          <h1 className="text-3xl lg:text-5xl font-black mb-2 lg:mb-4 text-neon-cyan font-aggressive tracking-wider" style={{ textShadow: "0 0 18px hsl(var(--neon-cyan) / 0.6)" }}>
             PANEL DE ADMINISTRACIÓN
           </h1>
           <p className="text-sm lg:text-xl text-muted-foreground">
@@ -622,97 +627,19 @@ const Admin = () => {
           {/* Main content */}
           <main className="flex-1 min-w-0">
             {activeTab === "bookings" && (
-              <div className="space-y-6">
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* Calendario Visual */}
-                  <Card className="bg-card border-border">
-                    <CardHeader>
-                      <CardTitle className="text-xl flex items-center gap-2">
-                        <CalendarIcon className="h-5 w-5" />
-                        Calendario de Reservas
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="flex flex-col items-center">
-                      <Calendar
-                        mode="single"
-                        selected={selectedCalendarDate}
-                        onSelect={(date) => {
-                          setSelectedCalendarDate(date);
-                          if (date) setShowDayOptionsDialog(true);
-                        }}
-                        className="rounded-md border border-border pointer-events-auto"
-                        modifiers={{
-                          currentBooking: currentDatesWithBookings,
-                          pastBooking: pastDatesWithBookings,
-                        }}
-                        modifiersClassNames={{
-                          currentBooking: "bg-neon-purple text-white font-bold rounded-full",
-                          pastBooking: "bg-muted text-muted-foreground font-bold rounded-full",
-                        }}
-                      />
-                    </CardContent>
-                  </Card>
-
-                  {/* Estadísticas */}
-                  <Card className="bg-card border-border lg:col-span-2">
-                    <CardHeader>
-                      <CardTitle className="text-xl">Resumen</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="text-center p-4 bg-neon-purple/10 rounded-lg">
-                          <p className="text-3xl font-bold text-neon-purple">{currentBookings.length}</p>
-                          <p className="text-sm text-muted-foreground">Reservas Actuales</p>
-                        </div>
-                        <div className="text-center p-4 bg-muted rounded-lg">
-                          <p className="text-3xl font-bold text-muted-foreground">{pastBookings.length}</p>
-                          <p className="text-sm text-muted-foreground">Reservas Pasadas</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </div>
-
-                <Card className="bg-card border-border">
-                  <CardHeader>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                      <CardTitle className="text-2xl">Reservas</CardTitle>
-                      <div className="flex gap-2 w-full sm:w-auto">
-                        <div className="relative flex-1 sm:flex-initial">
-                          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input
-                            placeholder="Buscar cliente..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="pl-10 w-full sm:w-[250px]"
-                          />
-                        </div>
-                        <Button onClick={loadBookings} disabled={loading}>
-                          {loading ? "Cargando..." : "Actualizar"}
-                        </Button>
-                      </div>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <Tabs defaultValue="current" className="w-full">
-                      <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="current">
-                          Actuales ({currentBookings.length})
-                        </TabsTrigger>
-                        <TabsTrigger value="past">
-                          Pasadas ({pastBookings.length})
-                        </TabsTrigger>
-                      </TabsList>
-                      <TabsContent value="current" className="mt-4">
-                        <BookingsTable bookings={currentBookings} />
-                      </TabsContent>
-                      <TabsContent value="past" className="mt-4">
-                        <BookingsTable bookings={pastBookings} />
-                      </TabsContent>
-                    </Tabs>
-                  </CardContent>
-                </Card>
-              </div>
+              <AdminBookingsSection
+                bookings={bookings}
+                loading={loading}
+                onReload={loadBookings}
+                onEdit={openEditDialog}
+                onCancel={openCancelDialog}
+                onDelete={openDeleteConfirm}
+                onReactivate={handleReactivateBooking}
+                onSelectDay={(date) => {
+                  setSelectedCalendarDate(date);
+                  setShowDayOptionsDialog(true);
+                }}
+              />
             )}
 
             {activeTab === "statistics" && (
