@@ -1057,6 +1057,49 @@ const Booking = () => {
                       {availableHours.length === 0 ? (
                         <p className="text-destructive py-4 text-center">Cerrado este día</p>
                       ) : (
+                        <>
+                          {(() => {
+                            const totalSlots = availableHours.length + bookedTimes.filter(b => {
+                              // count bookings inside today's open ranges only (rough)
+                              return true;
+                            }).length;
+                            const freeCount = availableHours.length;
+                            const bookedCount = bookedTimes.length;
+                            const isFull = freeCount === 0;
+                            return (
+                              <div className="mb-4 space-y-2">
+                                <div className={`relative overflow-hidden rounded-lg border-2 px-3 py-2 flex items-center justify-between gap-3 ${
+                                  isFull
+                                    ? 'border-destructive/60 bg-destructive/10 shadow-[0_0_25px_hsl(var(--destructive)/0.4)]'
+                                    : freeCount <= 2
+                                    ? 'border-yellow-500/60 bg-yellow-500/10 shadow-[0_0_25px_rgb(234_179_8/0.4)]'
+                                    : 'border-neon-cyan/60 bg-neon-cyan/10 shadow-[0_0_25px_hsl(var(--neon-cyan)/0.4)]'
+                                }`}>
+                                  <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
+                                    <span className={`relative flex h-2.5 w-2.5`}>
+                                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
+                                        isFull ? 'bg-destructive' : freeCount <= 2 ? 'bg-yellow-500' : 'bg-neon-cyan'
+                                      }`} />
+                                      <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
+                                        isFull ? 'bg-destructive' : freeCount <= 2 ? 'bg-yellow-500' : 'bg-neon-cyan'
+                                      }`} />
+                                    </span>
+                                    <span className={isFull ? 'text-destructive' : freeCount <= 2 ? 'text-yellow-500' : 'text-neon-cyan'}>
+                                      {isFull ? 'Día completo' : freeCount <= 2 ? `¡Solo ${freeCount} ${freeCount === 1 ? 'hora' : 'horas'}!` : `${freeCount} horas libres`}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-2 text-xs">
+                                    <span className="text-muted-foreground">{bookedCount} reservadas</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
+                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-neon-cyan/30 border border-neon-cyan" /> Libre</span>
+                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-neon-cyan to-neon-purple" /> Seleccionada</span>
+                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-destructive/30 border border-destructive" /> Ocupada</span>
+                                </div>
+                              </div>
+                            );
+                          })()}
                         <motion.div
                           initial="hidden"
                           animate="visible"
@@ -1113,6 +1156,7 @@ const Booking = () => {
                             );
                           })}
                         </motion.div>
+                        </>
                       )}
                     </CardContent>
                   </Card>
