@@ -409,6 +409,26 @@ const Booking = () => {
     return slots.sort((a, b) => a - b);
   };
 
+  // Returns ALL day slots (open ranges), regardless of booked/availability.
+  // Used to render occupied slots visibly in the grid.
+  const getAllDaySlots = (): number[] => {
+    if (!selectedDate || businessHours.length === 0) return [];
+    const dayOfWeek = selectedDate.getDay();
+    const dayConfig = businessHours.find(h => h.day_of_week === dayOfWeek);
+    if (!dayConfig || dayConfig.is_closed) return [];
+    const slotsSet: Set<number> = new Set();
+    if (dayConfig.is_24h) {
+      for (let h = 0; h < 23; h++) slotsSet.add(h * 60);
+    } else {
+      dayConfig.time_ranges.forEach(range => {
+        const startMin = toMinutes(range.start);
+        const endMin = toMinutes(range.end);
+        for (let s = startMin; s + 60 <= endMin; s += 60) slotsSet.add(s);
+      });
+    }
+    return Array.from(slotsSet).sort((a, b) => a - b);
+  };
+
   const isDayDisabled = (date: Date): boolean => {
     // Past dates
     const today = new Date();
