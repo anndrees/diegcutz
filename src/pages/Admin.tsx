@@ -53,6 +53,7 @@ import { QrScanner } from "@/components/admin/QrScanner";
 import { ActiveAppointmentBanner } from "@/components/admin/ActiveAppointmentBanner";
 import { AvailableHoursModal } from "@/components/admin/AvailableHoursModal";
 import { AdminHelpCenter } from "@/components/admin/AdminHelpCenter";
+import { AdminBookingsSection } from "@/components/admin/AdminBookingsSection";
 
 type Booking = {
   id: string;
