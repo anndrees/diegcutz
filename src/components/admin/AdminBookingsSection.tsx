@@ -418,6 +418,79 @@ export const AdminBookingsSection = ({
                   className="pl-10 w-full sm:w-[280px] bg-background/60 border-neon-cyan/30 focus:border-neon-cyan focus:ring-neon-cyan/30"
                 />
               </div>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" className="border-neon-purple/40 text-neon-purple hover:bg-neon-purple/10 relative">
+                    <SlidersHorizontal className="h-4 w-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Filtros</span>
+                    {activeFilterCount > 0 && (
+                      <span className="absolute -top-1 -right-1 bg-neon-cyan text-background text-[10px] font-black rounded-full w-4 h-4 flex items-center justify-center shadow-[0_0_8px_hsl(var(--neon-cyan))]">
+                        {activeFilterCount}
+                      </span>
+                    )}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-80 p-4 bg-card/95 backdrop-blur-xl border-neon-purple/30">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-black uppercase tracking-widest text-neon-cyan">Filtros</p>
+                      {activeFilterCount > 0 && (
+                        <Button variant="ghost" size="sm" onClick={resetFilters} className="h-7 text-xs text-muted-foreground hover:text-destructive">
+                          <RotateCw className="h-3 w-3 mr-1" /> Limpiar
+                        </Button>
+                      )}
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Estado</Label>
+                      <Select value={statusFilter} onValueChange={(v: any) => setStatusFilter(v)}>
+                        <SelectTrigger className="bg-background/60 border-neon-purple/30">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Todas</SelectItem>
+                          <SelectItem value="upcoming">Próximas</SelectItem>
+                          <SelectItem value="today">Hoy</SelectItem>
+                          <SelectItem value="past">Completadas</SelectItem>
+                          <SelectItem value="cancelled">Canceladas</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Servicio</Label>
+                      <Select value={serviceFilter} onValueChange={setServiceFilter}>
+                        <SelectTrigger className="bg-background/60 border-neon-purple/30">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-72">
+                          <SelectItem value="all">Todos</SelectItem>
+                          {allServiceLabels.map(s => (
+                            <SelectItem key={s} value={s}>{s}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Desde</Label>
+                        <Input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
+                          className="bg-background/60 border-neon-purple/30" />
+                      </div>
+                      <div className="space-y-1.5">
+                        <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Hasta</Label>
+                        <Input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
+                          className="bg-background/60 border-neon-purple/30" />
+                      </div>
+                    </div>
+
+                    <p className="text-[10px] text-muted-foreground italic text-center pt-1">
+                      {filtered.length} reserva{filtered.length === 1 ? "" : "s"} coinciden
+                    </p>
+                  </div>
+                </PopoverContent>
+              </Popover>
               <Button onClick={onReload} disabled={loading} variant="outline" className="border-neon-cyan/40 text-neon-cyan hover:bg-neon-cyan/10">
                 {loading ? "..." : "Actualizar"}
               </Button>
