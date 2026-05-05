@@ -621,7 +621,7 @@ const Admin = () => {
         <ActiveAppointmentBanner onOpenQrScanner={() => setShowQrScanner(true)} />
 
         {/* Layout with Sidebar */}
-        <div className="flex gap-6">
+        <div className="flex gap-6 admin-neon">
           <AdminSidebar activeTab={activeTab} onTabChange={setActiveTab} />
 
           {/* Main content */}
