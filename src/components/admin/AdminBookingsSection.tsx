@@ -179,14 +179,38 @@ export const AdminBookingsSection = ({
     .filter(b => parseISO(b.booking_date) < today)
     .map(b => parseISO(b.booking_date));
 
-  const currentBookings = bookings.filter(b => !isPastBooking(b) &&
-    (b.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     b.profile?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     b.client_contact.toLowerCase().includes(searchQuery.toLowerCase())));
-  const pastBookings = bookings.filter(b => isPastBooking(b) &&
-    (b.client_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     b.profile?.full_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-     b.client_contact.toLowerCase().includes(searchQuery.toLowerCase())));
+  const matchesFilters = (b: AdminBooking): boolean => {
+    const q = searchQuery.toLowerCase();
+    const matchesQuery = !q ||
+      b.client_name.toLowerCase().includes(q) ||
+      b.profile?.full_name?.toLowerCase().includes(q) ||
+      b.client_contact.toLowerCase().includes(q) ||
+      b.profile?.username?.toLowerCase().includes(q);
+    if (!matchesQuery) return false;
+
+    if (dateFrom && b.booking_date < dateFrom) return false;
+    if (dateTo && b.booking_date > dateTo) return false;
+
+    if (serviceFilter !== "all") {
+      const hasService = b.services?.some(s =>
+        s.replace(/\s*\(.*\)\s*$/, "").trim().toLowerCase() === serviceFilter.toLowerCase()
+      );
+      if (!hasService) return false;
+    }
+
+    if (statusFilter !== "all") {
+      const past = isPastBooking(b);
+      if (statusFilter === "cancelled" && !b.is_cancelled) return false;
+      if (statusFilter === "today" && (!isToday(parseISO(b.booking_date)) || b.is_cancelled)) return false;
+      if (statusFilter === "upcoming" && (past || b.is_cancelled)) return false;
+      if (statusFilter === "past" && (!past || b.is_cancelled)) return false;
+    }
+    return true;
+  };
+
+  const filtered = bookings.filter(matchesFilters);
+  const currentBookings = filtered.filter(b => !isPastBooking(b));
+  const pastBookings = filtered.filter(b => isPastBooking(b));
 
   const BookingRow = ({ b }: { b: AdminBooking }) => (
     <motion.div
