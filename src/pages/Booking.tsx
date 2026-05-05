@@ -1153,12 +1153,13 @@ const Booking = () => {
                           }}
                           className="grid grid-cols-3 sm:grid-cols-3 gap-2"
                         >
-                          {availableHours.map((slotMin) => {
+                          {getAllDaySlots().map((slotMin) => {
                             const hh = Math.floor(slotMin / 60).toString().padStart(2, "0");
                             const mm = (slotMin % 60).toString().padStart(2, "0");
                             const timeString = `${hh}:${mm}:00`;
                             const label = `${hh}:${mm}`;
-                            const isBooked = bookedTimes.includes(timeString);
+                            const isAvailable = availableHours.includes(slotMin);
+                            const isBooked = !isAvailable;
                             const isSelected = selectedTime === timeString;
 
                             return (
