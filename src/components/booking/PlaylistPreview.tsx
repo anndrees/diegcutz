@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music2, ExternalLink, Loader2, AlertCircle } from "lucide-react";
+import { Music2, ExternalLink, Loader2, AlertCircle, Check, Globe } from "lucide-react";
 
-type Provider = "spotify" | "youtube" | null;
+type Provider = "spotify" | "youtube" | "other";
 
 function detectProvider(url: string): Provider {
-  if (!url) return null;
   if (/spotify\.com|spotify:/i.test(url)) return "spotify";
   if (/youtube\.com|youtu\.be/i.test(url)) return "youtube";
-  return null;
+  return "other";
 }
 
 function getYoutubeId(url: string): string | null {
@@ -18,17 +17,28 @@ function getYoutubeId(url: string): string | null {
 
 type Meta = { title: string; thumbnail: string | null; author?: string };
 
+function getDomain(url: string): string {
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return ""; }
+}
+
 export const PlaylistPreview = ({ url }: { url: string }) => {
   const [meta, setMeta] = useState<Meta | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const provider = detectProvider(url);
+  const [confirmed, setConfirmed] = useState(false);
+  const provider = useMemo(() => detectProvider(url), [url]);
+  const domain = useMemo(() => getDomain(url), [url]);
 
   useEffect(() => {
     let cancel = false;
     setMeta(null);
     setError(false);
-    if (!provider || !url) return;
+    setConfirmed(false);
+    if (!url || !domain) return;
+    if (provider === "other") {
+      // No oEmbed for unknown providers — show fallback immediately.
+      return;
+    }
 
     const run = async () => {
       setLoading(true);
@@ -66,11 +76,19 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
       cancel = true;
       clearTimeout(t);
     };
-  }, [url, provider]);
+  }, [url, provider, domain]);
 
-  if (!provider) return null;
+  if (!url || !domain) return null;
 
-  const accent = provider === "spotify" ? "#1DB954" : "#FF0000";
+  const accent =
+    provider === "spotify" ? "#1DB954" :
+    provider === "youtube" ? "#FF0000" :
+    "hsl(190 95% 50%)"; // neon cyan fallback
+  const providerLabel =
+    provider === "spotify" ? "Spotify" :
+    provider === "youtube" ? "YouTube" :
+    domain;
+  const showFallback = provider === "other" || (error && !meta);
 
   return (
     <AnimatePresence mode="wait">
@@ -97,8 +115,8 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
               />
             ) : loading ? (
               <Loader2 className="w-6 h-6 animate-spin opacity-60" />
-            ) : error ? (
-              <AlertCircle className="w-6 h-6 opacity-60" />
+            ) : showFallback ? (
+              <Globe className="w-6 h-6 opacity-60" />
             ) : (
               <Music2 className="w-6 h-6 opacity-60" />
             )}
@@ -109,23 +127,47 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
                 className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
                 style={{ background: `${accent}22`, color: accent }}
               >
-                {provider === "spotify" ? "Spotify" : "YouTube"}
+                {providerLabel}
               </span>
               {loading && <Loader2 className="w-3 h-3 animate-spin opacity-50" />}
+              {confirmed && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-neon-cyan">
+                  <Check className="w-3 h-3" /> Confirmada
+                </span>
+              )}
             </div>
             <p className="font-bold text-sm sm:text-base truncate" style={{ textShadow: `0 0 12px ${accent}88` }}>
-              {meta?.title || (loading ? "Cargando preview…" : error ? "No se pudo cargar la preview" : "—")}
+              {meta?.title
+                || (loading ? "Cargando preview…" : showFallback ? domain : "—")}
             </p>
-            {meta?.author && <p className="text-xs text-muted-foreground truncate">{meta.author}</p>}
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs mt-1 hover:underline"
-              style={{ color: accent }}
-            >
-              Abrir enlace <ExternalLink className="w-3 h-3" />
-            </a>
+            {meta?.author ? (
+              <p className="text-xs text-muted-foreground truncate">{meta.author}</p>
+            ) : showFallback ? (
+              <p className="text-xs text-muted-foreground">
+                {error ? "No se pudo cargar la preview." : "Enlace externo."} Confírmalo si es el correcto.
+              </p>
+            ) : null}
+            <div className="flex items-center gap-3 mt-1.5">
+              <a
+                href={url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 text-xs hover:underline"
+                style={{ color: accent }}
+              >
+                Abrir enlace <ExternalLink className="w-3 h-3" />
+              </a>
+              {!confirmed && (showFallback || meta) && !loading && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmed(true)}
+                  className="inline-flex items-center gap-1 text-xs font-bold rounded-md px-2 py-0.5 border transition-colors"
+                  style={{ borderColor: `${accent}66`, color: accent, background: `${accent}11` }}
+                >
+                  <Check className="w-3 h-3" /> Sí, es esta
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </motion.div>
