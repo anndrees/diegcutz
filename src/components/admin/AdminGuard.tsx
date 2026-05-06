@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { ArrowLeft, ShieldAlert, Lock, User as UserIcon, Zap } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface AdminGuardProps {
@@ -19,21 +18,49 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
   });
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [shake, setShake] = useState(false);
+  const [unlocking, setUnlocking] = useState(false);
+  const [mouse, setMouse] = useState({ x: 50, y: 50 });
+  const [glitch, setGlitch] = useState(false);
+
+  useEffect(() => {
+    if (isAuthenticated) return;
+    const handler = (e: MouseEvent) => {
+      setMouse({
+        x: (e.clientX / window.innerWidth) * 100,
+        y: (e.clientY / window.innerHeight) * 100,
+      });
+    };
+    window.addEventListener("mousemove", handler);
+    const glitchInterval = setInterval(() => {
+      setGlitch(true);
+      setTimeout(() => setGlitch(false), 180);
+    }, 3500);
+    return () => {
+      window.removeEventListener("mousemove", handler);
+      clearInterval(glitchInterval);
+    };
+  }, [isAuthenticated]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (username === "diego" && password === "DiegCutz#2025Pro") {
-      setIsAuthenticated(true);
+      setUnlocking(true);
       sessionStorage.setItem("adminAuth", "true");
-      toast({
-        title: "Bienvenido",
-        description: "Sesión iniciada correctamente",
-      });
+      setTimeout(() => {
+        setIsAuthenticated(true);
+        toast({
+          title: "ACCESO CONCEDIDO",
+          description: "Bienvenido al panel, jefe.",
+        });
+      }, 1400);
     } else {
+      setShake(true);
+      setTimeout(() => setShake(false), 600);
       toast({
-        title: "Error",
-        description: "Usuario o contraseña incorrectos",
+        title: "ACCESO DENEGADO",
+        description: "Credenciales incorrectas. Intento registrado.",
         variant: "destructive",
       });
     }
@@ -41,60 +68,123 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
+      <div className="admin-login-wild relative min-h-screen w-full overflow-hidden flex items-center justify-center px-4 bg-background">
+        {/* Animated radial spotlight following cursor */}
+        <div
+          className="pointer-events-none absolute inset-0 transition-[background] duration-200"
+          style={{
+            background: `radial-gradient(600px circle at ${mouse.x}% ${mouse.y}%, hsl(var(--neon-purple) / 0.18), transparent 60%)`,
+          }}
+        />
+        {/* Neon grid */}
+        <div className="pointer-events-none absolute inset-0 admin-login-grid opacity-40" />
+        {/* Scanlines */}
+        <div className="pointer-events-none absolute inset-0 admin-login-scan" />
+        {/* Floating orbs */}
+        <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[hsl(var(--neon-purple)/0.35)] blur-3xl animate-pulse" />
+        <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-[hsl(var(--neon-cyan)/0.3)] blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
+        <div className="pointer-events-none absolute top-1/3 right-1/4 h-64 w-64 rounded-full bg-[hsl(var(--neon-pink)/0.25)] blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
+
+        <div className="relative w-full max-w-md z-10">
           <Button
             variant="ghost"
             onClick={() => navigate("/")}
-            className="mb-8"
+            className="mb-6 hover:text-[hsl(var(--neon-cyan))]"
           >
             <ArrowLeft className="mr-2" />
             Volver
           </Button>
 
-          <Card className="bg-card border-border">
-            <CardHeader className="text-center">
-              <div className="flex justify-center mb-4">
-                <ShieldAlert className="h-12 w-12 text-neon-purple" />
-              </div>
-              <CardTitle className="text-4xl font-black text-neon-purple">
-                ACCESO RESTRINGIDO
-              </CardTitle>
-              <CardDescription>
-                Esta página requiere autenticación de administrador
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <Label htmlFor="username">Usuario</Label>
-                  <Input
-                    id="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Usuario"
-                    required
-                  />
+          <div
+            className={`admin-login-card relative rounded-2xl p-[2px] ${shake ? "animate-login-shake" : ""} ${unlocking ? "animate-login-unlock" : ""}`}
+          >
+            <div className="relative rounded-2xl bg-[hsl(0_0%_6%/0.85)] backdrop-blur-xl border border-[hsl(var(--neon-purple)/0.4)] p-8 overflow-hidden">
+              {/* Corner brackets */}
+              <span className="admin-corner top-2 left-2 border-l-2 border-t-2" />
+              <span className="admin-corner top-2 right-2 border-r-2 border-t-2" />
+              <span className="admin-corner bottom-2 left-2 border-l-2 border-b-2" />
+              <span className="admin-corner bottom-2 right-2 border-r-2 border-b-2" />
+
+              <div className="text-center mb-6">
+                <div className="relative mx-auto mb-4 h-20 w-20 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full bg-[hsl(var(--neon-purple)/0.2)] animate-ping" />
+                  <div className="absolute inset-2 rounded-full border-2 border-[hsl(var(--neon-cyan))] animate-spin" style={{ animationDuration: "6s" }} />
+                  <ShieldAlert className="h-10 w-10 text-[hsl(var(--neon-purple))] drop-shadow-[0_0_12px_hsl(var(--neon-purple))]" />
                 </div>
-                
-                <div>
-                  <Label htmlFor="password">Contraseña</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Contraseña"
-                    required
-                  />
+                <h1
+                  data-text="ACCESO RESTRINGIDO"
+                  className={`admin-glitch text-3xl md:text-4xl font-black tracking-widest text-[hsl(var(--neon-cyan))] drop-shadow-[0_0_18px_hsl(var(--neon-cyan)/0.7)] ${glitch ? "is-glitching" : ""}`}
+                >
+                  ACCESO RESTRINGIDO
+                </h1>
+                <p className="mt-2 text-xs uppercase tracking-[0.3em] text-muted-foreground flex items-center justify-center gap-2">
+                  <Zap className="h-3 w-3 text-[hsl(var(--neon-pink))] animate-pulse" />
+                  zona solo para diego
+                  <Zap className="h-3 w-3 text-[hsl(var(--neon-pink))] animate-pulse" />
+                </p>
+              </div>
+
+              <form onSubmit={handleLogin} className="space-y-5">
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-[hsl(var(--neon-cyan))] uppercase tracking-widest text-xs">
+                    Usuario
+                  </Label>
+                  <div className="relative group">
+                    <UserIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--neon-cyan))] group-focus-within:text-[hsl(var(--neon-purple))] transition-colors" />
+                    <Input
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      placeholder="diego"
+                      required
+                      autoComplete="off"
+                      className="pl-10 bg-[hsl(0_0%_4%)] border-[hsl(var(--neon-purple)/0.4)] focus-visible:ring-[hsl(var(--neon-cyan))] focus-visible:border-[hsl(var(--neon-cyan))] h-11 font-mono"
+                    />
+                    <span className="pointer-events-none absolute inset-0 rounded-md opacity-0 group-focus-within:opacity-100 transition-opacity shadow-[0_0_20px_hsl(var(--neon-cyan)/0.4)]" />
+                  </div>
                 </div>
 
-                <Button type="submit" variant="neon" className="w-full">
-                  Iniciar Sesión
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-[hsl(var(--neon-cyan))] uppercase tracking-widest text-xs">
+                    Contraseña
+                  </Label>
+                  <div className="relative group">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[hsl(var(--neon-cyan))] group-focus-within:text-[hsl(var(--neon-purple))] transition-colors" />
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="••••••••••••"
+                      required
+                      className="pl-10 bg-[hsl(0_0%_4%)] border-[hsl(var(--neon-purple)/0.4)] focus-visible:ring-[hsl(var(--neon-cyan))] focus-visible:border-[hsl(var(--neon-cyan))] h-11 font-mono tracking-widest"
+                    />
+                    <span className="pointer-events-none absolute inset-0 rounded-md opacity-0 group-focus-within:opacity-100 transition-opacity shadow-[0_0_20px_hsl(var(--neon-cyan)/0.4)]" />
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  variant="neon"
+                  disabled={unlocking}
+                  className="w-full h-12 text-base relative overflow-hidden group"
+                >
+                  <span className="relative z-10">
+                    {unlocking ? "DESBLOQUEANDO..." : "INICIAR SESIÓN"}
+                  </span>
+                  <span className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/30 to-transparent" />
                 </Button>
+
+                <div className="flex items-center justify-between text-[10px] uppercase tracking-widest text-muted-foreground pt-2">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[hsl(var(--neon-cyan))] animate-pulse" />
+                    sistema online
+                  </span>
+                  <span className="font-mono">v2.0.26</span>
+                </div>
               </form>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </div>
       </div>
     );
