@@ -261,7 +261,7 @@ const TvMode = () => {
   return (
     <div className="fixed inset-0 overflow-hidden bg-black text-white">
       {/* Background */}
-      <div
+      <motion.div
         className="absolute inset-0 opacity-30"
         style={{
           backgroundImage: `url(${heroImage})`,
@@ -269,18 +269,48 @@ const TvMode = () => {
           backgroundPosition: "center",
           filter: "hue-rotate(220deg) saturate(1.4) brightness(0.6)",
         }}
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-950/70 via-black/80 to-cyan-950/70" />
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(76,29,149,.7), rgba(0,0,0,.85), rgba(8,145,178,.7))",
+          backgroundSize: "300% 300%",
+        }}
+        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+      />
 
-      {/* Animated grid */}
-      <div
-        className="absolute inset-0 opacity-20"
+      {/* Animated moving grid */}
+      <motion.div
+        className="absolute inset-0 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(34,211,238,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.4) 1px,transparent 1px)",
-          backgroundSize: "60px 60px",
-          maskImage: "radial-gradient(ellipse at center,black 30%,transparent 75%)",
+            "linear-gradient(rgba(34,211,238,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.5) 1px,transparent 1px)",
+          backgroundSize: "80px 80px",
+          maskImage: "radial-gradient(ellipse at center,black 25%,transparent 75%)",
         }}
+        animate={{ backgroundPosition: ["0px 0px", "80px 80px"] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* Aurora blobs */}
+      <AuroraBlobs />
+
+      {/* Scanlines */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.07] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, rgba(255,255,255,.6) 0, rgba(255,255,255,.6) 1px, transparent 1px, transparent 4px)",
+        }}
+      />
+      <motion.div
+        className="absolute left-0 right-0 h-40 pointer-events-none bg-gradient-to-b from-transparent via-cyan-300/10 to-transparent"
+        animate={{ y: ["-20%", "120%"] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
       />
 
       {/* Floating particles */}
@@ -364,19 +394,27 @@ const TvMode = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={current?.key}
-            initial={{ opacity: 0, scale: 1.04, filter: "blur(24px) saturate(2)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px) saturate(1)" }}
-            exit={{ opacity: 0, scale: 0.97, filter: "blur(24px) saturate(2)" }}
+            initial={{ opacity: 0, scale: 1.06, filter: "blur(28px) saturate(2.2) hue-rotate(60deg)", rotateX: 8 }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px) saturate(1) hue-rotate(0deg)", rotateX: 0 }}
+            exit={{ opacity: 0, scale: 0.94, filter: "blur(28px) saturate(2.2) hue-rotate(-60deg)", rotateX: -8 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            style={{ perspective: 1200 }}
             className="w-full max-w-6xl relative"
           >
             {/* neon sweep on enter */}
             <motion.div
               key={(current?.key || "") + "-sweep"}
-              initial={{ x: "-110%", opacity: 0.9 }}
+              initial={{ x: "-110%", opacity: 1 }}
               animate={{ x: "110%", opacity: 0 }}
-              transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-              className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-cyan-300/20 to-transparent blur-2xl"
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              className="pointer-events-none absolute -inset-y-10 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent blur-2xl"
+            />
+            <motion.div
+              key={(current?.key || "") + "-sweep2"}
+              initial={{ x: "120%", opacity: 0.8 }}
+              animate={{ x: "-120%", opacity: 0 }}
+              transition={{ duration: 1.4, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              className="pointer-events-none absolute -inset-y-10 w-1/3 skew-x-12 bg-gradient-to-r from-transparent via-fuchsia-300/30 to-transparent blur-2xl"
             />
             {current?.render()}
           </motion.div>
