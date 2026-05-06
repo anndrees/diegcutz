@@ -105,6 +105,12 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
       
       setProfile(data);
+      // Track last access (fire and forget)
+      supabase
+        .from("profiles")
+        .update({ last_seen_at: new Date().toISOString() } as any)
+        .eq("id", userId)
+        .then(() => {});
       return data;
     }
     return null;
