@@ -21,6 +21,12 @@ import {
   Instagram,
   Flame,
   Quote,
+  Trophy,
+  CalendarClock,
+  Activity,
+  Timer,
+  QrCode,
+  Award,
 } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import { TvLockScreen } from "@/components/tv/TvLockScreen";
@@ -40,6 +46,14 @@ type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; 
 type Rating = { id: string; rating: number; comment: string | null; created_at: string; client_name?: string };
 type Coupon = { id: string; code: string; description: string | null; discount_type: string; discount_value: number };
 type Stats = { totalCuts: number; totalClients: number; ratingsAvg: number; ratingsCount: number };
+type AchievementFeedItem = {
+  id: string;
+  awarded_at: string;
+  achievement_name: string;
+  achievement_icon: string;
+  user_name: string;
+};
+type SpecialHour = { id: string; date: string; is_closed: boolean; time_ranges: any; note: string | null };
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 const SLIDE_DURATION = 12000;
@@ -47,6 +61,7 @@ const TV_UNLOCK_KEY = "tv_unlocked_v1";
 
 const DEFAULT_TV_SETTINGS: TvSettings = {
   passcode: "1234",
+  reduceMotion: false,
   slides: [
     { key: "queue", enabled: true },
     { key: "services", enabled: true },
@@ -73,6 +88,10 @@ const TvMode = () => {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [stats, setStats] = useState<Stats>({ totalCuts: 0, totalClients: 0, ratingsAvg: 0, ratingsCount: 0 });
+  const [achievementsFeed, setAchievementsFeed] = useState<AchievementFeedItem[]>([]);
+  const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
+  const [cutsToday, setCutsToday] = useState(0);
+  const [nextSlot, setNextSlot] = useState<{ date: string; time: string } | null>(null);
   const [now, setNow] = useState(new Date());
   const [slideIdx, setSlideIdx] = useState(0);
   const [tvSettings, setTvSettings] = useState<TvSettings>(DEFAULT_TV_SETTINGS);
@@ -97,7 +116,8 @@ const TvMode = () => {
     if (markReconnect) setReconnecting(true);
     const today = format(new Date(), "yyyy-MM-dd");
     try {
-    const [b, s, m, g, h, settings, r, c, totalCutsRes, totalClientsRes] = await Promise.all([
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const [b, s, m, g, h, settings, r, c, totalCutsRes, totalClientsRes, cutsTodayRes, ach, sh, future] = await Promise.all([
       supabase.from("bookings").select("id, booking_time, client_name, services").eq("booking_date", today).eq("is_cancelled", false).order("booking_time"),
       supabase.from("services").select("id, name, price, service_type"),
       supabase.from("memberships").select("id, name, emoji, price, description").eq("is_active", true).eq("is_coming_soon", false).order("sort_order"),
@@ -108,6 +128,10 @@ const TvMode = () => {
       supabase.from("coupons").select("id, code, description, discount_type, discount_value").eq("is_active", true).limit(6),
       supabase.from("bookings").select("id", { count: "exact", head: true }).eq("is_cancelled", false),
       supabase.from("profiles").select("id", { count: "exact", head: true }),
+      supabase.from("bookings").select("id", { count: "exact", head: true }).eq("booking_date", today).eq("is_cancelled", false),
+      supabase.from("user_achievements").select("id, awarded_at, achievement_id, user_id").gte("awarded_at", weekAgo).order("awarded_at", { ascending: false }).limit(20),
+      supabase.from("special_hours").select("id, date, is_closed, time_ranges, note").gte("date", today).order("date").limit(6),
+      supabase.from("bookings").select("booking_date, booking_time").gte("booking_date", today).eq("is_cancelled", false).order("booking_date").order("booking_time").limit(200),
     ]);
     setBookings((b.data as any) || []);
     const allSvc = (s.data as any) || [];
@@ -129,6 +153,37 @@ const TvMode = () => {
       ratingsAvg,
       ratingsCount: ratingsArr.length,
     });
+    setCutsToday(cutsTodayRes.count || 0);
+    setSpecialHours((sh.data as any) || []);
+    // Achievements feed: enrich with names
+    const rawAch = (ach.data as any) || [];
+    if (rawAch.length) {
+      const achIds = [...new Set(rawAch.map((x: any) => x.achievement_id))];
+      const userIds = [...new Set(rawAch.map((x: any) => x.user_id))];
+      const [achDefs, profs] = await Promise.all([
+        supabase.from("achievements").select("id, name, icon").in("id", achIds as string[]),
+        supabase.from("profiles").select("id, full_name, username").in("id", userIds as string[]),
+      ]);
+      const aMap = new Map((achDefs.data || []).map((x: any) => [x.id, x]));
+      const pMap = new Map((profs.data || []).map((x: any) => [x.id, x]));
+      setAchievementsFeed(
+        rawAch.map((x: any) => {
+          const a = aMap.get(x.achievement_id) as any;
+          const p = pMap.get(x.user_id) as any;
+          return {
+            id: x.id,
+            awarded_at: x.awarded_at,
+            achievement_name: a?.name || "Logro",
+            achievement_icon: a?.icon || "trophy",
+            user_name: p?.username || (p?.full_name ? p.full_name.split(" ")[0] : "Cliente"),
+          };
+        })
+      );
+    } else {
+      setAchievementsFeed([]);
+    }
+    // Next free slot: find first hour gap from now
+    setNextSlot(computeNextSlot((future.data as any) || [], (h.data as any) || [], (sh.data as any) || []));
     } finally {
       setInitialLoading(false);
       setReconnecting(false);
@@ -217,11 +272,32 @@ const TvMode = () => {
         case "promo":
           arr.push({ key: "promo", render: () => <PromoSlide /> });
           break;
+        case "achievements_feed":
+          if (achievementsFeed.length)
+            arr.push({ key: "ach_feed", render: () => <AchievementsFeedSlide items={achievementsFeed} /> });
+          break;
+        case "special_hours_upcoming":
+          if (specialHours.length)
+            arr.push({ key: "sp_hours", render: () => <SpecialHoursSlide items={specialHours} /> });
+          break;
+        case "cuts_today":
+          arr.push({ key: "cuts_today", render: () => <CutsTodaySlide count={cutsToday} /> });
+          break;
+        case "next_slot":
+          if (nextSlot)
+            arr.push({ key: "next_slot", render: () => <NextSlotSlide slot={nextSlot!} /> });
+          break;
+        case "qr_book":
+          arr.push({ key: "qr_book", render: () => <QrBookSlide /> });
+          break;
+        case "loyalty_program":
+          arr.push({ key: "loyalty_program", render: () => <LoyaltyProgramSlide /> });
+          break;
       }
     }
     if (!arr.length) arr.push({ key: "brand", render: () => <BrandSlide /> });
     return arr;
-  }, [bookings, services, packs, memberships, giveaways, hours, ratings, coupons, stats, now, tvSettings]);
+  }, [bookings, services, packs, memberships, giveaways, hours, ratings, coupons, stats, now, tvSettings, achievementsFeed, specialHours, cutsToday, nextSlot]);
 
   useEffect(() => {
     if (!slides.length) return;
@@ -246,6 +322,7 @@ const TvMode = () => {
   }, [slides.length]);
 
   const current = slides[slideIdx % Math.max(1, slides.length)];
+  const reduceMotion = !!tvSettings.reduceMotion;
 
   const requestFullscreen = async () => {
     try {
@@ -277,6 +354,8 @@ const TvMode = () => {
   return (
     <div className="fixed inset-0 overflow-hidden bg-black text-white">
       {/* Background */}
+      {!reduceMotion ? (
+        <>
       <motion.div
         className="absolute inset-0 opacity-30"
         style={{
@@ -331,6 +410,16 @@ const TvMode = () => {
 
       {/* Floating particles */}
       <Particles />
+        </>
+      ) : (
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(76,29,149,.55), rgba(0,0,0,.95), rgba(8,145,178,.55))",
+          }}
+        />
+      )}
 
       {/* Reconnecting badge */}
       <AnimatePresence>
@@ -410,13 +499,15 @@ const TvMode = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={current?.key}
-            initial={{ opacity: 0, scale: 1.06, filter: "blur(28px) saturate(2.2) hue-rotate(60deg)", rotateX: 8 }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px) saturate(1) hue-rotate(0deg)", rotateX: 0 }}
-            exit={{ opacity: 0, scale: 0.94, filter: "blur(28px) saturate(2.2) hue-rotate(-60deg)", rotateX: -8 }}
-            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 1.06, filter: "blur(28px) saturate(2.2) hue-rotate(60deg)", rotateX: 8 }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, filter: "blur(0px) saturate(1) hue-rotate(0deg)", rotateX: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, filter: "blur(28px) saturate(2.2) hue-rotate(-60deg)", rotateX: -8 }}
+            transition={{ duration: reduceMotion ? 0.3 : 1.1, ease: [0.22, 1, 0.36, 1] }}
             style={{ perspective: 1200 }}
             className="w-full max-w-6xl relative"
           >
+            {!reduceMotion && (
+              <>
             {/* neon sweep on enter */}
             <motion.div
               key={(current?.key || "") + "-sweep"}
@@ -432,6 +523,8 @@ const TvMode = () => {
               transition={{ duration: 1.4, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="pointer-events-none absolute -inset-y-10 w-1/3 skew-x-12 bg-gradient-to-r from-transparent via-fuchsia-300/30 to-transparent blur-2xl"
             />
+              </>
+            )}
             {current?.render()}
           </motion.div>
         </AnimatePresence>
@@ -1072,6 +1165,238 @@ const PromoSlide = () => (
 );
 
 export default TvMode;
+
+// ===== Helpers =====
+const computeNextSlot = (
+  futureBookings: { booking_date: string; booking_time: string }[],
+  hours: BusinessHour[],
+  special: SpecialHour[]
+): { date: string; time: string } | null => {
+  const now = new Date();
+  const spMap = new Map(special.map((s) => [s.date, s]));
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    const dateStr = format(d, "yyyy-MM-dd");
+    const sp = spMap.get(dateStr);
+    let ranges: { start: string; end: string }[] = [];
+    let closed = false;
+    let h24 = false;
+    if (sp) {
+      closed = sp.is_closed;
+      ranges = (sp.time_ranges as any) || [];
+    } else {
+      const bh = hours.find((x) => x.day_of_week === d.getDay());
+      if (!bh) continue;
+      closed = bh.is_closed;
+      h24 = bh.is_24h;
+      ranges = (bh.time_ranges as any) || [];
+    }
+    if (closed) continue;
+    if (h24) ranges = [{ start: "00:00", end: "23:59" }];
+    if (!ranges.length) continue;
+    const taken = new Set(
+      futureBookings.filter((b) => b.booking_date === dateStr).map((b) => b.booking_time.slice(0, 5))
+    );
+    for (const r of ranges) {
+      const [sh, sm] = r.start.split(":").map(Number);
+      const [eh, em] = r.end.split(":").map(Number);
+      const startMin = sh * 60 + sm;
+      const endMin = eh * 60 + em - 60; // last hour excluded
+      for (let t = startMin; t <= endMin; t += 60) {
+        const hh = String(Math.floor(t / 60)).padStart(2, "0");
+        const mm = String(t % 60).padStart(2, "0");
+        const time = `${hh}:${mm}`;
+        const slotDate = new Date(d);
+        slotDate.setHours(Math.floor(t / 60), t % 60, 0, 0);
+        if (slotDate <= now) continue;
+        if (!taken.has(time)) return { date: dateStr, time };
+      }
+    }
+  }
+  return null;
+};
+
+// ===== ACHIEVEMENTS FEED =====
+const AchievementsFeedSlide = ({ items }: { items: AchievementFeedItem[] }) => (
+  <div>
+    <SlideTitle icon={Trophy} title="LOGROS DESBLOQUEADOS" subtitle="Esta semana" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[60vh] overflow-hidden">
+      {items.slice(0, 8).map((it, i) => (
+        <motion.div
+          key={it.id}
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.07 }}
+          className="rounded-2xl p-4 bg-gradient-to-r from-amber-500/15 to-fuchsia-500/15 backdrop-blur-xl border border-amber-300/30 flex items-center gap-4"
+        >
+          <div className="w-14 h-14 rounded-full bg-amber-400/20 border border-amber-300/40 flex items-center justify-center shrink-0">
+            <Trophy className="w-7 h-7 text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,.7)]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-lg font-black text-white truncate">{it.achievement_name}</div>
+            <div className="text-sm text-cyan-200/80 truncate">@{it.user_name}</div>
+          </div>
+          <div className="text-xs uppercase tracking-widest text-amber-200/70 shrink-0">
+            {format(new Date(it.awarded_at), "d MMM", { locale: es })}
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+);
+
+// ===== SPECIAL HOURS UPCOMING =====
+const SpecialHoursSlide = ({ items }: { items: SpecialHour[] }) => (
+  <div>
+    <SlideTitle icon={CalendarClock} title="PRÓXIMOS EVENTOS" subtitle="Horarios especiales" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {items.slice(0, 4).map((it, i) => {
+        const ranges = it.is_closed
+          ? "CERRADO"
+          : (it.time_ranges || []).map((r: any) => `${r.start} - ${r.end}`).join(" / ") || "—";
+        return (
+          <motion.div
+            key={it.id}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className={`rounded-2xl p-6 backdrop-blur-xl border ${
+              it.is_closed
+                ? "bg-red-500/10 border-red-400/40"
+                : "bg-gradient-to-br from-cyan-500/15 to-fuchsia-500/15 border-cyan-400/40"
+            }`}
+          >
+            <div className="text-xs uppercase tracking-widest text-cyan-300/80">
+              {format(parseISO(it.date), "EEEE", { locale: es })}
+            </div>
+            <div className="text-3xl font-black text-white mt-1">
+              {format(parseISO(it.date), "d 'de' MMMM", { locale: es })}
+            </div>
+            <div className={`mt-3 text-2xl font-mono ${it.is_closed ? "text-red-300" : "text-cyan-300"}`}>
+              {ranges}
+            </div>
+            {it.note && <div className="mt-2 text-sm text-white/70 italic">“{it.note}”</div>}
+          </motion.div>
+        );
+      })}
+    </div>
+  </div>
+);
+
+// ===== CUTS TODAY =====
+const CutsTodaySlide = ({ count }: { count: number }) => (
+  <div className="text-center">
+    <SlideTitle icon={Activity} title="CORTES HOY" subtitle="En directo" />
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: "spring", stiffness: 90 }}
+      className="relative mx-auto max-w-3xl rounded-3xl p-16 bg-gradient-to-br from-cyan-600/30 via-purple-700/30 to-fuchsia-600/30 backdrop-blur-xl border-2 border-cyan-400/50 overflow-hidden"
+    >
+      <Activity className="w-20 h-20 text-cyan-300 mx-auto mb-6 drop-shadow-[0_0_25px_rgba(34,211,238,.9)]" />
+      <div className="text-2xl text-white/80 uppercase tracking-[0.4em] mb-4">Ya llevamos</div>
+      <CountUp value={count} />
+      <div className="mt-4 text-3xl font-bold text-white">corte{count === 1 ? "" : "s"} hoy</div>
+      <div className="mt-2 text-sm uppercase tracking-widest text-fuchsia-200/80">¡Y los que quedan!</div>
+    </motion.div>
+  </div>
+);
+
+// ===== NEXT SLOT =====
+const NextSlotSlide = ({ slot }: { slot: { date: string; time: string } }) => {
+  const isToday = slot.date === format(new Date(), "yyyy-MM-dd");
+  return (
+    <div className="text-center">
+      <SlideTitle icon={Timer} title="PRÓXIMO HUECO" subtitle="Reserva ahora" />
+      <motion.div
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{ duration: 3, repeat: Infinity }}
+        className="relative mx-auto max-w-3xl rounded-3xl p-14 bg-gradient-to-br from-emerald-500/25 via-cyan-500/25 to-fuchsia-500/25 backdrop-blur-xl border-2 border-emerald-400/50 overflow-hidden"
+      >
+        <Timer className="w-20 h-20 text-emerald-300 mx-auto mb-6 drop-shadow-[0_0_25px_rgba(52,211,153,.9)]" />
+        <div className="text-xs uppercase tracking-[0.4em] text-emerald-200/80">
+          {isToday ? "Hoy" : format(parseISO(slot.date), "EEEE d 'de' MMMM", { locale: es })}
+        </div>
+        <div className="mt-3 text-9xl font-mono font-black text-white drop-shadow-[0_0_30px_rgba(52,211,153,.7)] tabular-nums">
+          {slot.time}
+        </div>
+        <div className="mt-6 text-2xl font-bold text-white">
+          ¡Reserva en <span className="text-emerald-300">diegcutz.es</span>!
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// ===== QR BOOK =====
+const QrBookSlide = () => {
+  const url = "https://diegcutz.es/booking";
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=512x512&margin=10&data=${encodeURIComponent(url)}`;
+  return (
+    <div className="text-center">
+      <SlideTitle icon={QrCode} title="ESCANEA Y RESERVA" subtitle="Desde el sillón" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative mx-auto inline-block rounded-3xl p-8 bg-white border-4 border-cyan-400/70 shadow-[0_0_60px_rgba(34,211,238,.6)]"
+      >
+        <img src={qr} alt="QR diegcutz.es/booking" className="w-[360px] h-[360px] block" />
+      </motion.div>
+      <div className="mt-8 text-3xl font-black text-white">
+        diegcutz.es/<span className="text-cyan-300">booking</span>
+      </div>
+      <p className="mt-3 text-sm uppercase tracking-[0.4em] text-cyan-300/80">Apunta con tu cámara</p>
+    </div>
+  );
+};
+
+// ===== LOYALTY PROGRAM =====
+const LoyaltyProgramSlide = () => (
+  <div className="text-center">
+    <SlideTitle icon={Award} title="PROGRAMA DE FIDELIDAD" subtitle="Cada corte cuenta" />
+    <motion.div
+      initial={{ opacity: 0, rotateY: -25 }}
+      animate={{ opacity: 1, rotateY: 0 }}
+      transition={{ type: "spring", stiffness: 60 }}
+      className="relative mx-auto max-w-3xl rounded-3xl p-12 bg-gradient-to-br from-amber-500/25 via-fuchsia-500/20 to-cyan-500/25 backdrop-blur-xl border-2 border-amber-300/50 overflow-hidden"
+    >
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-amber-300/20 blur-3xl"
+      />
+      <Award className="w-24 h-24 text-amber-300 mx-auto mb-6 drop-shadow-[0_0_30px_rgba(251,191,36,.9)]" />
+      <div className="text-5xl font-black text-white mb-4">GANA CORTES GRATIS</div>
+      <p className="text-2xl text-white/80 mb-8">
+        Acumula puntos en cada visita y consigue recompensas exclusivas
+      </p>
+      <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+        {[
+          { n: "1", t: "Reserva", c: "from-cyan-400 to-blue-500" },
+          { n: "2", t: "Escanea QR", c: "from-fuchsia-400 to-purple-500" },
+          { n: "3", t: "Suma puntos", c: "from-amber-400 to-orange-500" },
+        ].map((s, i) => (
+          <motion.div
+            key={s.n}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + i * 0.15 }}
+            className="rounded-2xl p-5 bg-black/40 border border-white/10"
+          >
+            <div className={`text-4xl font-black bg-gradient-to-br ${s.c} bg-clip-text text-transparent`}>
+              {s.n}
+            </div>
+            <div className="mt-2 text-sm uppercase tracking-widest text-white/80">{s.t}</div>
+          </motion.div>
+        ))}
+      </div>
+      <p className="mt-8 text-lg text-amber-200/90">
+        ¡Cada <span className="font-black">5 cortes</span> = 1 corte <span className="font-black">GRATIS</span>!
+      </p>
+    </motion.div>
+  </div>
+);
 
 // ===== LOADING SCREEN =====
 const TvLoadingScreen = () => (

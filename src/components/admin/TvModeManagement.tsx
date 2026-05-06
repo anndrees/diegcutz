@@ -20,21 +20,35 @@ export type TvSlideKey =
   | "reviews"
   | "coupons"
   | "social"
-  | "promo";
+  | "promo"
+  | "achievements_feed"
+  | "special_hours_upcoming"
+  | "cuts_today"
+  | "next_slot"
+  | "qr_book"
+  | "loyalty_program";
 
 export type TvSettings = {
   passcode: string;
+  reduceMotion?: boolean;
   slides: { key: TvSlideKey; enabled: boolean }[];
 };
 
 const DEFAULT_SETTINGS: TvSettings = {
   passcode: "1234",
+  reduceMotion: false,
   slides: [
     { key: "queue", enabled: true },
+    { key: "next_slot", enabled: true },
+    { key: "cuts_today", enabled: true },
     { key: "services", enabled: true },
     { key: "packs", enabled: true },
     { key: "memberships", enabled: true },
     { key: "giveaways", enabled: true },
+    { key: "qr_book", enabled: true },
+    { key: "loyalty_program", enabled: true },
+    { key: "achievements_feed", enabled: true },
+    { key: "special_hours_upcoming", enabled: true },
     { key: "promo", enabled: true },
     { key: "reviews", enabled: true },
     { key: "coupons", enabled: true },
@@ -58,6 +72,12 @@ const LABELS: Record<TvSlideKey, string> = {
   coupons: "Cupones activos",
   social: "Redes sociales (Instagram)",
   promo: "Próximo hueco / Reserva ya",
+  achievements_feed: "Logros desbloqueados (hoy/semana)",
+  special_hours_upcoming: "Próximos eventos / horarios especiales",
+  cuts_today: "Cortes hoy en directo",
+  next_slot: "Próximo hueco libre",
+  qr_book: "QR para reservar",
+  loyalty_program: "Programa de fidelidad",
 };
 
 export const TvModeManagement = () => {
@@ -84,7 +104,7 @@ export const TvModeManagement = () => {
           ...(v.slides?.filter((s) => DEFAULT_SETTINGS.slides.some((d) => d.key === s.key)) || []),
           ...merged.filter((m) => !v.slides?.some((s) => s.key === m.key)),
         ];
-        setSettings({ passcode: v.passcode || "1234", slides: ordered });
+        setSettings({ passcode: v.passcode || "1234", reduceMotion: !!v.reduceMotion, slides: ordered });
         setPasscode(v.passcode || "1234");
         setConfirmPasscode(v.passcode || "1234");
       }
@@ -144,6 +164,18 @@ export const TvModeManagement = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
+          <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-neon-cyan/30 bg-neon-cyan/5">
+            <div className="min-w-0">
+              <p className="font-semibold">Reducir movimiento</p>
+              <p className="text-xs text-muted-foreground">
+                Desactiva animaciones pesadas (fondos, partículas, blobs). Útil para TVs antiguas con lag.
+              </p>
+            </div>
+            <Switch
+              checked={!!settings.reduceMotion}
+              onCheckedChange={(v) => setSettings({ ...settings, reduceMotion: v })}
+            />
+          </div>
           {settings.slides.map((s, i) => (
             <div
               key={s.key}
