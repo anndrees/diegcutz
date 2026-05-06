@@ -3,8 +3,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { Scissors, Clock, Gift, Crown, Sparkles, MapPin, Calendar, Star, Zap } from "lucide-react";
+import { Scissors, Clock, Gift, Crown, Sparkles, MapPin, Calendar, Star, Zap, Wifi, Maximize2 } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
+import { TvLockScreen } from "@/components/tv/TvLockScreen";
+import type { TvSettings, TvSlideKey } from "@/components/admin/TvModeManagement";
 
 type Booking = {
   id: string;
@@ -20,6 +22,20 @@ type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; 
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 const SLIDE_DURATION = 12000;
+const TV_UNLOCK_KEY = "tv_unlocked_v1";
+
+const DEFAULT_TV_SETTINGS: TvSettings = {
+  passcode: "1234",
+  slides: [
+    { key: "queue", enabled: true },
+    { key: "services", enabled: true },
+    { key: "packs", enabled: true },
+    { key: "memberships", enabled: true },
+    { key: "giveaways", enabled: true },
+    { key: "hours", enabled: true },
+    { key: "brand", enabled: true },
+  ],
+};
 
 const TvMode = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -30,6 +46,16 @@ const TvMode = () => {
   const [hours, setHours] = useState<BusinessHour[]>([]);
   const [now, setNow] = useState(new Date());
   const [slideIdx, setSlideIdx] = useState(0);
+  const [tvSettings, setTvSettings] = useState<TvSettings>(DEFAULT_TV_SETTINGS);
+  const [unlocked, setUnlocked] = useState<boolean>(() => {
+    try {
+      return sessionStorage.getItem(TV_UNLOCK_KEY) === "1";
+    } catch {
+      return false;
+    }
+  });
+  const [initialLoading, setInitialLoading] = useState(true);
+  const [reconnecting, setReconnecting] = useState(false);
 
   // Live clock
   useEffect(() => {
@@ -38,14 +64,17 @@ const TvMode = () => {
   }, []);
 
   // Fetch + realtime
-  const fetchAll = async () => {
+  const fetchAll = async (markReconnect = false) => {
+    if (markReconnect) setReconnecting(true);
     const today = format(new Date(), "yyyy-MM-dd");
-    const [b, s, m, g, h] = await Promise.all([
+    try {
+    const [b, s, m, g, h, settings] = await Promise.all([
       supabase.from("bookings").select("id, booking_time, client_name, services").eq("booking_date", today).eq("is_cancelled", false).order("booking_time"),
       supabase.from("services").select("id, name, price, service_type"),
       supabase.from("memberships").select("id, name, emoji, price, description").eq("is_active", true).eq("is_coming_soon", false).order("sort_order"),
       supabase.from("giveaways").select("id, title, prize, end_date").eq("is_finished", false).order("end_date"),
       supabase.from("business_hours").select("*").order("day_of_week"),
+      supabase.from("app_settings").select("value").eq("key", "tv_settings").maybeSingle(),
     ]);
     setBookings((b.data as any) || []);
     const allSvc = (s.data as any) || [];
@@ -54,33 +83,85 @@ const TvMode = () => {
     setMemberships((m.data as any) || []);
     setGiveaways((g.data as any) || []);
     setHours((h.data as any) || []);
+    if (settings.data?.value) setTvSettings(settings.data.value as any);
+    } finally {
+      setInitialLoading(false);
+      setReconnecting(false);
+    }
   };
 
   useEffect(() => {
     fetchAll();
-    const t = setInterval(fetchAll, 60000);
+    const t = setInterval(() => fetchAll(true), 60000);
     const ch = supabase
       .channel("tv-mode")
-      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, fetchAll)
+      .on("postgres_changes", { event: "*", schema: "public", table: "bookings" }, () => fetchAll(true))
+      .on("postgres_changes", { event: "*", schema: "public", table: "app_settings" }, () => fetchAll())
       .subscribe();
+    // Online/offline reconnection state
+    const onOffline = () => setReconnecting(true);
+    const onOnline = () => fetchAll(true);
+    window.addEventListener("offline", onOffline);
+    window.addEventListener("online", onOnline);
     return () => {
       clearInterval(t);
       supabase.removeChannel(ch);
+      window.removeEventListener("offline", onOffline);
+      window.removeEventListener("online", onOnline);
+    };
+  }, []);
+
+  // Kiosk mode: hide scrollbars on html/body while on /tv
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prevHtml = html.style.overflow;
+    const prevBody = body.style.overflow;
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    body.classList.add("tv-kiosk");
+    return () => {
+      html.style.overflow = prevHtml;
+      body.style.overflow = prevBody;
+      body.classList.remove("tv-kiosk");
     };
   }, []);
 
   // Build slides
   const slides = useMemo(() => {
     const arr: { key: string; render: () => JSX.Element }[] = [];
-    arr.push({ key: "queue", render: () => <QueueSlide bookings={bookings} now={now} /> });
-    if (services.length) arr.push({ key: "services", render: () => <ServicesSlide services={services} /> });
-    if (packs.length) arr.push({ key: "packs", render: () => <PacksSlide packs={packs} /> });
-    if (memberships.length) arr.push({ key: "memberships", render: () => <MembershipSlide memberships={memberships} /> });
-    giveaways.forEach((gv) => arr.push({ key: "gv-" + gv.id, render: () => <GiveawaySlide giveaway={gv} /> }));
-    if (hours.length) arr.push({ key: "hours", render: () => <HoursSlide hours={hours} /> });
-    arr.push({ key: "brand", render: () => <BrandSlide /> });
+    const enabled = new Map<TvSlideKey, boolean>(
+      tvSettings.slides.map((s) => [s.key, s.enabled])
+    );
+    for (const cfg of tvSettings.slides) {
+      if (!enabled.get(cfg.key)) continue;
+      switch (cfg.key) {
+        case "queue":
+          arr.push({ key: "queue", render: () => <QueueSlide bookings={bookings} now={now} /> });
+          break;
+        case "services":
+          if (services.length) arr.push({ key: "services", render: () => <ServicesSlide services={services} /> });
+          break;
+        case "packs":
+          if (packs.length) arr.push({ key: "packs", render: () => <PacksSlide packs={packs} /> });
+          break;
+        case "memberships":
+          if (memberships.length) arr.push({ key: "memberships", render: () => <MembershipSlide memberships={memberships} /> });
+          break;
+        case "giveaways":
+          giveaways.forEach((gv) => arr.push({ key: "gv-" + gv.id, render: () => <GiveawaySlide giveaway={gv} /> }));
+          break;
+        case "hours":
+          if (hours.length) arr.push({ key: "hours", render: () => <HoursSlide hours={hours} /> });
+          break;
+        case "brand":
+          arr.push({ key: "brand", render: () => <BrandSlide /> });
+          break;
+      }
+    }
+    if (!arr.length) arr.push({ key: "brand", render: () => <BrandSlide /> });
     return arr;
-  }, [bookings, services, packs, memberships, giveaways, hours, now]);
+  }, [bookings, services, packs, memberships, giveaways, hours, now, tvSettings]);
 
   useEffect(() => {
     if (!slides.length) return;
@@ -89,6 +170,33 @@ const TvMode = () => {
   }, [slides.length]);
 
   const current = slides[slideIdx % Math.max(1, slides.length)];
+
+  const requestFullscreen = async () => {
+    try {
+      if (!document.fullscreenElement) await document.documentElement.requestFullscreen();
+      else await document.exitFullscreen();
+    } catch {}
+  };
+
+  if (!unlocked) {
+    return (
+      <TvLockScreen
+        expectedCode={tvSettings.passcode || "1234"}
+        onUnlock={() => {
+          try {
+            sessionStorage.setItem(TV_UNLOCK_KEY, "1");
+          } catch {}
+          setUnlocked(true);
+          // Try to enter fullscreen on unlock (gesture context)
+          document.documentElement.requestFullscreen?.().catch(() => {});
+        }}
+      />
+    );
+  }
+
+  if (initialLoading) {
+    return <TvLoadingScreen />;
+  }
 
   return (
     <div className="fixed inset-0 overflow-hidden bg-black text-white">
@@ -117,6 +225,36 @@ const TvMode = () => {
 
       {/* Floating particles */}
       <Particles />
+
+      {/* Reconnecting badge */}
+      <AnimatePresence>
+        {reconnecting && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-30 px-4 py-2 rounded-full bg-black/70 backdrop-blur-md border border-cyan-400/40 flex items-center gap-2 text-xs uppercase tracking-widest text-cyan-200"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+            >
+              <Wifi className="w-4 h-4" />
+            </motion.div>
+            Reconectando…
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Fullscreen toggle */}
+      <button
+        onClick={requestFullscreen}
+        className="absolute top-4 right-4 z-30 p-2 rounded-full bg-black/40 backdrop-blur-md border border-cyan-400/30 text-cyan-300 hover:text-white hover:border-cyan-300 transition-all opacity-30 hover:opacity-100"
+        aria-label="Pantalla completa"
+        title="Pantalla completa"
+      >
+        <Maximize2 className="w-4 h-4" />
+      </button>
 
       {/* Header */}
       <div className="relative z-10 flex items-center justify-between px-12 py-6 border-b border-cyan-500/20 backdrop-blur-md bg-black/30">
@@ -166,12 +304,20 @@ const TvMode = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={current?.key}
-            initial={{ opacity: 0, scale: 0.9, filter: "blur(20px)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-            exit={{ opacity: 0, scale: 1.05, filter: "blur(20px)" }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-6xl"
+            initial={{ opacity: 0, scale: 1.04, filter: "blur(24px) saturate(2)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px) saturate(1)" }}
+            exit={{ opacity: 0, scale: 0.97, filter: "blur(24px) saturate(2)" }}
+            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-6xl relative"
           >
+            {/* neon sweep on enter */}
+            <motion.div
+              key={(current?.key || "") + "-sweep"}
+              initial={{ x: "-110%", opacity: 0.9 }}
+              animate={{ x: "110%", opacity: 0 }}
+              transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
+              className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-cyan-300/20 to-transparent blur-2xl"
+            />
             {current?.render()}
           </motion.div>
         </AnimatePresence>
@@ -520,3 +666,45 @@ const BrandSlide = () => (
 );
 
 export default TvMode;
+
+// ===== LOADING SCREEN =====
+const TvLoadingScreen = () => (
+  <div className="fixed inset-0 z-40 overflow-hidden bg-black text-white flex items-center justify-center">
+    <div className="absolute inset-0 bg-gradient-to-br from-purple-950/70 via-black to-cyan-950/70" />
+    <div
+      className="absolute inset-0 opacity-20"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(34,211,238,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.4) 1px,transparent 1px)",
+        backgroundSize: "60px 60px",
+        maskImage: "radial-gradient(ellipse at center,black 30%,transparent 75%)",
+      }}
+    />
+    <motion.div
+      animate={{ opacity: [0.3, 0.7, 0.3] }}
+      transition={{ duration: 3, repeat: Infinity }}
+      className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-cyan-500/20 blur-3xl"
+    />
+    <div className="relative z-10 text-center">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        className="inline-block mb-8"
+      >
+        <Scissors className="w-20 h-20 text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,.9)]" />
+      </motion.div>
+      <h1 className="text-5xl font-black tracking-tight bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent mb-3">
+        DIEGCUTZ
+      </h1>
+      <p className="text-sm uppercase tracking-[0.5em] text-cyan-300/80 mb-10">Sintonizando…</p>
+      <div className="mx-auto w-72 h-1 rounded-full bg-white/10 overflow-hidden">
+        <motion.div
+          initial={{ x: "-100%" }}
+          animate={{ x: "100%" }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+          className="h-full w-1/2 bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-cyan-400 shadow-[0_0_20px_rgba(34,211,238,.8)]"
+        />
+      </div>
+    </div>
+  </div>
+);
