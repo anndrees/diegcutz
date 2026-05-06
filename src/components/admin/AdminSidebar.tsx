@@ -18,6 +18,7 @@ import {
   HelpCircle,
   Megaphone,
   Home,
+  Tv,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -42,6 +43,7 @@ const menuItems = [
   { id: "giveaways", label: "Sorteos", icon: Gift },
   { id: "marquee", label: "Marquee", icon: Megaphone },
   { id: "homepage", label: "Página principal", icon: Home },
+  { id: "tv", label: "Modo TV", icon: Tv },
   { id: "messages", label: "Mensajes", icon: MessageSquare },
   { id: "notifications", label: "Notificaciones", icon: Bell },
   { id: "logs", label: "Historial", icon: History },
