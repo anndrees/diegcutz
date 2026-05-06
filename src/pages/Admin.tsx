@@ -804,6 +804,7 @@ const Admin = () => {
         <QrScanner open={showQrScanner} onOpenChange={setShowQrScanner} />
       </div>
     </div>
+    </AdminGuard>
   );
 };
 
