@@ -1166,6 +1166,238 @@ const PromoSlide = () => (
 
 export default TvMode;
 
+// ===== Helpers =====
+const computeNextSlot = (
+  futureBookings: { booking_date: string; booking_time: string }[],
+  hours: BusinessHour[],
+  special: SpecialHour[]
+): { date: string; time: string } | null => {
+  const now = new Date();
+  const spMap = new Map(special.map((s) => [s.date, s]));
+  for (let i = 0; i < 14; i++) {
+    const d = new Date(now);
+    d.setDate(d.getDate() + i);
+    const dateStr = format(d, "yyyy-MM-dd");
+    const sp = spMap.get(dateStr);
+    let ranges: { start: string; end: string }[] = [];
+    let closed = false;
+    let h24 = false;
+    if (sp) {
+      closed = sp.is_closed;
+      ranges = (sp.time_ranges as any) || [];
+    } else {
+      const bh = hours.find((x) => x.day_of_week === d.getDay());
+      if (!bh) continue;
+      closed = bh.is_closed;
+      h24 = bh.is_24h;
+      ranges = (bh.time_ranges as any) || [];
+    }
+    if (closed) continue;
+    if (h24) ranges = [{ start: "00:00", end: "23:59" }];
+    if (!ranges.length) continue;
+    const taken = new Set(
+      futureBookings.filter((b) => b.booking_date === dateStr).map((b) => b.booking_time.slice(0, 5))
+    );
+    for (const r of ranges) {
+      const [sh, sm] = r.start.split(":").map(Number);
+      const [eh, em] = r.end.split(":").map(Number);
+      const startMin = sh * 60 + sm;
+      const endMin = eh * 60 + em - 60; // last hour excluded
+      for (let t = startMin; t <= endMin; t += 60) {
+        const hh = String(Math.floor(t / 60)).padStart(2, "0");
+        const mm = String(t % 60).padStart(2, "0");
+        const time = `${hh}:${mm}`;
+        const slotDate = new Date(d);
+        slotDate.setHours(Math.floor(t / 60), t % 60, 0, 0);
+        if (slotDate <= now) continue;
+        if (!taken.has(time)) return { date: dateStr, time };
+      }
+    }
+  }
+  return null;
+};
+
+// ===== ACHIEVEMENTS FEED =====
+const AchievementsFeedSlide = ({ items }: { items: AchievementFeedItem[] }) => (
+  <div>
+    <SlideTitle icon={Trophy} title="LOGROS DESBLOQUEADOS" subtitle="Esta semana" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[60vh] overflow-hidden">
+      {items.slice(0, 8).map((it, i) => (
+        <motion.div
+          key={it.id}
+          initial={{ opacity: 0, x: -40 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: i * 0.07 }}
+          className="rounded-2xl p-4 bg-gradient-to-r from-amber-500/15 to-fuchsia-500/15 backdrop-blur-xl border border-amber-300/30 flex items-center gap-4"
+        >
+          <div className="w-14 h-14 rounded-full bg-amber-400/20 border border-amber-300/40 flex items-center justify-center shrink-0">
+            <Trophy className="w-7 h-7 text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,.7)]" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-lg font-black text-white truncate">{it.achievement_name}</div>
+            <div className="text-sm text-cyan-200/80 truncate">@{it.user_name}</div>
+          </div>
+          <div className="text-xs uppercase tracking-widest text-amber-200/70 shrink-0">
+            {format(new Date(it.awarded_at), "d MMM", { locale: es })}
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+);
+
+// ===== SPECIAL HOURS UPCOMING =====
+const SpecialHoursSlide = ({ items }: { items: SpecialHour[] }) => (
+  <div>
+    <SlideTitle icon={CalendarClock} title="PRÓXIMOS EVENTOS" subtitle="Horarios especiales" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {items.slice(0, 4).map((it, i) => {
+        const ranges = it.is_closed
+          ? "CERRADO"
+          : (it.time_ranges || []).map((r: any) => `${r.start} - ${r.end}`).join(" / ") || "—";
+        return (
+          <motion.div
+            key={it.id}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className={`rounded-2xl p-6 backdrop-blur-xl border ${
+              it.is_closed
+                ? "bg-red-500/10 border-red-400/40"
+                : "bg-gradient-to-br from-cyan-500/15 to-fuchsia-500/15 border-cyan-400/40"
+            }`}
+          >
+            <div className="text-xs uppercase tracking-widest text-cyan-300/80">
+              {format(parseISO(it.date), "EEEE", { locale: es })}
+            </div>
+            <div className="text-3xl font-black text-white mt-1">
+              {format(parseISO(it.date), "d 'de' MMMM", { locale: es })}
+            </div>
+            <div className={`mt-3 text-2xl font-mono ${it.is_closed ? "text-red-300" : "text-cyan-300"}`}>
+              {ranges}
+            </div>
+            {it.note && <div className="mt-2 text-sm text-white/70 italic">“{it.note}”</div>}
+          </motion.div>
+        );
+      })}
+    </div>
+  </div>
+);
+
+// ===== CUTS TODAY =====
+const CutsTodaySlide = ({ count }: { count: number }) => (
+  <div className="text-center">
+    <SlideTitle icon={Activity} title="CORTES HOY" subtitle="En directo" />
+    <motion.div
+      initial={{ opacity: 0, scale: 0.85 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ type: "spring", stiffness: 90 }}
+      className="relative mx-auto max-w-3xl rounded-3xl p-16 bg-gradient-to-br from-cyan-600/30 via-purple-700/30 to-fuchsia-600/30 backdrop-blur-xl border-2 border-cyan-400/50 overflow-hidden"
+    >
+      <Activity className="w-20 h-20 text-cyan-300 mx-auto mb-6 drop-shadow-[0_0_25px_rgba(34,211,238,.9)]" />
+      <div className="text-2xl text-white/80 uppercase tracking-[0.4em] mb-4">Ya llevamos</div>
+      <CountUp value={count} />
+      <div className="mt-4 text-3xl font-bold text-white">corte{count === 1 ? "" : "s"} hoy</div>
+      <div className="mt-2 text-sm uppercase tracking-widest text-fuchsia-200/80">¡Y los que quedan!</div>
+    </motion.div>
+  </div>
+);
+
+// ===== NEXT SLOT =====
+const NextSlotSlide = ({ slot }: { slot: { date: string; time: string } }) => {
+  const isToday = slot.date === format(new Date(), "yyyy-MM-dd");
+  return (
+    <div className="text-center">
+      <SlideTitle icon={Timer} title="PRÓXIMO HUECO" subtitle="Reserva ahora" />
+      <motion.div
+        animate={{ scale: [1, 1.02, 1] }}
+        transition={{ duration: 3, repeat: Infinity }}
+        className="relative mx-auto max-w-3xl rounded-3xl p-14 bg-gradient-to-br from-emerald-500/25 via-cyan-500/25 to-fuchsia-500/25 backdrop-blur-xl border-2 border-emerald-400/50 overflow-hidden"
+      >
+        <Timer className="w-20 h-20 text-emerald-300 mx-auto mb-6 drop-shadow-[0_0_25px_rgba(52,211,153,.9)]" />
+        <div className="text-xs uppercase tracking-[0.4em] text-emerald-200/80">
+          {isToday ? "Hoy" : format(parseISO(slot.date), "EEEE d 'de' MMMM", { locale: es })}
+        </div>
+        <div className="mt-3 text-9xl font-mono font-black text-white drop-shadow-[0_0_30px_rgba(52,211,153,.7)] tabular-nums">
+          {slot.time}
+        </div>
+        <div className="mt-6 text-2xl font-bold text-white">
+          ¡Reserva en <span className="text-emerald-300">diegcutz.es</span>!
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+// ===== QR BOOK =====
+const QrBookSlide = () => {
+  const url = "https://diegcutz.es/booking";
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=512x512&margin=10&data=${encodeURIComponent(url)}`;
+  return (
+    <div className="text-center">
+      <SlideTitle icon={QrCode} title="ESCANEA Y RESERVA" subtitle="Desde el sillón" />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.85 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="relative mx-auto inline-block rounded-3xl p-8 bg-white border-4 border-cyan-400/70 shadow-[0_0_60px_rgba(34,211,238,.6)]"
+      >
+        <img src={qr} alt="QR diegcutz.es/booking" className="w-[360px] h-[360px] block" />
+      </motion.div>
+      <div className="mt-8 text-3xl font-black text-white">
+        diegcutz.es/<span className="text-cyan-300">booking</span>
+      </div>
+      <p className="mt-3 text-sm uppercase tracking-[0.4em] text-cyan-300/80">Apunta con tu cámara</p>
+    </div>
+  );
+};
+
+// ===== LOYALTY PROGRAM =====
+const LoyaltyProgramSlide = () => (
+  <div className="text-center">
+    <SlideTitle icon={Award} title="PROGRAMA DE FIDELIDAD" subtitle="Cada corte cuenta" />
+    <motion.div
+      initial={{ opacity: 0, rotateY: -25 }}
+      animate={{ opacity: 1, rotateY: 0 }}
+      transition={{ type: "spring", stiffness: 60 }}
+      className="relative mx-auto max-w-3xl rounded-3xl p-12 bg-gradient-to-br from-amber-500/25 via-fuchsia-500/20 to-cyan-500/25 backdrop-blur-xl border-2 border-amber-300/50 overflow-hidden"
+    >
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+        className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-amber-300/20 blur-3xl"
+      />
+      <Award className="w-24 h-24 text-amber-300 mx-auto mb-6 drop-shadow-[0_0_30px_rgba(251,191,36,.9)]" />
+      <div className="text-5xl font-black text-white mb-4">GANA CORTES GRATIS</div>
+      <p className="text-2xl text-white/80 mb-8">
+        Acumula puntos en cada visita y consigue recompensas exclusivas
+      </p>
+      <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
+        {[
+          { n: "1", t: "Reserva", c: "from-cyan-400 to-blue-500" },
+          { n: "2", t: "Escanea QR", c: "from-fuchsia-400 to-purple-500" },
+          { n: "3", t: "Suma puntos", c: "from-amber-400 to-orange-500" },
+        ].map((s, i) => (
+          <motion.div
+            key={s.n}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 + i * 0.15 }}
+            className="rounded-2xl p-5 bg-black/40 border border-white/10"
+          >
+            <div className={`text-4xl font-black bg-gradient-to-br ${s.c} bg-clip-text text-transparent`}>
+              {s.n}
+            </div>
+            <div className="mt-2 text-sm uppercase tracking-widest text-white/80">{s.t}</div>
+          </motion.div>
+        ))}
+      </div>
+      <p className="mt-8 text-lg text-amber-200/90">
+        ¡Cada <span className="font-black">5 cortes</span> = 1 corte <span className="font-black">GRATIS</span>!
+      </p>
+    </motion.div>
+  </div>
+);
+
 // ===== LOADING SCREEN =====
 const TvLoadingScreen = () => (
   <div className="fixed inset-0 z-40 overflow-hidden bg-black text-white flex items-center justify-center">
