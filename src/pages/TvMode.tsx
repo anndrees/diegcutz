@@ -666,3 +666,45 @@ const BrandSlide = () => (
 );
 
 export default TvMode;
+
+// ===== LOADING SCREEN =====
+const TvLoadingScreen = () => (
+  <div className="fixed inset-0 z-40 overflow-hidden bg-black text-white flex items-center justify-center">
+    <div className="absolute inset-0 bg-gradient-to-br from-purple-950/70 via-black to-cyan-950/70" />
+    <div
+      className="absolute inset-0 opacity-20"
+      style={{
+        backgroundImage:
+          "linear-gradient(rgba(34,211,238,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.4) 1px,transparent 1px)",
+        backgroundSize: "60px 60px",
+        maskImage: "radial-gradient(ellipse at center,black 30%,transparent 75%)",
+      }}
+    />
+    <motion.div
+      animate={{ opacity: [0.3, 0.7, 0.3] }}
+      transition={{ duration: 3, repeat: Infinity }}
+      className="absolute -top-40 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-cyan-500/20 blur-3xl"
+    />
+    <div className="relative z-10 text-center">
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        className="inline-block mb-8"
+      >
+        <Scissors className="w-20 h-20 text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,.9)]" />
+      </motion.div>
+      <h1 className="text-5xl font-black tracking-tight bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent mb-3">
+        DIEGCUTZ
+      </h1>
+      <p className="text-sm uppercase tracking-[0.5em] text-cyan-300/80 mb-10">Sintonizando…</p>
+      <div className="mx-auto w-72 h-1 rounded-full bg-white/10 overflow-hidden">
+        <motion.div
+          initial={{ x: "-100%" }}
+          animate={{ x: "100%" }}
+          transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+          className="h-full w-1/2 bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-cyan-400 shadow-[0_0_20px_rgba(34,211,238,.8)]"
+        />
+      </div>
+    </div>
+  </div>
+);
