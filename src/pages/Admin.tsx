@@ -596,6 +596,8 @@ const Admin = () => {
 
             {activeTab === "homepage" && <HomepageManagement />}
 
+            {activeTab === "tv" && <TvModeManagement />}
+
             {activeTab === "messages" && <AdminMessagesSection />}
 
             {activeTab === "notifications" && <NotificationHistoryManagement />}
