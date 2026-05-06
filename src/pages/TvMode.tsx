@@ -3,7 +3,25 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { Scissors, Clock, Gift, Crown, Sparkles, MapPin, Calendar, Star, Zap, Wifi, Maximize2 } from "lucide-react";
+import {
+  Scissors,
+  Clock,
+  Gift,
+  Crown,
+  Sparkles,
+  MapPin,
+  Calendar,
+  Star,
+  Zap,
+  Wifi,
+  Maximize2,
+  TrendingUp,
+  MessageCircle,
+  Ticket,
+  Instagram,
+  Flame,
+  Quote,
+} from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import { TvLockScreen } from "@/components/tv/TvLockScreen";
 import type { TvSettings, TvSlideKey } from "@/components/admin/TvModeManagement";
@@ -19,6 +37,9 @@ type Service = { id: string; name: string; price: number; service_type: string }
 type Membership = { id: string; name: string; emoji: string | null; price: number; description: string | null };
 type Giveaway = { id: string; title: string; prize: string; end_date: string };
 type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: any };
+type Rating = { id: string; rating: number; comment: string | null; created_at: string; client_name?: string };
+type Coupon = { id: string; code: string; description: string | null; discount_type: string; discount_value: number };
+type Stats = { totalCuts: number; totalClients: number; ratingsAvg: number; ratingsCount: number };
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 const SLIDE_DURATION = 12000;
@@ -32,6 +53,11 @@ const DEFAULT_TV_SETTINGS: TvSettings = {
     { key: "packs", enabled: true },
     { key: "memberships", enabled: true },
     { key: "giveaways", enabled: true },
+    { key: "promo", enabled: true },
+    { key: "reviews", enabled: true },
+    { key: "coupons", enabled: true },
+    { key: "stats", enabled: true },
+    { key: "social", enabled: true },
     { key: "hours", enabled: true },
     { key: "brand", enabled: true },
   ],
@@ -44,6 +70,9 @@ const TvMode = () => {
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [giveaways, setGiveaways] = useState<Giveaway[]>([]);
   const [hours, setHours] = useState<BusinessHour[]>([]);
+  const [ratings, setRatings] = useState<Rating[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [stats, setStats] = useState<Stats>({ totalCuts: 0, totalClients: 0, ratingsAvg: 0, ratingsCount: 0 });
   const [now, setNow] = useState(new Date());
   const [slideIdx, setSlideIdx] = useState(0);
   const [tvSettings, setTvSettings] = useState<TvSettings>(DEFAULT_TV_SETTINGS);
@@ -68,13 +97,17 @@ const TvMode = () => {
     if (markReconnect) setReconnecting(true);
     const today = format(new Date(), "yyyy-MM-dd");
     try {
-    const [b, s, m, g, h, settings] = await Promise.all([
+    const [b, s, m, g, h, settings, r, c, totalCutsRes, totalClientsRes] = await Promise.all([
       supabase.from("bookings").select("id, booking_time, client_name, services").eq("booking_date", today).eq("is_cancelled", false).order("booking_time"),
       supabase.from("services").select("id, name, price, service_type"),
       supabase.from("memberships").select("id, name, emoji, price, description").eq("is_active", true).eq("is_coming_soon", false).order("sort_order"),
       supabase.from("giveaways").select("id, title, prize, end_date").eq("is_finished", false).order("end_date"),
       supabase.from("business_hours").select("*").order("day_of_week"),
       supabase.from("app_settings").select("value").eq("key", "tv_settings").maybeSingle(),
+      supabase.from("ratings").select("id, rating, comment, created_at").not("comment", "is", null).order("created_at", { ascending: false }).limit(10),
+      supabase.from("coupons").select("id, code, description, discount_type, discount_value").eq("is_active", true).limit(6),
+      supabase.from("bookings").select("id", { count: "exact", head: true }).eq("is_cancelled", false),
+      supabase.from("profiles").select("id", { count: "exact", head: true }),
     ]);
     setBookings((b.data as any) || []);
     const allSvc = (s.data as any) || [];
@@ -84,6 +117,18 @@ const TvMode = () => {
     setGiveaways((g.data as any) || []);
     setHours((h.data as any) || []);
     if (settings.data?.value) setTvSettings(settings.data.value as any);
+    const ratingsArr = (r.data as any) || [];
+    setRatings(ratingsArr);
+    setCoupons((c.data as any) || []);
+    const ratingsAvg = ratingsArr.length
+      ? ratingsArr.reduce((acc: number, x: any) => acc + (x.rating || 0), 0) / ratingsArr.length
+      : 0;
+    setStats({
+      totalCuts: totalCutsRes.count || 0,
+      totalClients: totalClientsRes.count || 0,
+      ratingsAvg,
+      ratingsCount: ratingsArr.length,
+    });
     } finally {
       setInitialLoading(false);
       setReconnecting(false);
@@ -157,11 +202,26 @@ const TvMode = () => {
         case "brand":
           arr.push({ key: "brand", render: () => <BrandSlide /> });
           break;
+        case "stats":
+          if (stats.totalCuts || stats.totalClients) arr.push({ key: "stats", render: () => <StatsSlide stats={stats} /> });
+          break;
+        case "reviews":
+          if (ratings.length) arr.push({ key: "reviews", render: () => <ReviewsSlide ratings={ratings} /> });
+          break;
+        case "coupons":
+          if (coupons.length) arr.push({ key: "coupons", render: () => <CouponsSlide coupons={coupons} /> });
+          break;
+        case "social":
+          arr.push({ key: "social", render: () => <SocialSlide /> });
+          break;
+        case "promo":
+          arr.push({ key: "promo", render: () => <PromoSlide /> });
+          break;
       }
     }
     if (!arr.length) arr.push({ key: "brand", render: () => <BrandSlide /> });
     return arr;
-  }, [bookings, services, packs, memberships, giveaways, hours, now, tvSettings]);
+  }, [bookings, services, packs, memberships, giveaways, hours, ratings, coupons, stats, now, tvSettings]);
 
   useEffect(() => {
     if (!slides.length) return;
