@@ -22,6 +22,8 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
   const [unlocking, setUnlocking] = useState(false);
   const [mouse, setMouse] = useState({ x: 50, y: 50 });
   const [glitch, setGlitch] = useState(false);
+  const [hudLines, setHudLines] = useState<string[]>([]);
+  const [particles, setParticles] = useState<{ id: number; x: number; y: number; dx: number; dy: number; color: string }[]>([]);
 
   useEffect(() => {
     if (isAuthenticated) return;
@@ -48,16 +50,43 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
     if (username === "diego" && password === "DiegCutz#2025Pro") {
       setUnlocking(true);
       sessionStorage.setItem("adminAuth", "true");
+      // HUD sequence
+      const steps = [
+        "> CONECTANDO A MAINFRAME...",
+        "> ESCANEANDO HUELLA DIGITAL...",
+        "> VERIFICANDO CREDENCIALES...",
+        "> DESCIFRANDO TOKEN AES-256...",
+        "> ACCESO AUTORIZADO ✓",
+      ];
+      steps.forEach((line, i) => {
+        setTimeout(() => setHudLines((prev) => [...prev, line]), i * 260);
+      });
+      // Burst of particles
+      const colors = ["280 80% 60%", "190 95% 50%", "330 85% 60%"];
+      const burst = Array.from({ length: 60 }, (_, i) => {
+        const angle = (Math.PI * 2 * i) / 60;
+        const speed = 80 + Math.random() * 180;
+        return {
+          id: Date.now() + i,
+          x: 50,
+          y: 50,
+          dx: Math.cos(angle) * speed,
+          dy: Math.sin(angle) * speed,
+          color: colors[i % colors.length],
+        };
+      });
+      setParticles(burst);
       setTimeout(() => {
         setIsAuthenticated(true);
         toast({
           title: "ACCESO CONCEDIDO",
           description: "Bienvenido al panel, jefe.",
         });
-      }, 1400);
+      }, 1700);
     } else {
       setShake(true);
       setTimeout(() => setShake(false), 600);
+      setHudLines((prev) => [...prev.slice(-4), "> ERROR: CREDENCIALES INVÁLIDAS ✗"]);
       toast({
         title: "ACCESO DENEGADO",
         description: "Credenciales incorrectas. Intento registrado.",
@@ -80,10 +109,52 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
         <div className="pointer-events-none absolute inset-0 admin-login-grid opacity-40" />
         {/* Scanlines */}
         <div className="pointer-events-none absolute inset-0 admin-login-scan" />
+        {/* Floating ambient particles */}
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          {Array.from({ length: 25 }).map((_, i) => (
+            <span
+              key={i}
+              className="absolute block rounded-full admin-floater"
+              style={{
+                left: `${(i * 37) % 100}%`,
+                bottom: `-10px`,
+                width: `${2 + (i % 3)}px`,
+                height: `${2 + (i % 3)}px`,
+                background: i % 2 ? "hsl(var(--neon-cyan))" : "hsl(var(--neon-purple))",
+                boxShadow: `0 0 8px hsl(var(--neon-${i % 2 ? "cyan" : "purple"}))`,
+                animationDelay: `${(i * 0.4) % 8}s`,
+                animationDuration: `${8 + (i % 6)}s`,
+              }}
+            />
+          ))}
+        </div>
         {/* Floating orbs */}
         <div className="pointer-events-none absolute -top-32 -left-32 h-96 w-96 rounded-full bg-[hsl(var(--neon-purple)/0.35)] blur-3xl animate-pulse" />
         <div className="pointer-events-none absolute -bottom-32 -right-32 h-96 w-96 rounded-full bg-[hsl(var(--neon-cyan)/0.3)] blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
         <div className="pointer-events-none absolute top-1/3 right-1/4 h-64 w-64 rounded-full bg-[hsl(var(--neon-pink)/0.25)] blur-3xl animate-pulse" style={{ animationDelay: "2s" }} />
+
+        {/* Burst particles on unlock */}
+        {unlocking && (
+          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
+            <div className="relative">
+              {particles.map((p) => (
+                <span
+                  key={p.id}
+                  className="absolute block h-1.5 w-1.5 rounded-full admin-particle"
+                  style={{
+                    background: `hsl(${p.color})`,
+                    boxShadow: `0 0 12px hsl(${p.color}), 0 0 24px hsl(${p.color})`,
+                    ['--dx' as any]: `${p.dx}px`,
+                    ['--dy' as any]: `${p.dy}px`,
+                  }}
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Flash on unlock */}
+        {unlocking && <div className="pointer-events-none absolute inset-0 z-30 admin-flash" />}
 
         <div className="relative w-full max-w-md z-10">
           <Button
@@ -182,6 +253,21 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
                   </span>
                   <span className="font-mono">v2.0.26</span>
                 </div>
+
+                {/* HUD terminal */}
+                {hudLines.length > 0 && (
+                  <div className="mt-3 rounded-md border border-[hsl(var(--neon-cyan)/0.3)] bg-black/70 p-3 font-mono text-[11px] leading-relaxed text-[hsl(var(--neon-cyan))] shadow-[0_0_20px_hsl(var(--neon-cyan)/0.2)] max-h-32 overflow-hidden">
+                    {hudLines.map((line, i) => (
+                      <div
+                        key={i}
+                        className={`admin-hud-line ${line.includes("✗") ? "text-[hsl(var(--destructive))]" : ""} ${line.includes("✓") ? "text-[hsl(var(--neon-pink))]" : ""}`}
+                      >
+                        {line}
+                        {i === hudLines.length - 1 && <span className="admin-cursor">▍</span>}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </form>
             </div>
           </div>
