@@ -64,10 +64,16 @@ const DEFAULT_TV_SETTINGS: TvSettings = {
   reduceMotion: false,
   slides: [
     { key: "queue", enabled: true },
+    { key: "next_slot", enabled: true },
+    { key: "cuts_today", enabled: true },
     { key: "services", enabled: true },
     { key: "packs", enabled: true },
     { key: "memberships", enabled: true },
     { key: "giveaways", enabled: true },
+    { key: "qr_book", enabled: true },
+    { key: "loyalty_program", enabled: true },
+    { key: "achievements_feed", enabled: true },
+    { key: "special_hours_upcoming", enabled: true },
     { key: "promo", enabled: true },
     { key: "reviews", enabled: true },
     { key: "coupons", enabled: true },
@@ -140,7 +146,19 @@ const TvMode = () => {
     setMemberships((m.data as any) || []);
     setGiveaways((g.data as any) || []);
     setHours((h.data as any) || []);
-    if (settings.data?.value) setTvSettings(settings.data.value as any);
+    if (settings.data?.value) {
+      const v = settings.data.value as any as TvSettings;
+      const savedKeys = new Set((v.slides || []).map((s) => s.key));
+      const merged = [
+        ...(v.slides || []).filter((s) => DEFAULT_TV_SETTINGS.slides.some((d) => d.key === s.key)),
+        ...DEFAULT_TV_SETTINGS.slides.filter((d) => !savedKeys.has(d.key)),
+      ];
+      setTvSettings({
+        passcode: v.passcode || "1234",
+        reduceMotion: !!v.reduceMotion,
+        slides: merged,
+      });
+    }
     const ratingsArr = (r.data as any) || [];
     setRatings(ratingsArr);
     setCoupons((c.data as any) || []);
