@@ -8,7 +8,19 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowDown, ArrowUp, Tv, Save, Lock, Eye, EyeOff } from "lucide-react";
 
-export type TvSlideKey = "queue" | "services" | "packs" | "memberships" | "giveaways" | "hours" | "brand";
+export type TvSlideKey =
+  | "queue"
+  | "services"
+  | "packs"
+  | "memberships"
+  | "giveaways"
+  | "hours"
+  | "brand"
+  | "stats"
+  | "reviews"
+  | "coupons"
+  | "social"
+  | "promo";
 
 export type TvSettings = {
   passcode: string;
@@ -23,6 +35,11 @@ const DEFAULT_SETTINGS: TvSettings = {
     { key: "packs", enabled: true },
     { key: "memberships", enabled: true },
     { key: "giveaways", enabled: true },
+    { key: "promo", enabled: true },
+    { key: "reviews", enabled: true },
+    { key: "coupons", enabled: true },
+    { key: "stats", enabled: true },
+    { key: "social", enabled: true },
     { key: "hours", enabled: true },
     { key: "brand", enabled: true },
   ],
@@ -36,6 +53,11 @@ const LABELS: Record<TvSlideKey, string> = {
   giveaways: "Sorteos",
   hours: "Horario",
   brand: "Marca / Branding",
+  stats: "Estadísticas (números)",
+  reviews: "Reseñas / Testimonios",
+  coupons: "Cupones activos",
+  social: "Redes sociales (Instagram)",
+  promo: "Próximo hueco / Reserva ya",
 };
 
 export const TvModeManagement = () => {
