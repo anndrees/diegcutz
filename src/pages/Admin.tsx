@@ -492,65 +492,8 @@ const Admin = () => {
     </>
   );
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="mb-8"
-          >
-            <ArrowLeft className="mr-2" />
-            Volver
-          </Button>
-
-          <Card className="bg-card border-border">
-            <CardHeader className="text-center">
-              <CardTitle className="text-4xl font-black text-neon-purple">
-                ADMIN PANEL
-              </CardTitle>
-              <CardDescription>
-                Acceso solo para administradores
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleLogin} className="space-y-4">
-                <div>
-                  <Label htmlFor="username">Usuario</Label>
-                  <Input
-                    id="username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Usuario"
-                    required
-                  />
-                </div>
-                
-                <div>
-                  <Label htmlFor="password">Contraseña</Label>
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Contraseña"
-                    required
-                  />
-                </div>
-
-                <Button type="submit" variant="neon" className="w-full">
-                  Iniciar Sesión
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
-  }
-
   return (
+    <AdminGuard>
     <div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
       {/* Neon ambient background */}
       <div className="pointer-events-none absolute inset-0 bg-neon-grid opacity-20" />
