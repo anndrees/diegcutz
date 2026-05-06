@@ -18,11 +18,12 @@ import { MergeUsersDialog } from "@/components/admin/MergeUsersDialog";
 type Client = {
   id: string; full_name: string; username: string; contact_method: string;
   contact_value: string; created_at: string; pwa_installed_at: string | null;
+  last_seen_at: string | null;
 };
 type LoyaltyMap = Record<string, number>;
 type MembershipInfo = { membership_id: string; plan_name: string; plan_emoji: string; sort_order: number };
 type MembershipMap = Record<string, MembershipInfo>;
-type SortOption = "newest" | "oldest" | "name_asc" | "name_desc" | "points_desc" | "points_asc";
+type SortOption = "newest" | "oldest" | "name_asc" | "name_desc" | "points_desc" | "points_asc" | "last_seen_desc" | "last_seen_asc";
 
 // Tier colors by sort_order
 const TIER_COLORS: Record<number, { border: string; bg: string; text: string }> = {
@@ -33,6 +34,20 @@ const TIER_COLORS: Record<number, { border: string; bg: string; text: string }> 
 };
 
 const getTierStyle = (sortOrder: number) => TIER_COLORS[sortOrder] || TIER_COLORS[0];
+
+const formatLastSeen = (iso: string | null) => {
+  if (!iso) return "Nunca";
+  const date = new Date(iso);
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "Ahora";
+  if (diffMin < 60) return `Hace ${diffMin} min`;
+  const diffH = Math.floor(diffMin / 60);
+  if (diffH < 24) return `Hace ${diffH}h`;
+  const diffD = Math.floor(diffH / 24);
+  if (diffD < 7) return `Hace ${diffD}d`;
+  return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
 
 export const ClientsManagement = () => {
   const { toast } = useToast();
@@ -115,6 +130,8 @@ export const ClientsManagement = () => {
         case "name_desc": return b.full_name.localeCompare(a.full_name);
         case "points_desc": return getPoints(b.id) - getPoints(a.id);
         case "points_asc": return getPoints(a.id) - getPoints(b.id);
+        case "last_seen_desc": return new Date(b.last_seen_at || 0).getTime() - new Date(a.last_seen_at || 0).getTime();
+        case "last_seen_asc": return new Date(a.last_seen_at || "9999-12-31").getTime() - new Date(b.last_seen_at || "9999-12-31").getTime();
         default: return 0;
       }
     });
@@ -141,6 +158,8 @@ export const ClientsManagement = () => {
                 <SelectItem value="name_desc">Nombre Z-A</SelectItem>
                 <SelectItem value="points_desc">Más puntos</SelectItem>
                 <SelectItem value="points_asc">Menos puntos</SelectItem>
+                <SelectItem value="last_seen_desc">Última actividad</SelectItem>
+                <SelectItem value="last_seen_asc">Inactivos hace más</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -175,6 +194,7 @@ export const ClientsManagement = () => {
                         @{client.username} · {getPoints(client.id)} pts
                         {mem && <span className={`ml-1 ${tierStyle?.text}`}> · {mem.plan_emoji} {mem.plan_name}</span>}
                       </p>
+                      <p className="text-[10px] text-muted-foreground/70 truncate">Últ. acceso: {formatLastSeen(client.last_seen_at)}</p>
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
                   </div>
@@ -192,6 +212,7 @@ export const ClientsManagement = () => {
                   <TableHead>Membresía</TableHead>
                   <TableHead>Contacto</TableHead>
                   <TableHead>Registro</TableHead>
+                  <TableHead>Último acceso</TableHead>
                   <TableHead className="text-right">Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -223,6 +244,7 @@ export const ClientsManagement = () => {
                       </TableCell>
                       <TableCell>{client.contact_value}</TableCell>
                       <TableCell>{new Date(client.created_at).toLocaleDateString()}</TableCell>
+                      <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{formatLastSeen(client.last_seen_at)}</TableCell>
                       <TableCell className="text-right space-x-2">
                         <Button variant="ghost" size="icon" onClick={() => handleEdit(client)}><Edit2 className="h-4 w-4" /></Button>
                         <Button variant="ghost" size="icon" onClick={() => setDeleteDialog({ open: true, client })}><Trash2 className="h-4 w-4 text-destructive" /></Button>
