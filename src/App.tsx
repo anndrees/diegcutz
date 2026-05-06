@@ -26,6 +26,7 @@ import TermsOfService from "./pages/TermsOfService";
 import MembershipPage from "./pages/Membership";
 import MembershipPolicy from "./pages/MembershipPolicy";
 import Install from "./pages/Install";
+import TvMode from "./pages/TvMode";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -78,6 +79,7 @@ const AppContent = () => {
         <Route path="/membership" element={<MembershipPage />} />
         <Route path="/membership-policy" element={<MembershipPolicy />} />
         <Route path="/install" element={<Install />} />
+        <Route path="/tv" element={<TvMode />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
         </Routes>

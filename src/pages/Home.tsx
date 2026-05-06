@@ -906,6 +906,10 @@ const Home = () => {
           <a href="/membership-policy" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
             Política de Membresías
           </a>
+          <span className="text-muted-foreground">|</span>
+          <a href="/tv" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 text-sm underline-offset-4 hover:underline drop-shadow-[0_0_8px_rgba(34,211,238,.6)]">
+            📺 Modo TV
+          </a>
         </div>
         <Button
           variant="link"
