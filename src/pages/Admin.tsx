@@ -55,6 +55,7 @@ import { AvailableHoursModal } from "@/components/admin/AvailableHoursModal";
 import { AdminHelpCenter } from "@/components/admin/AdminHelpCenter";
 import { AdminBookingsSection } from "@/components/admin/AdminBookingsSection";
 import { AdminGuard } from "@/components/admin/AdminGuard";
+import { HomepageManagement } from "@/components/admin/HomepageManagement";
 
 type Booking = {
   id: string;
@@ -591,6 +592,8 @@ const Admin = () => {
 
             {activeTab === "giveaways" && <GiveawaysManagement />}
             {activeTab === "marquee" && <MarqueeManagement />}
+
+            {activeTab === "homepage" && <HomepageManagement />}
 
             {activeTab === "messages" && <AdminMessagesSection />}
 

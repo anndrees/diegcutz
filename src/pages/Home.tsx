@@ -124,6 +124,21 @@ const Home = () => {
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
   const [marqueeItems, setMarqueeItems] = useState<{ id: string; text: string; color: string }[]>([]);
+  const [homeSettings, setHomeSettings] = useState<{
+    image: string;
+    filter: boolean;
+    overlay: number;
+    particles: boolean;
+    title: string;
+    subtitle: string;
+  }>({
+    image: "",
+    filter: false,
+    overlay: 60,
+    particles: true,
+    title: "",
+    subtitle: "",
+  });
   const scrollY = useParallax();
   const mousePos = useMouseParallax();
 
@@ -143,6 +158,7 @@ const Home = () => {
     loadSpecialHours();
     loadActiveGiveaway();
     loadMarquee();
+    loadHomeSettings();
 
     // Intersection observer for scroll animations
     const observer = new IntersectionObserver(
@@ -229,6 +245,31 @@ const Home = () => {
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
     setMarqueeItems((data as any[]) || []);
+  };
+
+  const loadHomeSettings = async () => {
+    const { data } = await supabase
+      .from("app_settings")
+      .select("key, value")
+      .in("key", [
+        "home_hero_image_url",
+        "home_hero_color_filter",
+        "home_hero_overlay_intensity",
+        "home_show_floating_particles",
+        "home_hero_title",
+        "home_hero_subtitle",
+      ]);
+    if (!data) return;
+    const next = { ...homeSettings };
+    data.forEach((r: any) => {
+      if (r.key === "home_hero_image_url") next.image = typeof r.value === "string" ? r.value : "";
+      if (r.key === "home_hero_color_filter") next.filter = r.value === true;
+      if (r.key === "home_hero_overlay_intensity") next.overlay = typeof r.value === "number" ? r.value : 60;
+      if (r.key === "home_show_floating_particles") next.particles = r.value !== false;
+      if (r.key === "home_hero_title") next.title = typeof r.value === "string" ? r.value : "";
+      if (r.key === "home_hero_subtitle") next.subtitle = typeof r.value === "string" ? r.value : "";
+    });
+    setHomeSettings(next);
   };
 
   return (
@@ -337,21 +378,28 @@ const Home = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(${heroImage})`,
+            backgroundImage: `url(${homeSettings.image || heroImage})`,
             transform: `translateY(${scrollY * 0.4}px) scale(${1.1 + scrollY * 0.0003})`,
-            filter: `brightness(${Math.max(0.3, 0.6 - scrollY * 0.0005)})`,
+            filter: `${
+              homeSettings.filter
+                ? "hue-rotate(220deg) saturate(1.3) contrast(1.05) "
+                : ""
+            }brightness(${Math.max(0.3, 0.6 - scrollY * 0.0005)})`,
           }}
         />
 
         {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/50 to-background" />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-background to-background"
+          style={{ opacity: homeSettings.overlay / 100 }}
+        />
         <div
           className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-background/80"
           style={{ transform: `translateY(${scrollY * 0.2}px)` }}
         />
 
         {/* Floating particles */}
-        <FloatingParticles scrollY={scrollY} />
+        {homeSettings.particles && <FloatingParticles scrollY={scrollY} />}
 
         {/* Animated orbs with mouse parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -396,11 +444,11 @@ const Home = () => {
           </div>
 
           <h1
-            data-text="DIEGCUTZ"
+            data-text={homeSettings.title || "DIEGCUTZ"}
             className="glitch title-flicker text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,0.8)]"
             style={{ animationDuration: "1s" }}
           >
-            DIEGCUTZ
+            {homeSettings.title || "DIEGCUTZ"}
           </h1>
 
           <p
@@ -410,7 +458,7 @@ const Home = () => {
               animationDuration: "1s",
             }}
           >
-            Urban Barbershop · Estilo Callejero
+            {homeSettings.subtitle || "Urban Barbershop · Estilo Callejero"}
           </p>
 
           <Button
