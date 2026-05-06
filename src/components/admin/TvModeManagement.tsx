@@ -88,6 +88,7 @@ export const TvModeManagement = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingMotion, setSavingMotion] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -124,6 +125,23 @@ export const TvModeManagement = () => {
     const arr = [...settings.slides];
     arr[i] = { ...arr[i], enabled: !arr[i].enabled };
     setSettings({ ...settings, slides: arr });
+  };
+
+  const toggleReduceMotion = async (v: boolean) => {
+    const next = { ...settings, reduceMotion: v };
+    setSettings(next);
+    setSavingMotion(true);
+    const value = { ...next, passcode };
+    const { error } = await supabase
+      .from("app_settings")
+      .upsert({ key: "tv_settings", value: value as any }, { onConflict: "key" });
+    setSavingMotion(false);
+    if (error) {
+      toast({ title: "Error al guardar", description: error.message, variant: "destructive" });
+      setSettings({ ...next, reduceMotion: !v });
+      return;
+    }
+    toast({ title: v ? "Reducción de movimiento activada" : "Reducción de movimiento desactivada", description: "Aplicado en /tv en tiempo real" });
   };
 
   const save = async () => {
@@ -173,7 +191,8 @@ export const TvModeManagement = () => {
             </div>
             <Switch
               checked={!!settings.reduceMotion}
-              onCheckedChange={(v) => setSettings({ ...settings, reduceMotion: v })}
+              disabled={savingMotion}
+              onCheckedChange={toggleReduceMotion}
             />
           </div>
           {settings.slides.map((s, i) => (
