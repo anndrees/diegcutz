@@ -5,7 +5,6 @@ import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { Tv, Save, Lock, Eye, EyeOff, RotateCcw, GripVertical, Search, Zap, ZapOff, Clock, Scissors, Star, Gift, Calendar, QrCode, Trophy, Sparkles, Image as ImageIcon, BarChart3, Instagram, Tag, Crown, Users, Megaphone } from "lucide-react";
 import {
