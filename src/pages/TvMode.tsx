@@ -487,6 +487,30 @@ const Particles = () => {
   );
 };
 
+// ===== Aurora background blobs =====
+const AuroraBlobs = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <motion.div
+      className="absolute -top-40 -left-40 w-[60vw] h-[60vw] rounded-full blur-3xl"
+      style={{ background: "radial-gradient(circle, rgba(34,211,238,.45), transparent 60%)" }}
+      animate={{ x: [0, 200, -100, 0], y: [0, 120, 60, 0], scale: [1, 1.2, 0.95, 1] }}
+      transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.div
+      className="absolute -bottom-40 -right-40 w-[55vw] h-[55vw] rounded-full blur-3xl"
+      style={{ background: "radial-gradient(circle, rgba(217,70,239,.4), transparent 60%)" }}
+      animate={{ x: [0, -180, 60, 0], y: [0, -100, -40, 0], scale: [1, 1.15, 0.9, 1] }}
+      transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.div
+      className="absolute top-1/3 left-1/2 w-[40vw] h-[40vw] rounded-full blur-3xl -translate-x-1/2"
+      style={{ background: "radial-gradient(circle, rgba(168,85,247,.35), transparent 60%)" }}
+      animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
+      transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+    />
+  </div>
+);
+
 // ===== Slide title helper =====
 const SlideTitle = ({ icon: Icon, title, subtitle }: any) => (
   <motion.div
