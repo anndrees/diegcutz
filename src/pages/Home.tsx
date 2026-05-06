@@ -444,11 +444,11 @@ const Home = () => {
           </div>
 
           <h1
-            data-text="DIEGCUTZ"
+            data-text={homeSettings.title || "DIEGCUTZ"}
             className="glitch title-flicker text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,0.8)]"
             style={{ animationDuration: "1s" }}
           >
-            DIEGCUTZ
+            {homeSettings.title || "DIEGCUTZ"}
           </h1>
 
           <p
@@ -458,7 +458,7 @@ const Home = () => {
               animationDuration: "1s",
             }}
           >
-            Urban Barbershop · Estilo Callejero
+            {homeSettings.subtitle || "Urban Barbershop · Estilo Callejero"}
           </p>
 
           <Button
