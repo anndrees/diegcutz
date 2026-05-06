@@ -21,6 +21,12 @@ import {
   Instagram,
   Flame,
   Quote,
+  Trophy,
+  CalendarClock,
+  Activity,
+  Timer,
+  QrCode,
+  Award,
 } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import { TvLockScreen } from "@/components/tv/TvLockScreen";
@@ -40,6 +46,14 @@ type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; 
 type Rating = { id: string; rating: number; comment: string | null; created_at: string; client_name?: string };
 type Coupon = { id: string; code: string; description: string | null; discount_type: string; discount_value: number };
 type Stats = { totalCuts: number; totalClients: number; ratingsAvg: number; ratingsCount: number };
+type AchievementFeedItem = {
+  id: string;
+  awarded_at: string;
+  achievement_name: string;
+  achievement_icon: string;
+  user_name: string;
+};
+type SpecialHour = { id: string; date: string; is_closed: boolean; time_ranges: any; note: string | null };
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 const SLIDE_DURATION = 12000;
@@ -47,6 +61,7 @@ const TV_UNLOCK_KEY = "tv_unlocked_v1";
 
 const DEFAULT_TV_SETTINGS: TvSettings = {
   passcode: "1234",
+  reduceMotion: false,
   slides: [
     { key: "queue", enabled: true },
     { key: "services", enabled: true },
@@ -73,6 +88,10 @@ const TvMode = () => {
   const [ratings, setRatings] = useState<Rating[]>([]);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [stats, setStats] = useState<Stats>({ totalCuts: 0, totalClients: 0, ratingsAvg: 0, ratingsCount: 0 });
+  const [achievementsFeed, setAchievementsFeed] = useState<AchievementFeedItem[]>([]);
+  const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
+  const [cutsToday, setCutsToday] = useState(0);
+  const [nextSlot, setNextSlot] = useState<{ date: string; time: string } | null>(null);
   const [now, setNow] = useState(new Date());
   const [slideIdx, setSlideIdx] = useState(0);
   const [tvSettings, setTvSettings] = useState<TvSettings>(DEFAULT_TV_SETTINGS);
@@ -97,7 +116,8 @@ const TvMode = () => {
     if (markReconnect) setReconnecting(true);
     const today = format(new Date(), "yyyy-MM-dd");
     try {
-    const [b, s, m, g, h, settings, r, c, totalCutsRes, totalClientsRes] = await Promise.all([
+    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
+    const [b, s, m, g, h, settings, r, c, totalCutsRes, totalClientsRes, cutsTodayRes, ach, sh, future] = await Promise.all([
       supabase.from("bookings").select("id, booking_time, client_name, services").eq("booking_date", today).eq("is_cancelled", false).order("booking_time"),
       supabase.from("services").select("id, name, price, service_type"),
       supabase.from("memberships").select("id, name, emoji, price, description").eq("is_active", true).eq("is_coming_soon", false).order("sort_order"),
@@ -108,6 +128,10 @@ const TvMode = () => {
       supabase.from("coupons").select("id, code, description, discount_type, discount_value").eq("is_active", true).limit(6),
       supabase.from("bookings").select("id", { count: "exact", head: true }).eq("is_cancelled", false),
       supabase.from("profiles").select("id", { count: "exact", head: true }),
+      supabase.from("bookings").select("id", { count: "exact", head: true }).eq("booking_date", today).eq("is_cancelled", false),
+      supabase.from("user_achievements").select("id, awarded_at, achievement_id, user_id").gte("awarded_at", weekAgo).order("awarded_at", { ascending: false }).limit(20),
+      supabase.from("special_hours").select("id, date, is_closed, time_ranges, note").gte("date", today).order("date").limit(6),
+      supabase.from("bookings").select("booking_date, booking_time").gte("booking_date", today).eq("is_cancelled", false).order("booking_date").order("booking_time").limit(200),
     ]);
     setBookings((b.data as any) || []);
     const allSvc = (s.data as any) || [];
@@ -129,6 +153,37 @@ const TvMode = () => {
       ratingsAvg,
       ratingsCount: ratingsArr.length,
     });
+    setCutsToday(cutsTodayRes.count || 0);
+    setSpecialHours((sh.data as any) || []);
+    // Achievements feed: enrich with names
+    const rawAch = (ach.data as any) || [];
+    if (rawAch.length) {
+      const achIds = [...new Set(rawAch.map((x: any) => x.achievement_id))];
+      const userIds = [...new Set(rawAch.map((x: any) => x.user_id))];
+      const [achDefs, profs] = await Promise.all([
+        supabase.from("achievements").select("id, name, icon").in("id", achIds as string[]),
+        supabase.from("profiles").select("id, full_name, username").in("id", userIds as string[]),
+      ]);
+      const aMap = new Map((achDefs.data || []).map((x: any) => [x.id, x]));
+      const pMap = new Map((profs.data || []).map((x: any) => [x.id, x]));
+      setAchievementsFeed(
+        rawAch.map((x: any) => {
+          const a = aMap.get(x.achievement_id) as any;
+          const p = pMap.get(x.user_id) as any;
+          return {
+            id: x.id,
+            awarded_at: x.awarded_at,
+            achievement_name: a?.name || "Logro",
+            achievement_icon: a?.icon || "trophy",
+            user_name: p?.username || (p?.full_name ? p.full_name.split(" ")[0] : "Cliente"),
+          };
+        })
+      );
+    } else {
+      setAchievementsFeed([]);
+    }
+    // Next free slot: find first hour gap from now
+    setNextSlot(computeNextSlot((future.data as any) || [], (h.data as any) || [], (sh.data as any) || []));
     } finally {
       setInitialLoading(false);
       setReconnecting(false);
@@ -217,11 +272,32 @@ const TvMode = () => {
         case "promo":
           arr.push({ key: "promo", render: () => <PromoSlide /> });
           break;
+        case "achievements_feed":
+          if (achievementsFeed.length)
+            arr.push({ key: "ach_feed", render: () => <AchievementsFeedSlide items={achievementsFeed} /> });
+          break;
+        case "special_hours_upcoming":
+          if (specialHours.length)
+            arr.push({ key: "sp_hours", render: () => <SpecialHoursSlide items={specialHours} /> });
+          break;
+        case "cuts_today":
+          arr.push({ key: "cuts_today", render: () => <CutsTodaySlide count={cutsToday} /> });
+          break;
+        case "next_slot":
+          if (nextSlot)
+            arr.push({ key: "next_slot", render: () => <NextSlotSlide slot={nextSlot!} /> });
+          break;
+        case "qr_book":
+          arr.push({ key: "qr_book", render: () => <QrBookSlide /> });
+          break;
+        case "loyalty_program":
+          arr.push({ key: "loyalty_program", render: () => <LoyaltyProgramSlide /> });
+          break;
       }
     }
     if (!arr.length) arr.push({ key: "brand", render: () => <BrandSlide /> });
     return arr;
-  }, [bookings, services, packs, memberships, giveaways, hours, ratings, coupons, stats, now, tvSettings]);
+  }, [bookings, services, packs, memberships, giveaways, hours, ratings, coupons, stats, now, tvSettings, achievementsFeed, specialHours, cutsToday, nextSlot]);
 
   useEffect(() => {
     if (!slides.length) return;
@@ -246,6 +322,7 @@ const TvMode = () => {
   }, [slides.length]);
 
   const current = slides[slideIdx % Math.max(1, slides.length)];
+  const reduceMotion = !!tvSettings.reduceMotion;
 
   const requestFullscreen = async () => {
     try {
@@ -277,6 +354,8 @@ const TvMode = () => {
   return (
     <div className="fixed inset-0 overflow-hidden bg-black text-white">
       {/* Background */}
+      {!reduceMotion ? (
+        <>
       <motion.div
         className="absolute inset-0 opacity-30"
         style={{
@@ -331,6 +410,16 @@ const TvMode = () => {
 
       {/* Floating particles */}
       <Particles />
+        </>
+      ) : (
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(76,29,149,.55), rgba(0,0,0,.95), rgba(8,145,178,.55))",
+          }}
+        />
+      )}
 
       {/* Reconnecting badge */}
       <AnimatePresence>
@@ -410,13 +499,15 @@ const TvMode = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={current?.key}
-            initial={{ opacity: 0, scale: 1.06, filter: "blur(28px) saturate(2.2) hue-rotate(60deg)", rotateX: 8 }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px) saturate(1) hue-rotate(0deg)", rotateX: 0 }}
-            exit={{ opacity: 0, scale: 0.94, filter: "blur(28px) saturate(2.2) hue-rotate(-60deg)", rotateX: -8 }}
-            transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 1.06, filter: "blur(28px) saturate(2.2) hue-rotate(60deg)", rotateX: 8 }}
+            animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, filter: "blur(0px) saturate(1) hue-rotate(0deg)", rotateX: 0 }}
+            exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.94, filter: "blur(28px) saturate(2.2) hue-rotate(-60deg)", rotateX: -8 }}
+            transition={{ duration: reduceMotion ? 0.3 : 1.1, ease: [0.22, 1, 0.36, 1] }}
             style={{ perspective: 1200 }}
             className="w-full max-w-6xl relative"
           >
+            {!reduceMotion && (
+              <>
             {/* neon sweep on enter */}
             <motion.div
               key={(current?.key || "") + "-sweep"}
@@ -432,6 +523,8 @@ const TvMode = () => {
               transition={{ duration: 1.4, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
               className="pointer-events-none absolute -inset-y-10 w-1/3 skew-x-12 bg-gradient-to-r from-transparent via-fuchsia-300/30 to-transparent blur-2xl"
             />
+              </>
+            )}
             {current?.render()}
           </motion.div>
         </AnimatePresence>
