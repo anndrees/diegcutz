@@ -378,21 +378,28 @@ const Home = () => {
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{
-            backgroundImage: `url(${heroImage})`,
+            backgroundImage: `url(${homeSettings.image || heroImage})`,
             transform: `translateY(${scrollY * 0.4}px) scale(${1.1 + scrollY * 0.0003})`,
-            filter: `brightness(${Math.max(0.3, 0.6 - scrollY * 0.0005)})`,
+            filter: `${
+              homeSettings.filter
+                ? "hue-rotate(220deg) saturate(1.3) contrast(1.05) "
+                : ""
+            }brightness(${Math.max(0.3, 0.6 - scrollY * 0.0005)})`,
           }}
         />
 
         {/* Gradient overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-background/90 via-background/50 to-background" />
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-background to-background"
+          style={{ opacity: homeSettings.overlay / 100 }}
+        />
         <div
           className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-background/80"
           style={{ transform: `translateY(${scrollY * 0.2}px)` }}
         />
 
         {/* Floating particles */}
-        <FloatingParticles scrollY={scrollY} />
+        {homeSettings.particles && <FloatingParticles scrollY={scrollY} />}
 
         {/* Animated orbs with mouse parallax */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
