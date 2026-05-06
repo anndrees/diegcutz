@@ -164,6 +164,18 @@ export const TvModeManagement = () => {
           </div>
         </CardHeader>
         <CardContent className="space-y-3">
+          <div className="flex items-center justify-between gap-3 p-3 rounded-lg border border-neon-cyan/30 bg-neon-cyan/5">
+            <div className="min-w-0">
+              <p className="font-semibold">Reducir movimiento</p>
+              <p className="text-xs text-muted-foreground">
+                Desactiva animaciones pesadas (fondos, partículas, blobs). Útil para TVs antiguas con lag.
+              </p>
+            </div>
+            <Switch
+              checked={!!settings.reduceMotion}
+              onCheckedChange={(v) => setSettings({ ...settings, reduceMotion: v })}
+            />
+          </div>
           {settings.slides.map((s, i) => (
             <div
               key={s.key}
