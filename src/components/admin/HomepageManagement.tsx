@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Image as ImageIcon, Upload, Trash2, Sparkles, Palette, Home as HomeIcon } from "lucide-react";
+import { Image as ImageIcon, Upload, Trash2, Sparkles, Palette, Home as HomeIcon, RotateCcw } from "lucide-react";
 import defaultHero from "@/assets/hero-barber.jpg";
 
 type HomeSettings = {
@@ -146,6 +146,11 @@ export const HomepageManagement = () => {
                   }
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                {/* Live overlay preview matching Home darkening */}
+                <div
+                  className="absolute inset-0 bg-background pointer-events-none"
+                  style={{ opacity: settings.home_hero_overlay_intensity / 100 }}
+                />
                 {isCustom && (
                   <Button
                     variant="destructive"
@@ -188,6 +193,15 @@ export const HomepageManagement = () => {
                 </span>
               </Button>
             </label>
+            <Button
+              variant="outline"
+              onClick={removeImage}
+              disabled={!settings.home_hero_image_url}
+              className="border-neon-cyan/40 text-cyan-400 hover:bg-neon-cyan/10"
+            >
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Restaurar imagen por defecto
+            </Button>
             <p className="text-xs text-muted-foreground">JPG / PNG / WEBP · Máx 8MB</p>
           </div>
 
@@ -240,36 +254,6 @@ export const HomepageManagement = () => {
                 save("home_hero_overlay_intensity", parseInt((e.target as HTMLInputElement).value))
               }
               className="w-full accent-[hsl(var(--neon-cyan))]"
-            />
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Hero text */}
-      <Card className="bg-card/40 backdrop-blur-xl border-neon-purple/30">
-        <CardHeader>
-          <CardTitle className="text-cyan-400">Textos del Hero</CardTitle>
-          <CardDescription>Personaliza el título y subtítulo principal (déjalo vacío para usar los por defecto).</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>Título principal</Label>
-            <Input
-              value={settings.home_hero_title}
-              onChange={(e) => setSettings((p) => ({ ...p, home_hero_title: e.target.value }))}
-              onBlur={(e) => save("home_hero_title", e.target.value)}
-              placeholder="DIEGCUTZ"
-              className="bg-background/50 border-neon-purple/30"
-            />
-          </div>
-          <div>
-            <Label>Subtítulo</Label>
-            <Input
-              value={settings.home_hero_subtitle}
-              onChange={(e) => setSettings((p) => ({ ...p, home_hero_subtitle: e.target.value }))}
-              onBlur={(e) => save("home_hero_subtitle", e.target.value)}
-              placeholder="Cortes de calidad sin gastarte un dineral"
-              className="bg-background/50 border-neon-purple/30"
             />
           </div>
         </CardContent>
