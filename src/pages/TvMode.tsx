@@ -104,7 +104,7 @@ const TvMode = () => {
       supabase.from("giveaways").select("id, title, prize, end_date").eq("is_finished", false).order("end_date"),
       supabase.from("business_hours").select("*").order("day_of_week"),
       supabase.from("app_settings").select("value").eq("key", "tv_settings").maybeSingle(),
-      supabase.from("ratings").select("id, rating, comment, created_at").not("comment", "is", null).order("created_at", { ascending: false }).limit(10),
+      supabase.from("ratings").select("id, rating, comment, created_at").order("created_at", { ascending: false }).limit(10),
       supabase.from("coupons").select("id, code, description, discount_type, discount_value").eq("is_active", true).limit(6),
       supabase.from("bookings").select("id", { count: "exact", head: true }).eq("is_cancelled", false),
       supabase.from("profiles").select("id", { count: "exact", head: true }),
@@ -227,6 +227,22 @@ const TvMode = () => {
     if (!slides.length) return;
     const t = setInterval(() => setSlideIdx((i) => (i + 1) % slides.length), SLIDE_DURATION);
     return () => clearInterval(t);
+  }, [slides.length]);
+
+  // Keyboard navigation: ← / → to switch slides (debug & manual control)
+  useEffect(() => {
+    if (!slides.length) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        setSlideIdx((i) => (i + 1) % slides.length);
+      } else if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        setSlideIdx((i) => (i - 1 + slides.length) % slides.length);
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, [slides.length]);
 
   const current = slides[slideIdx % Math.max(1, slides.length)];
@@ -362,7 +378,7 @@ const TvMode = () => {
             />
           </div>
           <div>
-            <h1 className="text-4xl font-black tracking-tight bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-black tracking-tight leading-[1.15] pb-1 bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent">
               DIEGCUTZ
             </h1>
             <p className="text-xs uppercase tracking-[0.3em] text-cyan-400/70">Barbería Urbana</p>
@@ -656,7 +672,17 @@ const PacksSlide = ({ packs }: { packs: Service[] }) => (
 const MembershipSlide = ({ memberships }: { memberships: Membership[] }) => (
   <div>
     <SlideTitle icon={Crown} title="MEMBRESÍAS" subtitle="Únete al club" />
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+    <div
+      className={`grid gap-4 justify-center ${
+        memberships.length === 1
+          ? "grid-cols-1 max-w-sm mx-auto"
+          : memberships.length === 2
+          ? "grid-cols-2 max-w-2xl mx-auto"
+          : memberships.length === 3
+          ? "grid-cols-3 max-w-4xl mx-auto"
+          : "grid-cols-2 lg:grid-cols-4"
+      }`}
+    >
       {memberships.slice(0, 4).map((m, i) => (
         <motion.div
           key={m.id}
@@ -783,7 +809,7 @@ const BrandSlide = () => (
         ],
       }}
       transition={{ duration: 3, repeat: Infinity }}
-      className="text-9xl font-black tracking-tighter bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent"
+      className="text-9xl font-black tracking-tighter leading-[1.15] pb-4 bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent"
     >
       DIEGCUTZ
     </motion.h2>
@@ -1000,7 +1026,7 @@ const SocialSlide = () => (
       >
         <Instagram className="w-32 h-32 text-white drop-shadow-[0_0_30px_rgba(217,70,239,.9)]" />
       </motion.div>
-      <div className="relative text-7xl font-black bg-gradient-to-r from-amber-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
+      <div className="relative text-7xl font-black leading-[1.2] pb-3 bg-gradient-to-r from-amber-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
         @diegcutz
       </div>
       <p className="relative mt-6 text-2xl text-white/80 uppercase tracking-[0.3em]">
@@ -1037,7 +1063,7 @@ const PromoSlide = () => (
       </div>
       <div className="mt-8 inline-block px-10 py-5 rounded-2xl bg-black/50 border border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,.5)]">
         <div className="text-xs uppercase tracking-widest text-cyan-300/80">Reserva online</div>
-        <div className="text-5xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+        <div className="text-5xl font-black leading-[1.2] pb-2 bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
           diegcutz.es
         </div>
       </div>
