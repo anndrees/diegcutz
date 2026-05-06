@@ -714,3 +714,52 @@ html.konami-rave body {
   50% { transform: translate(-3px, 2px); }
   100% { transform: translate(2px, -1px); }
 }
+
+/* Floating ambient particles rising */
+@keyframes admin-floater-rise {
+  0% { transform: translateY(0) translateX(0); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(-110vh) translateX(20px); opacity: 0; }
+}
+.admin-floater {
+  animation: admin-floater-rise linear infinite;
+}
+
+/* Burst particle on unlock */
+@keyframes admin-particle-burst {
+  0% { transform: translate(0, 0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
+}
+.admin-particle {
+  animation: admin-particle-burst 1.4s cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
+}
+
+/* Flash on unlock */
+@keyframes admin-flash-anim {
+  0% { opacity: 0; }
+  20% { opacity: 0.85; }
+  100% { opacity: 0; }
+}
+.admin-flash {
+  background: radial-gradient(circle at center, hsl(var(--neon-cyan) / 0.6), transparent 60%);
+  animation: admin-flash-anim 1.4s ease-out forwards;
+}
+
+/* HUD terminal */
+@keyframes admin-hud-typein {
+  from { opacity: 0; transform: translateX(-6px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.admin-hud-line {
+  animation: admin-hud-typein 0.25s ease-out;
+}
+@keyframes admin-cursor-blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+.admin-cursor {
+  display: inline-block;
+  margin-left: 2px;
+  animation: admin-cursor-blink 0.8s step-end infinite;
+}
