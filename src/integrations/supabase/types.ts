@@ -870,6 +870,7 @@ export type Database = {
           id: string
           is_banned: boolean | null
           is_restricted: boolean | null
+          last_seen_at: string | null
           loyalty_token: string | null
           profile_complete: boolean | null
           pwa_installed_at: string | null
@@ -892,6 +893,7 @@ export type Database = {
           id: string
           is_banned?: boolean | null
           is_restricted?: boolean | null
+          last_seen_at?: string | null
           loyalty_token?: string | null
           profile_complete?: boolean | null
           pwa_installed_at?: string | null
@@ -914,6 +916,7 @@ export type Database = {
           id?: string
           is_banned?: boolean | null
           is_restricted?: boolean | null
+          last_seen_at?: string | null
           loyalty_token?: string | null
           profile_complete?: boolean | null
           pwa_installed_at?: string | null
