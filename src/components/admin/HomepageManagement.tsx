@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Image as ImageIcon, Upload, Trash2, Sparkles, Palette, Home as HomeIcon } from "lucide-react";
+import defaultHero from "@/assets/hero-barber.jpg";
 
 type HomeSettings = {
   home_hero_image_url: string;
@@ -126,43 +127,47 @@ export const HomepageManagement = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
-          {settings.home_hero_image_url ? (
-            <div className="relative rounded-xl overflow-hidden border border-neon-purple/30 group">
-              <img
-                src={settings.home_hero_image_url}
-                alt="Hero preview"
-                className="w-full h-64 object-cover"
-                style={
-                  settings.home_hero_color_filter
-                    ? {
-                        filter:
-                          "hue-rotate(220deg) saturate(1.3) contrast(1.05) brightness(0.85)",
-                      }
-                    : undefined
-                }
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
-              <Button
-                variant="destructive"
-                size="sm"
-                onClick={removeImage}
-                className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition"
-              >
-                <Trash2 className="h-4 w-4 mr-1" />
-                Quitar
-              </Button>
-              <div className="absolute bottom-3 left-3 px-3 py-1 rounded-full bg-background/70 backdrop-blur text-xs text-cyan-400 border border-cyan-400/30">
-                Vista previa {settings.home_hero_color_filter ? "(filtro neón activo)" : "(original)"}
+          {(() => {
+            const isCustom = !!settings.home_hero_image_url;
+            const src = settings.home_hero_image_url || defaultHero;
+            return (
+              <div className="relative rounded-xl overflow-hidden border border-neon-purple/30 group">
+                <img
+                  src={src}
+                  alt={isCustom ? "Imagen actual del Hero" : "Imagen por defecto del Hero"}
+                  className="w-full h-64 object-cover"
+                  style={
+                    settings.home_hero_color_filter
+                      ? {
+                          filter:
+                            "hue-rotate(220deg) saturate(1.3) contrast(1.05) brightness(0.85)",
+                        }
+                      : undefined
+                  }
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent" />
+                {isCustom && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={removeImage}
+                    className="absolute top-3 right-3 opacity-0 group-hover:opacity-100 transition"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Quitar
+                  </Button>
+                )}
+                <div className="absolute bottom-3 left-3 flex gap-2 items-center">
+                  <span className="px-3 py-1 rounded-full bg-background/70 backdrop-blur text-xs text-cyan-400 border border-cyan-400/30">
+                    {isCustom ? "Imagen actual personalizada" : "Imagen por defecto"}
+                  </span>
+                  <span className="px-3 py-1 rounded-full bg-background/70 backdrop-blur text-xs text-neon-pink border border-neon-pink/30">
+                    {settings.home_hero_color_filter ? "Filtro neón ON" : "Sin filtro"}
+                  </span>
+                </div>
               </div>
-            </div>
-          ) : (
-            <div className="rounded-xl border-2 border-dashed border-neon-purple/30 bg-background/30 p-10 text-center">
-              <ImageIcon className="h-10 w-10 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-sm text-muted-foreground">
-                No hay imagen personalizada. Se usa la imagen por defecto.
-              </p>
-            </div>
-          )}
+            );
+          })()}
 
           <div className="flex flex-wrap gap-3 items-center">
             <label>
