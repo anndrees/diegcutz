@@ -80,7 +80,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
         setIsAuthenticated(true);
         toast({
           title: "ACCESO CONCEDIDO",
-          description: "Bienvenido al panel, jefe.",
+          description: "Bienvenido al panel de administración.",
         });
       }, 1700);
     } else {
@@ -190,7 +190,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
                 </h1>
                 <p className="mt-2 text-xs uppercase tracking-[0.3em] text-muted-foreground flex items-center justify-center gap-2">
                   <Zap className="h-3 w-3 text-[hsl(var(--neon-pink))] animate-pulse" />
-                  zona solo para diego
+                  zona restringida · solo admins
                   <Zap className="h-3 w-3 text-[hsl(var(--neon-pink))] animate-pulse" />
                 </p>
               </div>
@@ -206,7 +206,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
                       id="username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder="diego"
+                      placeholder="usuario"
                       required
                       autoComplete="off"
                       className="pl-10 bg-[hsl(0_0%_4%)] border-[hsl(var(--neon-purple)/0.4)] focus-visible:ring-[hsl(var(--neon-cyan))] focus-visible:border-[hsl(var(--neon-cyan))] h-11 font-mono"
