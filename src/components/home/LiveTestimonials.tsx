@@ -32,17 +32,23 @@ const TestimonialToast = ({
 }) => {
   const [isExiting, setIsExiting] = useState(false);
   const [expanded, setExpanded] = useState(false);
+  const [isEntering, setIsEntering] = useState(true);
+
+  useEffect(() => {
+    const t = setTimeout(() => setIsEntering(false), 50);
+    return () => clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (expanded) return;
 
     const exitTimer = setTimeout(() => {
       setIsExiting(true);
-    }, 7000);
+    }, 12000);
 
     const removeTimer = setTimeout(() => {
       onComplete(notification.id);
-    }, 7500);
+    }, 13000);
 
     return () => {
       clearTimeout(exitTimer);
@@ -55,21 +61,21 @@ const TestimonialToast = ({
   return (
     <div
       className={`
-        fixed right-4 z-50 w-80 max-w-[calc(100vw-2rem)]
-        bg-gradient-to-br from-card to-background
-        border-2 border-neon-cyan/50 rounded-xl p-3 md:p-4
-        shadow-lg shadow-neon-cyan/20
-        transition-all duration-500 ease-out
-        ${notification.isVisible && !isExiting 
-          ? "translate-x-0 opacity-100" 
-          : "translate-x-full opacity-0"
+        fixed right-5 z-50 w-[340px] max-w-[calc(100vw-2rem)]
+        bg-card/70 backdrop-blur-xl
+        border border-neon-cyan/30 rounded-2xl p-4
+        shadow-[0_8px_32px_-8px_rgba(0,245,255,0.25)]
+        transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
+        ${isEntering || isExiting
+          ? "translate-x-6 opacity-0 scale-95 blur-sm"
+          : "translate-x-0 opacity-100 scale-100 blur-0"
         }
       `}
       style={{ 
-        top: `${80 + notification.position * 110}px`,
+        top: `${96 + notification.position * 130}px`,
       }}
     >
-      <div className="absolute inset-0 rounded-xl bg-neon-cyan/5 animate-pulse" />
+      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-neon-cyan/5 via-transparent to-neon-purple/5 pointer-events-none" />
       
       <div className="relative">
         <div className="flex items-center justify-between mb-2">
@@ -77,22 +83,22 @@ const TestimonialToast = ({
             {[1, 2, 3, 4, 5].map((star) => (
               <Star
                 key={star}
-                className={`h-4 w-4 ${
+                className={`h-3.5 w-3.5 ${
                   star <= rating.rating
-                    ? "fill-neon-cyan text-neon-cyan"
+                    ? "fill-neon-cyan text-neon-cyan drop-shadow-[0_0_4px_rgba(0,245,255,0.6)]"
                     : "text-muted-foreground/30"
                 }`}
               />
             ))}
           </div>
-          <span className="text-xs text-muted-foreground">
+          <span className="text-[10px] uppercase tracking-wider text-muted-foreground/70">
             {format(new Date(rating.created_at), "d MMM", { locale: es })}
           </span>
         </div>
 
         {rating.comment && (
-          <div className="mb-2">
-            <p className={`text-sm text-foreground italic ${expanded ? "" : "line-clamp-2"}`}>
+          <div className="mb-3">
+            <p className={`text-sm text-foreground/90 leading-relaxed ${expanded ? "" : "line-clamp-2"}`}>
               "{rating.comment}"
             </p>
             {rating.comment.length > 60 && (
@@ -113,26 +119,16 @@ const TestimonialToast = ({
           </div>
         )}
 
-        <div className="flex items-center gap-2">
-          <div className="w-6 h-6 rounded-full bg-neon-purple/20 flex items-center justify-center">
-            <span className="text-xs font-bold text-neon-purple">
+        <div className="flex items-center gap-2 pt-2 border-t border-border/30">
+          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-neon-purple/30 to-neon-cyan/20 flex items-center justify-center ring-1 ring-neon-purple/30">
+            <span className="text-[11px] font-bold text-neon-purple">
               {(rating.profile?.full_name || "A")[0].toUpperCase()}
             </span>
           </div>
-          <span className="text-sm font-medium text-neon-purple">
+          <span className="text-xs font-medium text-foreground/80">
             @{rating.profile?.username || "cliente"}
           </span>
         </div>
-      </div>
-
-      <div className="absolute inset-0 rounded-xl overflow-hidden pointer-events-none">
-        <div 
-          className="absolute inset-0 opacity-30"
-          style={{
-            background: `linear-gradient(90deg, transparent, rgba(0, 245, 255, 0.3), transparent)`,
-            animation: "shimmer 2s linear infinite",
-          }}
-        />
       </div>
     </div>
   );
@@ -199,8 +195,8 @@ export const LiveTestimonials = () => {
       setCurrentIndex(prev => (prev + 1) % ratings.length);
     };
 
-    const initialTimeout = setTimeout(showTestimonial, 5000);
-    const interval = setInterval(showTestimonial, 10000);
+    const initialTimeout = setTimeout(showTestimonial, 8000);
+    const interval = setInterval(showTestimonial, 22000);
 
     return () => {
       clearTimeout(initialTimeout);
