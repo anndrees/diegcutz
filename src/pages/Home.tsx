@@ -124,6 +124,21 @@ const Home = () => {
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
   const [marqueeItems, setMarqueeItems] = useState<{ id: string; text: string; color: string }[]>([]);
+  const [homeSettings, setHomeSettings] = useState<{
+    image: string;
+    filter: boolean;
+    overlay: number;
+    particles: boolean;
+    title: string;
+    subtitle: string;
+  }>({
+    image: "",
+    filter: false,
+    overlay: 60,
+    particles: true,
+    title: "",
+    subtitle: "",
+  });
   const scrollY = useParallax();
   const mousePos = useMouseParallax();
 
@@ -143,6 +158,7 @@ const Home = () => {
     loadSpecialHours();
     loadActiveGiveaway();
     loadMarquee();
+    loadHomeSettings();
 
     // Intersection observer for scroll animations
     const observer = new IntersectionObserver(
@@ -229,6 +245,31 @@ const Home = () => {
       .eq("is_active", true)
       .order("sort_order", { ascending: true });
     setMarqueeItems((data as any[]) || []);
+  };
+
+  const loadHomeSettings = async () => {
+    const { data } = await supabase
+      .from("app_settings")
+      .select("key, value")
+      .in("key", [
+        "home_hero_image_url",
+        "home_hero_color_filter",
+        "home_hero_overlay_intensity",
+        "home_show_floating_particles",
+        "home_hero_title",
+        "home_hero_subtitle",
+      ]);
+    if (!data) return;
+    const next = { ...homeSettings };
+    data.forEach((r: any) => {
+      if (r.key === "home_hero_image_url") next.image = typeof r.value === "string" ? r.value : "";
+      if (r.key === "home_hero_color_filter") next.filter = r.value === true;
+      if (r.key === "home_hero_overlay_intensity") next.overlay = typeof r.value === "number" ? r.value : 60;
+      if (r.key === "home_show_floating_particles") next.particles = r.value !== false;
+      if (r.key === "home_hero_title") next.title = typeof r.value === "string" ? r.value : "";
+      if (r.key === "home_hero_subtitle") next.subtitle = typeof r.value === "string" ? r.value : "";
+    });
+    setHomeSettings(next);
   };
 
   return (
