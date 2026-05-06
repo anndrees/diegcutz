@@ -17,6 +17,7 @@ import {
   Crown,
   HelpCircle,
   Megaphone,
+  Home,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,7 @@ const menuItems = [
   { id: "memberships", label: "Membresías", icon: Crown },
   { id: "giveaways", label: "Sorteos", icon: Gift },
   { id: "marquee", label: "Marquee", icon: Megaphone },
+  { id: "homepage", label: "Página principal", icon: Home },
   { id: "messages", label: "Mensajes", icon: MessageSquare },
   { id: "notifications", label: "Notificaciones", icon: Bell },
   { id: "logs", label: "Historial", icon: History },
