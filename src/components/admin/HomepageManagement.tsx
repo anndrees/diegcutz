@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Image as ImageIcon, Upload, Trash2, Sparkles, Palette, Home as HomeIcon, RotateCcw } from "lucide-react";
 import defaultHero from "@/assets/hero-barber.jpg";
