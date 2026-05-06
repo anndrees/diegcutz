@@ -54,6 +54,7 @@ import { ActiveAppointmentBanner } from "@/components/admin/ActiveAppointmentBan
 import { AvailableHoursModal } from "@/components/admin/AvailableHoursModal";
 import { AdminHelpCenter } from "@/components/admin/AdminHelpCenter";
 import { AdminBookingsSection } from "@/components/admin/AdminBookingsSection";
+import { AdminGuard } from "@/components/admin/AdminGuard";
 
 type Booking = {
   id: string;
@@ -79,11 +80,6 @@ const Admin = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem("adminAuth") === "true";
-  });
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
@@ -106,35 +102,12 @@ const Admin = () => {
   const [showAvailableHoursModal, setShowAvailableHoursModal] = useState(false);
 
   useEffect(() => {
-    if (isAuthenticated) {
-      loadBookings();
-    }
-  }, [isAuthenticated]);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-
-    if (username === "diego" && password === "DiegCutz#2025Pro") {
-      setIsAuthenticated(true);
-      sessionStorage.setItem("adminAuth", "true");
-      toast({
-        title: "Bienvenido",
-        description: "Sesión iniciada correctamente",
-      });
-    } else {
-      toast({
-        title: "Error",
-        description: "Usuario o contraseña incorrectos",
-        variant: "destructive",
-      });
-    }
-  };
+    loadBookings();
+  }, []);
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
     sessionStorage.removeItem("adminAuth");
-    setUsername("");
-    setPassword("");
+    navigate("/");
   };
 
   const loadBookings = async () => {
