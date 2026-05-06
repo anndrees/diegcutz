@@ -3,7 +3,25 @@ import { AnimatePresence, motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { format, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
-import { Scissors, Clock, Gift, Crown, Sparkles, MapPin, Calendar, Star, Zap, Wifi, Maximize2 } from "lucide-react";
+import {
+  Scissors,
+  Clock,
+  Gift,
+  Crown,
+  Sparkles,
+  MapPin,
+  Calendar,
+  Star,
+  Zap,
+  Wifi,
+  Maximize2,
+  TrendingUp,
+  MessageCircle,
+  Ticket,
+  Instagram,
+  Flame,
+  Quote,
+} from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import { TvLockScreen } from "@/components/tv/TvLockScreen";
 import type { TvSettings, TvSlideKey } from "@/components/admin/TvModeManagement";
@@ -19,6 +37,9 @@ type Service = { id: string; name: string; price: number; service_type: string }
 type Membership = { id: string; name: string; emoji: string | null; price: number; description: string | null };
 type Giveaway = { id: string; title: string; prize: string; end_date: string };
 type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: any };
+type Rating = { id: string; rating: number; comment: string | null; created_at: string; client_name?: string };
+type Coupon = { id: string; code: string; description: string | null; discount_type: string; discount_value: number };
+type Stats = { totalCuts: number; totalClients: number; ratingsAvg: number; ratingsCount: number };
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 const SLIDE_DURATION = 12000;
@@ -32,6 +53,11 @@ const DEFAULT_TV_SETTINGS: TvSettings = {
     { key: "packs", enabled: true },
     { key: "memberships", enabled: true },
     { key: "giveaways", enabled: true },
+    { key: "promo", enabled: true },
+    { key: "reviews", enabled: true },
+    { key: "coupons", enabled: true },
+    { key: "stats", enabled: true },
+    { key: "social", enabled: true },
     { key: "hours", enabled: true },
     { key: "brand", enabled: true },
   ],
@@ -44,6 +70,9 @@ const TvMode = () => {
   const [memberships, setMemberships] = useState<Membership[]>([]);
   const [giveaways, setGiveaways] = useState<Giveaway[]>([]);
   const [hours, setHours] = useState<BusinessHour[]>([]);
+  const [ratings, setRatings] = useState<Rating[]>([]);
+  const [coupons, setCoupons] = useState<Coupon[]>([]);
+  const [stats, setStats] = useState<Stats>({ totalCuts: 0, totalClients: 0, ratingsAvg: 0, ratingsCount: 0 });
   const [now, setNow] = useState(new Date());
   const [slideIdx, setSlideIdx] = useState(0);
   const [tvSettings, setTvSettings] = useState<TvSettings>(DEFAULT_TV_SETTINGS);
@@ -68,13 +97,17 @@ const TvMode = () => {
     if (markReconnect) setReconnecting(true);
     const today = format(new Date(), "yyyy-MM-dd");
     try {
-    const [b, s, m, g, h, settings] = await Promise.all([
+    const [b, s, m, g, h, settings, r, c, totalCutsRes, totalClientsRes] = await Promise.all([
       supabase.from("bookings").select("id, booking_time, client_name, services").eq("booking_date", today).eq("is_cancelled", false).order("booking_time"),
       supabase.from("services").select("id, name, price, service_type"),
       supabase.from("memberships").select("id, name, emoji, price, description").eq("is_active", true).eq("is_coming_soon", false).order("sort_order"),
       supabase.from("giveaways").select("id, title, prize, end_date").eq("is_finished", false).order("end_date"),
       supabase.from("business_hours").select("*").order("day_of_week"),
       supabase.from("app_settings").select("value").eq("key", "tv_settings").maybeSingle(),
+      supabase.from("ratings").select("id, rating, comment, created_at").not("comment", "is", null).order("created_at", { ascending: false }).limit(10),
+      supabase.from("coupons").select("id, code, description, discount_type, discount_value").eq("is_active", true).limit(6),
+      supabase.from("bookings").select("id", { count: "exact", head: true }).eq("is_cancelled", false),
+      supabase.from("profiles").select("id", { count: "exact", head: true }),
     ]);
     setBookings((b.data as any) || []);
     const allSvc = (s.data as any) || [];
@@ -84,6 +117,18 @@ const TvMode = () => {
     setGiveaways((g.data as any) || []);
     setHours((h.data as any) || []);
     if (settings.data?.value) setTvSettings(settings.data.value as any);
+    const ratingsArr = (r.data as any) || [];
+    setRatings(ratingsArr);
+    setCoupons((c.data as any) || []);
+    const ratingsAvg = ratingsArr.length
+      ? ratingsArr.reduce((acc: number, x: any) => acc + (x.rating || 0), 0) / ratingsArr.length
+      : 0;
+    setStats({
+      totalCuts: totalCutsRes.count || 0,
+      totalClients: totalClientsRes.count || 0,
+      ratingsAvg,
+      ratingsCount: ratingsArr.length,
+    });
     } finally {
       setInitialLoading(false);
       setReconnecting(false);
@@ -157,11 +202,26 @@ const TvMode = () => {
         case "brand":
           arr.push({ key: "brand", render: () => <BrandSlide /> });
           break;
+        case "stats":
+          if (stats.totalCuts || stats.totalClients) arr.push({ key: "stats", render: () => <StatsSlide stats={stats} /> });
+          break;
+        case "reviews":
+          if (ratings.length) arr.push({ key: "reviews", render: () => <ReviewsSlide ratings={ratings} /> });
+          break;
+        case "coupons":
+          if (coupons.length) arr.push({ key: "coupons", render: () => <CouponsSlide coupons={coupons} /> });
+          break;
+        case "social":
+          arr.push({ key: "social", render: () => <SocialSlide /> });
+          break;
+        case "promo":
+          arr.push({ key: "promo", render: () => <PromoSlide /> });
+          break;
       }
     }
     if (!arr.length) arr.push({ key: "brand", render: () => <BrandSlide /> });
     return arr;
-  }, [bookings, services, packs, memberships, giveaways, hours, now, tvSettings]);
+  }, [bookings, services, packs, memberships, giveaways, hours, ratings, coupons, stats, now, tvSettings]);
 
   useEffect(() => {
     if (!slides.length) return;
@@ -201,7 +261,7 @@ const TvMode = () => {
   return (
     <div className="fixed inset-0 overflow-hidden bg-black text-white">
       {/* Background */}
-      <div
+      <motion.div
         className="absolute inset-0 opacity-30"
         style={{
           backgroundImage: `url(${heroImage})`,
@@ -209,18 +269,48 @@ const TvMode = () => {
           backgroundPosition: "center",
           filter: "hue-rotate(220deg) saturate(1.4) brightness(0.6)",
         }}
+        animate={{ scale: [1, 1.08, 1] }}
+        transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
       />
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-950/70 via-black/80 to-cyan-950/70" />
+      <motion.div
+        className="absolute inset-0"
+        style={{
+          background:
+            "linear-gradient(135deg, rgba(76,29,149,.7), rgba(0,0,0,.85), rgba(8,145,178,.7))",
+          backgroundSize: "300% 300%",
+        }}
+        animate={{ backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"] }}
+        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+      />
 
-      {/* Animated grid */}
-      <div
-        className="absolute inset-0 opacity-20"
+      {/* Animated moving grid */}
+      <motion.div
+        className="absolute inset-0 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(34,211,238,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.4) 1px,transparent 1px)",
-          backgroundSize: "60px 60px",
-          maskImage: "radial-gradient(ellipse at center,black 30%,transparent 75%)",
+            "linear-gradient(rgba(34,211,238,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.5) 1px,transparent 1px)",
+          backgroundSize: "80px 80px",
+          maskImage: "radial-gradient(ellipse at center,black 25%,transparent 75%)",
         }}
+        animate={{ backgroundPosition: ["0px 0px", "80px 80px"] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+      />
+
+      {/* Aurora blobs */}
+      <AuroraBlobs />
+
+      {/* Scanlines */}
+      <div
+        className="absolute inset-0 pointer-events-none opacity-[0.07] mix-blend-overlay"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(0deg, rgba(255,255,255,.6) 0, rgba(255,255,255,.6) 1px, transparent 1px, transparent 4px)",
+        }}
+      />
+      <motion.div
+        className="absolute left-0 right-0 h-40 pointer-events-none bg-gradient-to-b from-transparent via-cyan-300/10 to-transparent"
+        animate={{ y: ["-20%", "120%"] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "linear" }}
       />
 
       {/* Floating particles */}
@@ -304,19 +394,27 @@ const TvMode = () => {
         <AnimatePresence mode="wait">
           <motion.div
             key={current?.key}
-            initial={{ opacity: 0, scale: 1.04, filter: "blur(24px) saturate(2)" }}
-            animate={{ opacity: 1, scale: 1, filter: "blur(0px) saturate(1)" }}
-            exit={{ opacity: 0, scale: 0.97, filter: "blur(24px) saturate(2)" }}
+            initial={{ opacity: 0, scale: 1.06, filter: "blur(28px) saturate(2.2) hue-rotate(60deg)", rotateX: 8 }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px) saturate(1) hue-rotate(0deg)", rotateX: 0 }}
+            exit={{ opacity: 0, scale: 0.94, filter: "blur(28px) saturate(2.2) hue-rotate(-60deg)", rotateX: -8 }}
             transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1] }}
+            style={{ perspective: 1200 }}
             className="w-full max-w-6xl relative"
           >
             {/* neon sweep on enter */}
             <motion.div
               key={(current?.key || "") + "-sweep"}
-              initial={{ x: "-110%", opacity: 0.9 }}
+              initial={{ x: "-110%", opacity: 1 }}
               animate={{ x: "110%", opacity: 0 }}
-              transition={{ duration: 1.4, ease: [0.22, 1, 0.36, 1] }}
-              className="pointer-events-none absolute inset-y-0 w-1/3 -skew-x-12 bg-gradient-to-r from-transparent via-cyan-300/20 to-transparent blur-2xl"
+              transition={{ duration: 1.2, ease: [0.22, 1, 0.36, 1] }}
+              className="pointer-events-none absolute -inset-y-10 w-1/2 -skew-x-12 bg-gradient-to-r from-transparent via-cyan-300/40 to-transparent blur-2xl"
+            />
+            <motion.div
+              key={(current?.key || "") + "-sweep2"}
+              initial={{ x: "120%", opacity: 0.8 }}
+              animate={{ x: "-120%", opacity: 0 }}
+              transition={{ duration: 1.4, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+              className="pointer-events-none absolute -inset-y-10 w-1/3 skew-x-12 bg-gradient-to-r from-transparent via-fuchsia-300/30 to-transparent blur-2xl"
             />
             {current?.render()}
           </motion.div>
@@ -388,6 +486,30 @@ const Particles = () => {
     </div>
   );
 };
+
+// ===== Aurora background blobs =====
+const AuroraBlobs = () => (
+  <div className="absolute inset-0 pointer-events-none overflow-hidden">
+    <motion.div
+      className="absolute -top-40 -left-40 w-[60vw] h-[60vw] rounded-full blur-3xl"
+      style={{ background: "radial-gradient(circle, rgba(34,211,238,.45), transparent 60%)" }}
+      animate={{ x: [0, 200, -100, 0], y: [0, 120, 60, 0], scale: [1, 1.2, 0.95, 1] }}
+      transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.div
+      className="absolute -bottom-40 -right-40 w-[55vw] h-[55vw] rounded-full blur-3xl"
+      style={{ background: "radial-gradient(circle, rgba(217,70,239,.4), transparent 60%)" }}
+      animate={{ x: [0, -180, 60, 0], y: [0, -100, -40, 0], scale: [1, 1.15, 0.9, 1] }}
+      transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
+    />
+    <motion.div
+      className="absolute top-1/3 left-1/2 w-[40vw] h-[40vw] rounded-full blur-3xl -translate-x-1/2"
+      style={{ background: "radial-gradient(circle, rgba(168,85,247,.35), transparent 60%)" }}
+      animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
+      transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
+    />
+  </div>
+);
 
 // ===== Slide title helper =====
 const SlideTitle = ({ icon: Icon, title, subtitle }: any) => (
@@ -646,23 +768,281 @@ const BrandSlide = () => (
     className="text-center"
   >
     <motion.div
-      animate={{ rotateY: [0, 360] }}
-      transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+      animate={{ rotateY: [0, 360], scale: [1, 1.1, 1] }}
+      transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       className="inline-block mb-8"
     >
-      <Scissors className="w-32 h-32 text-cyan-400 drop-shadow-[0_0_40px_rgba(34,211,238,.9)]" />
+      <Scissors className="w-32 h-32 text-cyan-400 drop-shadow-[0_0_50px_rgba(34,211,238,1)]" />
     </motion.div>
-    <h2 className="text-9xl font-black tracking-tighter bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent">
+    <motion.h2
+      animate={{
+        textShadow: [
+          "0 0 30px rgba(34,211,238,.6)",
+          "0 0 60px rgba(217,70,239,.8)",
+          "0 0 30px rgba(34,211,238,.6)",
+        ],
+      }}
+      transition={{ duration: 3, repeat: Infinity }}
+      className="text-9xl font-black tracking-tighter bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent"
+    >
       DIEGCUTZ
-    </h2>
+    </motion.h2>
     <p className="text-2xl uppercase tracking-[0.6em] text-cyan-300/80 mt-6">Barbería · Estilo · Actitud</p>
     <div className="mt-12 flex justify-center gap-2">
       {[0, 1, 2, 3, 4].map((i) => (
-        <Star key={i} className="w-8 h-8 text-amber-300 fill-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,.7)]" />
+        <motion.div
+          key={i}
+          animate={{ scale: [1, 1.4, 1], rotate: [0, 15, -15, 0] }}
+          transition={{ duration: 2, repeat: Infinity, delay: i * 0.15 }}
+        >
+          <Star className="w-8 h-8 text-amber-300 fill-amber-300 drop-shadow-[0_0_15px_rgba(251,191,36,.9)]" />
+        </motion.div>
       ))}
     </div>
     <p className="mt-12 text-3xl font-bold text-white">Reserva en <span className="text-cyan-300">diegcutz.es</span></p>
   </motion.div>
+);
+
+// ===== STATS =====
+const StatsSlide = ({ stats }: { stats: Stats }) => {
+  const items = [
+    { label: "Cortes realizados", value: stats.totalCuts, icon: Scissors, color: "from-cyan-400 to-blue-500" },
+    { label: "Clientes felices", value: stats.totalClients, icon: Crown, color: "from-fuchsia-400 to-purple-500" },
+    { label: "Valoración media", value: stats.ratingsAvg.toFixed(1) + "★", icon: Star, color: "from-amber-400 to-orange-500" },
+    { label: "Reseñas", value: stats.ratingsCount, icon: MessageCircle, color: "from-emerald-400 to-cyan-500" },
+  ];
+  return (
+    <div>
+      <SlideTitle icon={TrendingUp} title="EN NÚMEROS" subtitle="La barbería en datos" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-5">
+        {items.map((it, i) => (
+          <motion.div
+            key={it.label}
+            initial={{ opacity: 0, y: 60, rotateY: 20 }}
+            animate={{ opacity: 1, y: 0, rotateY: 0 }}
+            transition={{ delay: i * 0.12, type: "spring", stiffness: 80 }}
+            className="relative rounded-3xl p-7 bg-black/50 backdrop-blur-xl border border-white/10 overflow-hidden"
+          >
+            <motion.div
+              animate={{ rotate: 360 }}
+              transition={{ duration: 14, repeat: Infinity, ease: "linear" }}
+              className={`absolute -top-16 -right-16 w-40 h-40 rounded-full blur-3xl bg-gradient-to-br ${it.color} opacity-50`}
+            />
+            <it.icon className="w-10 h-10 text-white/90 mb-3" />
+            <CountUp value={typeof it.value === "number" ? it.value : it.value} />
+            <div className="mt-2 text-xs uppercase tracking-widest text-white/60">{it.label}</div>
+          </motion.div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+const CountUp = ({ value }: { value: number | string }) => {
+  const [v, setV] = useState<number | string>(typeof value === "number" ? 0 : value);
+  useEffect(() => {
+    if (typeof value !== "number") {
+      setV(value);
+      return;
+    }
+    let start = 0;
+    const duration = 1400;
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / duration);
+      setV(Math.floor(start + (value - start) * (1 - Math.pow(1 - p, 3))));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [value]);
+  return (
+    <div className="text-6xl font-black bg-gradient-to-r from-cyan-200 to-fuchsia-200 bg-clip-text text-transparent tabular-nums">
+      {v}
+    </div>
+  );
+};
+
+// ===== REVIEWS =====
+const ReviewsSlide = ({ ratings }: { ratings: Rating[] }) => {
+  const [idx, setIdx] = useState(0);
+  useEffect(() => {
+    const t = setInterval(() => setIdx((i) => (i + 1) % ratings.length), 3500);
+    return () => clearInterval(t);
+  }, [ratings.length]);
+  const r = ratings[idx];
+  if (!r) return null;
+  return (
+    <div className="text-center">
+      <SlideTitle icon={Quote} title="LO QUE DICEN" subtitle="Reseñas reales" />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={r.id}
+          initial={{ opacity: 0, y: 40, filter: "blur(10px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -40, filter: "blur(10px)" }}
+          transition={{ duration: 0.6 }}
+          className="relative mx-auto max-w-4xl rounded-3xl p-12 bg-gradient-to-br from-amber-500/10 via-fuchsia-500/10 to-cyan-500/10 backdrop-blur-xl border border-amber-300/30"
+        >
+          <Quote className="absolute top-4 left-4 w-12 h-12 text-amber-300/40" />
+          <div className="flex justify-center gap-1 mb-6">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <motion.div
+                key={i}
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.1 }}
+              >
+                <Star
+                  className={`w-9 h-9 ${
+                    i < r.rating
+                      ? "text-amber-300 fill-amber-300 drop-shadow-[0_0_15px_rgba(251,191,36,.8)]"
+                      : "text-white/15"
+                  }`}
+                />
+              </motion.div>
+            ))}
+          </div>
+          <p className="text-3xl font-medium leading-relaxed text-white italic">
+            “{r.comment}”
+          </p>
+          <p className="mt-6 text-sm uppercase tracking-[0.4em] text-cyan-300/70">
+            — Cliente DIEGCUTZ ·{" "}
+            {format(new Date(r.created_at), "MMM yyyy", { locale: es })}
+          </p>
+        </motion.div>
+      </AnimatePresence>
+      <div className="mt-6 flex justify-center gap-1.5">
+        {ratings.map((_, i) => (
+          <div
+            key={i}
+            className={`h-1 rounded-full transition-all ${
+              i === idx ? "w-8 bg-amber-300" : "w-2 bg-white/20"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// ===== COUPONS =====
+const CouponsSlide = ({ coupons }: { coupons: Coupon[] }) => (
+  <div>
+    <SlideTitle icon={Ticket} title="CUPONES ACTIVOS" subtitle="Aprovecha el descuento" />
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+      {coupons.slice(0, 4).map((c, i) => (
+        <motion.div
+          key={c.id}
+          initial={{ opacity: 0, x: i % 2 === 0 ? -80 : 80, rotate: i % 2 === 0 ? -3 : 3 }}
+          animate={{ opacity: 1, x: 0, rotate: 0 }}
+          transition={{ delay: i * 0.12, type: "spring", stiffness: 70 }}
+          className="relative rounded-3xl p-7 overflow-hidden border-2 border-dashed border-fuchsia-400/50 bg-gradient-to-br from-fuchsia-600/20 via-pink-500/15 to-amber-500/20 backdrop-blur-xl"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-20 -right-20 w-52 h-52 rounded-full bg-amber-300/20 blur-3xl"
+          />
+          <div className="relative flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              <div className="text-xs uppercase tracking-widest text-fuchsia-200/80">Código</div>
+              <motion.div
+                animate={{
+                  textShadow: [
+                    "0 0 10px rgba(217,70,239,.6)",
+                    "0 0 25px rgba(251,191,36,.8)",
+                    "0 0 10px rgba(217,70,239,.6)",
+                  ],
+                }}
+                transition={{ duration: 2.5, repeat: Infinity }}
+                className="text-4xl font-black font-mono text-white tracking-wider"
+              >
+                {c.code}
+              </motion.div>
+              {c.description && (
+                <div className="mt-2 text-sm text-white/70 line-clamp-1">{c.description}</div>
+              )}
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-5xl font-black bg-gradient-to-br from-amber-300 to-fuchsia-300 bg-clip-text text-transparent">
+                {c.discount_type === "percentage"
+                  ? `${c.discount_value}%`
+                  : `${c.discount_value}€`}
+              </div>
+              <div className="text-xs uppercase tracking-widest text-amber-200/80">DTO</div>
+            </div>
+          </div>
+        </motion.div>
+      ))}
+    </div>
+  </div>
+);
+
+// ===== SOCIAL =====
+const SocialSlide = () => (
+  <div className="text-center">
+    <SlideTitle icon={Instagram} title="@DIEGCUTZ" subtitle="Síguenos en redes" />
+    <motion.div
+      animate={{ scale: [1, 1.05, 1] }}
+      transition={{ duration: 4, repeat: Infinity }}
+      className="relative inline-block rounded-3xl p-12 bg-gradient-to-br from-fuchsia-600/30 via-pink-500/30 to-amber-500/30 backdrop-blur-xl border-2 border-fuchsia-400/40 overflow-hidden"
+    >
+      <motion.div
+        animate={{ rotate: 360 }}
+        transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
+        className="absolute -inset-10 bg-[conic-gradient(from_0deg,rgba(217,70,239,.3),rgba(251,191,36,.3),rgba(34,211,238,.3),rgba(217,70,239,.3))] blur-3xl"
+      />
+      <motion.div
+        animate={{ rotate: [0, 10, -10, 0] }}
+        transition={{ duration: 3, repeat: Infinity }}
+        className="relative inline-block mb-6"
+      >
+        <Instagram className="w-32 h-32 text-white drop-shadow-[0_0_30px_rgba(217,70,239,.9)]" />
+      </motion.div>
+      <div className="relative text-7xl font-black bg-gradient-to-r from-amber-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
+        @diegcutz
+      </div>
+      <p className="relative mt-6 text-2xl text-white/80 uppercase tracking-[0.3em]">
+        Cortes · Reels · Sorteos
+      </p>
+    </motion.div>
+  </div>
+);
+
+// ===== PROMO =====
+const PromoSlide = () => (
+  <div className="text-center">
+    <SlideTitle icon={Flame} title="¡RESERVA YA!" subtitle="No esperes más" />
+    <motion.div
+      animate={{ y: [0, -10, 0] }}
+      transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+      className="relative mx-auto max-w-4xl rounded-3xl p-14 overflow-hidden bg-gradient-to-br from-cyan-600/30 via-purple-700/30 to-fuchsia-600/30 backdrop-blur-xl border-2 border-cyan-400/50"
+    >
+      <motion.div
+        animate={{ x: ["-100%", "100%"] }}
+        transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+        className="absolute inset-y-0 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+      />
+      <motion.div
+        animate={{ rotate: [0, -20, 20, 0], scale: [1, 1.2, 1] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="inline-block mb-6"
+      >
+        <Flame className="w-24 h-24 text-amber-300 drop-shadow-[0_0_30px_rgba(251,191,36,1)]" />
+      </motion.div>
+      <div className="text-6xl font-black text-white mb-4 leading-tight">
+        Tu próximo corte<br />
+        te está esperando
+      </div>
+      <div className="mt-8 inline-block px-10 py-5 rounded-2xl bg-black/50 border border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,.5)]">
+        <div className="text-xs uppercase tracking-widest text-cyan-300/80">Reserva online</div>
+        <div className="text-5xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
+          diegcutz.es
+        </div>
+      </div>
+    </motion.div>
+  </div>
 );
 
 export default TvMode;
