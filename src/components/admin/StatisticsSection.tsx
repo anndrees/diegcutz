@@ -96,7 +96,7 @@ export const StatisticsSection = ({ bookings }: StatisticsSectionProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-muted-foreground">Clientes Únicos</p>
-                <p className="text-3xl font-bold">{new Set(bookings.map(b => b.id)).size}</p>
+                <p className="text-3xl font-bold">{new Set(bookings.map(b => b.user_id || (b as any).client_contact)).size}</p>
               </div>
               <Users className="h-10 w-10 text-chart-3" />
             </div>
