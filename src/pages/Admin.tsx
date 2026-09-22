@@ -561,8 +561,9 @@ const Admin = () => {
               />
             )}
 
-                        {activeTab === "statistics" && (
-              <div className="space-y-8">
+                        
+            {activeTab === "statistics" && (
+              <div className="space-y-8 text-left">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <h2 className="text-2xl font-bold text-neon-cyan">Estadísticas de Reservas</h2>
                   <DateRangeFilter 
@@ -586,8 +587,40 @@ const Admin = () => {
                 </div>
               </div>
             )}
-}
-              </DialogTitle>
+
+            {activeTab === 'services' && <ServicesManagement />}
+            {activeTab === 'clients' && <ClientsManagement />}
+            {activeTab === 'hours' && (
+              <div className='space-y-6'>
+                <BusinessHoursManagement />
+                <SpecialHoursManagement />
+              </div>
+            )}
+            {activeTab === 'ratings' && <RatingsManagement />}
+            {activeTab === 'achievements' && <AchievementsManagement />}
+            {activeTab === 'coupons' && <CouponsManagement />}
+            {activeTab === 'memberships' && (
+              <>
+                <MembershipsManagement />
+                <MemberRanking />
+              </>
+            )}
+            {activeTab === 'giveaways' && <GiveawaysManagement />}
+            {activeTab === 'marquee' && <MarqueeManagement />}
+            {activeTab === 'homepage' && <HomepageManagement />}
+            {activeTab === 'tv' && <TvModeManagement />}
+            {activeTab === 'messages' && <AdminMessagesSection />}
+            {activeTab === 'notifications' && <NotificationHistoryManagement />}
+            {activeTab === 'logs' && <AdminActionsLog />}
+            {activeTab === 'help' && <AdminHelpCenter />}
+          </main>
+        </div>
+
+        {/* Day Options Dialog */}
+        <Dialog open={showDayOptionsDialog} onOpenChange={setShowDayOptionsDialog}>
+          <DialogContent className="max-w-sm">
+            <DialogHeader>
+              <DialogTitle className="text-center">{selectedCalendarDate && format(selectedCalendarDate, "d 'de' MMMM 'de' yyyy", { locale: es })}</DialogTitle>
               <DialogDescription className="text-center">
                 ¿Qué quieres consultar?
               </DialogDescription>
