@@ -1,13 +1,13 @@
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
+import { addHours, differenceInMinutes, endOfDay, format, isWithinInterval, parseISO, startOfDay } from "date-fns";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { format, addHours, parseISO, differenceInMinutes } from "date-fns";
 import { es } from "date-fns/locale";
+import { DateRangeFilter, DateRangePreset } from "@/components/admin/DateRangeFilter";
 import { ArrowLeft, Edit2, Trash2, LogOut, Search, CalendarIcon, ExternalLink, X, RotateCcw, CheckCircle, Music, Timer, Scissors, CreditCard, QrCode, Clock } from "lucide-react";
 import {
   Table,
@@ -100,6 +100,7 @@ const Admin = () => {
   const [cancelMode, setCancelMode] = useState<"cancel" | "reschedule">("cancel");
   const [activeTab, setActiveTab] = useState("bookings");
   const [showQrScanner, setShowQrScanner] = useState(false);
+  const [statsDateRange, setStatsDateRange] = useState<{ from: Date; to: Date } | null>(null);
   const [showDayOptionsDialog, setShowDayOptionsDialog] = useState(false);
   const [showAvailableHoursModal, setShowAvailableHoursModal] = useState(false);
 
@@ -560,51 +561,58 @@ const Admin = () => {
               />
             )}
 
+                        
             {activeTab === "statistics" && (
-              <div className="space-y-8">
-                <StatisticsSection bookings={bookings} />
-                <MembershipStatsSection />
+              <div className="space-y-8 text-left">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <h2 className="text-2xl font-bold text-neon-cyan">Estadísticas de Reservas</h2>
+                  <DateRangeFilter 
+                    onRangeChange={(preset, dates) => {
+                      if (preset === "all") setStatsDateRange(null);
+                      else if (dates) setStatsDateRange(dates);
+                    }} 
+                  />
+                </div>
+                <StatisticsSection bookings={bookings.filter(booking => {
+                  if (!statsDateRange) return true;
+                  const date = new Date(booking.booking_date);
+                  return isWithinInterval(date, { 
+                    start: startOfDay(statsDateRange.from), 
+                    end: endOfDay(statsDateRange.to) 
+                  });
+                })} />
+                <div className="pt-8 border-t border-border/50">
+                  <h2 className="text-2xl font-bold text-[#D4AF37] mb-6">Estadísticas de Membresías</h2>
+                  <MembershipStatsSection />
+                </div>
               </div>
             )}
 
-            {activeTab === "services" && <ServicesManagement />}
-
-            {activeTab === "clients" && <ClientsManagement />}
-
-            {activeTab === "hours" && (
-              <div className="space-y-6">
+            {activeTab === 'services' && <ServicesManagement />}
+            {activeTab === 'clients' && <ClientsManagement />}
+            {activeTab === 'hours' && (
+              <div className='space-y-6'>
                 <BusinessHoursManagement />
                 <SpecialHoursManagement />
               </div>
             )}
-
-            {activeTab === "ratings" && <RatingsManagement />}
-
-            {activeTab === "achievements" && <AchievementsManagement />}
-
-            {activeTab === "coupons" && <CouponsManagement />}
-
-            {activeTab === "memberships" && (
+            {activeTab === 'ratings' && <RatingsManagement />}
+            {activeTab === 'achievements' && <AchievementsManagement />}
+            {activeTab === 'coupons' && <CouponsManagement />}
+            {activeTab === 'memberships' && (
               <>
                 <MembershipsManagement />
                 <MemberRanking />
               </>
             )}
-
-            {activeTab === "giveaways" && <GiveawaysManagement />}
-            {activeTab === "marquee" && <MarqueeManagement />}
-
-            {activeTab === "homepage" && <HomepageManagement />}
-
-            {activeTab === "tv" && <TvModeManagement />}
-
-            {activeTab === "messages" && <AdminMessagesSection />}
-
-            {activeTab === "notifications" && <NotificationHistoryManagement />}
-
-            {activeTab === "logs" && <AdminActionsLog />}
-
-            {activeTab === "help" && <AdminHelpCenter />}
+            {activeTab === 'giveaways' && <GiveawaysManagement />}
+            {activeTab === 'marquee' && <MarqueeManagement />}
+            {activeTab === 'homepage' && <HomepageManagement />}
+            {activeTab === 'tv' && <TvModeManagement />}
+            {activeTab === 'messages' && <AdminMessagesSection />}
+            {activeTab === 'notifications' && <NotificationHistoryManagement />}
+            {activeTab === 'logs' && <AdminActionsLog />}
+            {activeTab === 'help' && <AdminHelpCenter />}
           </main>
         </div>
 
@@ -612,9 +620,7 @@ const Admin = () => {
         <Dialog open={showDayOptionsDialog} onOpenChange={setShowDayOptionsDialog}>
           <DialogContent className="max-w-sm">
             <DialogHeader>
-              <DialogTitle className="text-center">
-                {selectedCalendarDate && format(selectedCalendarDate, "d 'de' MMMM 'de' yyyy", { locale: es })}
-              </DialogTitle>
+              <DialogTitle className="text-center">{selectedCalendarDate && format(selectedCalendarDate, "d 'de' MMMM 'de' yyyy", { locale: es })}</DialogTitle>
               <DialogDescription className="text-center">
                 ¿Qué quieres consultar?
               </DialogDescription>
