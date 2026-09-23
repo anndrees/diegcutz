@@ -18,7 +18,7 @@ export function StyleAdvisor({ onSelect, onSlotSelect, services }: Props) {
   const [loading, setLoading] = useState(false);
   const [answer, setAnswer] = useState("");
   const [error, setError] = useState("");
-  const [selected, setSelected] = useState<string | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
   const [slot, setSlot] = useState<Slot | null>(null);
   const [slotApplied, setSlotApplied] = useState(false);
 
@@ -27,7 +27,7 @@ export function StyleAdvisor({ onSelect, onSlotSelect, services }: Props) {
       setError("Cuéntanos un poco más sobre la ocasión o el estilo que buscas.");
       return;
     }
-    setLoading(true); setError(""); setAnswer(""); setSlot(null); setSlotApplied(false);
+    setLoading(true); setError(""); setAnswer(""); setSlot(null); setSlotApplied(false); setSelected([]);
     try {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) throw new Error("Inicia sesión para pedir una recomendación.");
@@ -35,11 +35,13 @@ export function StyleAdvisor({ onSelect, onSlotSelect, services }: Props) {
         body: { description, preferences },
       });
       if (fnError) throw new Error("No hemos podido contactar con el asesor. Inténtalo de nuevo.");
-      const payload = data as { message?: string; serviceId?: string | null; slot?: Slot | null; hasSlots?: boolean };
-      setAnswer(payload?.message || "Esta es nuestra recomendación para ti.");
-      if (payload?.serviceId && services.some((s) => s.id === payload.serviceId)) {
-        setSelected(payload.serviceId);
-        onSelect(payload.serviceId);
+      const payload = data as { message?: string; serviceId?: string | null; serviceIds?: string[]; slot?: Slot | null; hasSlots?: boolean };
+      setAnswer(payload?.message || "Esto es lo que te pega más, dime si te encaja.");
+      const ids = (payload?.serviceIds?.length ? payload.serviceIds : payload?.serviceId ? [payload.serviceId] : [])
+        .filter((id) => services.some((s) => s.id === id));
+      if (ids.length) {
+        setSelected(ids);
+        ids.forEach((id) => onSelect(id));
       }
       if (payload?.slot) setSlot(payload.slot);
     } catch (e) {
@@ -63,8 +65,8 @@ export function StyleAdvisor({ onSelect, onSlotSelect, services }: Props) {
         </div>
         <div>
           <p className="customer-kicker">ASESOR DE ESTILO / IA</p>
-          <h3 className="text-2xl mt-2">Encuentra el corte y la cita adecuados</h3>
-          <p className="text-sm text-muted-foreground mt-1">Describe la ocasión o el corte que buscas y cuándo te viene bien.</p>
+          <h3 className="text-2xl mt-2">Cuéntanos qué buscas y te lo montamos</h3>
+          <p className="text-sm text-muted-foreground mt-1">Dinos la ocasión o el corte que tienes en mente y cuándo te viene bien. Podemos combinar varios servicios en la misma cita.</p>
         </div>
       </div>
       <Textarea
@@ -89,9 +91,10 @@ export function StyleAdvisor({ onSelect, onSlotSelect, services }: Props) {
       {answer && (
         <div className="mt-4 border-l border-primary pl-4">
           <p className="text-sm leading-relaxed">{answer}</p>
-          {selected && (
+          {selected.length > 0 && (
             <p className="mt-2 text-xs text-primary flex items-center gap-1">
-              <Check className="h-3 w-3" />Servicio seleccionado; puedes cambiarlo abajo.
+              <Check className="h-3 w-3" />
+              {selected.length === 1 ? "Servicio añadido" : `${selected.length} servicios añadidos`}: {selected.map((id) => services.find((s) => s.id === id)?.name).filter(Boolean).join(" + ")}. Puedes ajustarlo abajo.
             </p>
           )}
           {slot && (
