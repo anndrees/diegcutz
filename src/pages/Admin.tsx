@@ -311,7 +311,7 @@ const Admin = () => {
                 {booking.user_id && booking.profile ? (
                   <Link 
                     to={`/admin/client/${booking.user_id}`}
-                    className="text-neon-cyan hover:underline"
+                    className="text-secondary hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
                     {booking.profile.full_name}
@@ -332,10 +332,10 @@ const Admin = () => {
           <div className="flex items-center gap-2 shrink-0">
             {booking.playlist_url && (
               <a href={booking.playlist_url} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()}>
-                <Music className="h-4 w-4 text-neon-cyan" />
+                <Music className="h-4 w-4 text-secondary" />
               </a>
             )}
-            <span className={`text-lg font-bold ${booking.is_cancelled ? "text-destructive line-through" : "text-neon-purple"}`}>
+            <span className={`text-lg font-bold ${booking.is_cancelled ? "text-destructive line-through" : "text-primary"}`}>
               {booking.total_price}€
             </span>
           </div>
@@ -355,7 +355,7 @@ const Admin = () => {
                   <Button size="sm" variant="outline" onClick={() => handleReactivateBooking(booking.id)} className="text-green-500 border-green-500/30">
                     <CheckCircle className="h-3 w-3 mr-1" /> Reactivar
                   </Button>
-                  <Button size="sm" variant="outline" onClick={() => openCancelDialog(booking, "reschedule")} className="text-neon-cyan border-neon-cyan/30">
+                  <Button size="sm" variant="outline" onClick={() => openCancelDialog(booking, "reschedule")} className="text-secondary border-secondary/30">
                     <RotateCcw className="h-3 w-3 mr-1" /> Reubicar
                   </Button>
                   <Button size="sm" variant="outline" onClick={() => openDeleteConfirm(booking.id)} className="text-destructive border-destructive/30">
@@ -428,7 +428,7 @@ const Admin = () => {
                   {booking.user_id && booking.profile ? (
                     <Link 
                       to={`/admin/client/${booking.user_id}`}
-                      className={`flex items-center gap-1 ${booking.is_cancelled ? "text-destructive" : "text-neon-cyan"} hover:underline`}
+                      className={`flex items-center gap-1 ${booking.is_cancelled ? "text-destructive" : "text-secondary"} hover:underline`}
                     >
                       {booking.profile.full_name}
                       <ExternalLink className="h-3 w-3" />
@@ -457,7 +457,7 @@ const Admin = () => {
                 <TableCell>
                   {booking.playlist_url && (
                     <a href={booking.playlist_url} target="_blank" rel="noopener noreferrer">
-                      <Button variant="ghost" size="icon" title="Abrir Playlist" className="text-neon-cyan hover:text-neon-cyan/80">
+                      <Button variant="ghost" size="icon" title="Abrir Playlist" className="text-secondary hover:text-secondary/80">
                         <Music className="h-4 w-4" />
                       </Button>
                     </a>
@@ -470,7 +470,7 @@ const Admin = () => {
                         <CheckCircle className="h-4 w-4 text-green-500" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => openCancelDialog(booking, "reschedule")} title="Reubicar reserva">
-                        <RotateCcw className="h-4 w-4 text-neon-cyan" />
+                        <RotateCcw className="h-4 w-4 text-secondary" />
                       </Button>
                       <Button variant="ghost" size="icon" onClick={() => openDeleteConfirm(booking.id)} title="Eliminar permanentemente">
                         <Trash2 className="h-4 w-4 text-destructive" />
@@ -502,9 +502,9 @@ const Admin = () => {
     <AdminGuard>
     <div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
       {/* Neon ambient background */}
-      <div className="pointer-events-none absolute inset-0 bg-neon-grid opacity-20" />
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[28rem] h-[28rem] rounded-full bg-neon-purple/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[28rem] h-[28rem] rounded-full bg-neon-cyan/10 blur-3xl" />
+      <div className="pointer-events-none absolute inset-0  opacity-20" />
+      <div className="pointer-events-none absolute -top-40 -left-40 w-[28rem] h-[28rem] rounded-full bg-primary/10 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[28rem] h-[28rem] rounded-full bg-secondary/10 blur-3xl" />
       <div className="max-w-7xl mx-auto relative">
         <div className="flex justify-between items-center mb-8">
           <Button variant="ghost" onClick={() => navigate("/")} className="hidden lg:flex">
@@ -529,7 +529,7 @@ const Admin = () => {
         </div>
 
         <div className="text-center mb-8 lg:mb-12">
-          <h1 className="text-3xl lg:text-5xl font-black mb-2 lg:mb-4 text-neon-cyan font-aggressive tracking-wider" style={{ textShadow: "0 0 18px hsl(var(--neon-cyan) / 0.6)" }}>
+          <h1 className="text-3xl lg:text-5xl font-black mb-2 lg:mb-4 text-secondary font-display tracking-wider" style={{ textShadow: "0 0 18px hsl(var(--neon-cyan) / 0.6)" }}>
             PANEL DE ADMINISTRACIÓN
           </h1>
           <p className="text-sm lg:text-xl text-muted-foreground">
@@ -566,7 +566,7 @@ const Admin = () => {
             {activeTab === "statistics" && (
               <div className="space-y-8 text-left">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <h2 className="text-2xl font-bold text-neon-cyan">Estadísticas de Reservas</h2>
+                  <h2 className="text-2xl font-bold text-secondary">Estadísticas de Reservas</h2>
                   <DateRangeFilter 
                     onRangeChange={(preset, dates) => {
                       if (preset === "all") setStatsDateRange(null);
@@ -583,7 +583,7 @@ const Admin = () => {
                   });
                 })} />
                 <div className="pt-8 border-t border-border/50">
-                  <h2 className="text-2xl font-bold text-[#D4AF37] mb-6">Estadísticas de Membresías</h2>
+                  <h2 className="text-2xl font-bold text-primary mb-6">Estadísticas de Membresías</h2>
                   <MembershipStatsSection />
                 </div>
               </div>

@@ -9,8 +9,8 @@ interface Props {
 const LEVELS = [
   { min: 0, name: "Bronze", color: "text-orange-400", bg: "bg-orange-400/10 border-orange-400/30", glow: "" },
   { min: 3, name: "Silver", color: "text-gray-300", bg: "bg-gray-300/10 border-gray-300/30", glow: "" },
-  { min: 6, name: "Gold", color: "text-[#D4AF37]", bg: "bg-[#D4AF37]/10 border-[#D4AF37]/30", glow: "shadow-[0_0_10px_rgba(212,175,55,0.3)]" },
-  { min: 12, name: "Diamond", color: "text-neon-cyan", bg: "bg-neon-cyan/10 border-neon-cyan/30", glow: "shadow-[0_0_10px_rgba(0,200,220,0.3)]" },
+  { min: 6, name: "Gold", color: "text-primary", bg: "bg-primary/10 border-primary/30", glow: "shadow-[0_0_10px_rgba(212,175,55,0.3)]" },
+  { min: 12, name: "Diamond", color: "text-secondary", bg: "bg-secondary/10 border-secondary/30", glow: "shadow-[0_0_10px_rgba(0,200,220,0.3)]" },
 ];
 
 export const getMemberLevel = (months: number) => {

@@ -84,11 +84,11 @@ const ForgotPassword = () => {
           <Card className="bg-card border-border">
             <CardContent className="pt-8 pb-8 text-center">
               <div className="mb-6 flex justify-center">
-                <div className="w-20 h-20 bg-neon-cyan/20 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-10 h-10 text-neon-cyan" />
+                <div className="w-20 h-20 bg-secondary/20 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-10 h-10 text-secondary" />
                 </div>
               </div>
-              <h2 className="text-2xl font-bold mb-4 text-neon-cyan">
+              <h2 className="text-2xl font-bold mb-4 text-secondary">
                 Solicitud Enviada
               </h2>
               <p className="text-muted-foreground mb-6">
@@ -125,8 +125,8 @@ const ForgotPassword = () => {
         <Card className="bg-card border-border">
           <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
-              <div className="w-16 h-16 bg-neon-purple/20 rounded-full flex items-center justify-center">
-                <KeyRound className="w-8 h-8 text-neon-purple" />
+              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
+                <KeyRound className="w-8 h-8 text-primary" />
               </div>
             </div>
             <CardTitle className="text-2xl">¿Olvidaste tu contraseña?</CardTitle>

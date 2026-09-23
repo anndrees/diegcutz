@@ -90,11 +90,11 @@ export const PendingRatingBanner = () => {
     <>
       <div className="relative overflow-hidden">
         {/* Animated gradient border */}
-        <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-amber-500 via-primary to-amber-500 bg-[length:200%_100%] p-[2px] animate-[text-shimmer_3s_linear_infinite]">
-          <div className="absolute inset-[2px] bg-card rounded-2xl" />
+        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-amber-500 via-primary to-amber-500 bg-[length:200%_100%] p-[2px] animate-[text-shimmer_3s_linear_infinite]">
+          <div className="absolute inset-[2px] bg-card rounded-lg" />
         </div>
 
-        <div className="relative bg-card/95 backdrop-blur-sm rounded-2xl p-5 border border-transparent">
+        <div className="relative bg-card/95 backdrop-blur-sm rounded-lg p-5 border border-transparent">
           {/* Close button */}
           <button
             onClick={() => setDismissed(true)}

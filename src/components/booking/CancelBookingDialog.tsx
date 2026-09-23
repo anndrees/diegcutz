@@ -186,7 +186,7 @@ export const CancelBookingDialog = ({
               </>
             ) : (
               <>
-                <RotateCcw className="w-5 h-5 text-neon-cyan" />
+                <RotateCcw className="w-5 h-5 text-secondary" />
                 Reubicar Reserva
               </>
             )}

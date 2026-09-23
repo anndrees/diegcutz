@@ -8,7 +8,6 @@ import { ForcePasswordChange } from "./components/ForcePasswordChange";
 import { CompleteProfileForm } from "./components/CompleteProfileForm";
 import { FloatingChat } from "./components/chat/FloatingChat";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
-import { NeonCursor } from "./components/fx/NeonCursor";
 import { RouteTransition } from "./components/fx/RouteTransition";
 import { SplashScreen } from "./components/fx/SplashScreen";
 import { KonamiCode } from "./components/fx/KonamiCode";
@@ -98,7 +97,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <SplashScreen />
-          <NeonCursor />
           <KonamiCode />
           <AppContent />
         </BrowserRouter>

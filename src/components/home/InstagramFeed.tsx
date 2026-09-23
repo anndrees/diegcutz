@@ -16,13 +16,13 @@ const InstagramPlaceholder = () => {
           href={`https://instagram.com/${INSTAGRAM_USERNAME}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="group relative aspect-square bg-gradient-to-br from-card to-background rounded-xl overflow-hidden border-2 border-primary/30 hover:border-neon-cyan/50 transition-all duration-300"
+          className="group relative aspect-square bg-gradient-to-br from-card to-background rounded-xl overflow-hidden border-2 border-primary/30 hover:border-secondary/50 transition-all duration-300"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 via-pink-500/20 to-orange-400/20 opacity-50" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="text-center p-4">
-              <Instagram className="h-12 w-12 mx-auto mb-2 text-neon-pink group-hover:scale-110 transition-transform" />
-              <p className="text-xs text-muted-foreground group-hover:text-neon-cyan transition-colors">
+              <Instagram className="h-12 w-12 mx-auto mb-2 text-primary group-hover:scale-110 transition-transform" />
+              <p className="text-xs text-muted-foreground group-hover:text-secondary transition-colors">
                 Ver en Instagram
               </p>
             </div>
@@ -67,8 +67,8 @@ export const InstagramFeed = () => {
     <section className="py-20 px-4 relative overflow-hidden">
       {/* Background decorations */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/4 left-0 w-72 h-72 bg-neon-pink/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-neon-purple/10 rounded-full blur-[120px]" />
+        <div className="absolute top-1/4 left-0 w-72 h-72 bg-primary/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-1/4 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[120px]" />
       </div>
 
       <div className="max-w-6xl mx-auto relative">
@@ -88,7 +88,7 @@ export const InstagramFeed = () => {
               href={`https://instagram.com/${INSTAGRAM_USERNAME}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-neon-pink hover:underline font-bold"
+              className="text-primary hover:underline font-bold"
             >
               @{INSTAGRAM_USERNAME}
             </a>
@@ -103,7 +103,7 @@ export const InstagramFeed = () => {
           <Button
             variant="outline"
             size="lg"
-            className="border-2 border-neon-pink text-neon-pink hover:bg-neon-pink hover:text-background transition-all duration-300 group"
+            className="border-2 border-primary text-primary hover:bg-primary hover:text-background transition-all duration-300 group"
             onClick={() => window.open(`https://instagram.com/${INSTAGRAM_USERNAME}`, "_blank")}
           >
             <Instagram className="mr-2 h-5 w-5 group-hover:scale-110 transition-transform" />

@@ -47,6 +47,10 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        success: "hsl(var(--success))",
+        warning: "hsl(var(--warning))",
+        stone: "hsl(var(--stone))",
+        "surface-raised": "hsl(var(--surface-raised))",
         neon: {
           purple: "hsl(var(--neon-purple))",
           cyan: "hsl(var(--neon-cyan))",

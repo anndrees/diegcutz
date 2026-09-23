@@ -19,9 +19,9 @@ export default defineConfig(({ mode }) => ({
       manifest: {
         name: "DIEGCUTZ - Barbería Urbana",
         short_name: "DIEGCUTZ",
-        description: "Reserva tu cita online en DIEGCUTZ, barbería urbana con estilo underground.",
-        theme_color: "#0d0d0d",
-        background_color: "#0d0d0d",
+        description: "Barbería urbana profesional en Monóvar. Reserva corte, barba y asesoramiento desde la app.",
+        theme_color: "#050505",
+        background_color: "#050505",
         display: "standalone",
         orientation: "portrait",
         scope: "/",

@@ -12,7 +12,7 @@ const MembershipPolicy = () => {
           <ArrowLeft className="mr-2 h-4 w-4" /> Volver
         </Button>
 
-        <h1 className="text-3xl font-black mb-8 text-[#D4AF37]">Política de Membresías</h1>
+        <h1 className="text-3xl font-black mb-8 text-primary">Política de Membresías</h1>
 
         <div className="prose prose-invert max-w-none space-y-6 text-foreground">
           <section>

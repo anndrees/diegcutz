@@ -14,6 +14,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 
 interface Membership {
   id: string;
@@ -66,15 +67,15 @@ const Membership = () => {
   }
 
   return (
-    <div className="customer-shell min-h-screen py-8 px-4 pt-safe">
+    <CustomerPage><div className="min-h-screen py-8 px-4 pt-safe">
       <div className="max-w-5xl mx-auto">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" /> Volver
         </Button>
 
         <div className="text-center mb-12">
-          <Crown className="h-12 w-12 mx-auto text-[#D4AF37] mb-4" />
-          <h1 className="text-4xl md:text-6xl font-black text-[#D4AF37] mb-4">
+          <Crown className="h-12 w-12 mx-auto text-primary mb-4" />
+          <h1 className="text-4xl md:text-6xl font-black text-primary mb-4">
             MEMBRESÍAS
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -91,12 +92,12 @@ const Membership = () => {
             return (
               <div
                 key={plan.id}
-                className={`relative rounded-2xl overflow-hidden transition-all duration-300 hover:scale-[1.02] ${
+                className={`relative rounded-lg overflow-hidden transition-all duration-300 hover:scale-[1.02] ${
                   plan.is_coming_soon ? "opacity-60" : ""
-                } ${isPremium ? "border-2 border-[#D4AF37]" : "border border-border"}`}
+                } ${isPremium ? "border-2 border-primary" : "border border-border"}`}
               >
                 {isPremium && (
-                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-center py-1">
+                  <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-primary to-secondary text-center py-1">
                     <span className="text-xs font-bold text-background uppercase tracking-wider">
                       {i === 3 ? "Próximamente" : "Popular"}
                     </span>
@@ -105,7 +106,7 @@ const Membership = () => {
 
                 <div className={`p-6 ${isPremium ? "pt-10" : ""} bg-card h-full flex flex-col`}>
                   <div className="mb-4">
-                    <h3 className="text-xl font-black text-[#D4AF37]">{plan.emoji} {plan.name}</h3>
+                    <h3 className="text-xl font-black text-primary">{plan.emoji} {plan.name}</h3>
                     <div className="flex items-baseline gap-1 mt-2">
                       <span className="text-4xl font-black text-foreground">{plan.price}€</span>
                       <span className="text-muted-foreground">/mes</span>
@@ -117,7 +118,7 @@ const Membership = () => {
                     <ul className="space-y-2">
                       {plan.benefits.map((b, j) => (
                         <li key={j} className="flex items-start gap-2 text-sm">
-                          <Check className="h-4 w-4 text-[#D4AF37] mt-0.5 shrink-0" />
+                          <Check className="h-4 w-4 text-primary mt-0.5 shrink-0" />
                           <span className="text-foreground">{b}</span>
                         </li>
                       ))}
@@ -126,12 +127,12 @@ const Membership = () => {
 
                   <div className="mt-6">
                     {isActive ? (
-                      <Badge className="w-full justify-center py-2 bg-[#D4AF37] text-background">Tu plan actual</Badge>
+                      <Badge className="w-full justify-center py-2 bg-primary text-background">Tu plan actual</Badge>
                     ) : plan.is_coming_soon ? (
                       <Button disabled className="w-full opacity-50">Próximamente</Button>
                     ) : (
                       <Button
-                        className="w-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#B8860B] hover:to-[#D4AF37] text-background font-bold"
+                        className="w-full bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-background font-bold"
                         onClick={() => handleSelect(plan)}
                       >
                         Quiero esta membresía
@@ -145,7 +146,7 @@ const Membership = () => {
         </div>
 
         {/* Plan Comparator */}
-        <div className="bg-card rounded-2xl border border-border mb-8 overflow-hidden">
+        <div className="bg-card rounded-lg border border-border mb-8 overflow-hidden">
           <div className="p-6 pb-2">
             <h2 className="text-2xl font-bold text-foreground mb-2">📊 Compara los planes</h2>
             <p className="text-sm text-muted-foreground">Encuentra el plan perfecto para ti</p>
@@ -156,7 +157,7 @@ const Membership = () => {
         </div>
 
         {/* Info Section */}
-        <div className="bg-card rounded-2xl p-8 border border-border mb-8">
+        <div className="bg-card rounded-lg p-8 border border-border mb-8">
           <h2 className="text-2xl font-bold mb-4 text-foreground">ℹ️ Información importante</h2>
           <div className="space-y-3 text-sm text-muted-foreground">
             <p>• Las membresías tienen una duración de 30 días desde su activación.</p>
@@ -166,7 +167,7 @@ const Membership = () => {
             <p>• Para gestionar tu membresía, contacta directamente con el administrador.</p>
           </div>
           <div className="mt-4">
-            <Button variant="link" onClick={() => navigate("/membership-policy")} className="text-[#D4AF37] p-0">
+            <Button variant="link" onClick={() => navigate("/membership-policy")} className="text-primary p-0">
               Ver política completa de membresías →
             </Button>
           </div>
@@ -215,7 +216,7 @@ const Membership = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </div></CustomerPage>
   );
 };
 

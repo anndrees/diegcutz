@@ -382,18 +382,18 @@ export default function UserProfile() {
 
       {/* Profile Header Card */}
       <Card className="mb-6 overflow-hidden">
-        <div className="bg-gradient-to-r from-neon-purple/20 to-neon-cyan/20 h-20" />
+        <div className="bg-gradient-to-r from-primary/20 to-secondary/20 h-20" />
         <CardContent className="relative pt-0 pb-6">
           <div className="flex flex-col items-center -mt-12">
             <div className="relative">
               <Avatar className="w-24 h-24 border-4 border-card">
                 <AvatarImage src={avatarUrl || undefined} />
-                <AvatarFallback className="text-2xl bg-neon-purple/20 text-neon-purple">{initials}</AvatarFallback>
+                <AvatarFallback className="text-2xl bg-primary/20 text-primary">{initials}</AvatarFallback>
               </Avatar>
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-neon-purple text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
               >
                 <Camera className="h-4 w-4" />
               </button>

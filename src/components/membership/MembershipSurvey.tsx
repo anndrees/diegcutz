@@ -77,10 +77,10 @@ export const MembershipSurvey = () => {
   if (!show) return null;
 
   return (
-    <Card className="mb-6 border-[#D4AF37]/30 bg-gradient-to-r from-[#D4AF37]/5 to-transparent">
+    <Card className="mb-6 border-primary/30 bg-gradient-to-r from-primary/5 to-transparent">
       <CardHeader className="pb-2">
         <CardTitle className="text-base flex items-center gap-2">
-          <MessageSquare className="h-4 w-4 text-[#D4AF37]" />
+          <MessageSquare className="h-4 w-4 text-primary" />
           ¿Cómo va tu membresía?
         </CardTitle>
       </CardHeader>
@@ -90,7 +90,7 @@ export const MembershipSurvey = () => {
         <div className="flex gap-1">
           {[1, 2, 3, 4, 5].map(i => (
             <button key={i} onClick={() => setRating(i)} className="p-1 transition-transform hover:scale-110">
-              <Star className={`h-7 w-7 ${i <= rating ? "fill-[#D4AF37] text-[#D4AF37]" : "text-muted-foreground/30"}`} />
+              <Star className={`h-7 w-7 ${i <= rating ? "fill-[#D4AF37] text-primary" : "text-muted-foreground/30"}`} />
             </button>
           ))}
         </div>
@@ -103,7 +103,7 @@ export const MembershipSurvey = () => {
         />
 
         <div className="flex gap-2">
-          <Button size="sm" className="bg-[#D4AF37] hover:bg-[#B8860B] text-background" onClick={handleSubmit} disabled={rating === 0 || submitting}>
+          <Button size="sm" className="bg-primary hover:bg-[#B8860B] text-background" onClick={handleSubmit} disabled={rating === 0 || submitting}>
             {submitting ? "Enviando..." : "Enviar"}
           </Button>
           <Button size="sm" variant="ghost" onClick={() => setShow(false)}>Ahora no</Button>

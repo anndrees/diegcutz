@@ -8,49 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 2%;
+    --foreground: 38 20% 92%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 38 20% 92%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 38 20% 92%;
 
-    --primary: 280 80% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 43 50% 55%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 190 95% 50%;
+    --secondary: 34 54% 65%;
     --secondary-foreground: 0 0% 5%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 30 4% 14%;
+    --muted-foreground: 30 6% 58%;
 
-    --accent: 280 80% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 32% 18%;
+    --accent-foreground: 38 20% 92%;
 
     --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 280 80% 60%;
+    --border: 35 9% 20%;
+    --input: 35 9% 20%;
+    --ring: 43 50% 55%;
 
-    --radius: 0.3rem;
+    --radius: 0.5rem;
 
-    --neon-purple: 280 80% 60%;
-    --neon-cyan: 190 95% 50%;
-    --neon-pink: 330 85% 60%;
+    --neon-purple: 43 50% 55%;
+    --neon-cyan: 34 54% 65%;
+    --neon-pink: 25 32% 56%;
+    --success: 151 35% 48%;
+    --warning: 38 80% 58%;
+    --stone: 38 20% 92%;
+    --surface-raised: 30 4% 10%;
     
     --chart-3: 30 80% 55%;
     --chart-4: 340 75% 55%;
     --chart-5: 210 70% 50%;
     
-    --gradient-neon: linear-gradient(135deg, hsl(280 80% 60%) 0%, hsl(190 95% 50%) 100%);
-    --gradient-dark: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 8%) 100%);
+    --gradient-neon: linear-gradient(115deg, hsl(34 38% 42%) 0%, hsl(43 58% 70%) 55%, hsl(34 38% 42%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 2%) 0%, hsl(0 0% 7%) 100%);
     
-    --shadow-neon-purple: 0 0 20px hsl(280 80% 60% / 0.5), 0 0 40px hsl(280 80% 60% / 0.3);
-    --shadow-neon-cyan: 0 0 20px hsl(190 95% 50% / 0.5), 0 0 40px hsl(190 95% 50% / 0.3);
+    --shadow-neon-purple: 0 18px 50px hsl(0 0% 0% / 0.45);
+    --shadow-neon-cyan: 0 18px 50px hsl(0 0% 0% / 0.45);
+    --shadow-elegant: 0 28px 80px hsl(0 0% 0% / 0.52);
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -67,10 +72,7 @@ All colors MUST be HSL.
     position: relative;
     isolation: isolate;
     background-color: hsl(var(--background));
-    background-image:
-      linear-gradient(115deg, hsl(var(--secondary) / 0.035) 1px, transparent 1px),
-      linear-gradient(25deg, hsl(var(--primary) / 0.025) 1px, transparent 1px);
-    background-size: 34px 34px, 52px 52px;
+    background-image: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card)) 55%, hsl(var(--background)));
   }
 
   .customer-shell::before {
@@ -79,7 +81,7 @@ All colors MUST be HSL.
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    background: linear-gradient(180deg, hsl(var(--secondary) / 0.035), transparent 28%);
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.025), transparent);
   }
 
   .customer-shell :is(.rounded-xl, .rounded-2xl, .rounded-3xl) {
@@ -88,16 +90,16 @@ All colors MUST be HSL.
 
   .customer-panel {
     border: 1px solid hsl(var(--border));
-    border-left: 2px solid hsl(var(--secondary));
+    border-top: 1px solid hsl(var(--primary) / 0.55);
     background: hsl(var(--card) / 0.82);
     backdrop-filter: blur(16px);
     box-shadow: 0 24px 80px -48px hsl(var(--secondary) / 0.55);
   }
 
   .customer-kicker {
-    color: hsl(var(--secondary));
+    color: hsl(var(--primary));
     font-size: 0.7rem;
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: 0.2em;
   }
 }
@@ -112,12 +114,13 @@ All colors MUST be HSL.
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    font-family: 'Playfair Display', Georgia, serif;
+    @apply font-semibold;
   }
   
   .font-aggressive {
-    font-family: 'A Dripping Marker', 'Black Ops One', system-ui, sans-serif;
-    letter-spacing: 0.05em;
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: 0;
   }
 }
 
@@ -803,3 +806,38 @@ html.konami-rave body {
   margin-left: 2px;
   animation: admin-cursor-blink 0.8s step-end infinite;
 }
+
+/* Elegant Urban Noir — customer experience */
+@layer components {
+  .brand-lockup { display:inline-flex; align-items:baseline; color:hsl(var(--primary)); font-family:'Playfair Display',Georgia,serif; font-size:1.35rem; line-height:1; }
+  .brand-lockup strong { color:hsl(var(--foreground)); font-weight:600; }
+  .brand-lockup--large { font-size:2rem; }
+  .customer-header { position:sticky; top:0; z-index:45; border-bottom:1px solid hsl(var(--border)/.75); background:hsl(var(--background)/.88); backdrop-filter:blur(22px); }
+  .customer-header--transparent { position:absolute; width:100%; background:linear-gradient(180deg,hsl(var(--background)/.8),transparent); border:0; }
+  .customer-header__inner { max-width:88rem; margin:auto; min-height:4.5rem; padding:0 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:2rem; }
+  .customer-nav { display:none; align-items:center; gap:2rem; font-size:.72rem; text-transform:uppercase; letter-spacing:.18em; color:hsl(var(--muted-foreground)); }
+  .customer-nav a { position:relative; transition:color .25s ease; }
+  .customer-nav a:hover,.customer-nav a.is-active { color:hsl(var(--foreground)); }
+  .customer-nav a.is-active::after { content:""; position:absolute; left:0; right:0; bottom:-.7rem; height:1px; background:hsl(var(--primary)); }
+  .customer-mobile-nav { display:grid; gap:0; border-top:1px solid hsl(var(--border)); padding:.5rem 1.5rem 1rem; background:hsl(var(--background)); }
+  .customer-mobile-nav a { padding:.9rem 0; border-bottom:1px solid hsl(var(--border)/.6); }
+  .customer-footer { border-top:1px solid hsl(var(--border)); background:hsl(var(--card)); padding:4rem 1.5rem 1.5rem; }
+  .customer-footer__grid { max-width:80rem; margin:auto; display:grid; gap:2.5rem; }
+  .customer-footer__grid>div { display:flex; flex-direction:column; align-items:flex-start; gap:.75rem; color:hsl(var(--muted-foreground)); font-size:.875rem; }
+  .customer-footer__grid svg { width:1rem; height:1rem; display:inline; margin-right:.35rem; }
+  .customer-footer__grid a:hover { color:hsl(var(--primary)); }
+  .customer-footer__legal { max-width:80rem; margin:3rem auto 0; padding-top:1.25rem; border-top:1px solid hsl(var(--border)); display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem; font-size:.7rem; color:hsl(var(--muted-foreground)); text-transform:uppercase; letter-spacing:.12em; }
+  .customer-footer__legal div { display:flex; flex-wrap:wrap; gap:1rem; }
+  .noir-page-head { padding:clamp(4rem,9vw,8rem) 1.5rem 3rem; border-bottom:1px solid hsl(var(--border)); background:linear-gradient(135deg,hsl(var(--card)),hsl(var(--background))); }
+  .noir-page-head>div { max-width:72rem; margin:auto; }
+  .noir-title { font-size:clamp(2.6rem,7vw,6rem); line-height:.96; color:hsl(var(--foreground)); }
+  .noir-title em { color:hsl(var(--primary)); font-weight:600; }
+  .noir-lede { margin-top:1rem; max-width:38rem; color:hsl(var(--muted-foreground)); font-size:clamp(1rem,2vw,1.2rem); line-height:1.7; }
+  .noir-section { padding:clamp(4rem,8vw,7rem) 1.5rem; }
+  .noir-section__inner { max-width:80rem; margin:auto; }
+  .noir-rule { height:1px; background:linear-gradient(90deg,hsl(var(--primary)),hsl(var(--border)),transparent); }
+  .noir-glass { border:1px solid hsl(var(--border)); background:hsl(var(--card)/.82); backdrop-filter:blur(18px); box-shadow:var(--shadow-elegant); }
+  .noir-gold-text { background:var(--gradient-neon); background-clip:text; color:transparent; }
+}
+@media (min-width:768px){.customer-nav{display:flex}.customer-footer__grid{grid-template-columns:2fr 1fr 1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}

@@ -250,14 +250,14 @@ export const FloatingChat = () => {
       <button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-24 right-6 z-40 w-14 h-14 rounded-full bg-neon-purple text-white shadow-lg transition-all hover:scale-110 flex items-center justify-center",
+          "fixed bottom-24 right-6 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg transition-all hover:scale-110 flex items-center justify-center",
           isOpen && "hidden"
         )}
         aria-label="Abrir chat"
       >
         <MessageCircle className="w-6 h-6" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 bg-neon-cyan text-background text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
+          <span className="absolute -top-1 -right-1 bg-secondary text-background text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
         )}
@@ -266,14 +266,14 @@ export const FloatingChat = () => {
       {/* Chat window */}
       <div
         className={cn(
-          "fixed bottom-6 right-6 z-50 w-[350px] max-w-[calc(100vw-2rem)] bg-card border border-border rounded-2xl shadow-2xl transition-all duration-300 flex flex-col overflow-hidden",
+          "fixed bottom-6 right-6 z-50 w-[350px] max-w-[calc(100vw-2rem)] bg-card border border-border rounded-lg shadow-2xl transition-all duration-300 flex flex-col overflow-hidden",
           isOpen
             ? "opacity-100 translate-y-0 h-[500px] max-h-[70vh]"
             : "opacity-0 translate-y-4 h-0 pointer-events-none"
         )}
       >
         {/* Header */}
-        <div className="bg-neon-purple p-4 flex items-center justify-between text-white shrink-0">
+        <div className="bg-primary p-4 flex items-center justify-between text-white shrink-0">
           <div>
             <h3 className="font-bold">Chat con DIEGCUTZ</h3>
             <p className="text-xs text-white/80">
@@ -333,9 +333,9 @@ export const FloatingChat = () => {
                 >
                   <div
                     className={cn(
-                      "max-w-[85%] rounded-2xl px-4 py-2",
+                      "max-w-[85%] rounded-lg px-4 py-2",
                       msg.sender_type === "user"
-                        ? "bg-neon-purple text-white rounded-br-md"
+                        ? "bg-primary text-white rounded-br-md"
                         : "bg-muted rounded-bl-md"
                     )}
                   >
@@ -355,7 +355,7 @@ export const FloatingChat = () => {
               ))}
               {adminTyping && (
                 <div className="flex justify-start">
-                  <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2">
+                  <div className="bg-muted rounded-lg rounded-bl-md px-4 py-2">
                     <div className="flex gap-1">
                       <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
                       <span className="w-2 h-2 bg-muted-foreground/50 rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />

@@ -220,7 +220,7 @@ export const NextAvailableSlot = () => {
 
   if (loading) {
     return (
-      <div className="bg-card/80 backdrop-blur-sm border-2 border-primary/50 rounded-2xl p-6 animate-pulse">
+      <div className="bg-card/80 backdrop-blur-sm border-2 border-primary/50 rounded-lg p-6 animate-pulse">
         <div className="h-8 bg-muted rounded w-3/4 mx-auto mb-4" />
         <div className="h-16 bg-muted rounded w-1/2 mx-auto" />
       </div>
@@ -235,7 +235,7 @@ export const NextAvailableSlot = () => {
     <div className="relative">
       {/* Animated background glow */}
       <div
-        className={`absolute inset-0 rounded-2xl blur-xl opacity-30 ${
+        className={`absolute inset-0 rounded-lg blur-xl opacity-30 ${
           urgencyLevel === "high"
             ? "bg-destructive animate-pulse"
             : urgencyLevel === "medium"
@@ -245,7 +245,7 @@ export const NextAvailableSlot = () => {
         style={{ animationDuration: urgencyLevel === "high" ? "1s" : "2s" }}
       />
 
-      <div className="relative bg-card/90 backdrop-blur-sm border-2 border-secondary rounded-2xl p-6 md:p-8">
+      <div className="relative bg-card/90 backdrop-blur-sm border-2 border-secondary rounded-lg p-6 md:p-8">
         {/* Urgency badge */}
         {urgencyLevel !== "low" && (
           <div
