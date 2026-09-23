@@ -28,4 +28,7 @@
 - [x] Hide the PWA installation banner on desktop
 - [x] Renew the complete admin shell and login in Liquid Chrome style
 - [x] Validate the kinetic homepage and admin on desktop and mobile
+- [x] Add a full-page 3D barber-tool choreography and multi-layer parallax
+- [x] Enlarge the customer header and expose sign-out on desktop and mobile
+- [x] Validate the expanded homepage motion across desktop and mobile
 

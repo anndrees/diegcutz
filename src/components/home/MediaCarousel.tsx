@@ -40,7 +40,7 @@ export function MediaCarousel({ slides }: { slides: HomeMediaSlide[] }) {
       <div className="media-stage__viewport" ref={emblaRef}>
         <div className="media-stage__track">
           {slides.map((slide, index) => (
-            <figure className="media-stage__slide" key={slide.id}>
+            <figure className={`media-stage__slide ${index === selected ? "is-active" : ""}`} key={slide.id}>
               {slide.type === "video" ? (
                 <video src={slide.url} muted loop autoPlay playsInline preload={index === 0 ? "auto" : "metadata"} />
               ) : (
