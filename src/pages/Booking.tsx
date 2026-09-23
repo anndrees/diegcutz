@@ -926,7 +926,7 @@ const Booking = () => {
   const totalPrice = calculateTotal();
 
   return (
-    <div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
+    <div className="customer-shell min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
       {/* Decorative neon background */}
       <div className="pointer-events-none absolute inset-0 bg-neon-grid opacity-40" />
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-neon-purple/20 blur-3xl animate-pulse" />

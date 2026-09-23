@@ -26,6 +26,19 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    const { data: loyaltySetting } = await supabaseAdmin
+      .from("app_settings")
+      .select("value")
+      .eq("key", "loyalty_program_enabled")
+      .maybeSingle();
+
+    if (loyaltySetting?.value !== true) {
+      return new Response(
+        JSON.stringify({ error: "El programa de fidelización está desactivado." }),
+        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
+      );
+    }
+
     // Find user by loyalty token
     const { data: profile, error: profileError } = await supabaseAdmin
       .from("profiles")

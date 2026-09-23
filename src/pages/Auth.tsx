@@ -642,7 +642,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="relative min-h-screen py-12 px-4 pt-safe overflow-hidden">
+    <div className="customer-shell relative min-h-screen py-12 px-4 pt-safe overflow-hidden">
       {/* Ambient neon background */}
       <div className="pointer-events-none absolute inset-0 admin-login-grid opacity-20" />
       <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-[hsl(var(--neon-purple)/0.25)] blur-3xl animate-pulse" />

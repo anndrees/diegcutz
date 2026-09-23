@@ -17,6 +17,18 @@ Deno.serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
     );
 
+    const { data: loyaltySetting } = await supabaseAdmin
+      .from("app_settings")
+      .select("value")
+      .eq("key", "loyalty_program_enabled")
+      .maybeSingle();
+
+    if (loyaltySetting?.value !== true) {
+      return new Response(JSON.stringify({ message: "Loyalty program disabled", credited: 0 }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     // Find all bookings that ended 1+ hour ago and haven't been credited
     // A booking "ends" at booking_time. We add 1 hour grace period.
     const now = new Date();

@@ -22,6 +22,7 @@ import { MembershipSurvey } from "@/components/membership/MembershipSurvey";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 
 interface Booking {
   id: string;
@@ -55,6 +56,7 @@ export default function UserProfile() {
     checkAccountStatus
   } = useAuth();
   const { isGoogleAuthEnabled } = useGoogleAuthEnabled();
+  const { enabled: loyaltyEnabled } = useLoyaltyProgram();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loyaltyReward, setLoyaltyReward] = useState<LoyaltyReward | null>(null);
   const [loading, setLoading] = useState(true);
@@ -365,7 +367,7 @@ export default function UserProfile() {
 
   const initials = (profile?.full_name || "U").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
-  return <div className="min-h-screen bg-background">
+  return <div className="customer-shell min-h-screen bg-background">
     <div className="container mx-auto px-4 py-6 pt-safe max-w-2xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -435,14 +437,25 @@ export default function UserProfile() {
           <Lock className="h-4 w-4" />
           <span className="text-xs">Cambiar contraseña</span>
         </Button>
-        <Button
-          variant="outline"
-          className="h-auto py-3 flex flex-col items-center gap-1.5"
-          onClick={() => navigate("/loyalty")}
-        >
-          <Gift className="h-4 w-4 text-primary" />
-          <span className="text-xs">Fidelización</span>
-        </Button>
+        {loyaltyEnabled ? (
+          <Button
+            variant="outline"
+            className="h-auto py-3 flex flex-col items-center gap-1.5"
+            onClick={() => navigate("/loyalty")}
+          >
+            <Gift className="h-4 w-4 text-primary" />
+            <span className="text-xs">Fidelización</span>
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            className="h-auto py-3 flex flex-col items-center gap-1.5"
+            onClick={() => navigate("/loyalty")}
+          >
+            <Gift className="h-4 w-4 text-secondary" />
+            <span className="text-xs">Cortes gratis</span>
+          </Button>
+        )}
       </div>
 
       {/* Profile Info */}
