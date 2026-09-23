@@ -80,21 +80,15 @@ export const ForcePasswordChange = ({ onPasswordChanged, userId }: ForcePassword
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="customer-shell min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Animated background */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
-          <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-neon-purple/20 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-cyan/15 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
-        </div>
-
-        <div className="bg-card border-2 border-yellow-500/50 rounded-2xl p-8 shadow-2xl animate-scale-in">
+        <div className="bg-card border border-border border-t-2 border-t-primary p-8 animate-scale-in">
           {/* Header with icon */}
           <div className="text-center mb-8">
-            <div className="mx-auto w-20 h-20 bg-yellow-500/20 rounded-full flex items-center justify-center mb-4 animate-pulse">
-              <Lock className="w-10 h-10 text-yellow-500" />
+            <div className="mx-auto w-20 h-20 border border-primary flex items-center justify-center mb-4">
+              <Lock className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-3xl font-black text-yellow-500 mb-2">
+            <h1 className="text-3xl font-semibold text-foreground mb-2">
               CAMBIO DE CONTRASEÑA
             </h1>
             <p className="text-muted-foreground">

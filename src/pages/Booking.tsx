@@ -1739,7 +1739,7 @@ const Booking = () => {
                     </div>
                     <Button
                       onClick={handleSubmit}
-                      variant={isFreeCutReservation ? "neonCyan" : "neonCyan"}
+                      variant="default"
                       className="w-full h-10 sm:h-12 text-sm sm:text-base"
                       disabled={loading || (!selectedPack && selectedServices.length === 0)}
                     >

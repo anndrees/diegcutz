@@ -150,7 +150,7 @@ const ForgotPassword = () => {
 
               <Button
                 type="submit"
-                variant="neon"
+                variant="default"
                 className="w-full"
                 disabled={loading}
               >

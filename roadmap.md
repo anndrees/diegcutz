@@ -1,8 +1,8 @@
 # Roadmap
 
 - [x] Approve the architectural editorial direction: black and steel, Space Grotesk, asymmetric gallery
-- [ ] Rebuild every customer-facing page structurally, not as a theme swap
-- [ ] Replace customer-facing emojis and legacy neon effects with SVG symbols
+- [x] Rebuild every customer-facing page structurally, not as a theme swap
+- [x] Replace customer-facing emojis and legacy neon effects with SVG symbols
 - [x] Refresh the PWA icon and customer-facing metadata/assets
 - [x] Restyle the admin experience without removing functionality
 - [x] Add AI haircut and service recommendations through Lovable AI
