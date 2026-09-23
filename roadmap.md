@@ -8,4 +8,4 @@
 - [x] Add quick repeat-booking from the customer's last service
 - [x] Add Google Calendar, Apple Calendar, and ICS actions after booking
 - [x] Add WhatsApp contact actions to bookings and client records
-- [ ] Validate core customer, booking, admin, PWA, and responsive flows
+- [x] Validate core customer, booking, admin, PWA, and responsive flows
