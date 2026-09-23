@@ -713,7 +713,7 @@ const ClientProfile = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Gift className="text-neon-cyan" />
-              Programa de Fidelización
+              Cortes gratis
             </CardTitle>
           </CardHeader>
           <CardContent>

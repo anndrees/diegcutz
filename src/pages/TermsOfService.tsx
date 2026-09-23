@@ -46,13 +46,13 @@ const TermsOfService = () => {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold mb-3">4. Programa de Fidelidad</h2>
+            <h2 className="text-xl font-semibold mb-3">4. Cortes gratis y recompensas</h2>
             <p className="text-muted-foreground">
-              El programa de fidelidad está sujeto a las siguientes condiciones:
+              Los cortes gratis concedidos están sujetos a las siguientes condiciones:
             </p>
             <ul className="list-disc pl-6 text-muted-foreground space-y-2 mt-2">
-              <li>Los puntos o cortes acumulados no son transferibles</li>
-              <li>Nos reservamos el derecho de modificar el programa</li>
+              <li>Los cortes gratis son personales y no transferibles</li>
+              <li>Nos reservamos el derecho de modificar estas recompensas</li>
               <li>Los beneficios pueden variar sin previo aviso</li>
             </ul>
           </section>
