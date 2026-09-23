@@ -38,6 +38,8 @@ export default function Home() {
     node.style.setProperty("--tilt-y", `${(x * 14).toFixed(2)}deg`);
     node.style.setProperty("--tilt-x", `${(-y * 9).toFixed(2)}deg`);
     node.style.setProperty("--tilt-shift", `${(x * 10).toFixed(2)}px`);
+    node.style.setProperty("--ex-x", `${(4 - x * 18).toFixed(2)}px`);
+    node.style.setProperty("--ex-y", `${(5 - y * 12).toFixed(2)}px`);
   };
 
   const resetHeroTilt = () => {
@@ -46,6 +48,8 @@ export default function Home() {
     node.style.setProperty("--tilt-y", "0deg");
     node.style.setProperty("--tilt-x", "0deg");
     node.style.setProperty("--tilt-shift", "0px");
+    node.style.setProperty("--ex-x", "4px");
+    node.style.setProperty("--ex-y", "5px");
   };
 
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
