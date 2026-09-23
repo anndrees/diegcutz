@@ -59,8 +59,9 @@ export default function Install() {
 
   return (
     <CustomerPage>
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8 max-w-2xl pt-safe">
+    <div className="install-editorial min-h-screen">
+      <div className="noir-page-head"><div><p className="customer-kicker">DIEGCUTZ / APP</p><div><h1 className="noir-title">El estudio,<br /><em>siempre contigo.</em></h1><p className="noir-lede">Instala la app para reservar más rápido y recibir avisos importantes.</p></div></div></div>
+      <div className="mx-auto px-4 py-12 md:py-20 max-w-4xl">
         <Button
           variant="ghost"
           onClick={() => navigate(-1)}
@@ -70,18 +71,18 @@ export default function Install() {
           Volver
         </Button>
 
-        <div className="text-center mb-8">
-          <div className="w-24 h-24 mx-auto mb-4 rounded-lg overflow-hidden shadow-lg">
+        <div className="install-editorial__brand mb-10">
+          <div className="w-24 h-24 overflow-hidden border border-border">
             <img 
               src="/pwa-192x192.png" 
               alt="DIEGCUTZ" 
               className="w-full h-full object-cover"
             />
           </div>
-          <h1 className="text-3xl font-black mb-2">Instalar DIEGCUTZ</h1>
+          <div><p className="customer-kicker">ACCESO DIRECTO</p><h2 className="text-3xl font-semibold mt-2">Instalar DIEGCUTZ</h2>
           <p className="text-muted-foreground">
             Accede más rápido desde tu pantalla de inicio
-          </p>
+          </p></div>
         </div>
 
         {isInstalled ? (
@@ -107,7 +108,7 @@ export default function Install() {
                 <CardContent className="pt-6">
                   <Button 
                     onClick={handleInstall}
-                    className="w-full bg-gradient-to-r from-primary to-[hsl(38_32%_48%)] hover:opacity-90 text-lg py-6"
+                    className="w-full text-lg py-6"
                     size="lg"
                   >
                     <Download className="mr-2 h-5 w-5" />

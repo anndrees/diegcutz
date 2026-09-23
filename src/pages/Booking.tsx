@@ -952,10 +952,9 @@ const Booking = () => {
   if (confirmedBooking) return <CustomerPage><BookingConfirmation booking={confirmedBooking} onHome={() => navigate("/")} /></CustomerPage>;
 
   return (
-    <CustomerPage footer={false}><div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/.07),transparent_36%)]" />
-
-      <div className="max-w-5xl mx-auto relative">
+    <CustomerPage footer={false}><div className="booking-editorial min-h-screen">
+      <div className="noir-page-head"><div><p className="customer-kicker">01—04 / RESERVA</p><div><h1 className="noir-title">Elige tu <em>momento.</em></h1><p className="noir-lede">Fecha, hora y servicio. Sin esperas, sin complicaciones.</p></div></div></div>
+      <div className="max-w-6xl mx-auto py-10 md:py-16 px-4 relative">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -969,7 +968,7 @@ const Booking = () => {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="text-center mb-10"
+          className="booking-editorial__intro mb-10"
         >
           {isFreeCutReservation ? (
             <>
@@ -977,21 +976,14 @@ const Booking = () => {
                 <Gift className="h-5 w-5" />
                 <span className="font-bold">CORTE GRATIS</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-semibold mb-4 text-secondary font-display">
-                ¡TU CORTE GRATIS!
-              </h1>
+              <h2 className="text-3xl md:text-5xl font-semibold mb-4">Tu corte gratis está listo.</h2>
               <p className="text-xl text-muted-foreground">
                 Incluye DEGRADADO + VACIAR/TEXTURIZADO. Puedes añadir servicios extra.
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-5xl md:text-7xl font-semibold mb-4 text-primary font-display">
-                RESERVA TU CITA
-              </h1>
-              <p className="text-xl text-muted-foreground">
-                Elige tu fecha, hora y servicios en pocos pasos
-              </p>
+              <p className="customer-kicker">CONFIGURA TU CITA</p>
             </>
           )}
         </motion.div>
@@ -1014,7 +1006,7 @@ const Booking = () => {
                 <div
                   className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full flex items-center justify-center border-2 transition-all duration-500 ${
                     step.active
-                      ? 'border-secondary bg-secondary/20 text-secondary shadow-[0_0_20px_hsl(var(--neon-cyan)/0.6)]'
+                      ? 'border-primary bg-primary text-primary-foreground'
                       : 'border-border bg-card/40 text-muted-foreground'
                   }`}
                 >
@@ -1025,7 +1017,7 @@ const Booking = () => {
                 </span>
               </div>
               {i < arr.length - 1 && (
-                <div className={`h-[2px] w-6 sm:w-12 transition-all duration-500 ${arr[i + 1].active || step.active ? 'bg-gradient-to-r from-primary to-secondary' : 'bg-border'}`} />
+                <div className={`h-px w-6 sm:w-12 transition-all duration-500 ${arr[i + 1].active || step.active ? 'bg-primary' : 'bg-border'}`} />
               )}
             </div>
           ))}
@@ -1047,7 +1039,7 @@ const Booking = () => {
             </div>
             <div className="h-1.5 rounded-full bg-border/40 overflow-hidden">
               <motion.div
-                className="h-full bg-gradient-to-r from-primary via-secondary to-secondary shadow-[0_0_12px_hsl(var(--neon-cyan)/0.8)]"
+                className="h-full bg-primary"
                 initial={false}
                 animate={{ width: `${(mobileStep / 4) * 100}%` }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -1065,7 +1057,7 @@ const Booking = () => {
                     else if (n === 4 && selectedDate && selectedTime && (selectedPack || selectedServices.length > 0)) setMobileStep(4);
                   }}
                   className={`w-2 h-2 rounded-full transition-all ${
-                    n === mobileStep ? "bg-secondary scale-150 shadow-[0_0_8px_hsl(var(--neon-cyan))]" : n < mobileStep ? "bg-secondary/60" : "bg-border"
+                     n === mobileStep ? "bg-primary scale-150" : n < mobileStep ? "bg-primary/60" : "bg-border"
                   }`}
                   aria-label={`Ir al paso ${n}`}
                 />
@@ -1099,8 +1091,8 @@ const Booking = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Card className="bg-card/60 backdrop-blur-xl border-primary/30 shadow-[0_0_40px_hsl(var(--neon-purple)/0.15)] hover:shadow-elegant transition-shadow duration-500 overflow-hidden">
-              <CardHeader className="border-b border-primary/20 bg-gradient-to-r from-primary/10 to-transparent">
+            <Card className="booking-step-card overflow-hidden">
+              <CardHeader className="border-b border-border">
                 <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                   <CalendarDays className="text-primary" />
                   Selecciona una fecha
@@ -1188,8 +1180,8 @@ const Booking = () => {
                   exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <Card className="bg-card/60 backdrop-blur-xl border-secondary/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.15)] hover:shadow-elegant transition-shadow duration-500 overflow-hidden">
-                    <CardHeader className="border-b border-secondary/20 bg-gradient-to-r from-secondary/10 to-transparent">
+                  <Card className="booking-step-card overflow-hidden">
+                    <CardHeader className="border-b border-border">
                       <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                         <Clock className="text-secondary animate-pulse" />
                         Horas disponibles
