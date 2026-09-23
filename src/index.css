@@ -1220,7 +1220,7 @@ html.konami-rave body {
 @media(max-width:640px){.install-banner-liquid + .customer-header{top:4.55rem}.install-banner-liquid + .customer-header + .liquid-hero{padding-top:11rem}}
 
 /* Homepage kinetic choreography */
-.liquid-home { position:relative; }
+.liquid-home { position:relative; overflow-x:clip!important; }
 .home-motion-layer { position:absolute; z-index:0; inset:0; overflow:hidden; pointer-events:none; }
 .home-scroll-rail { position:fixed; z-index:70; top:0; right:0; width:3px; height:100svh; transform-origin:top; background:linear-gradient(to bottom,hsl(var(--primary)),hsl(var(--foreground))); box-shadow:0 0 18px hsl(var(--primary)/.7); }
 .home-parallax-mesh { position:absolute; top:65vh; right:-18rem; width:42rem; aspect-ratio:1; border:1px solid hsl(var(--foreground)/.09); border-radius:42% 58% 61% 39%; background:radial-gradient(circle at 32% 28%,hsl(var(--foreground)/.08),transparent 18%),radial-gradient(circle at 62% 65%,hsl(var(--primary)/.08),transparent 30%); box-shadow:inset 30px 25px 80px hsl(var(--foreground)/.035),inset -55px -45px 100px hsl(var(--background)/.75); }
@@ -1279,6 +1279,6 @@ html.konami-rave body {
 @keyframes tile-float { 50% { transform:translateY(-12px) rotate(1deg); } }
 @media(max-width:767px){.home-scroll-rail{width:2px}.home-parallax-mesh{right:-28rem;opacity:.5}.scroll-tools-3d{opacity:.52}.customer-header__inner{min-height:4.65rem;padding:.55rem .65rem .55rem .8rem}.brand-lockup__mark{width:2.35rem}.brand-lockup__name{font-size:.85rem}.liquid-marquee{transform:rotate(-1deg) scale(1.025)}.liquid-intro{min-height:auto}.liquid-feature{animation:none}.media-stage__slide.is-active img,.media-stage__slide.is-active video{transform:scale(1.03)}}
 @media(prefers-reduced-motion:reduce){.home-motion-layer,.scroll-tools-3d{display:none}.liquid-hero:after,.liquid-hero__meta,.liquid-wordmark,.liquid-hero__bottom,.liquid-wordmark canvas,.liquid-feature,.liquid-membership:before,.instagram-editorial__tile{animation:none}.media-stage__slide img,.media-stage__slide video,.media-stage__slide figcaption,.liquid-location{transition:none}.media-stage__slide img,.media-stage__slide video,.media-stage__slide.is-active img,.media-stage__slide.is-active video{transform:none}}
-.liquid-home > .customer-header.customer-header--transparent { position:fixed!important; inset:0 0 auto; width:100%; }
+.liquid-home > .customer-header.customer-header--transparent { position:sticky!important; top:0; width:100%; margin-bottom:-6.65rem; }
 .customer-header.is-scrolled { padding-top:.45rem; }
 .customer-header.is-scrolled .customer-header__inner { min-height:4.7rem; background:hsl(var(--background)/.9); border-color:hsl(var(--foreground)/.18); box-shadow:0 18px 70px hsl(var(--background)/.72),inset 0 1px hsl(var(--foreground)/.08); }
