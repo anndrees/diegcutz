@@ -904,9 +904,14 @@ html.konami-rave body {
   .home-hero__copy { align-self:center; }
   .home-hero__eyebrow { display:flex; align-items:center; gap:.8rem; color:hsl(var(--muted-foreground)); font-size:.62rem; font-weight:600; letter-spacing:.18em; }
   .home-hero__eyebrow span { width:2.5rem; height:1px; background:hsl(var(--primary)); }
-  .home-hero h1 { margin:clamp(2rem,5vh,4rem) 0; font-size:clamp(5.2rem,12.4vw,12rem); line-height:.72; font-weight:600; letter-spacing:-.06em; }
+  .home-hero h1 { margin:clamp(2rem,5vh,4rem) 0; font-size:clamp(5.2rem,12.4vw,12rem); line-height:.72; font-weight:600; letter-spacing:-.06em; perspective:900px; perspective-origin:50% 50%; }
   .home-hero h1 span,.home-hero h1 strong { display:block; }
   .home-hero h1 strong { margin-left:clamp(1.5rem,7vw,8rem); color:hsl(var(--muted)); font-weight:600; }
+  .home-hero__title { --tilt-x:0deg; --tilt-y:0deg; --tilt-shift:0px; transform-style:preserve-3d; }
+  .home-hero__title span,.home-hero__title strong { transform-style:preserve-3d; transition:transform .45s cubic-bezier(.22,1,.36,1),text-shadow .45s ease; will-change:transform; }
+  .home-hero__title span { transform:rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(42px) translateX(var(--tilt-shift)); text-shadow:calc(var(--tilt-shift) * -.35) 4px 24px hsl(var(--background)/.75); }
+  .home-hero__title strong { transform:rotateX(var(--tilt-x)) rotateY(var(--tilt-y)) translateZ(14px) translateX(calc(var(--tilt-shift) * .5)); text-shadow:calc(var(--tilt-shift) * -.2) 6px 28px hsl(var(--background)/.65); }
+  @media (prefers-reduced-motion: reduce) { .home-hero__title span,.home-hero__title strong { transform:none; text-shadow:none; } }
   .home-hero__intro { margin-left:auto; width:min(100%,34rem); padding-left:clamp(0rem,4vw,5rem); border-left:1px solid hsl(var(--border)); }
   .home-hero__intro p { color:hsl(var(--muted-foreground)); font-size:clamp(1rem,1.5vw,1.2rem); line-height:1.75; }
   .home-hero__actions { margin-top:2rem; display:flex; align-items:center; flex-wrap:wrap; gap:1.5rem; }

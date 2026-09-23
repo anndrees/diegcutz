@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowDownRight, ArrowRight, ArrowUpRight, Clock3, Gift, MapPin, Scissors, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +27,27 @@ const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "
 
 export default function Home() {
   const navigate = useNavigate();
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  const handleHeroTilt = (event: React.MouseEvent<HTMLElement>) => {
+    const node = titleRef.current;
+    if (!node || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    node.style.setProperty("--tilt-y", `${(x * 14).toFixed(2)}deg`);
+    node.style.setProperty("--tilt-x", `${(-y * 9).toFixed(2)}deg`);
+    node.style.setProperty("--tilt-shift", `${(x * 10).toFixed(2)}px`);
+  };
+
+  const resetHeroTilt = () => {
+    const node = titleRef.current;
+    if (!node) return;
+    node.style.setProperty("--tilt-y", "0deg");
+    node.style.setProperty("--tilt-x", "0deg");
+    node.style.setProperty("--tilt-shift", "0px");
+  };
+
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
@@ -66,10 +87,10 @@ export default function Home() {
       <InstallBanner />
       <CustomerHeader transparent />
 
-      <section className="home-hero">
+      <section className="home-hero" onMouseMove={handleHeroTilt} onMouseLeave={resetHeroTilt}>
         <div className="home-hero__copy">
           <div className="home-hero__eyebrow"><span /> ESTUDIO DE BARBERÍA · MONÓVAR</div>
-          <h1><span>DIEG</span><strong>CUTZ</strong></h1>
+          <h1 ref={titleRef} className="home-hero__title"><span>DIEG</span><strong>CUTZ</strong></h1>
           <div className="home-hero__intro">
             <p>Precisión contemporánea, criterio personal y un oficio pensado para acompañar tu forma de estar en el mundo.</p>
             <div className="home-hero__actions">
