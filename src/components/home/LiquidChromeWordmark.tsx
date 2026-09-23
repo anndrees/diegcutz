@@ -35,7 +35,7 @@ function Wordmark() {
     group.rotation.y = THREE.MathUtils.damp(group.rotation.y, pointer.x * 0.12, 4.5, dt);
     group.rotation.x = THREE.MathUtils.damp(group.rotation.x, -pointer.y * 0.07, 4.5, dt);
     group.position.y = Math.sin(state.clock.elapsedTime * 0.55) * 0.035;
-    const targetScale = Math.min(0.78, viewport.width / 15.5);
+    const targetScale = Math.min(0.82, Math.max(0.72, viewport.width / 15.5));
     group.scale.setScalar(THREE.MathUtils.damp(group.scale.x, targetScale, 6, dt));
   });
 
