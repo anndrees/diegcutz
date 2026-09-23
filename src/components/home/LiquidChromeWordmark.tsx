@@ -44,13 +44,13 @@ function Wordmark() {
     group.position.x = THREE.MathUtils.damp(group.position.x, pointer.x * Math.min(0.38, viewport.width * 0.018), 4.8, dt);
     group.position.y = THREE.MathUtils.damp(group.position.y, pointer.y * 0.16 + Math.sin(time * 0.9) * 0.09, 4.8, dt);
     group.position.z = THREE.MathUtils.damp(group.position.z, Math.sin(time * 0.7) * 0.24 + Math.abs(pointer.x) * 0.18, 4.8, dt);
-    const targetScale = Math.min(1.02, Math.max(0.48, viewport.width / 11.8)) * (1 + Math.sin(time * 0.72) * 0.018);
+    const targetScale = Math.min(0.88, Math.max(0.44, viewport.width / 13.5)) * (1 + Math.sin(time * 0.72) * 0.018);
     group.scale.setScalar(THREE.MathUtils.damp(group.scale.x, targetScale, 6, dt));
   });
 
   return (
     <primitive object={group}>
-      <group position={[1.65, -0.72, 0]}>
+      <group position={[0, -0.72, 0]}>
         {LETTERS.map((letter, index) => (
           <Text3D
             key={`${letter}-${index}`}
