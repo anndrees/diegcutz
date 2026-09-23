@@ -21,14 +21,14 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
     <header className={cn("customer-header", transparent && "customer-header--transparent")}>
       <div className="customer-header__inner">
         <Link to="/" className="brand-lockup" aria-label="DIEGCUTZ inicio">
-          <span className="brand-lockup__mark" aria-hidden="true">D/C</span>
-          <span className="brand-lockup__name">DIEGCUTZ</span>
+          <span className="brand-lockup__mark" aria-hidden="true">DC</span>
+          <span className="brand-lockup__name">DIEGCUTZ <small>MONÓVAR</small></span>
         </Link>
 
         <nav className="customer-nav" aria-label="Navegación principal">
           {links.map(([to, label], index) => (
             <Link key={to} to={to} className={cn(pathname === to && "is-active")}>
-              <span>{String(index + 1).padStart(2, "0")}</span>{label}
+              {label}
             </Link>
           ))}
         </nav>
@@ -40,7 +40,7 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
               {user ? profile?.username || "Mi cuenta" : "Acceder"}
             </Link>
           </Button>
-          <Button asChild size="icon" className="hidden md:inline-flex" aria-label="Reservar">
+          <Button asChild size="icon" className="hidden md:inline-flex customer-header__reserve" aria-label="Reservar">
             <Link to="/booking"><ArrowUpRight /></Link>
           </Button>
           <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(value => !value)} aria-label={open ? "Cerrar menú" : "Abrir menú"}>
@@ -53,11 +53,11 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
         <nav className="customer-mobile-nav" aria-label="Navegación móvil">
           {links.map(([to, label], index) => (
             <Link key={to} to={to} onClick={() => setOpen(false)}>
-              <span>{String(index + 1).padStart(2, "0")}</span>{label}<ArrowUpRight />
+              <span>{String(index + 1).padStart(2, "0")}</span><strong>{label}</strong><ArrowUpRight />
             </Link>
           ))}
           <Link to={user ? "/user" : "/auth"} onClick={() => setOpen(false)}>
-            <span>05</span>{user ? "Mi cuenta" : "Acceder"}<ArrowUpRight />
+            <span>05</span><strong>{user ? "Mi cuenta" : "Acceder"}</strong><ArrowUpRight />
           </Link>
         </nav>
       )}

@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Center, Environment, Lightformer, Text3D } from "@react-three/drei";
+import { Center, Environment, Lightformer, Text3D, type FontData } from "@react-three/drei";
 import helvetiker from "three/examples/fonts/helvetiker_bold.typeface.json";
 import * as THREE from "three";
 
@@ -41,7 +41,7 @@ function Wordmark() {
     <primitive object={group}>
       <Center position={[0, 0.12, 0]}>
         <Text3D
-          font={helvetiker}
+          font={helvetiker as unknown as FontData}
           size={1.45}
           height={0.42}
           curveSegments={14}

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 export function CustomerPage({ children, className, footer = true }: { children: ReactNode; className?: string; footer?: boolean }) {
   return (
     <div className={cn("customer-shell customer-page min-h-screen", className)}>
+      <div className="customer-ambient" aria-hidden="true" />
       <CustomerHeader />
       <main className="customer-page__content">{children}</main>
       {footer && <CustomerFooter />}
