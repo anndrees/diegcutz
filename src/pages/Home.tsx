@@ -109,13 +109,12 @@ export default function Home() {
           <div className="home-manifesto__copy">
             <p className="home-manifesto__lead">Cada corte parte de una conversación: tus hábitos, tu imagen y el tiempo que quieres dedicarle después.</p>
             {[
-              [Scissors, "01", "Corte con criterio", "Técnica, textura y proporción al servicio de tu estilo."],
-              [ShieldCheck, "02", "Acabado profesional", "Un resultado limpio que funciona dentro y fuera del estudio."],
-              [Sparkles, "03", "Asesoramiento personal", "Recomendaciones claras, también con nuestro asesor inteligente."],
-            ].map(([Icon, number, title, text]) => {
-              const FeatureIcon = Icon as typeof Scissors;
-              return <article key={String(number)}><FeatureIcon /><span>{number}</span><div><h3>{String(title)}</h3><p>{String(text)}</p></div></article>;
-            })}
+              { icon: Scissors, number: "01", title: "Corte con criterio", text: "Técnica, textura y proporción al servicio de tu estilo." },
+              { icon: ShieldCheck, number: "02", title: "Acabado profesional", text: "Un resultado limpio que funciona dentro y fuera del estudio." },
+              { icon: Sparkles, number: "03", title: "Asesoramiento personal", text: "Recomendaciones claras, también con nuestro asesor inteligente." },
+            ].map(({ icon: FeatureIcon, number, title, text }) => (
+              <article key={number}><FeatureIcon /><span>{number}</span><div><h3>{title}</h3><p>{text}</p></div></article>
+            ))}
             <Button variant="outline" onClick={() => navigate("/booking")}>Elegir mi cita <ArrowRight /></Button>
           </div>
         </div>
