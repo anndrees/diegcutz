@@ -979,6 +979,17 @@ html.konami-rave body {
   .home-hours strong { color:hsl(var(--muted-foreground)); font-weight:400; }
   .home-location__map { min-height:28rem; filter:grayscale(1) contrast(1.05); }
   .home-location__map>* { height:100%; min-height:28rem; border-radius:0!important; }
+  .instagram-editorial { max-width:96rem; margin:auto; padding:clamp(5rem,10vw,10rem) clamp(1.25rem,3vw,3.5rem); display:grid; grid-template-columns:.25fr 1.2fr .75fr; gap:clamp(2rem,5vw,6rem); align-items:center; }
+  .instagram-editorial__number { align-self:start; color:hsl(var(--primary)); font:600 .7rem/1 "Space Grotesk",sans-serif; }
+  .instagram-editorial__copy h2 { margin:1.2rem 0 1.5rem; font-size:clamp(2.5rem,5vw,5.5rem); line-height:.95; font-weight:500; }
+  .instagram-editorial__copy h2 span { color:hsl(var(--primary)); }
+  .instagram-editorial__copy>p:not(.customer-kicker) { max-width:34rem; color:hsl(var(--muted-foreground)); line-height:1.7; }
+  .instagram-editorial__copy>a { display:inline-flex; gap:.5rem; margin-top:2rem; color:hsl(var(--primary)); font-size:.7rem; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+  .instagram-editorial__tile { aspect-ratio:1; border:1px solid hsl(var(--border)); padding:2rem; display:grid; grid-template-columns:1fr auto; grid-template-rows:1fr auto; align-items:start; background:hsl(var(--card)); transition:background .3s ease,color .3s ease; }
+  .instagram-editorial__tile>svg:first-child { width:2rem; height:2rem; color:hsl(var(--primary)); }
+  .instagram-editorial__tile>svg:last-child { width:1rem; }
+  .instagram-editorial__tile span { align-self:end; font-size:.62rem; letter-spacing:.14em; }
+  .instagram-editorial__tile:hover { background:hsl(var(--foreground)); color:hsl(var(--background)); }
 
   .customer-footer { padding:0; border-top:1px solid hsl(var(--border)); background:hsl(var(--card)); }
   .customer-footer__lead { max-width:96rem; margin:auto; padding:clamp(4rem,8vw,8rem) clamp(1.25rem,3vw,3.5rem); position:relative; }
@@ -1004,4 +1015,4 @@ html.konami-rave body {
 
 @media (min-width:768px){.customer-nav{display:flex}.customer-footer__grid{grid-template-columns:2fr 1fr 1fr 1fr}}
 @media (max-width:767px){
-  .customer-header__inner{grid-template-columns:1fr auto;min-height:4.5rem}.home-hero{grid-template-columns:1fr;min-height:auto;padding-top:7rem}.home-hero h1{font-size:clamp(4.8rem,25vw,8rem);margin:3rem 0}.home-hero h1 strong{margin-left:12vw}.home-hero__intro{padding-left:0;border:0}.home-hero__image{min-height:58svh}.home-status,.home-manifesto header,.home-manifesto__grid,.home-experience,.home-location{grid-template-columns:1fr}.home-manifesto figure{margin-top:0;max-height:70svh}.home-feature-band{grid-template-columns:auto 1fr}.home-feature-band>span,.home-feature-band>button{grid-column:1/-1;writing-mode:initial}.home-experience__rules>div{grid-template-columns:2rem 1fr}.home-experience__rules p{grid-column:2}.home-location__map{order:-1}.customer-footer__lead{padding-top:5rem}.noir-page-head>div{grid-template-columns:1fr}}
+  .customer-header__inner{grid-template-columns:1fr auto;min-height:4.5rem}.home-hero{grid-template-columns:1fr;min-height:auto;padding-top:7rem}.home-hero h1{font-size:clamp(4.8rem,25vw,8rem);margin:3rem 0}.home-hero h1 strong{margin-left:12vw}.home-hero__intro{padding-left:0;border:0}.home-hero__image{min-height:58svh}.home-status,.home-manifesto header,.home-manifesto__grid,.home-experience,.home-location,.instagram-editorial{grid-template-columns:1fr}.home-manifesto figure{margin-top:0;max-height:70svh}.home-feature-band{grid-template-columns:auto 1fr}.home-feature-band>span,.home-feature-band>button{grid-column:1/-1;writing-mode:initial}.home-experience__rules>div{grid-template-columns:2rem 1fr}.home-experience__rules p{grid-column:2}.home-location__map{order:-1}.instagram-editorial__tile{max-width:22rem}.customer-footer__lead{padding-top:5rem}.noir-page-head>div{grid-template-columns:1fr}}
