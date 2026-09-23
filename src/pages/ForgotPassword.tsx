@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,7 +80,7 @@ const ForgotPassword = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen py-12 px-4 flex items-center justify-center">
+      <CustomerPage><div className="min-h-[70vh] py-12 px-4 flex items-center justify-center">
         <div className="w-full max-w-md">
           <Card className="bg-card border-border">
             <CardContent className="pt-8 pb-8 text-center">
@@ -106,12 +107,12 @@ const ForgotPassword = () => {
             </CardContent>
           </Card>
         </div>
-      </div>
+      </div></CustomerPage>
     );
   }
 
   return (
-    <div className="min-h-screen py-12 px-4 flex items-center justify-center">
+    <CustomerPage><div className="min-h-[70vh] py-12 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
         <Button
           variant="ghost"
@@ -166,7 +167,7 @@ const ForgotPassword = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </div></CustomerPage>
   );
 };
 

@@ -1,10 +1,11 @@
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 
 const TermsOfService = () => {
   return (
-    <div className="min-h-screen bg-background">
+    <CustomerPage><div className="min-h-screen bg-background">
       <div className="container max-w-4xl mx-auto px-4 py-8">
         <Link to="/">
           <Button variant="ghost" className="mb-6">
@@ -101,7 +102,7 @@ const TermsOfService = () => {
           </p>
         </div>
       </div>
-    </div>
+    </div></CustomerPage>
   );
 };
 

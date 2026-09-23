@@ -20,6 +20,9 @@ import { z } from "zod";
 import { MobileStep } from "@/components/booking/MobileStep";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PlaylistPreview } from "@/components/booking/PlaylistPreview";
+import { StyleAdvisor } from "@/components/booking/StyleAdvisor";
+import { BookingConfirmation } from "@/components/booking/BookingConfirmation";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 
 // Validation schema for playlist URL
 const playlistUrlSchema = z.string().max(500, "URL demasiado larga").refine(
@@ -109,6 +112,7 @@ const Booking = () => {
   const [membershipFreeServices, setMembershipFreeServices] = useState(0);
   const [useMembershipService, setUseMembershipService] = useState(false);
   const [membershipName, setMembershipName] = useState("");
+  const [confirmedBooking, setConfirmedBooking] = useState<{ id: string; booking_date: string; booking_time: string; services: string[] } | null>(null);
   
   // Coupon state
   const [couponCode, setCouponCode] = useState<string>("");
@@ -158,6 +162,26 @@ const Booking = () => {
     const interval = setInterval(checkStatus, 1000);
     return () => clearInterval(interval);
   }, [user]);
+
+  // Repeat a previous visit while always asking for a new date and available time.
+  useEffect(() => {
+    const bookingId = new URLSearchParams(location.search).get("repeat_booking_id");
+    if (!bookingId || !user || loadingServices) return;
+    const loadPreviousSelection = async () => {
+      const { data } = await supabase.from("bookings").select("service_ids,services").eq("id", bookingId).eq("user_id", user.id).maybeSingle();
+      if (!data) return;
+      const knownIds = new Set([...services.map(s => s.id), ...packs.map(p => p.id)]);
+      const savedIds = Array.isArray(data.service_ids) ? data.service_ids.filter((id): id is string => typeof id === "string" && knownIds.has(id)) : [];
+      const legacyNames = Array.isArray(data.services) ? data.services.filter((name): name is string => typeof name === "string") : [];
+      const matchedServices = savedIds.filter(id => services.some(s => s.id === id));
+      const matchedPack = savedIds.find(id => packs.some(p => p.id === id)) || packs.find(p => legacyNames.some(name => name.startsWith(p.name)))?.id || null;
+      const legacyServiceIds = services.filter(service => legacyNames.some(name => name.startsWith(service.name))).map(service => service.id);
+      setSelectedServices(matchedServices.length ? matchedServices : legacyServiceIds);
+      setSelectedPack(matchedPack);
+      toast({ title: "Tu última visita está preparada", description: "Elige una nueva fecha y hora; puedes ajustar los servicios antes de confirmar." });
+    };
+    loadPreviousSelection();
+  }, [location.search, user, loadingServices, services, packs]);
 
   // Mobile wizard auto-advance + scroll-to-top on step change
   useEffect(() => {
@@ -842,6 +866,7 @@ const Booking = () => {
       coupon_id: appliedCoupon?.id || null,
       user_id: user.id,
       playlist_url: playlistUrl || null,
+      service_ids: [selectedPack, ...selectedServices, ...selectedAddons].filter((id): id is string => Boolean(id)),
     }).select().single();
 
     // Record coupon use if applied
@@ -918,15 +943,16 @@ const Booking = () => {
     setCouponCode("");
     setCouponError("");
     
-    // Navigate to home after booking
-    navigate("/");
+    setConfirmedBooking({ id: bookingData.id, booking_date: bookingData.booking_date, booking_time: bookingData.booking_time, services: servicesData });
   };
 
   const availableHours = getAvailableHours();
   const totalPrice = calculateTotal();
 
+  if (confirmedBooking) return <CustomerPage><BookingConfirmation booking={confirmedBooking} onHome={() => navigate("/")} /></CustomerPage>;
+
   return (
-    <div className="customer-shell min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
+    <CustomerPage footer={false}><div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
       {/* Decorative neon background */}
       <div className="pointer-events-none absolute inset-0  opacity-40" />
       <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/20 blur-3xl animate-pulse" />
@@ -1327,6 +1353,7 @@ const Booking = () => {
           >
             <MobileStep isMobile={isMobile} active={mobileStep === 3} step={3} currentStep={mobileStep}>
             <div className="space-y-6">
+            {!isFreeCutReservation && <StyleAdvisor services={services.filter(service => !service.coming_soon)} onSelect={(id) => { setSelectedPack(null); setSelectedServices(current => current.includes(id) ? current : [...current, id]); }} />}
             {/* Packs - Hidden for free cut reservations */}
             {!isFreeCutReservation && packs.length > 0 && (
               <Card className="bg-card/60 backdrop-blur-xl border-secondary/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.1)] overflow-hidden">
@@ -1796,7 +1823,7 @@ const Booking = () => {
           </div>
         </div>
       )}
-    </div>
+    </div></CustomerPage>
   );
 };
 

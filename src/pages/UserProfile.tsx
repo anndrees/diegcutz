@@ -29,6 +29,7 @@ interface Booking {
   booking_date: string;
   booking_time: string;
   services: any;
+  service_ids?: string[] | null;
   total_price: number;
   created_at: string;
   is_cancelled?: boolean;
@@ -626,6 +627,9 @@ export default function UserProfile() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="text-xs h-7" onClick={(e) => { e.stopPropagation(); navigate(`/booking?repeat_booking_id=${booking.id}`); }}>
+                        <RotateCcw className="w-3.5 h-3.5 mr-1" /> Repetir
+                      </Button>
                       {booking.rating ? (
                         <div className="flex items-center gap-1 text-xs">
                           <Star className="w-3.5 h-3.5 fill-primary text-primary" />
@@ -714,9 +718,7 @@ export default function UserProfile() {
               </div>
             )}
             {isPastBooking(selectedBookingDetail.booking_date, selectedBookingDetail.booking_time) && !selectedBookingDetail.rating && !selectedBookingDetail.is_cancelled && (
-              <Button variant="outline" className="w-full" onClick={() => { handleRateBooking(selectedBookingDetail.id); setSelectedBookingDetail(null); }}>
-                <Star className="h-4 w-4 mr-2" /> Valorar esta visita
-              </Button>
+              <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { handleRateBooking(selectedBookingDetail.id); setSelectedBookingDetail(null); }}><Star className="h-4 w-4 mr-2" /> Valorar</Button><Button variant="premium" onClick={() => navigate(`/booking?repeat_booking_id=${selectedBookingDetail.id}`)}><RotateCcw className="h-4 w-4 mr-2" /> Repetir</Button></div>
             )}
           </div>
         )}
