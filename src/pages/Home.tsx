@@ -27,6 +27,27 @@ const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "
 
 export default function Home() {
   const navigate = useNavigate();
+  const titleRef = useRef<HTMLHeadingElement>(null);
+
+  const handleHeroTilt = (event: React.MouseEvent<HTMLElement>) => {
+    const node = titleRef.current;
+    if (!node || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = (event.clientX - rect.left) / rect.width - 0.5;
+    const y = (event.clientY - rect.top) / rect.height - 0.5;
+    node.style.setProperty("--tilt-y", `${(x * 14).toFixed(2)}deg`);
+    node.style.setProperty("--tilt-x", `${(-y * 9).toFixed(2)}deg`);
+    node.style.setProperty("--tilt-shift", `${(x * 10).toFixed(2)}px`);
+  };
+
+  const resetHeroTilt = () => {
+    const node = titleRef.current;
+    if (!node) return;
+    node.style.setProperty("--tilt-y", "0deg");
+    node.style.setProperty("--tilt-x", "0deg");
+    node.style.setProperty("--tilt-shift", "0px");
+  };
+
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
