@@ -127,21 +127,13 @@ const Giveaways = () => {
   const pastGiveaways = giveaways.filter(g => g.is_finished || g.winner_id || isPast(new Date(g.end_date)));
 
   return (
-    <CustomerPage><div className="min-h-screen py-12 px-4 pt-safe">
-      <div className="max-w-4xl mx-auto">
+    <CustomerPage><div className="giveaways-page min-h-screen">
+      <div className="noir-page-head"><div><p className="customer-kicker">01 / COMUNIDAD</p><div><h1 className="noir-title">Sorteos y <em>momentos.</em></h1><p className="noir-lede">Experiencias, detalles y premios para quienes forman parte de DIEGCUTZ.</p></div></div></div>
+      <div className="max-w-5xl mx-auto py-12 md:py-20 px-4">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-8">
           <ArrowLeft className="mr-2" />
           Volver
         </Button>
-
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-4 text-primary animate-fade-in">
-            🎁 SORTEOS
-          </h1>
-          <p className="text-xl text-muted-foreground animate-fade-in" style={{ animationDelay: "100ms" }}>
-            ¡Participa y gana premios exclusivos!
-          </p>
-        </div>
 
         {loading ? (
           <div className="text-center py-12">
@@ -172,7 +164,7 @@ const Giveaways = () => {
                     return (
                       <Card 
                         key={giveaway.id} 
-                        className="bg-gradient-to-br from-card to-background border-2 border-primary/30 overflow-hidden animate-fade-in"
+                         className="bg-card border border-border overflow-hidden animate-fade-in"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
                         <CardHeader>
@@ -188,7 +180,7 @@ const Giveaways = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          <div className="bg-secondary/10 border border-secondary/30 rounded-lg p-4">
+                           <div className="bg-background border-l-2 border-primary p-4">
                             <p className="text-sm text-secondary font-bold uppercase mb-1">Premio</p>
                             <p className="text-xl font-bold">{giveaway.prize}</p>
                           </div>
@@ -210,7 +202,7 @@ const Giveaways = () => {
                             >
                               <Button 
                                 variant="outline" 
-                                className="w-full bg-gradient-to-r from-[#833AB4] via-[#FD1D1D] to-[#F77737] text-white border-0 hover:opacity-90 transition-opacity"
+                                 className="w-full"
                               >
                                 <Instagram className="mr-2 h-5 w-5" />
                                 Ir a la publicación del sorteo

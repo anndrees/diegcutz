@@ -116,7 +116,7 @@ export const InstallPrompt = () => {
 
   return (
     <div className="fixed bottom-4 left-4 right-4 z-50 animate-in slide-in-from-bottom-4 duration-300 md:left-auto md:right-4 md:max-w-sm safe-area-inset-bottom">
-      <Card className="border-primary/30 bg-card/95 backdrop-blur-sm shadow-lg">
+      <Card className="border-border bg-card">
         <CardHeader className="pb-2 relative">
           <Button
             variant="ghost"
@@ -127,7 +127,7 @@ export const InstallPrompt = () => {
             <X className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-3">
-            <div className="rounded-full bg-primary/20 p-2">
+            <div className="border border-primary p-2">
               <Smartphone className="h-5 w-5 text-primary" />
             </div>
             <div>
@@ -141,7 +141,7 @@ export const InstallPrompt = () => {
         <CardContent className="pt-2">
           <Button 
             onClick={handleInstall} 
-            className="w-full bg-gradient-to-r from-primary to-[hsl(38_32%_48%)] hover:opacity-90"
+            className="w-full"
           >
             <Download className="mr-2 h-4 w-4" />
             Instalar App

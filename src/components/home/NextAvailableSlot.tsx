@@ -220,7 +220,7 @@ export const NextAvailableSlot = () => {
 
   if (loading) {
     return (
-      <div className="bg-card/80 backdrop-blur-sm border-2 border-primary/50 rounded-lg p-6 animate-pulse">
+      <div className="bg-card border border-border p-6 animate-pulse">
         <div className="h-8 bg-muted rounded w-3/4 mx-auto mb-4" />
         <div className="h-16 bg-muted rounded w-1/2 mx-auto" />
       </div>
@@ -233,39 +233,27 @@ export const NextAvailableSlot = () => {
 
   return (
     <div className="relative">
-      {/* Animated background glow */}
-      <div
-        className={`absolute inset-0 rounded-lg blur-xl opacity-30 ${
-          urgencyLevel === "high"
-            ? "bg-destructive animate-pulse"
-            : urgencyLevel === "medium"
-            ? "bg-primary animate-pulse"
-            : "bg-secondary"
-        }`}
-        style={{ animationDuration: urgencyLevel === "high" ? "1s" : "2s" }}
-      />
-
-      <div className="relative bg-card/90 backdrop-blur-sm border-2 border-secondary rounded-lg p-6 md:p-8">
+      <div className="relative bg-card border border-border p-6 md:p-8">
         {/* Urgency badge */}
         {urgencyLevel !== "low" && (
           <div
-            className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider z-20 shadow-lg whitespace-nowrap ${
+            className={`absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 text-xs font-bold uppercase tracking-wider z-20 whitespace-nowrap ${
               urgencyLevel === "high"
-                ? "bg-destructive text-destructive-foreground animate-bounce"
+                ? "bg-destructive text-destructive-foreground"
                 : "bg-primary text-primary-foreground"
             }`}
           >
-            {urgencyLevel === "high" ? "🔥 ¡Última hora!" : "⚡ Disponible pronto"}
+            {urgencyLevel === "high" ? "Última hora disponible" : "Disponible pronto"}
           </div>
         )}
 
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <Zap className="w-5 h-5 text-secondary animate-pulse" />
+            <Zap className="w-5 h-5 text-secondary" />
             <span className="text-sm uppercase tracking-widest text-muted-foreground font-bold">
               Próxima cita disponible
             </span>
-            <Zap className="w-5 h-5 text-secondary animate-pulse" />
+            <Zap className="w-5 h-5 text-secondary" />
           </div>
 
           {/* Date and time display */}
