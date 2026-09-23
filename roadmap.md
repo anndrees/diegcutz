@@ -22,4 +22,10 @@
 - [x] Keep next-available and pending-rating notices independently centered
 - [x] Center the reviews section heading
 - [x] Rebuild the complete booking interaction with persistent summary sidebar and accessible mobile flow
+- [ ] Rebuild the chrome wordmark as separated inflated letters without drips
+- [ ] Add scroll-linked barber objects and richer section motion
+- [ ] Replace the fallback carousel set with urban editorial photography
+- [ ] Hide the PWA installation banner on desktop
+- [ ] Renew the complete admin shell and login in Liquid Chrome style
+- [ ] Validate the kinetic homepage and admin on desktop and mobile
 
