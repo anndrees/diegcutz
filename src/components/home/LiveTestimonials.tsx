@@ -63,9 +63,9 @@ const TestimonialToast = ({
       className={`
         fixed right-5 z-50 w-[340px] max-w-[calc(100vw-2rem)]
         bg-card/70 backdrop-blur-xl
-        border border-secondary/30 rounded-lg p-4
-        shadow-[0_8px_32px_-8px_rgba(0,245,255,0.25)]
-        transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]
+        border border-border rounded-lg p-4
+        shadow-elegant
+        transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]
         ${isEntering || isExiting
           ? "translate-x-6 opacity-0 scale-95 blur-sm"
           : "translate-x-0 opacity-100 scale-100 blur-0"
@@ -75,7 +75,7 @@ const TestimonialToast = ({
         top: `${96 + notification.position * 130}px`,
       }}
     >
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-neon-cyan/5 via-transparent to-primary/5 pointer-events-none" />
+      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
       
       <div className="relative">
         <div className="flex items-center justify-between mb-2">
@@ -85,7 +85,7 @@ const TestimonialToast = ({
                 key={star}
                 className={`h-3.5 w-3.5 ${
                   star <= rating.rating
-                    ? "fill-neon-cyan text-secondary drop-shadow-[0_0_4px_rgba(0,245,255,0.6)]"
+                    ? "fill-primary text-primary"
                     : "text-muted-foreground/30"
                 }`}
               />
@@ -120,7 +120,7 @@ const TestimonialToast = ({
         )}
 
         <div className="flex items-center gap-2 pt-2 border-t border-border/30">
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-primary/30 to-secondary/20 flex items-center justify-center ring-1 ring-neon-purple/30">
+          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
             <span className="text-[11px] font-bold text-primary">
               {(rating.profile?.full_name || "A")[0].toUpperCase()}
             </span>
@@ -211,8 +211,8 @@ export const LiveTestimonials = () => {
   // Don't render toasts on mobile at all
   if (isMobile) {
     return (
-      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-secondary/30 rounded-full px-3 py-1.5">
-        <MessageCircle className="h-4 w-4 text-secondary animate-pulse" />
+      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 shadow-elegant">
+        <MessageCircle className="h-4 w-4 text-primary" />
         <span className="text-xs text-muted-foreground">
           {ratings.length} opiniones
         </span>

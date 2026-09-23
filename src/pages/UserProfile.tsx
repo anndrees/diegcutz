@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGoogleAuthEnabled } from "@/hooks/useGoogleAuthEnabled";
 import { Button } from "@/components/ui/button";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -357,9 +358,9 @@ export default function UserProfile() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">
+    return <CustomerPage><div className="min-h-[70vh] bg-background flex items-center justify-center">
       <p className="text-muted-foreground">Cargando...</p>
-    </div>;
+    </div></CustomerPage>;
   }
 
   const currentBookings = bookings.filter(b => !isPastBooking(b.booking_date, b.booking_time) && !b.is_cancelled);
@@ -368,7 +369,7 @@ export default function UserProfile() {
 
   const initials = (profile?.full_name || "U").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
-  return <div className="customer-shell min-h-screen bg-background">
+  return <CustomerPage><div className="min-h-screen bg-background">
     <div className="container mx-auto px-4 py-6 pt-safe max-w-2xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -786,5 +787,5 @@ export default function UserProfile() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  </div>;
+  </div></CustomerPage>;
 }

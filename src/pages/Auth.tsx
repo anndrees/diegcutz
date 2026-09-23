@@ -644,10 +644,7 @@ const Auth = () => {
 
   return (
     <div className="customer-shell relative min-h-screen p-4 md:p-8 pt-safe overflow-hidden flex items-center">
-      {/* Ambient neon background */}
-      <div className="pointer-events-none absolute inset-0 admin-login-grid opacity-20" />
-      <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-[hsl(var(--neon-purple)/0.25)] blur-3xl animate-pulse" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[hsl(var(--neon-cyan)/0.2)] blur-3xl animate-pulse" style={{ animationDelay: "1.5s" }} />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/.08),transparent_38%)]" />
 
       <div className="relative max-w-6xl w-full mx-auto noir-glass rounded-lg overflow-hidden grid md:grid-cols-[.85fr_1.15fr]">
         <aside className="relative min-h-[300px] md:min-h-[720px] overflow-hidden">
@@ -659,24 +656,24 @@ const Auth = () => {
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
-          className="mb-8 hover:text-[hsl(var(--neon-cyan))]"
+          className="mb-8 hover:text-primary"
         >
           <ArrowLeft className="mr-2" />
           Volver
         </Button>
 
         <div className="text-center mb-10">
-          <h1 className="text-5xl md:text-6xl font-black mb-3 text-primary font-display drop-shadow-[0_0_20px_hsl(var(--neon-purple)/0.6)]">
+          <h1 className="text-5xl md:text-6xl font-semibold mb-3 text-primary font-display">
             DIEGCUTZ
           </h1>
-          <p className="text-sm uppercase tracking-[0.3em] text-[hsl(var(--neon-cyan))]">
+          <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
             Accede a tu cuenta
           </p>
         </div>
 
         <Tabs defaultValue="login" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-[hsl(0_0%_8%/0.7)] backdrop-blur border border-[hsl(var(--neon-purple)/0.3)]">
-            <TabsTrigger value="login" className="data-[state=active]:bg-[hsl(var(--neon-purple)/0.2)] data-[state=active]:text-[hsl(var(--neon-cyan))] uppercase tracking-wider text-xs">Iniciar Sesión</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-muted/40 border border-border">
+            <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground uppercase tracking-wider text-xs">Iniciar Sesión</TabsTrigger>
             <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground uppercase tracking-wider text-xs">Registrarse</TabsTrigger>
           </TabsList>
 
