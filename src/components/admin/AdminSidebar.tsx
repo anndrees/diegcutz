@@ -73,9 +73,9 @@ const SidebarContent = ({
               onItemClick?.();
             }}
             className={cn(
-              "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200",
+              "admin-sidebar__item w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
               isActive
-                ? "bg-neon-purple text-white shadow-lg shadow-neon-purple/30"
+                ? "is-active text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground hover:bg-muted"
             )}
           >
@@ -110,8 +110,8 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0 bg-card border-r border-border">
-          <div className="flex items-center justify-between p-4 border-b border-border">
-            <h2 className="text-lg font-bold text-neon-purple">Menu Admin</h2>
+          <div className="admin-sidebar__head flex items-center justify-between p-4 border-b border-border">
+            <h2 className="text-lg font-bold">Menú Admin</h2>
             <Button variant="ghost" size="icon" onClick={() => setMobileOpen(false)}>
               <X className="h-4 w-4" />
             </Button>
@@ -125,9 +125,10 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       </Sheet>
 
       {/* Desktop sidebar */}
-      <aside className="hidden lg:flex lg:flex-col w-64 bg-card border-r border-border h-[calc(100vh-12rem)] sticky top-32 rounded-lg overflow-hidden">
-        <div className="p-4 border-b border-border">
-          <h2 className="text-lg font-bold text-neon-purple">Panel de Control</h2>
+      <aside className="admin-sidebar hidden lg:flex lg:flex-col w-64 h-[calc(100vh-10rem)] sticky top-24 overflow-hidden">
+        <div className="admin-sidebar__head p-5 border-b border-border">
+          <span>DC</span>
+          <h2 className="text-lg font-bold">Panel de Control</h2>
           <p className="text-xs text-muted-foreground">Gestión del negocio</p>
         </div>
         <SidebarContent activeTab={activeTab} onTabChange={onTabChange} />

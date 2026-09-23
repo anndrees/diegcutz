@@ -9,6 +9,12 @@ export const InstallBanner = () => {
   const [showBanner, setShowBanner] = useState(false);
 
   useEffect(() => {
+    const mobileOrTablet = window.matchMedia("(max-width: 1023px) and (pointer: coarse)").matches;
+    if (!mobileOrTablet) {
+      setShowBanner(false);
+      return;
+    }
+
     // Only show if NOT running as PWA (i.e., running in browser)
     if (isRunningAsPWA()) {
       setShowBanner(false);

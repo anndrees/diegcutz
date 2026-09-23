@@ -4,24 +4,18 @@ import { Center, Environment, Lightformer, Text3D, type FontData } from "@react-
 import helvetiker from "three/examples/fonts/helvetiker_bold.typeface.json";
 import * as THREE from "three";
 
-const DRIPS = [
-  [-5.15, -0.92, 0.08, 0.62],
-  [-3.36, -1.05, 0.06, 0.42],
-  [-1.32, -1.02, 0.06, 0.58],
-  [0.92, -0.98, 0.08, 0.46],
-  [3.18, -1.04, 0.08, 0.64],
-  [5.15, -0.94, 0.06, 0.44],
-] as const;
+const LETTERS = ["D", "I", "E", "G", "C", "U", "T", "Z"];
+const LETTER_WIDTHS: Record<string, number> = { D: 1.42, I: 0.72, E: 1.28, G: 1.48, C: 1.42, U: 1.45, T: 1.3, Z: 1.3 };
 
 function ChromeMaterial() {
   return (
     <meshPhysicalMaterial
-      color="#d7dce0"
+      color="#eef2f4"
       metalness={1}
-      roughness={0.14}
+      roughness={0.1}
       clearcoat={1}
-      clearcoatRoughness={0.04}
-      envMapIntensity={4.2}
+      clearcoatRoughness={0.02}
+      envMapIntensity={5.4}
     />
   );
 }
@@ -29,48 +23,56 @@ function ChromeMaterial() {
 function Wordmark() {
   const group = useMemo(() => new THREE.Group(), []);
   const { pointer, viewport } = useThree();
+  const positions = useMemo(() => {
+    const gap = 0.24;
+    const total = LETTERS.reduce((sum, letter) => sum + LETTER_WIDTHS[letter], 0) + gap * (LETTERS.length - 1);
+    let cursor = -total / 2;
+    return LETTERS.map(letter => {
+      const width = LETTER_WIDTHS[letter];
+      const x = cursor;
+      cursor += width + gap;
+      return x;
+    });
+  }, []);
 
   useFrame((state, rawDelta) => {
     const dt = Math.min(rawDelta, 0.05);
-    group.rotation.y = THREE.MathUtils.damp(group.rotation.y, pointer.x * 0.12, 4.5, dt);
-    group.rotation.x = THREE.MathUtils.damp(group.rotation.x, -pointer.y * 0.07, 4.5, dt);
-    group.position.y = Math.sin(state.clock.elapsedTime * 0.55) * 0.035;
-    const targetScale = Math.min(0.82, Math.max(0.72, viewport.width / 15.5));
+    const time = state.clock.elapsedTime;
+    group.rotation.y = THREE.MathUtils.damp(group.rotation.y, pointer.x * 0.34 + Math.sin(time * 0.42) * 0.055, 5.8, dt);
+    group.rotation.x = THREE.MathUtils.damp(group.rotation.x, -pointer.y * 0.19 + Math.cos(time * 0.48) * 0.035, 5.8, dt);
+    group.rotation.z = THREE.MathUtils.damp(group.rotation.z, pointer.x * -0.025, 4.5, dt);
+    group.position.x = THREE.MathUtils.damp(group.position.x, pointer.x * 0.32, 4.8, dt);
+    group.position.y = THREE.MathUtils.damp(group.position.y, pointer.y * 0.16 + Math.sin(time * 0.9) * 0.09, 4.8, dt);
+    const targetScale = Math.min(0.83, Math.max(0.42, viewport.width / 15.8)) * (1 + Math.sin(time * 0.72) * 0.012);
     group.scale.setScalar(THREE.MathUtils.damp(group.scale.x, targetScale, 6, dt));
   });
 
   return (
     <primitive object={group}>
-      <Center position={[0, 0.12, 0]}>
-        <Text3D
-          font={helvetiker as unknown as FontData}
-          size={1.45}
-          height={0.34}
-          curveSegments={14}
-          bevelEnabled
-          bevelThickness={0.25}
-          bevelSize={0.2}
-          bevelOffset={0}
-          bevelSegments={9}
-          letterSpacing={-0.035}
-          castShadow
-        >
-          DIEGCUTZ
-          <ChromeMaterial />
-        </Text3D>
-      </Center>
-      {DRIPS.map(([x, y, z, length], index) => (
-        <group key={x} position={[x, y, z]}>
-          <mesh scale={[0.13, length, 0.16]} castShadow>
-            <capsuleGeometry args={[1, 1.25, 8, 12]} />
-            <ChromeMaterial />
-          </mesh>
-          <mesh position={[0, -length - 0.15, 0]} scale={index % 2 === 0 ? 0.2 : 0.16} castShadow>
-            <sphereGeometry args={[1, 20, 20]} />
-            <ChromeMaterial />
-          </mesh>
+      <Center position={[0, 0.08, 0]}>
+        <group>
+          {LETTERS.map((letter, index) => (
+            <Text3D
+              key={`${letter}-${index}`}
+              position={[positions[index], Math.sin(index * 1.7) * 0.035, index % 2 === 0 ? 0.04 : -0.02]}
+              font={helvetiker as unknown as FontData}
+              size={1.5}
+              height={0.72}
+              curveSegments={24}
+              bevelEnabled
+              bevelThickness={0.32}
+              bevelSize={0.22}
+              bevelOffset={-0.055}
+              bevelSegments={18}
+              scale={[1, 1.06 + (index % 3) * 0.015, 1.12]}
+              castShadow
+            >
+              {letter}
+              <ChromeMaterial />
+            </Text3D>
+          ))}
         </group>
-      ))}
+      </Center>
     </primitive>
   );
 }
@@ -102,12 +104,12 @@ export function LiquidChromeWordmark() {
       <Canvas
         dpr={[1, 1.5]}
         shadows
-        camera={{ position: [0, 0.05, 11.4], fov: 34 }}
+        camera={{ position: [0, 0.05, 12.1], fov: 35 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
-        <ambientLight intensity={1.2} />
+        <ambientLight intensity={0.8} />
         <hemisphereLight intensity={1.6} color="#f7f7f4" groundColor="#33424a" />
-        <directionalLight position={[3, 5, 7]} intensity={5.5} castShadow />
+        <directionalLight position={[3, 5, 7]} intensity={6.5} castShadow />
         <pointLight position={[-5, -1, 4]} intensity={45} color="#26d9ff" distance={12} />
         <Suspense fallback={null}>
           <Wordmark />
