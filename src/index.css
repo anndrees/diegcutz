@@ -928,8 +928,8 @@ html.konami-rave body {
   .editorial-marquee__track span { display:flex; align-items:center; gap:2.5rem; padding:1rem 2.5rem 1rem 0; font:600 .7rem/1 "Space Grotesk",sans-serif; letter-spacing:.15em; text-transform:uppercase; }
   .editorial-marquee__track svg { width:.9rem; color:hsl(var(--background)); }
 
-  .home-status { max-width:88rem; margin:auto; padding:clamp(3rem,6vw,6rem) clamp(1.25rem,3vw,3.5rem); display:grid; grid-template-columns:.8fr 1.2fr; gap:2rem; align-items:center; }
-  .home-status__notices { display:grid; gap:1rem; }
+  .home-status { max-width:88rem; margin:auto; padding:clamp(3rem,6vw,6rem) clamp(1.25rem,3vw,3.5rem); display:grid; gap:1.25rem; justify-items:center; }
+  .home-status__notices,.home-status__availability { display:grid; gap:1rem; width:min(100%,54rem); }
   .home-status [class*="rounded"] { border-radius:2px; }
   .home-status > div:last-child,.home-status > div:last-child > div { filter:none!important; }
 
@@ -1026,6 +1026,32 @@ html.konami-rave body {
   .booking-editorial__intro { border-bottom:1px solid hsl(var(--border)); padding-bottom:2rem; }
   .booking-step-card { background:hsl(var(--card)); border:1px solid hsl(var(--border)); box-shadow:none; }
   .booking-step-card [class*="rounded"] { border-radius:2px; }
+  .booking-workspace { display:grid; grid-template-columns:minmax(0,1fr) 21rem; gap:2rem; align-items:start; }
+  .booking-workspace__main { min-width:0; }
+  .booking-progress { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border:1px solid hsl(var(--border)); background:hsl(var(--card)); margin-bottom:2rem; }
+  .booking-progress button { min-height:5rem; padding:1rem; display:grid; grid-template-columns:auto 1fr; gap:.75rem; align-items:center; text-align:left; border-right:1px solid hsl(var(--border)); color:hsl(var(--muted-foreground)); }
+  .booking-progress button:last-child { border-right:0; }
+  .booking-progress button span:first-child { display:grid; place-items:center; width:2rem; aspect-ratio:1; border:1px solid hsl(var(--border)); font-size:.7rem; }
+  .booking-progress button strong { display:block; color:inherit; font-size:.76rem; text-transform:uppercase; }
+  .booking-progress button small { display:block; margin-top:.2rem; font-size:.65rem; color:hsl(var(--muted-foreground)); }
+  .booking-progress button.is-active { background:hsl(var(--primary)); color:hsl(var(--primary-foreground)); }
+  .booking-progress button.is-active span:first-child { border-color:hsl(var(--primary-foreground)/.45); }
+  .booking-progress button.is-active small { color:hsl(var(--primary-foreground)/.7); }
+  .booking-progress button.is-complete:not(.is-active) { color:hsl(var(--primary)); }
+  .booking-summary { position:sticky; top:6.5rem; border:1px solid hsl(var(--border)); background:hsl(var(--card)); }
+  .booking-summary__head { padding:1.5rem; background:hsl(var(--foreground)); color:hsl(var(--background)); }
+  .booking-summary__head h2 { font-size:1.3rem; }
+  .booking-summary__head p { margin-top:.35rem; font-size:.78rem; opacity:.65; }
+  .booking-summary__body { padding:1.5rem; display:grid; gap:1.4rem; }
+  .booking-summary__row { padding-bottom:1.1rem; border-bottom:1px solid hsl(var(--border)); }
+  .booking-summary__row div { display:flex; justify-content:space-between; gap:1rem; align-items:start; }
+  .booking-summary__row span { display:block; margin-bottom:.35rem; color:hsl(var(--primary)); font-size:.6rem; font-weight:700; text-transform:uppercase; letter-spacing:.12em; }
+  .booking-summary__row p { color:hsl(var(--foreground)); font-size:.86rem; line-height:1.5; }
+  .booking-summary__row button { color:hsl(var(--primary)); font-size:.68rem; text-transform:uppercase; }
+  .booking-summary__total { display:flex; align-items:end; justify-content:space-between; }
+  .booking-summary__total span { color:hsl(var(--muted-foreground)); font-size:.75rem; text-transform:uppercase; }
+  .booking-summary__total strong { color:hsl(var(--primary)); font-size:2rem; }
+  .reviews-editorial__header { max-width:52rem; margin-inline:auto; text-align:center; }
   .profile-editorial__identity { background:hsl(var(--card)); }
   .profile-editorial__actions>button { border:0; border-radius:0; background:hsl(var(--background)); min-height:5rem; }
   .install-editorial__brand { display:flex; align-items:center; gap:1.5rem; }
@@ -1037,4 +1063,4 @@ html.konami-rave body {
 
 @media (min-width:768px){.customer-nav{display:flex}.customer-footer__grid{grid-template-columns:2fr 1fr 1fr 1fr}}
 @media (max-width:767px){
-  .customer-header__inner{grid-template-columns:1fr auto;min-height:4.5rem}.home-hero{grid-template-columns:1fr;min-height:auto;padding-top:7rem}.home-hero h1{font-size:clamp(4.8rem,25vw,8rem);margin:3rem 0}.home-hero h1 strong{margin-left:12vw}.home-hero__intro{padding-left:0;border:0}.home-hero__image{min-height:58svh}.home-status,.home-manifesto header,.home-manifesto__grid,.home-experience,.home-location,.instagram-editorial{grid-template-columns:1fr}.home-manifesto figure{margin-top:0;max-height:70svh}.home-feature-band{grid-template-columns:auto 1fr}.home-feature-band>span,.home-feature-band>button{grid-column:1/-1;writing-mode:initial}.home-experience__rules>div{grid-template-columns:2rem 1fr}.home-experience__rules p{grid-column:2}.home-location__map{order:-1}.instagram-editorial__tile{max-width:22rem}.customer-footer__lead{padding-top:5rem}.noir-page-head>div{grid-template-columns:1fr}.auth-editorial{display:block}.auth-editorial__image{position:relative;height:42svh;min-height:22rem}.auth-editorial__caption{left:1.25rem;bottom:2rem}.auth-editorial__caption h2{font-size:3.5rem}.auth-editorial__form{min-height:auto;padding:3rem 1.25rem 5rem}.legal-editorial section{grid-template-columns:1fr;gap:.75rem}}
+  .customer-header__inner{grid-template-columns:1fr auto;min-height:4.5rem}.home-hero{grid-template-columns:1fr;min-height:auto;padding-top:7rem}.home-hero h1{font-size:clamp(4.8rem,25vw,8rem);margin:3rem 0}.home-hero h1 strong{margin-left:12vw}.home-hero__intro{padding-left:0;border:0}.home-hero__image{min-height:58svh}.home-status,.home-manifesto header,.home-manifesto__grid,.home-experience,.home-location,.instagram-editorial{grid-template-columns:1fr}.home-manifesto figure{margin-top:0;max-height:70svh}.home-feature-band{grid-template-columns:auto 1fr}.home-feature-band>span,.home-feature-band>button{grid-column:1/-1;writing-mode:initial}.home-experience__rules>div{grid-template-columns:2rem 1fr}.home-experience__rules p{grid-column:2}.home-location__map{order:-1}.instagram-editorial__tile{max-width:22rem}.customer-footer__lead{padding-top:5rem}.noir-page-head>div{grid-template-columns:1fr}.auth-editorial{display:block}.auth-editorial__image{position:relative;height:42svh;min-height:22rem}.auth-editorial__caption{left:1.25rem;bottom:2rem}.auth-editorial__caption h2{font-size:3.5rem}.auth-editorial__form{min-height:auto;padding:3rem 1.25rem 5rem}.legal-editorial section{grid-template-columns:1fr;gap:.75rem}.booking-workspace{grid-template-columns:1fr}.booking-progress{position:sticky;top:4.5rem;z-index:30;margin-inline:-1rem}.booking-progress button{min-height:4.25rem;padding:.65rem;display:flex;flex-direction:column;gap:.3rem;text-align:center}.booking-progress button small{display:none}.booking-summary{position:static}.booking-summary__body{padding:1rem}.reviews-editorial__header br{display:none}}
