@@ -500,13 +500,12 @@ const Admin = () => {
 
   return (
     <AdminGuard>
-    <div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
-      {/* Neon ambient background */}
-      <div className="pointer-events-none absolute inset-0  opacity-20" />
-      <div className="pointer-events-none absolute -top-40 -left-40 w-[28rem] h-[28rem] rounded-full bg-primary/10 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-40 -right-40 w-[28rem] h-[28rem] rounded-full bg-secondary/10 blur-3xl" />
+    <div className="admin-chrome min-h-screen py-8 px-4 pt-safe relative overflow-hidden">
+      <div className="admin-chrome__mesh" aria-hidden="true" />
+      <div className="admin-chrome__orb admin-chrome__orb--one" aria-hidden="true" />
+      <div className="admin-chrome__orb admin-chrome__orb--two" aria-hidden="true" />
       <div className="max-w-7xl mx-auto relative">
-        <div className="flex justify-between items-center mb-8">
+        <div className="admin-chrome__topbar flex justify-between items-center mb-8">
           <Button variant="ghost" onClick={() => navigate("/")} className="hidden lg:flex">
             <ArrowLeft className="mr-2" />
             Volver
@@ -528,8 +527,9 @@ const Admin = () => {
           </div>
         </div>
 
-        <div className="text-center mb-8 lg:mb-12">
-          <h1 className="text-3xl lg:text-5xl font-black mb-2 lg:mb-4 text-secondary font-display tracking-wider" style={{ textShadow: "0 0 18px hsl(var(--neon-cyan) / 0.6)" }}>
+        <div className="admin-chrome__heading mb-8 lg:mb-10">
+          <span>CONTROL CENTRAL · DIEGCUTZ</span>
+          <h1 className="text-3xl lg:text-5xl font-black mb-2 lg:mb-3 font-display">
             PANEL DE ADMINISTRACIÓN
           </h1>
           <p className="text-sm lg:text-xl text-muted-foreground">

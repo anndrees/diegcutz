@@ -12,10 +12,11 @@ import { MembershipExpirationBanner } from "@/components/home/MembershipExpirati
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { LiquidChromeWordmark } from "@/components/home/LiquidChromeWordmark";
 import { MediaCarousel, type HomeMediaSlide } from "@/components/home/MediaCarousel";
+import { ScrollBarberObjects } from "@/components/home/ScrollBarberObjects";
 import Map from "@/components/Map";
-import defaultHero from "@/assets/studio-architectural.jpg";
-import craftDetail from "@/assets/craft-detail.jpg";
-import clientEditorial from "@/assets/client-editorial.jpg";
+import defaultHero from "@/assets/urban-studio.jpg";
+import craftDetail from "@/assets/urban-tools.jpg";
+import clientEditorial from "@/assets/urban-cut.jpg";
 
 type TimeRange = { start: string; end: string };
 type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: TimeRange[] };
@@ -71,6 +72,7 @@ export default function Home() {
   return (
     <div className="customer-shell liquid-home min-h-screen overflow-x-hidden">
       <div className="customer-ambient" aria-hidden="true" />
+      <ScrollBarberObjects />
       <InstallBanner />
       <CustomerHeader transparent />
 
