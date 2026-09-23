@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Environment, Lightformer, Text3D, type FontData } from "@react-three/drei";
+import { Center, Environment, Lightformer, Text3D, type FontData } from "@react-three/drei";
 import helvetiker from "three/examples/fonts/helvetiker_bold.typeface.json";
 import * as THREE from "three";
 
@@ -41,7 +41,7 @@ function Wordmark() {
     group.rotation.y = THREE.MathUtils.damp(group.rotation.y, pointer.x * 0.34 + Math.sin(time * 0.42) * 0.055, 5.8, dt);
     group.rotation.x = THREE.MathUtils.damp(group.rotation.x, -pointer.y * 0.19 + Math.cos(time * 0.48) * 0.035, 5.8, dt);
     group.rotation.z = THREE.MathUtils.damp(group.rotation.z, pointer.x * -0.025, 4.5, dt);
-    group.position.x = THREE.MathUtils.damp(group.position.x, pointer.x * Math.min(0.38, viewport.width * 0.018), 4.8, dt);
+    group.position.x = THREE.MathUtils.damp(group.position.x, Math.min(3.2, viewport.width * 0.205), 4.8, dt);
     group.position.y = THREE.MathUtils.damp(group.position.y, pointer.y * 0.16 + Math.sin(time * 0.9) * 0.09, 4.8, dt);
     group.position.z = THREE.MathUtils.damp(group.position.z, Math.sin(time * 0.7) * 0.24 + Math.abs(pointer.x) * 0.18, 4.8, dt);
     const targetScale = Math.min(0.88, Math.max(0.44, viewport.width / 13.5)) * (1 + Math.sin(time * 0.72) * 0.018);
@@ -50,7 +50,7 @@ function Wordmark() {
 
   return (
     <primitive object={group}>
-      <group position={[1.9, -0.72, 0]}>
+      <Center position={[0, -0.72, 0]}>
         {LETTERS.map((letter, index) => (
           <Text3D
             key={`${letter}-${index}`}
@@ -71,7 +71,7 @@ function Wordmark() {
             <ChromeMaterial />
           </Text3D>
         ))}
-      </group>
+      </Center>
     </primitive>
   );
 }
