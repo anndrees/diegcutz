@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.auto-credit-loyalty]
 verify_jwt = false
+
+[functions.recommend-service]
+verify_jwt = false
