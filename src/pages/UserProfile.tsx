@@ -369,24 +369,24 @@ export default function UserProfile() {
 
   const initials = (profile?.full_name || "U").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
-  return <CustomerPage><div className="min-h-screen bg-background">
-    <div className="container mx-auto px-4 py-6 pt-safe max-w-2xl">
+  return <CustomerPage><div className="profile-editorial min-h-screen">
+    <div className="noir-page-head"><div><p className="customer-kicker">ÁREA CLIENTE</p><div><h1 className="noir-title">Tu espacio<br /><em>personal.</em></h1><p className="noir-lede">Gestiona tu imagen, tus próximas visitas y todo lo que te conecta con el estudio.</p></div></div></div>
+    <div className="mx-auto px-4 py-10 md:py-16 max-w-6xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <Button variant="ghost" size="icon" onClick={() => navigate("/")}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
-        <h1 className="text-lg font-bold">Mi Perfil</h1>
+        <p className="customer-kicker">PERFIL / @{profile?.username}</p>
         <Button variant="ghost" size="icon" onClick={handleSignOut} className="text-destructive">
           <LogOut className="h-5 w-5" />
         </Button>
       </div>
 
       {/* Profile Header Card */}
-      <Card className="mb-6 overflow-hidden">
-        <div className="bg-gradient-to-r from-primary/20 to-secondary/20 h-20" />
-        <CardContent className="relative pt-0 pb-6">
-          <div className="flex flex-col items-center -mt-12">
+      <Card className="profile-editorial__identity mb-6 overflow-hidden">
+        <CardContent className="relative py-8">
+          <div className="flex flex-col md:flex-row md:items-center gap-6">
             <div className="relative">
               <Avatar className="w-24 h-24 border-4 border-card">
                 <AvatarImage src={avatarUrl || undefined} />
@@ -395,7 +395,7 @@ export default function UserProfile() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-primary-foreground flex items-center justify-center hover:-translate-y-0.5 transition-transform"
               >
                 <Camera className="h-4 w-4" />
               </button>
@@ -407,14 +407,13 @@ export default function UserProfile() {
                 onChange={handleAvatarUpload}
               />
             </div>
-            <h2 className="text-xl font-bold mt-3">{profile?.full_name}</h2>
-            <p className="text-sm text-muted-foreground">@{profile?.username}</p>
+            <div><p className="customer-kicker">CLIENTE DIEGCUTZ</p><h2 className="text-3xl font-semibold mt-2">{profile?.full_name}</h2><p className="text-sm text-muted-foreground mt-1">@{profile?.username}</p></div>
           </div>
         </CardContent>
       </Card>
 
       {/* Quick Actions */}
-      <div className="grid grid-cols-2 gap-3 mb-6">
+      <div className="profile-editorial__actions grid grid-cols-2 md:grid-cols-4 gap-px bg-border border border-border mb-8">
         <Button
           variant="outline"
           className="h-auto py-3 flex flex-col items-center gap-1.5"
@@ -775,8 +774,8 @@ export default function UserProfile() {
               placeholder="nuevo_username"
             />
             {checkingUsername && <p className="text-xs text-muted-foreground mt-1">Verificando...</p>}
-            {usernameAvailable === true && <p className="text-xs text-green-500 mt-1">✓ Disponible</p>}
-            {usernameAvailable === false && <p className="text-xs text-destructive mt-1">✗ No disponible</p>}
+            {usernameAvailable === true && <p className="text-xs text-green-500 mt-1 flex items-center gap-1"><Check className="h-3 w-3" /> Disponible</p>}
+            {usernameAvailable === false && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><X className="h-3 w-3" /> No disponible</p>}
           </div>
         </div>
         <DialogFooter>

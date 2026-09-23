@@ -80,10 +80,6 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
 
   if (!url || !domain) return null;
 
-  const accent =
-    provider === "spotify" ? "#1DB954" :
-    provider === "youtube" ? "#FF0000" :
-    "hsl(190 95% 50%)"; // neon cyan fallback
   const providerLabel =
     provider === "spotify" ? "Spotify" :
     provider === "youtube" ? "YouTube" :
@@ -98,13 +94,11 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -8 }}
         transition={{ duration: 0.25 }}
-        className="mt-3 rounded-xl border bg-card/60 backdrop-blur-md overflow-hidden"
-        style={{ borderColor: `${accent}55`, boxShadow: `0 0 30px ${accent}33` }}
+        className="mt-3 border border-border bg-card overflow-hidden"
       >
         <div className="flex items-stretch gap-3 p-3">
           <div
-            className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 rounded-lg overflow-hidden bg-muted flex items-center justify-center"
-            style={{ boxShadow: `inset 0 0 0 1px ${accent}66` }}
+            className="relative w-20 h-20 sm:w-24 sm:h-24 shrink-0 overflow-hidden bg-muted border-r border-border flex items-center justify-center"
           >
             {meta?.thumbnail ? (
               <img
@@ -124,8 +118,7 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
           <div className="flex-1 min-w-0 flex flex-col justify-center">
             <div className="flex items-center gap-2 mb-1">
               <span
-                className="text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded-full"
-                style={{ background: `${accent}22`, color: accent }}
+                className="text-[10px] font-semibold uppercase tracking-widest px-2 py-0.5 border border-primary text-primary"
               >
                 {providerLabel}
               </span>
@@ -136,7 +129,7 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
                 </span>
               )}
             </div>
-            <p className="font-bold text-sm sm:text-base truncate" style={{ textShadow: `0 0 12px ${accent}88` }}>
+            <p className="font-bold text-sm sm:text-base truncate">
               {meta?.title
                 || (loading ? "Cargando preview…" : showFallback ? domain : "—")}
             </p>
@@ -152,8 +145,7 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 text-xs hover:underline"
-                style={{ color: accent }}
+                className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
               >
                 Abrir enlace <ExternalLink className="w-3 h-3" />
               </a>
@@ -161,8 +153,7 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
                 <button
                   type="button"
                   onClick={() => setConfirmed(true)}
-                  className="inline-flex items-center gap-1 text-xs font-bold rounded-md px-2 py-0.5 border transition-colors"
-                  style={{ borderColor: `${accent}66`, color: accent, background: `${accent}11` }}
+                  className="inline-flex items-center gap-1 text-xs font-bold px-2 py-0.5 border border-primary text-primary transition-colors hover:bg-primary/10"
                 >
                   <Check className="w-3 h-3" /> Sí, es esta
                 </button>

@@ -250,7 +250,7 @@ export const FloatingChat = () => {
       <button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed bottom-24 right-6 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg transition-all hover:scale-110 flex items-center justify-center",
+          "fixed bottom-24 right-6 z-40 w-14 h-14 bg-foreground text-background border border-border transition-all hover:-translate-y-1 flex items-center justify-center",
           isOpen && "hidden"
         )}
         aria-label="Abrir chat"
@@ -266,17 +266,17 @@ export const FloatingChat = () => {
       {/* Chat window */}
       <div
         className={cn(
-          "fixed bottom-6 right-6 z-50 w-[350px] max-w-[calc(100vw-2rem)] bg-card border border-border rounded-lg shadow-2xl transition-all duration-300 flex flex-col overflow-hidden",
+          "fixed bottom-6 right-6 z-50 w-[350px] max-w-[calc(100vw-2rem)] bg-card border border-border rounded-sm transition-all duration-300 flex flex-col overflow-hidden",
           isOpen
             ? "opacity-100 translate-y-0 h-[500px] max-h-[70vh]"
             : "opacity-0 translate-y-4 h-0 pointer-events-none"
         )}
       >
         {/* Header */}
-        <div className="bg-primary p-4 flex items-center justify-between text-white shrink-0">
+        <div className="bg-foreground p-4 flex items-center justify-between text-background shrink-0">
           <div>
             <h3 className="font-bold">Chat con DIEGCUTZ</h3>
-            <p className="text-xs text-white/80">
+            <p className="text-xs text-background/80">
               {adminTyping ? "Escribiendo..." : "Te responderemos pronto"}
             </p>
           </div>
@@ -286,7 +286,7 @@ export const FloatingChat = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/20"
+                  className="text-background hover:bg-background/20"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
@@ -305,7 +305,7 @@ export const FloatingChat = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20"
+              className="text-background hover:bg-background/20"
             >
               <Minimize2 className="h-4 w-4" />
             </Button>
@@ -335,7 +335,7 @@ export const FloatingChat = () => {
                     className={cn(
                       "max-w-[85%] rounded-lg px-4 py-2",
                       msg.sender_type === "user"
-                        ? "bg-primary text-white rounded-br-md"
+                        ? "bg-primary text-primary-foreground rounded-br-md"
                         : "bg-muted rounded-bl-md"
                     )}
                   >
@@ -344,7 +344,7 @@ export const FloatingChat = () => {
                       className={cn(
                         "text-xs mt-1",
                         msg.sender_type === "user"
-                          ? "text-white/70"
+                          ? "text-primary-foreground/70"
                           : "text-muted-foreground"
                       )}
                     >

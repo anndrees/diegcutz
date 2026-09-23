@@ -135,15 +135,11 @@ const Map = () => {
     })
       .addTo(mapInstance.current)
       .bindPopup(
-        `<div style="
-          text-align: center;
-          color: #06d0f9;
-          text-shadow: 0 0 5px #b447eb, 0 0 10px #b447eb;
-        ">
-          <strong style="font-size:16px; color: #b447eb; text-shadow: 0 0 5px #06d0f9;">DIEGCUTZ</strong><br/>
-          <span style="color: #06d0f9;">Carrer Sant Antoni</span><br/>
-          <span style="color: #06d0f9;">Monóvar, Alicante</span><br/>
-          <span style="color: #b447eb;">03640, España</span>
+        `<div style="text-align:center;color:#262522;font-family:Arial,sans-serif;line-height:1.5">
+          <strong style="font-size:16px;color:#7d6739;">DIEGCUTZ</strong><br/>
+          <span>Carrer Sant Antoni</span><br/>
+          <span>Monóvar, Alicante</span><br/>
+          <span>03640, España</span>
         </div>`
       );
 
@@ -154,7 +150,7 @@ const Map = () => {
   }, []);
 
   return (
-    <div className="w-full h-[400px] rounded-lg overflow-hidden border-2 border-[#06d0f9] shadow-[0_0_5px_#06d0f9,0_0_10px_#b447eb,0_0_15px_#06d0f9,0_0_20px_#b447eb]">
+    <div className="w-full h-[400px] overflow-hidden border border-border">
       <div ref={mapRef} className="w-full h-full" />
     </div>
   );

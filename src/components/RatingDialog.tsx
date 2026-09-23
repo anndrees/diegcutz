@@ -112,7 +112,7 @@ export const RatingDialog = ({ bookingId, userId, open, onOpenChange, onRatingSu
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
             Cancelar
           </Button>
-          <Button onClick={handleSubmit} disabled={loading || rating === 0} variant="neon">
+          <Button onClick={handleSubmit} disabled={loading || rating === 0}>
             {loading ? "Guardando..." : "Enviar Valoración"}
           </Button>
         </DialogFooter>

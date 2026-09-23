@@ -23,16 +23,6 @@ const ReviewCard = ({ rating, index, onInteraction }: { rating: Rating; index: n
   const [expanded, setExpanded] = useState(false);
   const initials = (rating.profile?.username || "AN").slice(0, 2).toUpperCase();
 
-  const colors = [
-    "from-violet-500 to-purple-600",
-    "from-cyan-500 to-blue-600",
-    "from-pink-500 to-rose-600",
-    "from-emerald-500 to-teal-600",
-    "from-amber-500 to-orange-600",
-    "from-indigo-500 to-blue-700",
-  ];
-  const colorIndex = (rating.profile?.username || "").length % colors.length;
-
   const services: string[] = (() => {
     if (!rating.booking?.services) return [];
     const raw = rating.booking.services;
@@ -44,14 +34,12 @@ const ReviewCard = ({ rating, index, onInteraction }: { rating: Rating; index: n
 
   return (
     <div
-      className="group relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg p-5 md:p-6 hover:border-primary/40 transition-all duration-500 hover:shadow-[0_20px_60px_-15px_hsl(280_80%_60%/0.3)] shrink-0 w-[85vw] sm:w-[340px] md:w-auto snap-center"
+      className="group relative bg-card border border-border p-5 md:p-6 hover:border-primary/60 transition-colors duration-300 shrink-0 w-[85vw] sm:w-[340px] md:w-auto snap-center"
     >
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
       <div className="relative">
         <div className="flex items-center gap-3 mb-4">
-          <div className={`w-11 h-11 rounded-full bg-gradient-to-br ${colors[colorIndex]} flex items-center justify-center shrink-0 shadow-lg`}>
-            <span className="text-sm font-black text-white tracking-tight">{initials}</span>
+          <div className="w-11 h-11 border border-primary flex items-center justify-center shrink-0">
+            <span className="text-sm font-semibold text-primary">{initials}</span>
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-bold text-foreground text-sm truncate">
@@ -113,7 +101,7 @@ const ReviewCard = ({ rating, index, onInteraction }: { rating: Rating; index: n
             {services.slice(0, 3).map((service, idx) => (
               <span
                 key={idx}
-                className="text-[11px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 rounded-full font-medium"
+                 className="text-[11px] bg-primary/10 text-primary border border-primary/20 px-2 py-0.5 font-medium"
               >
                 {service}
               </span>
@@ -287,15 +275,11 @@ export const ReviewsShowcase = () => {
   const showArrows = ratings.length > VISIBLE_COUNT;
 
   return (
-    <section className="py-20 px-4 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-primary/5 rounded-full blur-[150px]" />
-      </div>
-
+    <section className="reviews-editorial py-20 md:py-32 px-4 relative overflow-hidden border-y border-border">
       <div className="max-w-6xl mx-auto relative">
         {/* Header */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 bg-card/80 border border-border/50 rounded-full px-5 py-2 mb-6">
+        <div className="grid md:grid-cols-[1fr_2fr] gap-8 mb-14 items-end">
+          <div className="inline-flex items-center gap-2 mb-2">
             <div className="flex gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
@@ -312,13 +296,7 @@ export const ReviewsShowcase = () => {
             <span className="text-xs text-muted-foreground">· {ratings.length} valoraciones</span>
           </div>
 
-          <h2 className="text-4xl md:text-5xl font-black text-foreground mb-3">
-            Lo que dicen nuestros{" "}
-            <span className="text-primary">clientes</span>
-          </h2>
-          <p className="text-muted-foreground text-lg max-w-xl mx-auto">
-            Opiniones reales de quienes ya han pasado por el sillón
-          </p>
+          <div><p className="customer-kicker mb-4">VOCES DEL ESTUDIO</p><h2 className="text-4xl md:text-6xl font-semibold text-foreground">Lo que permanece<br /><span className="text-primary">después del corte.</span></h2><p className="text-muted-foreground mt-5">Opiniones reales de quienes ya han pasado por el sillón.</p></div>
         </div>
 
         {/* Carousel */}
@@ -334,7 +312,7 @@ export const ReviewsShowcase = () => {
                 variant="ghost"
                 size="icon"
                 onClick={goPrev}
-                className="absolute -left-2 md:-left-14 top-1/2 -translate-y-1/2 z-10 bg-card/80 border border-border/50 hover:bg-primary/10 hover:border-primary/40 rounded-full shadow-lg h-10 w-10"
+                className="absolute -left-2 md:-left-14 top-1/2 -translate-y-1/2 z-10 bg-card border border-border/50 hover:bg-primary/10 hover:border-primary/40 h-10 w-10"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -342,7 +320,7 @@ export const ReviewsShowcase = () => {
                 variant="ghost"
                 size="icon"
                 onClick={goNext}
-                className="absolute -right-2 md:-right-14 top-1/2 -translate-y-1/2 z-10 bg-card/80 border border-border/50 hover:bg-primary/10 hover:border-primary/40 rounded-full shadow-lg h-10 w-10"
+                className="absolute -right-2 md:-right-14 top-1/2 -translate-y-1/2 z-10 bg-card border border-border/50 hover:bg-primary/10 hover:border-primary/40 h-10 w-10"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>

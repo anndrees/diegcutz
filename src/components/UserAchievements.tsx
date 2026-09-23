@@ -75,7 +75,7 @@ export const UserAchievements = ({ userId }: UserAchievementsProps) => {
     <Card className="bg-card border-border">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Trophy className="h-5 w-5 text-neon-cyan" />
+          <Trophy className="h-5 w-5 text-primary" />
           Mis Logros ({earnedAchievements.length}/{achievements.length})
         </CardTitle>
       </CardHeader>
@@ -93,8 +93,8 @@ export const UserAchievements = ({ userId }: UserAchievementsProps) => {
                 return (
                   <Tooltip key={achievement.id}>
                     <TooltipTrigger asChild>
-                      <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-neon-purple/10 border-2 border-neon-purple cursor-help transition-transform hover:scale-105">
-                        <div className="p-2 rounded-full bg-neon-purple/30 text-neon-purple">
+                      <div className="flex flex-col items-center gap-1 p-3 bg-primary/10 border border-primary cursor-help transition-colors hover:bg-primary/15">
+                        <div className="p-2 border border-primary text-primary">
                           <AchievementIcon icon={achievement.icon} className="h-6 w-6" />
                         </div>
                         <span className="text-xs font-semibold text-center max-w-[80px] truncate">
@@ -106,7 +106,7 @@ export const UserAchievements = ({ userId }: UserAchievementsProps) => {
                       <p className="font-bold">{achievement.name}</p>
                       <p className="text-sm text-muted-foreground">{achievement.description}</p>
                       {info && (
-                        <p className="text-xs text-neon-cyan mt-1">
+                        <p className="text-xs text-primary mt-1">
                           Obtenido el {format(new Date(info.awarded_at), "d MMM yyyy", { locale: es })}
                         </p>
                       )}
@@ -126,7 +126,7 @@ export const UserAchievements = ({ userId }: UserAchievementsProps) => {
                   {lockedAchievements.slice(0, 6).map((achievement) => (
                     <Tooltip key={achievement.id}>
                       <TooltipTrigger asChild>
-                        <div className="flex items-center gap-1 p-2 rounded-lg bg-muted/30 border border-border opacity-50 cursor-help">
+                        <div className="flex items-center gap-1 p-2 bg-muted/30 border border-border opacity-50 cursor-help">
                           <AchievementIcon icon={achievement.icon} className="h-4 w-4 text-muted-foreground" />
                           <span className="text-xs text-muted-foreground">{achievement.name}</span>
                         </div>

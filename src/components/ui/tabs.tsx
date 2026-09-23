@@ -28,10 +28,9 @@ const TabsTrigger = React.forwardRef<
     ref={ref}
     className={cn(
       "relative inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-background transition-all duration-300",
-      "data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-[0_0_18px_-2px_hsl(var(--neon-cyan)/0.55)]",
-      "data-[state=active]:after:content-[''] data-[state=active]:after:absolute data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:-bottom-[3px] data-[state=active]:after:h-[2px] data-[state=active]:after:rounded-full",
-      "data-[state=active]:after:bg-gradient-to-r data-[state=active]:after:from-neon-purple data-[state=active]:after:via-neon-cyan data-[state=active]:after:to-neon-purple",
-      "data-[state=active]:after:shadow-[0_0_12px_hsl(var(--neon-cyan)/0.9)] data-[state=active]:after:animate-[tab-underline_0.45s_cubic-bezier(0.22,1,0.36,1)]",
+      "data-[state=active]:bg-background data-[state=active]:text-foreground",
+      "data-[state=active]:after:content-[''] data-[state=active]:after:absolute data-[state=active]:after:left-2 data-[state=active]:after:right-2 data-[state=active]:after:-bottom-[3px] data-[state=active]:after:h-[2px]",
+      "data-[state=active]:after:bg-primary",
       "hover:text-foreground/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50",
       className,
     )}

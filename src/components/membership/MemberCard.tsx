@@ -10,26 +10,18 @@ interface Props {
   loyaltyToken: string | null;
 }
 
-export const MemberCard = ({ userName, planName, planEmoji, endDate, memberSince, loyaltyToken }: Props) => {
+export const MemberCard = ({ userName, planName, endDate, memberSince, loyaltyToken }: Props) => {
   const formattedEnd = new Date(endDate).toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" });
   const formattedSince = new Date(memberSince).toLocaleDateString("es-ES", { month: "short", year: "numeric" });
 
   return (
-    <div className="relative rounded-lg overflow-hidden max-w-sm mx-auto">
-      {/* Card background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]" />
-      <div className="absolute inset-0" style={{
-        background: "linear-gradient(90deg, transparent 0%, rgba(212,175,55,0.1) 45%, rgba(212,175,55,0.3) 50%, rgba(212,175,55,0.1) 55%, transparent 100%)",
-        backgroundSize: "200% 100%",
-        animation: "card-shine 4s ease-in-out infinite",
-      }} />
-      <div className="absolute inset-0 rounded-lg border-2 border-primary/50" />
+    <div className="relative overflow-hidden max-w-sm mx-auto bg-card border border-primary">
 
       {/* Corner accents */}
-      <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-primary/60 rounded-tl-lg" />
-      <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-primary/60 rounded-tr-lg" />
-      <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-primary/60 rounded-bl-lg" />
-      <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-primary/60 rounded-br-lg" />
+      <div className="absolute top-3 left-3 w-6 h-6 border-t border-l border-primary/60" />
+      <div className="absolute top-3 right-3 w-6 h-6 border-t border-r border-primary/60" />
+      <div className="absolute bottom-3 left-3 w-6 h-6 border-b border-l border-primary/60" />
+      <div className="absolute bottom-3 right-3 w-6 h-6 border-b border-r border-primary/60" />
 
       <div className="relative p-6">
         {/* Header */}
@@ -41,25 +33,25 @@ export const MemberCard = ({ userName, planName, planEmoji, endDate, memberSince
         {/* Plan badge */}
         <div className="flex items-center justify-center gap-2 mb-4">
           <Sparkles className="h-4 w-4 text-primary" />
-          <span className="text-lg font-bold text-primary">{planEmoji} {planName}</span>
+          <span className="text-lg font-bold text-primary">{planName}</span>
           <Sparkles className="h-4 w-4 text-primary" />
         </div>
 
         {/* User info */}
         <div className="text-center mb-4">
-          <p className="text-white font-bold text-lg">{userName}</p>
-          <p className="text-white/40 text-xs">Miembro desde {formattedSince}</p>
+          <p className="text-foreground font-bold text-lg">{userName}</p>
+          <p className="text-muted-foreground text-xs">Miembro desde {formattedSince}</p>
         </div>
 
         {/* Dates */}
-        <div className="flex justify-between text-xs text-white/40 mb-4 px-2">
+        <div className="flex justify-between text-xs text-muted-foreground mb-4 px-2">
           <span>Válida hasta: <span className="text-primary">{formattedEnd}</span></span>
         </div>
 
         {/* QR */}
         {loyaltyToken && (
           <div className="flex flex-col items-center">
-            <div className="bg-white rounded-xl p-2 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+            <div className="bg-white p-2 border border-border">
               <QRCodeSVG
                 value={loyaltyToken}
                 size={100}
@@ -72,12 +64,6 @@ export const MemberCard = ({ userName, planName, planEmoji, endDate, memberSince
         )}
       </div>
 
-      <style>{`
-        @keyframes card-shine {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-      `}</style>
     </div>
   );
 };

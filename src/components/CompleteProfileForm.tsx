@@ -105,10 +105,11 @@ export const CompleteProfileForm = ({ userId, currentName, onProfileCompleted }:
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md">
+    <div className="customer-shell min-h-screen grid md:grid-cols-[.75fr_1.25fr] bg-background">
+      <aside className="hidden md:flex border-r border-border p-12 flex-col justify-between bg-card"><p className="customer-kicker">DIEGCUTZ / CUENTA</p><h1 className="text-6xl font-semibold leading-[.9]">Un último<br />detalle.</h1><p className="text-muted-foreground">Completa tus datos para gestionar tus citas con claridad.</p></aside>
+      <div className="flex items-center justify-center p-4 md:p-12"><Card className="w-full max-w-md border-t-2 border-t-primary">
         <CardHeader className="text-center">
-          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
+          <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-primary">
             <Phone className="h-6 w-6 text-primary" />
           </div>
           <CardTitle className="text-2xl">Completa tu perfil</CardTitle>
@@ -158,7 +159,7 @@ export const CompleteProfileForm = ({ userId, currentName, onProfileCompleted }:
           </form>
 
           {/* Privacy disclaimer */}
-          <div className="rounded-lg bg-muted/50 p-4 space-y-3">
+          <div className="border border-border bg-muted/30 p-4 space-y-3">
             <div className="flex items-start gap-2">
               <Shield className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -194,7 +195,7 @@ export const CompleteProfileForm = ({ userId, currentName, onProfileCompleted }:
             </Button>
           </div>
         </CardContent>
-      </Card>
+      </Card></div>
     </div>
   );
 };

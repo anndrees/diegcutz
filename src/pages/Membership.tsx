@@ -198,7 +198,7 @@ const Membership = () => {
             <Button variant="outline" onClick={() => setShowDisclaimer(false)}>Cancelar</Button>
             {selectedPlan && (
               <a href={whatsappUrl(selectedPlan)} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                <Button className="w-full bg-[#25D366] hover:bg-[#20BA5A] text-white">
+                <Button className="w-full">
                   <MessageCircle className="mr-2 h-4 w-4" />
                   Contactar por WhatsApp
                 </Button>

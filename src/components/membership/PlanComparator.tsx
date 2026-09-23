@@ -54,7 +54,7 @@ export const PlanComparator = ({ activeMembershipId }: Props) => {
             {plans.map(p => (
               <th key={p.id} className="text-center py-3 px-3">
                 <div className="flex flex-col items-center gap-1">
-                  <span className="text-primary font-bold">{p.emoji} {p.name}</span>
+                   <span className="text-primary font-bold flex items-center gap-1"><Crown className="h-3 w-3" /> {p.name}</span>
                   {activeMembershipId === p.id && <Badge className="bg-primary text-[8px] py-0">Tu plan</Badge>}
                   {p.is_coming_soon && <Badge variant="secondary" className="text-[8px] py-0">Pronto</Badge>}
                 </div>

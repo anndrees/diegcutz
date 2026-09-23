@@ -80,12 +80,12 @@ const ForgotPassword = () => {
 
   if (submitted) {
     return (
-      <CustomerPage><div className="min-h-[70vh] py-12 px-4 flex items-center justify-center">
+      <CustomerPage><div className="recovery-editorial min-h-[70vh] py-16 px-4 flex items-center justify-center">
         <div className="w-full max-w-md">
           <Card className="bg-card border-border">
             <CardContent className="pt-8 pb-8 text-center">
               <div className="mb-6 flex justify-center">
-                <div className="w-20 h-20 bg-secondary/20 rounded-full flex items-center justify-center">
+                <div className="w-20 h-20 border border-secondary flex items-center justify-center">
                   <CheckCircle className="w-10 h-10 text-secondary" />
                 </div>
               </div>
@@ -112,7 +112,7 @@ const ForgotPassword = () => {
   }
 
   return (
-    <CustomerPage><div className="min-h-[70vh] py-12 px-4 flex items-center justify-center">
+    <CustomerPage><div className="recovery-editorial min-h-[70vh] py-16 px-4 flex items-center justify-center">
       <div className="w-full max-w-md">
         <Button
           variant="ghost"
@@ -126,7 +126,7 @@ const ForgotPassword = () => {
         <Card className="bg-card border-border">
           <CardHeader className="text-center">
             <div className="mb-4 flex justify-center">
-              <div className="w-16 h-16 bg-primary/20 rounded-full flex items-center justify-center">
+               <div className="w-16 h-16 border border-primary flex items-center justify-center">
                 <KeyRound className="w-8 h-8 text-primary" />
               </div>
             </div>
@@ -150,7 +150,7 @@ const ForgotPassword = () => {
 
               <Button
                 type="submit"
-                variant="neon"
+                variant="default"
                 className="w-full"
                 disabled={loading}
               >

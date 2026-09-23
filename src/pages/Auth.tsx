@@ -12,7 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, LogIn, UserPlus, Check, X, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import heroNoir from "@/assets/hero-noir.jpg";
+import heroNoir from "@/assets/client-editorial.jpg";
 
 // Username validation regex: only lowercase a-z, 0-9, underscore, period
 const USERNAME_REGEX = /^[a-z0-9_.]+$/;
@@ -643,16 +643,14 @@ const Auth = () => {
   };
 
   return (
-    <div className="customer-shell relative min-h-screen p-4 md:p-8 pt-safe overflow-hidden flex items-center">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/.08),transparent_38%)]" />
-
-      <div className="relative max-w-6xl w-full mx-auto noir-glass rounded-lg overflow-hidden grid md:grid-cols-[.85fr_1.15fr]">
-        <aside className="relative min-h-[300px] md:min-h-[720px] overflow-hidden">
-          <img src={heroNoir} alt="Interior de DIEGCUTZ" width={1920} height={1080} className="absolute inset-0 h-full w-full object-cover opacity-60" />
-          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-background/40" />
-          <div className="absolute inset-x-8 bottom-10"><div className="brand-lockup brand-lockup--large mb-4"><span>DIEG</span><strong>CUTZ</strong></div><p className="customer-kicker">ARTISAN GROOMING & STYLE</p><p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">Tu agenda, preferencias y próximas visitas en un espacio personal.</p></div>
-        </aside>
-        <section className="p-6 md:p-12 lg:p-16">
+    <div className="customer-shell auth-editorial min-h-screen">
+      <aside className="auth-editorial__image">
+          <img src={heroNoir} alt="Cliente DIEGCUTZ" width={1024} height={1280} />
+          <button onClick={() => navigate("/")} className="auth-editorial__brand" aria-label="Volver al inicio"><span>D/C</span>DIEGCUTZ</button>
+          <div className="auth-editorial__caption"><p className="customer-kicker">ESTUDIO DE BARBERÍA · MONÓVAR</p><h2>Tu estilo.<br />Tu espacio.<br /><em>Tu cuenta.</em></h2></div>
+      </aside>
+      <div className="auth-editorial__form">
+        <section>
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -662,13 +660,9 @@ const Auth = () => {
           Volver
         </Button>
 
-        <div className="text-center mb-10">
-          <h1 className="text-5xl md:text-6xl font-semibold mb-3 text-primary font-display">
-            DIEGCUTZ
-          </h1>
-          <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
-            Accede a tu cuenta
-          </p>
+        <div className="mb-10">
+          <p className="customer-kicker">ÁREA CLIENTE</p>
+          <h1 className="text-4xl md:text-5xl font-semibold mt-3">Tu próxima cita,<br />bajo control.</h1>
         </div>
 
         <Tabs defaultValue="login" className="w-full">
@@ -678,7 +672,7 @@ const Auth = () => {
           </TabsList>
 
           <TabsContent value="login">
-            <Card className="relative bg-card/85 backdrop-blur-xl border border-primary/30 shadow-elegant">
+            <Card className="auth-editorial__card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <LogIn className="text-primary" />
@@ -775,7 +769,7 @@ const Auth = () => {
           </TabsContent>
 
           <TabsContent value="signup">
-            <Card className="relative bg-card/85 backdrop-blur-xl border border-secondary/30 shadow-elegant">
+            <Card className="auth-editorial__card">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <UserPlus className="text-primary" />
@@ -1000,8 +994,7 @@ const Auth = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        </section>
-      </div>
+        </section></div>
     </div>
   );
 };

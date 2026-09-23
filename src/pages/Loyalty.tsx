@@ -137,48 +137,7 @@ const Loyalty = () => {
   }
 
   return (
-    <CustomerPage><div className="min-h-screen py-8 px-4 pt-safe">
-      <style>{`
-        @keyframes stamp-in {
-          0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-          60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
-          100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        @keyframes stamp-pop {
-          0% { transform: scale(0) rotate(-360deg); opacity: 0; }
-          40% { transform: scale(1.6) rotate(20deg); opacity: 1; }
-          60% { transform: scale(0.9) rotate(-5deg); }
-          80% { transform: scale(1.15) rotate(3deg); }
-          100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        @keyframes stamp-glow {
-          0% { box-shadow: 0 0 0 0 rgba(212,175,55,0.8); }
-          50% { box-shadow: 0 0 30px 10px rgba(212,175,55,0.6); }
-          100% { box-shadow: 0 0 15px 5px rgba(212,175,55,0.4); }
-        }
-        .stamp-pop-in {
-          animation: stamp-pop 0.8s ease-out forwards, stamp-glow 1.5s ease-out forwards;
-        }
-        @keyframes card-shine {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        .stamp-enter {
-          animation: stamp-in 0.5s ease-out forwards;
-        }
-        .card-shine {
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(212, 175, 55, 0.1) 45%,
-            rgba(212, 175, 55, 0.3) 50%,
-            rgba(212, 175, 55, 0.1) 55%,
-            transparent 100%
-          );
-          background-size: 200% 100%;
-          animation: card-shine 4s ease-in-out infinite;
-        }
-      `}</style>
+    <CustomerPage><div className="min-h-screen py-8 px-4 pt-safe loyalty-editorial">
 
       <div className="max-w-md mx-auto">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
@@ -200,8 +159,7 @@ const Loyalty = () => {
         {/* Loyalty Card */}
         <div className="relative rounded-lg overflow-hidden mb-8">
           {/* Card background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]" />
-          <div className="absolute inset-0 card-shine" />
+          <div className="absolute inset-0 bg-card" />
           
           {/* Gold border */}
           <div className="absolute inset-0 rounded-lg border-2 border-primary/50" />
@@ -236,7 +194,7 @@ const Loyalty = () => {
                       relative aspect-square rounded-full flex items-center justify-center
                       transition-all duration-300
                       ${isStamped
-                        ? "bg-gradient-to-br from-primary to-secondary shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+                        ? "bg-primary"
                         : isFree
                           ? "border-2 border-dashed border-primary/40 bg-primary/5"
                           : "border-2 border-primary/20 bg-white/5"
@@ -245,7 +203,7 @@ const Loyalty = () => {
                   >
                     {isStamped ? (
                       <div className={i === newStampIndex ? "stamp-pop-in" : "stamp-enter"} style={i !== newStampIndex ? { animationDelay: `${i * 0.05}s` } : undefined}>
-                        <svg viewBox="0 0 24 24" className="w-6 h-6 text-[#1a1a2e]" fill="currentColor">
+                        <svg viewBox="0 0 24 24" className="w-6 h-6 text-primary-foreground" fill="currentColor">
                           <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
                         </svg>
                       </div>
@@ -261,10 +219,10 @@ const Loyalty = () => {
 
             {/* Progress text */}
             <div className="text-center mb-2">
-              <p className="text-lg font-bold text-white">
+              <p className="text-lg font-bold text-foreground">
                 {stamps}/10 <span className="text-primary">sellos</span>
               </p>
-              <p className="text-xs text-white/40">
+              <p className="text-xs text-muted-foreground">
                 {10 - stamps === 0
                   ? "¡Has completado la tarjeta!"
                   : `Te faltan ${10 - stamps} para tu corte GRATIS`}
@@ -273,7 +231,7 @@ const Loyalty = () => {
 
             {/* Free cut badge */}
             {loyaltyData && loyaltyData.free_cuts_available > 0 && (
-              <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/50 rounded-xl p-3 text-center mb-4 space-y-2">
+              <div className="bg-primary/10 border border-primary/50 p-3 text-center mb-4 space-y-2">
                 <div className="flex items-center justify-center gap-2">
                   <Sparkles className="w-5 h-5 text-primary animate-pulse" />
                   <span className="text-primary font-bold text-lg">
@@ -283,7 +241,7 @@ const Loyalty = () => {
                 </div>
                 <Button
                   size="sm"
-                  className="bg-primary hover:bg-[#B8860B] text-background font-bold"
+                  className="font-bold"
                   onClick={() => navigate("/booking?free_cut=true")}
                 >
                   <Scissors className="h-4 w-4" /> Reservar corte gratis
@@ -292,7 +250,7 @@ const Loyalty = () => {
             )}
 
             {/* Total visits */}
-            <div className="flex justify-between text-xs text-white/30 px-1 mb-4">
+            <div className="flex justify-between text-xs text-muted-foreground px-1 mb-4">
               <span>Total visitas: {totalVisits}</span>
               <span>Tarjetas completadas: {Math.floor(totalVisits / 10)}</span>
             </div>
@@ -306,7 +264,7 @@ const Loyalty = () => {
                 <p className="text-xs text-primary/60 uppercase tracking-widest mb-3">
                   Escanea para sumar sello
                 </p>
-                <div className="bg-white rounded-xl p-3 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
+                <div className="bg-white p-3 border border-border">
                   <QRCodeSVG
                     value={loyaltyToken}
                     size={160}
@@ -316,7 +274,7 @@ const Loyalty = () => {
                     bgColor="#ffffff"
                   />
                 </div>
-                <p className="text-[10px] text-white/20 mt-2 font-mono">
+                <p className="text-[10px] text-muted-foreground mt-2 font-mono">
                   {loyaltyToken.slice(0, 8)}...{loyaltyToken.slice(-4)}
                 </p>
               </div>

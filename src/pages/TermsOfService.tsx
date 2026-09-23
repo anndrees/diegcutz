@@ -6,7 +6,7 @@ import { CustomerPage } from "@/components/customer/CustomerPage";
 const TermsOfService = () => {
   return (
     <CustomerPage><div className="min-h-screen bg-background">
-      <div className="container max-w-4xl mx-auto px-4 py-8">
+      <div className="legal-editorial">
         <Link to="/">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -14,7 +14,7 @@ const TermsOfService = () => {
           </Button>
         </Link>
 
-        <h1 className="text-3xl font-bold mb-8">Condiciones de Servicio</h1>
+        <p className="customer-kicker">INFORMACIÓN LEGAL / 02</p><h1>Condiciones de<br />Servicio</h1>
 
         <div className="prose prose-neutral dark:prose-invert max-w-none space-y-6">
           <section>
