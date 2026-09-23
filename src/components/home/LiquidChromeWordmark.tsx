@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Environment, Lightformer, Text3D, type FontData } from "@react-three/drei";
 import helvetiker from "three/examples/fonts/helvetiker_bold.typeface.json";
@@ -22,6 +22,7 @@ function ChromeMaterial() {
 
 function Wordmark() {
   const group = useMemo(() => new THREE.Group(), []);
+  const lettersGroup = useRef<THREE.Group>(null);
   const { pointer, viewport } = useThree();
   const positions = useMemo(() => {
     const gap = 0.24;
@@ -33,6 +34,19 @@ function Wordmark() {
       cursor += width + gap;
       return x;
     });
+  }, []);
+
+  useLayoutEffect(() => {
+    const letters = lettersGroup.current;
+    if (!letters) return;
+
+    letters.position.x = 0;
+    letters.updateWorldMatrix(true, true);
+    const bounds = new THREE.Box3().setFromObject(letters);
+    if (bounds.isEmpty()) return;
+
+    const center = bounds.getCenter(new THREE.Vector3());
+    letters.position.x = -center.x;
   }, []);
 
   useFrame((state, rawDelta) => {
@@ -50,7 +64,7 @@ function Wordmark() {
 
   return (
     <primitive object={group}>
-      <group position={[0, -0.72, 0]}>
+      <group ref={lettersGroup} position={[0, -0.72, 0]}>
         {LETTERS.map((letter, index) => (
           <Text3D
             key={`${letter}-${index}`}
