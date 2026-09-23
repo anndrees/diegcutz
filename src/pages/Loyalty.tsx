@@ -123,7 +123,7 @@ const Loyalty = () => {
                 <p className="text-muted-foreground mb-8">
                   Tienes {freeCuts} corte{freeCuts === 1 ? "" : "s"} gratis disponible{freeCuts === 1 ? "" : "s"}.
                 </p>
-                <Button variant="neonCyan" size="lg" onClick={() => navigate("/booking?free_cut=true")}>
+                <Button variant="premium" size="lg" onClick={() => navigate("/booking?free_cut=true")}>
                   <Sparkles className="h-5 w-5" /> Reservar corte gratis
                 </Button>
               </>

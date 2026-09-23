@@ -715,7 +715,7 @@ const Auth = () => {
 
                   <Button
                     type="submit"
-                    variant="neon"
+                    variant="premium"
                     className="w-full"
                     disabled={loading}
                   >
@@ -919,7 +919,7 @@ const Auth = () => {
 
                   <Button
                     type="submit"
-                    variant="neonCyan"
+                    variant="premium"
                     className="w-full"
                     disabled={loading}
                   >
@@ -994,7 +994,7 @@ const Auth = () => {
               <Button variant="outline" onClick={() => setLinkAccountDialog(false)}>
                 Cancelar
               </Button>
-              <Button onClick={handleLinkAccount} disabled={linkingAccount} variant="neon">
+              <Button onClick={handleLinkAccount} disabled={linkingAccount} variant="premium">
                 {linkingAccount ? "Enlazando..." : "Enlazar cuentas"}
               </Button>
             </DialogFooter>

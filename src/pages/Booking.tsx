@@ -1099,7 +1099,7 @@ const Booking = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Card className="bg-card/60 backdrop-blur-xl border-primary/30 shadow-[0_0_40px_hsl(var(--neon-purple)/0.15)] hover:shadow-[0_0_60px_hsl(var(--neon-purple)/0.3)] transition-shadow duration-500 overflow-hidden">
+            <Card className="bg-card/60 backdrop-blur-xl border-primary/30 shadow-[0_0_40px_hsl(var(--neon-purple)/0.15)] hover:shadow-elegant transition-shadow duration-500 overflow-hidden">
               <CardHeader className="border-b border-primary/20 bg-gradient-to-r from-primary/10 to-transparent">
                 <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                   <CalendarDays className="text-primary" />
@@ -1188,7 +1188,7 @@ const Booking = () => {
                   exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <Card className="bg-card/60 backdrop-blur-xl border-secondary/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.15)] hover:shadow-[0_0_60px_hsl(var(--neon-cyan)/0.3)] transition-shadow duration-500 overflow-hidden">
+                  <Card className="bg-card/60 backdrop-blur-xl border-secondary/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.15)] hover:shadow-elegant transition-shadow duration-500 overflow-hidden">
                     <CardHeader className="border-b border-secondary/20 bg-gradient-to-r from-secondary/10 to-transparent">
                       <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                         <Clock className="text-secondary animate-pulse" />
