@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGoogleAuthEnabled } from "@/hooks/useGoogleAuthEnabled";
 import { Button } from "@/components/ui/button";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -29,6 +30,7 @@ interface Booking {
   booking_date: string;
   booking_time: string;
   services: any;
+  service_ids?: unknown;
   total_price: number;
   created_at: string;
   is_cancelled?: boolean;
@@ -356,9 +358,9 @@ export default function UserProfile() {
   };
 
   if (loading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center">
+    return <CustomerPage><div className="min-h-[70vh] bg-background flex items-center justify-center">
       <p className="text-muted-foreground">Cargando...</p>
-    </div>;
+    </div></CustomerPage>;
   }
 
   const currentBookings = bookings.filter(b => !isPastBooking(b.booking_date, b.booking_time) && !b.is_cancelled);
@@ -367,7 +369,7 @@ export default function UserProfile() {
 
   const initials = (profile?.full_name || "U").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
-  return <div className="customer-shell min-h-screen bg-background">
+  return <CustomerPage><div className="min-h-screen bg-background">
     <div className="container mx-auto px-4 py-6 pt-safe max-w-2xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -626,6 +628,9 @@ export default function UserProfile() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
+                      <Button variant="ghost" size="sm" className="text-xs h-7" onClick={(e) => { e.stopPropagation(); navigate(`/booking?repeat_booking_id=${booking.id}`); }}>
+                        <RotateCcw className="w-3.5 h-3.5 mr-1" /> Repetir
+                      </Button>
                       {booking.rating ? (
                         <div className="flex items-center gap-1 text-xs">
                           <Star className="w-3.5 h-3.5 fill-primary text-primary" />
@@ -714,9 +719,7 @@ export default function UserProfile() {
               </div>
             )}
             {isPastBooking(selectedBookingDetail.booking_date, selectedBookingDetail.booking_time) && !selectedBookingDetail.rating && !selectedBookingDetail.is_cancelled && (
-              <Button variant="outline" className="w-full" onClick={() => { handleRateBooking(selectedBookingDetail.id); setSelectedBookingDetail(null); }}>
-                <Star className="h-4 w-4 mr-2" /> Valorar esta visita
-              </Button>
+              <div className="grid grid-cols-2 gap-2"><Button variant="outline" onClick={() => { handleRateBooking(selectedBookingDetail.id); setSelectedBookingDetail(null); }}><Star className="h-4 w-4 mr-2" /> Valorar</Button><Button variant="premium" onClick={() => navigate(`/booking?repeat_booking_id=${selectedBookingDetail.id}`)}><RotateCcw className="h-4 w-4 mr-2" /> Repetir</Button></div>
             )}
           </div>
         )}
@@ -784,5 +787,5 @@ export default function UserProfile() {
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  </div>;
+  </div></CustomerPage>;
 }

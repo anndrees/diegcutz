@@ -438,7 +438,7 @@ const Home = () => {
 
           <Button
             size="lg"
-            variant="neonCyan"
+            variant="premium"
             onClick={() => navigate("/booking")}
             className="text-base px-12 py-6 h-auto animate-fade-in magnetic-button transition-all duration-300"
             style={{ animationDelay: "500ms", animationDuration: "1s" }}
@@ -454,7 +454,7 @@ const Home = () => {
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           style={{ opacity: Math.max(0, 1 - scrollY / 200) }}
         >
-          <span className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">Scroll</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">Scroll</span>
           <div className="w-6 h-10 border-2 border-secondary/50 rounded-full flex justify-center relative overflow-hidden">
             <div className="w-1.5 h-3 bg-secondary rounded-full mt-2 animate-bounce" />
           </div>
@@ -486,7 +486,7 @@ const Home = () => {
 
       {/* Active Giveaway Banner */}
       {activeGiveaway && (
-        <section className="py-6 px-4 bg-gradient-neon">
+        <section className="py-6 px-4 bg-gradient-to-r from-primary to-[hsl(38_32%_48%)]">
           <div className="max-w-4xl mx-auto text-center">
             <button
               onClick={() => navigate("/giveaways")}
@@ -534,7 +534,7 @@ const Home = () => {
             <p className="text-xl md:text-2xl text-foreground font-bold mt-4">
               En nuestro spot de Monóvar, el flow nunca falta.
             </p>
-            <div className="neon-divider mt-8 max-w-md mx-auto" />
+            <div className="noir-divider mt-8 max-w-md mx-auto" />
           </div>
 
           <div className="grid md:grid-cols-3 gap-8 mb-20" ref={servicesRef}>
@@ -670,7 +670,7 @@ const Home = () => {
             Ver Membresías
           </Button>
         </div>
-        <div className="neon-divider mt-16" />
+        <div className="noir-divider mt-16" />
       </section>
 
       {/* Giveaways CTA */}
@@ -690,7 +690,7 @@ const Home = () => {
           <p className="text-xl text-muted-foreground mb-8">Gana cortes gratis, productos exclusivos y más premios</p>
           <Button
             size="lg"
-            variant="neonCyan"
+            variant="premium"
             onClick={() => navigate("/giveaways")}
             className="text-lg px-12 py-6 h-auto magnetic-button"
           >
@@ -698,7 +698,7 @@ const Home = () => {
             Ver Sorteos
           </Button>
         </div>
-        <div className="neon-divider mt-16" />
+        <div className="noir-divider mt-16" />
       </section>
 
       {/* Location Section with parallax */}
@@ -723,7 +723,7 @@ const Home = () => {
             <p className="text-center text-lg mb-10 text-muted-foreground">
               Carrer Sant Antoni, Monóvar, Alicante, España, 03640
             </p>
-            <div className="neon-divider mb-10 max-w-md mx-auto" />
+            <div className="noir-divider mb-10 max-w-md mx-auto" />
           </div>
           <div
             className={`rounded-lg overflow-hidden transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
@@ -836,7 +836,7 @@ const Home = () => {
           >
             <Button
               size="lg"
-              variant="neonCyan"
+              variant="premium"
               onClick={() => navigate("/booking")}
               className="text-xl px-16 py-8 h-auto magnetic-button"
             >

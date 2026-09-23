@@ -379,7 +379,7 @@ export const FloatingChat = () => {
               disabled={sending}
               className="flex-1"
             />
-            <Button type="submit" disabled={sending || !newMessage.trim()} variant="neon" size="icon">
+            <Button type="submit" disabled={sending || !newMessage.trim()} variant="premium" size="icon">
               <Send className="h-4 w-4" />
             </Button>
           </div>

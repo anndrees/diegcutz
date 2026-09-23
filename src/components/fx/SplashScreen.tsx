@@ -3,10 +3,7 @@ import { useEffect, useState } from "react";
 
 const TEXT = "DIEGCUTZ";
 
-/**
- * One-time splash on first app load. Shows DIEGCUTZ being "graffiti-sprayed"
- * letter by letter with neon drips, then fades out.
- */
+/** One-time editorial brand reveal on first app load. */
 export const SplashScreen = () => {
   const [visible, setVisible] = useState(() => {
     if (typeof window === "undefined") return false;
@@ -34,12 +31,10 @@ export const SplashScreen = () => {
           transition={{ duration: 0.4, ease: "easeOut" }}
         >
           <motion.div
-            className="font-aggressive font-black text-cyan-400"
+            className="font-display font-semibold text-primary"
             style={{
               fontSize: "clamp(2.5rem, 10vw, 6rem)",
-              textShadow:
-                "0 0 16px rgba(34,211,238,0.7), 0 0 32px rgba(34,211,238,0.4)",
-              letterSpacing: "0.04em",
+              letterSpacing: "0.12em",
             }}
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}

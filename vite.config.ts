@@ -15,7 +15,7 @@ export default defineConfig(({ mode }) => ({
     mode === "development" && componentTagger(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "robots.txt", "apple-touch-icon.png"],
+      includeAssets: ["favicon.png", "robots.txt", "apple-touch-icon.png"],
       manifest: {
         name: "DIEGCUTZ - Barbería Urbana",
         short_name: "DIEGCUTZ",

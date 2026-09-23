@@ -107,7 +107,7 @@ export default function Install() {
                 <CardContent className="pt-6">
                   <Button 
                     onClick={handleInstall}
-                    className="w-full bg-gradient-neon hover:opacity-90 text-lg py-6"
+                    className="w-full bg-gradient-to-r from-primary to-[hsl(38_32%_48%)] hover:opacity-90 text-lg py-6"
                     size="lg"
                   >
                     <Download className="mr-2 h-5 w-5" />

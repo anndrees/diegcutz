@@ -245,7 +245,7 @@ const Giveaways = () => {
                                   Ya estás participando
                                 </Button>
                               ) : (
-                                <Button onClick={() => handleParticipate(giveaway.id)} variant="neon" className="w-full">
+                                <Button onClick={() => handleParticipate(giveaway.id)} variant="premium" className="w-full">
                                   <Gift className="mr-2 h-4 w-4" />
                                   ¡Participar!
                                 </Button>

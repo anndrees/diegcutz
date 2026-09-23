@@ -296,7 +296,7 @@ export const CancelBookingDialog = ({
             </Button>
           ) : (
             <Button
-              variant="neon"
+              variant="premium"
               onClick={handleReschedule}
               disabled={loading || !selectedDate || !selectedTime}
             >

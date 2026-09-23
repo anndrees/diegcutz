@@ -295,7 +295,7 @@ export const NextAvailableSlot = () => {
           {/* CTA Button */}
           <Button
             size="lg"
-            variant="neon"
+            variant="premium"
             onClick={handleBookSlot}
             className="text-lg px-8 py-6 h-auto group transition-all duration-300 hover:scale-105"
           >
@@ -330,7 +330,7 @@ export const NextAvailableSlot = () => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <Button variant="neon" size="lg" className="gap-2">
+              <Button variant="premium" size="lg" className="gap-2">
                 <MessageCircle className="h-5 w-5" />
                 Contactar por WhatsApp
               </Button>

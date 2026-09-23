@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 
 const MembershipPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen py-8 px-4 pt-safe">
+    <CustomerPage><div className="min-h-screen py-8 px-4 pt-safe">
       <div className="max-w-3xl mx-auto">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" /> Volver
@@ -105,7 +106,7 @@ const MembershipPolicy = () => {
 
         <p className="text-xs text-muted-foreground mt-8">Última actualización: Marzo 2026</p>
       </div>
-    </div>
+    </div></CustomerPage>
   );
 };
 

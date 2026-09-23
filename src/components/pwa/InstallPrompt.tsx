@@ -141,7 +141,7 @@ export const InstallPrompt = () => {
         <CardContent className="pt-2">
           <Button 
             onClick={handleInstall} 
-            className="w-full bg-gradient-neon hover:opacity-90"
+            className="w-full bg-gradient-to-r from-primary to-[hsl(38_32%_48%)] hover:opacity-90"
           >
             <Download className="mr-2 h-4 w-4" />
             Instalar App

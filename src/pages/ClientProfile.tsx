@@ -40,6 +40,7 @@ import { ClientMembership } from "@/components/admin/ClientMembership";
 import { AdminBookingDialog } from "@/components/admin/AdminBookingDialog";
 import { MembershipHistory } from "@/components/admin/MembershipHistory";
 import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
+import { WhatsAppButton } from "@/components/admin/WhatsAppButton";
 
 interface Profile {
   id: string;
@@ -684,6 +685,7 @@ const ClientProfile = () => {
                   <Phone className="w-4 h-4 text-secondary" />
                 )}
                 <p className="text-lg font-semibold">{profile.contact_value}</p>
+                <WhatsAppButton phone={profile.contact_value} compact={false} />
               </div>
             </div>
             <div>

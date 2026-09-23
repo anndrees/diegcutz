@@ -14,6 +14,7 @@ import { Link } from "react-router-dom";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MergeUsersDialog } from "@/components/admin/MergeUsersDialog";
+import { WhatsAppButton } from "@/components/admin/WhatsAppButton";
 
 type Client = {
   id: string; full_name: string; username: string; contact_method: string;
@@ -172,8 +173,8 @@ export const ClientsManagement = () => {
               const mem = getMembership(client.id);
               const tierStyle = mem ? getTierStyle(mem.sort_order) : null;
               return (
-                <Link key={client.id} to={`/admin/client/${client.id}`} className="block">
-                  <div className={`border rounded-xl p-3 hover:border-primary/30 transition-all flex items-center gap-3 ${tierStyle ? `${tierStyle.border} ${tierStyle.bg}` : "border-border"}`}>
+                <div key={client.id} className={`border rounded-xl p-3 hover:border-primary/30 transition-all flex items-center gap-3 ${tierStyle ? `${tierStyle.border} ${tierStyle.bg}` : "border-border"}`}>
+                  <Link to={`/admin/client/${client.id}`} className="contents">
                     <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${tierStyle ? tierStyle.bg : "bg-primary/10"}`}>
                       {mem ? (
                         <Crown className={`h-5 w-5 ${tierStyle?.text || "text-primary"}`} />
@@ -192,9 +193,10 @@ export const ClientsManagement = () => {
                       </p>
                       <p className="text-[10px] text-muted-foreground/70 truncate">Últ. acceso: {formatLastSeen(client.last_seen_at)}</p>
                     </div>
+                  </Link>
+                    <WhatsAppButton phone={client.contact_value} />
                     <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-                  </div>
-                </Link>
+                </div>
               );
             })}
           </div>
@@ -237,7 +239,7 @@ export const ClientsManagement = () => {
                           <span className="text-xs text-muted-foreground">—</span>
                         )}
                       </TableCell>
-                      <TableCell>{client.contact_value}</TableCell>
+                      <TableCell><div className="flex items-center gap-2">{client.contact_value}<WhatsAppButton phone={client.contact_value} /></div></TableCell>
                       <TableCell>{new Date(client.created_at).toLocaleDateString()}</TableCell>
                       <TableCell className="text-xs text-muted-foreground whitespace-nowrap">{formatLastSeen(client.last_seen_at)}</TableCell>
                       <TableCell className="text-right space-x-2">

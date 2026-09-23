@@ -1,0 +1,15 @@
+REVOKE EXECUTE ON FUNCTION public.auto_expire_memberships() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.check_and_award_achievements() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.check_giveaway_achievements() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.check_rating_achievements() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.create_notification_preferences_on_subscribe() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_booking_deletion() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.handle_new_user() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_coupon_uses() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_loyalty_rewards() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.update_services_updated_at() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.validate_user_membership_status() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) TO authenticated, service_role;
+REVOKE EXECUTE ON FUNCTION public.validate_coupon(text, uuid, numeric) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.validate_coupon(text, uuid, numeric) TO authenticated, service_role;
