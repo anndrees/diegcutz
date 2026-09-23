@@ -138,47 +138,6 @@ const Loyalty = () => {
 
   return (
     <CustomerPage><div className="min-h-screen py-8 px-4 pt-safe loyalty-editorial">
-      <style>{`
-        @keyframes stamp-in {
-          0% { transform: scale(0) rotate(-180deg); opacity: 0; }
-          60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
-          100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        @keyframes stamp-pop {
-          0% { transform: scale(0) rotate(-360deg); opacity: 0; }
-          40% { transform: scale(1.6) rotate(20deg); opacity: 1; }
-          60% { transform: scale(0.9) rotate(-5deg); }
-          80% { transform: scale(1.15) rotate(3deg); }
-          100% { transform: scale(1) rotate(0deg); opacity: 1; }
-        }
-        @keyframes stamp-glow {
-          0% { box-shadow: 0 0 0 0 rgba(212,175,55,0.8); }
-          50% { box-shadow: 0 0 30px 10px rgba(212,175,55,0.6); }
-          100% { box-shadow: 0 0 15px 5px rgba(212,175,55,0.4); }
-        }
-        .stamp-pop-in {
-          animation: stamp-pop 0.8s ease-out forwards, stamp-glow 1.5s ease-out forwards;
-        }
-        @keyframes card-shine {
-          0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; }
-        }
-        .stamp-enter {
-          animation: stamp-in 0.5s ease-out forwards;
-        }
-        .card-shine {
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            rgba(212, 175, 55, 0.1) 45%,
-            rgba(212, 175, 55, 0.3) 50%,
-            rgba(212, 175, 55, 0.1) 55%,
-            transparent 100%
-          );
-          background-size: 200% 100%;
-          animation: card-shine 4s ease-in-out infinite;
-        }
-      `}</style>
 
       <div className="max-w-md mx-auto">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
