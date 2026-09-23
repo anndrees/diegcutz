@@ -1,5 +1,13 @@
 # Roadmap
 
+## Reconstrucción Liquid Chrome
+- [ ] Nueva portada con wordmark cromado 3D real y carrusel multimedia
+- [ ] Navegación, pie y sistema visual cliente completamente nuevos
+- [ ] Gestión de fotos y vídeos de portada desde administración
+- [ ] Reconstruir Booking, Auth, Perfil, Membresías, Sorteos, Fidelidad e Instalación
+- [ ] Reconstruir páginas legales, estados globales, diálogos, chat y notificaciones
+- [ ] Validar todas las rutas cliente en escritorio y móvil
+
 - [x] Approve the architectural editorial direction: black and steel, Space Grotesk, asymmetric gallery
 - [x] Rebuild every customer-facing page structurally, not as a theme swap
 - [x] Replace customer-facing emojis and legacy neon effects with SVG symbols
