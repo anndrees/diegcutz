@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ArrowUpRight, Menu, UserRound, X } from "lucide-react";
+import { ArrowUpRight, LogOut, Menu, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
@@ -15,7 +15,12 @@ const links = [
 export function CustomerHeader({ transparent = false }: { transparent?: boolean }) {
   const [open, setOpen] = useState(false);
   const { pathname } = useLocation();
-  const { user, profile } = useAuth();
+  const { user, profile, signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut();
+    setOpen(false);
+  };
 
   return (
     <header className={cn("customer-header", transparent && "customer-header--transparent")}>
@@ -40,6 +45,7 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
               {user ? profile?.username || "Mi cuenta" : "Acceder"}
             </Link>
           </Button>
+          {user && <Button variant="ghost" size="icon" className="hidden sm:inline-flex customer-header__logout" onClick={handleSignOut} aria-label="Cerrar sesión" title="Cerrar sesión"><LogOut /></Button>}
           <Button asChild size="icon" className="hidden md:inline-flex customer-header__reserve" aria-label="Reservar">
             <Link to="/booking"><ArrowUpRight /></Link>
           </Button>
@@ -59,6 +65,7 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
           <Link to={user ? "/user" : "/auth"} onClick={() => setOpen(false)}>
             <span>05</span><strong>{user ? "Mi cuenta" : "Acceder"}</strong><ArrowUpRight />
           </Link>
+          {user && <Button variant="ghost" className="customer-mobile-nav__logout" onClick={handleSignOut}><span>06</span><strong>Cerrar sesión</strong><LogOut /></Button>}
         </nav>
       )}
     </header>

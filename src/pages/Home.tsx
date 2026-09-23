@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowDown, ArrowUpRight, Clock3, Gift, MapPin, Scissors, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,19 @@ type HomeSettings = { image: string; slides: HomeMediaSlide[] };
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
+function HomeMotionLayer() {
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll();
+  const progress = useSpring(scrollYProgress, { stiffness: 95, damping: 24, mass: 0.35 });
+  const railScale = useTransform(progress, [0, 1], [0, 1]);
+  const meshY = useTransform(progress, [0, 1], [0, -360]);
+  const haloRotate = useTransform(progress, [0, 1], [0, 220]);
+  if (reducedMotion) return null;
+  return <div className="home-motion-layer" aria-hidden="true"><motion.div className="home-scroll-rail" style={{ scaleY: railScale }} /><motion.div className="home-parallax-mesh" style={{ y: meshY }} /><motion.div className="home-chrome-halo" style={{ rotate: haloRotate }} /></div>;
+}
+
 export default function Home() {
+  const pageRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
@@ -70,39 +83,40 @@ export default function Home() {
   }, [homeSettings]);
 
   return (
-    <div className="customer-shell liquid-home min-h-screen overflow-x-hidden">
+    <div ref={pageRef} className="customer-shell liquid-home min-h-screen overflow-x-hidden">
       <div className="customer-ambient" aria-hidden="true" />
+      <HomeMotionLayer />
       <ScrollBarberObjects />
       <InstallBanner />
       <CustomerHeader transparent />
 
-      <section className="liquid-hero">
+      <motion.section className="liquid-hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
         <div className="liquid-hero__meta"><span>ESTUDIO DE BARBERÍA</span><span>MONÓVAR · ALICANTE</span></div>
         <LiquidChromeWordmark />
         <div className="liquid-hero__bottom">
           <p>Barbería urbana para gente que busca criterio, precisión y una imagen que se sienta propia.</p>
           <div><Button size="lg" onClick={() => navigate("/booking")}>Reservar cita <ArrowUpRight /></Button><a href="#estudio">Descubrir el estudio <ArrowDown /></a></div>
         </div>
-      </section>
+      </motion.section>
 
       {marqueeItems.length > 0 && <div className="liquid-marquee" aria-label="Información destacada"><div>{[...marqueeItems, ...marqueeItems].map((item, index) => <span key={`${item.id}-${index}`}><Scissors />{item.text}</span>)}</div></div>}
 
       <section className="customer-notices"><MembershipExpirationBanner /><PendingRatingBanner /></section>
 
-      <section id="estudio" className="liquid-intro">
-        <div className="liquid-intro__heading"><span className="customer-kicker">EL ESTUDIO</span><h2>Menos ruido.<br />Más <em>presencia.</em></h2></div>
-        <div className="liquid-intro__copy"><p>El corte empieza escuchando. Construimos una forma que encaje contigo, con tu día a día y con lo que quieres proyectar.</p><Button variant="outline" onClick={() => navigate("/booking")}>Encontrar mi estilo <Sparkles /></Button></div>
-      </section>
+      <motion.section id="estudio" className="liquid-intro" initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.25 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.14 } } }}>
+        <motion.div className="liquid-intro__heading" variants={{ hidden: { opacity: 0, x: -90, rotateY: -12 }, visible: { opacity: 1, x: 0, rotateY: 0, transition: { duration: 0.75 } } }}><span className="customer-kicker">EL ESTUDIO</span><h2>Menos ruido.<br />Más <em>presencia.</em></h2></motion.div>
+        <motion.div className="liquid-intro__copy" variants={{ hidden: { opacity: 0, y: 70 }, visible: { opacity: 1, y: 0, transition: { duration: 0.75 } } }}><p>El corte empieza escuchando. Construimos una forma que encaje contigo, con tu día a día y con lo que quieres proyectar.</p><Button variant="outline" onClick={() => navigate("/booking")}>Encontrar mi estilo <Sparkles /></Button></motion.div>
+      </motion.section>
 
       <MediaCarousel slides={slides} />
 
-      <section className="liquid-principles">
+      <motion.section className="liquid-principles" initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.18 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.13 } } }}>
         {[
           { icon: Scissors, number: "01", title: "Técnica con intención", text: "Proporción, textura y detalle al servicio de tu imagen." },
           { icon: ShieldCheck, number: "02", title: "Sin improvisar", text: "Cada cita tiene su tiempo, su preparación y su acabado." },
           { icon: Clock3, number: "03", title: "Tu tiempo cuenta", text: "Reserva clara, horario definido y todo listo cuando llegas." },
-        ].map(({ icon: Icon, number, title, text }) => <article key={number}><span>{number}</span><Icon /><h3>{title}</h3><p>{text}</p></article>)}
-      </section>
+        ].map(({ icon: Icon, number, title, text }) => <motion.article variants={{ hidden: { opacity: 0, y: 90, rotateX: 12 }, visible: { opacity: 1, y: 0, rotateX: 0, transition: { type: "spring", stiffness: 90, damping: 18 } } }} key={number}><span>{number}</span><Icon /><h3>{title}</h3><p>{text}</p></motion.article>)}
+      </motion.section>
 
       {activeGiveaway && <section className="liquid-feature"><Gift /><div><span className="customer-kicker">AHORA EN DIEGCUTZ</span><h2>{activeGiveaway.title}</h2><p>{activeGiveaway.prize}</p></div><Button variant="secondary" onClick={() => navigate("/giveaways")}>Participar <ArrowUpRight /></Button></section>}
 
