@@ -17,6 +17,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { WhatsAppButton } from "./WhatsAppButton";
 
 export type AdminBooking = {
   id: string;
@@ -253,9 +254,10 @@ export const AdminBookingsSection = ({
             </p>
             <StatusChip booking={b} />
           </div>
-          <p className="text-xs text-muted-foreground mb-1.5">
-            📞 {b.user_id && b.profile ? b.profile.contact_value : b.client_contact}
-          </p>
+          <div className="text-xs text-muted-foreground mb-1.5 flex items-center gap-2">
+            <span>📞 {b.user_id && b.profile ? b.profile.contact_value : b.client_contact}</span>
+            <WhatsAppButton phone={b.user_id && b.profile ? b.profile.contact_value : b.client_contact} />
+          </div>
           <div className="flex items-center gap-1 flex-wrap">
             {b.services?.slice(0, 4).map((s, i) => (
               <span key={i} className="text-[10px] font-medium bg-neon-purple/10 text-neon-purple border border-neon-purple/30 px-2 py-0.5 rounded-full">
@@ -355,7 +357,7 @@ export const AdminBookingsSection = ({
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-lg">{stats.next.profile?.full_name || stats.next.client_name}</p>
-                  <p className="text-xs text-muted-foreground">{stats.next.services?.[0]}</p>
+                  <div className="flex items-center justify-end gap-2"><p className="text-xs text-muted-foreground">{stats.next.services?.[0]}</p><WhatsAppButton phone={stats.next.profile?.contact_value || stats.next.client_contact} /></div>
                 </div>
               </div>
             ) : (
