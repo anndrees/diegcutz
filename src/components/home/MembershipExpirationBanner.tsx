@@ -59,7 +59,7 @@ export const MembershipExpirationBanner = () => {
               : `Tu membresía ${membershipName} finaliza el ${endDate}. Para mantener tus beneficios, contacta para renovar.`}
           </p>
           <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="inline-block mt-2">
-            <Button size="sm" className="bg-[#25D366] hover:bg-[#20BA5A] text-white">
+            <Button size="sm">
               <MessageCircle className="mr-1 h-3 w-3" /> Renovar por WhatsApp
             </Button>
           </a>

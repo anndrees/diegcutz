@@ -276,7 +276,7 @@ export const FloatingChat = () => {
         <div className="bg-foreground p-4 flex items-center justify-between text-background shrink-0">
           <div>
             <h3 className="font-bold">Chat con DIEGCUTZ</h3>
-            <p className="text-xs text-white/80">
+            <p className="text-xs text-background/80">
               {adminTyping ? "Escribiendo..." : "Te responderemos pronto"}
             </p>
           </div>
@@ -286,7 +286,7 @@ export const FloatingChat = () => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-white hover:bg-white/20"
+                  className="text-background hover:bg-background/20"
                 >
                   <MoreVertical className="h-4 w-4" />
                 </Button>
@@ -305,7 +305,7 @@ export const FloatingChat = () => {
               variant="ghost"
               size="icon"
               onClick={() => setIsOpen(false)}
-              className="text-white hover:bg-white/20"
+              className="text-background hover:bg-background/20"
             >
               <Minimize2 className="h-4 w-4" />
             </Button>
@@ -335,7 +335,7 @@ export const FloatingChat = () => {
                     className={cn(
                       "max-w-[85%] rounded-lg px-4 py-2",
                       msg.sender_type === "user"
-                        ? "bg-primary text-white rounded-br-md"
+                        ? "bg-primary text-primary-foreground rounded-br-md"
                         : "bg-muted rounded-bl-md"
                     )}
                   >
@@ -344,7 +344,7 @@ export const FloatingChat = () => {
                       className={cn(
                         "text-xs mt-1",
                         msg.sender_type === "user"
-                          ? "text-white/70"
+                          ? "text-primary-foreground/70"
                           : "text-muted-foreground"
                       )}
                     >
