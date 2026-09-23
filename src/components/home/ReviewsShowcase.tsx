@@ -44,9 +44,9 @@ const ReviewCard = ({ rating, index, onInteraction }: { rating: Rating; index: n
 
   return (
     <div
-      className="group relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-2xl p-5 md:p-6 hover:border-primary/40 transition-all duration-500 hover:shadow-[0_20px_60px_-15px_hsl(280_80%_60%/0.3)] shrink-0 w-[85vw] sm:w-[340px] md:w-auto snap-center"
+      className="group relative bg-card/80 backdrop-blur-sm border border-border/50 rounded-lg p-5 md:p-6 hover:border-primary/40 transition-all duration-500 hover:shadow-[0_20px_60px_-15px_hsl(280_80%_60%/0.3)] shrink-0 w-[85vw] sm:w-[340px] md:w-auto snap-center"
     >
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
       <div className="relative">
         <div className="flex items-center gap-3 mb-4">
@@ -272,7 +272,7 @@ export const ReviewsShowcase = () => {
           <div className="h-8 bg-muted rounded w-48 mx-auto mb-12 animate-pulse" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-48 bg-muted rounded-2xl animate-pulse" />
+              <div key={i} className="h-48 bg-muted rounded-lg animate-pulse" />
             ))}
           </div>
         </div>
@@ -314,7 +314,7 @@ export const ReviewsShowcase = () => {
 
           <h2 className="text-4xl md:text-5xl font-black text-foreground mb-3">
             Lo que dicen nuestros{" "}
-            <span className="text-neon-purple">clientes</span>
+            <span className="text-primary">clientes</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto">
             Opiniones reales de quienes ya han pasado por el sillón

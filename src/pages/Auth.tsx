@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, LogIn, UserPlus, Check, X, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import heroNoir from "@/assets/hero-noir.jpg";
 
 // Username validation regex: only lowercase a-z, 0-9, underscore, period
 const USERNAME_REGEX = /^[a-z0-9_.]+$/;
@@ -642,13 +643,19 @@ const Auth = () => {
   };
 
   return (
-    <div className="customer-shell relative min-h-screen py-12 px-4 pt-safe overflow-hidden">
+    <div className="customer-shell relative min-h-screen p-4 md:p-8 pt-safe overflow-hidden flex items-center">
       {/* Ambient neon background */}
       <div className="pointer-events-none absolute inset-0 admin-login-grid opacity-20" />
       <div className="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-[hsl(var(--neon-purple)/0.25)] blur-3xl animate-pulse" />
       <div className="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-[hsl(var(--neon-cyan)/0.2)] blur-3xl animate-pulse" style={{ animationDelay: "1.5s" }} />
 
-      <div className="relative max-w-md mx-auto">
+      <div className="relative max-w-6xl w-full mx-auto noir-glass rounded-lg overflow-hidden grid md:grid-cols-[.85fr_1.15fr]">
+        <aside className="relative min-h-[300px] md:min-h-[720px] overflow-hidden">
+          <img src={heroNoir} alt="Interior de DIEGCUTZ" width={1920} height={1080} className="absolute inset-0 h-full w-full object-cover opacity-60" />
+          <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-background/40" />
+          <div className="absolute inset-x-8 bottom-10"><div className="brand-lockup brand-lockup--large mb-4"><span>DIEG</span><strong>CUTZ</strong></div><p className="customer-kicker">ARTISAN GROOMING & STYLE</p><p className="mt-5 max-w-sm text-sm leading-relaxed text-muted-foreground">Tu agenda, preferencias y próximas visitas en un espacio personal.</p></div>
+        </aside>
+        <section className="p-6 md:p-12 lg:p-16">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -659,7 +666,7 @@ const Auth = () => {
         </Button>
 
         <div className="text-center mb-10">
-          <h1 className="text-5xl md:text-6xl font-black mb-3 text-neon-purple font-aggressive drop-shadow-[0_0_20px_hsl(var(--neon-purple)/0.6)]">
+          <h1 className="text-5xl md:text-6xl font-black mb-3 text-primary font-display drop-shadow-[0_0_20px_hsl(var(--neon-purple)/0.6)]">
             DIEGCUTZ
           </h1>
           <p className="text-sm uppercase tracking-[0.3em] text-[hsl(var(--neon-cyan))]">
@@ -996,6 +1003,7 @@ const Auth = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
+        </section>
       </div>
     </div>
   );

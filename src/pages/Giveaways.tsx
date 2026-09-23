@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Gift, Calendar, Trophy, Users, Clock, CheckCircle, Instagram } from "lucide-react";
 import { format, formatDistanceToNow, isPast, isFuture } from "date-fns";
 import { es } from "date-fns/locale";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 
 type Giveaway = {
   id: string;
@@ -126,7 +127,7 @@ const Giveaways = () => {
   const pastGiveaways = giveaways.filter(g => g.is_finished || g.winner_id || isPast(new Date(g.end_date)));
 
   return (
-    <div className="customer-shell min-h-screen py-12 px-4 pt-safe">
+    <CustomerPage><div className="min-h-screen py-12 px-4 pt-safe">
       <div className="max-w-4xl mx-auto">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-8">
           <ArrowLeft className="mr-2" />
@@ -134,7 +135,7 @@ const Giveaways = () => {
         </Button>
 
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-4 text-neon-purple animate-fade-in">
+          <h1 className="text-5xl font-black mb-4 text-primary animate-fade-in">
             🎁 SORTEOS
           </h1>
           <p className="text-xl text-muted-foreground animate-fade-in" style={{ animationDelay: "100ms" }}>
@@ -159,7 +160,7 @@ const Giveaways = () => {
             {/* Active Giveaways */}
             {activeGiveaways.length > 0 && (
               <div>
-                <h2 className="text-2xl font-bold mb-4 text-neon-cyan flex items-center gap-2">
+                <h2 className="text-2xl font-bold mb-4 text-secondary flex items-center gap-2">
                   <Gift className="h-6 w-6" />
                   Sorteos Activos
                 </h2>
@@ -177,7 +178,7 @@ const Giveaways = () => {
                         <CardHeader>
                           <div className="flex justify-between items-start">
                             <div>
-                              <CardTitle className="text-2xl text-neon-purple">{giveaway.title}</CardTitle>
+                              <CardTitle className="text-2xl text-primary">{giveaway.title}</CardTitle>
                               <CardDescription className="mt-2">{giveaway.description}</CardDescription>
                             </div>
                             <Badge variant={status.variant} className="flex items-center gap-1">
@@ -187,8 +188,8 @@ const Giveaways = () => {
                           </div>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                          <div className="bg-neon-cyan/10 border border-neon-cyan/30 rounded-lg p-4">
-                            <p className="text-sm text-neon-cyan font-bold uppercase mb-1">Premio</p>
+                          <div className="bg-secondary/10 border border-secondary/30 rounded-lg p-4">
+                            <p className="text-sm text-secondary font-bold uppercase mb-1">Premio</p>
                             <p className="text-xl font-bold">{giveaway.prize}</p>
                           </div>
 
@@ -285,7 +286,7 @@ const Giveaways = () => {
                           {giveaway.winner_username && (
                             <div className="text-right">
                               <p className="text-xs text-muted-foreground">Ganador</p>
-                              <p className="font-bold text-neon-cyan flex items-center gap-1">
+                              <p className="font-bold text-secondary flex items-center gap-1">
                                 <Trophy className="h-4 w-4" />
                                 @{giveaway.winner_username}
                               </p>
@@ -301,7 +302,7 @@ const Giveaways = () => {
           </div>
         )}
       </div>
-    </div>
+    </div></CustomerPage>
   );
 };
 

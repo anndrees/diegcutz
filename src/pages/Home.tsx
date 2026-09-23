@@ -101,7 +101,7 @@ const FloatingParticles = ({ scrollY }: { scrollY: number }) => {
       {particles.map((p) => (
         <div
           key={p.id}
-          className="absolute rounded-full bg-neon-cyan/30"
+          className="absolute rounded-full bg-secondary/30"
           style={{
             width: p.size,
             height: p.size,
@@ -277,9 +277,9 @@ const Home = () => {
   return (
     <div className="customer-shell min-h-screen overflow-x-hidden relative">
       {/* Global ambient FX layers (decoration only, behind everything) */}
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-neon-grid opacity-60" />
+      <div className="pointer-events-none fixed inset-0 -z-10  opacity-60" />
       <div className="pointer-events-none fixed inset-0 -z-10 bg-noise opacity-[0.18] mix-blend-overlay" />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-scanlines opacity-40" />
+      <div className="pointer-events-none fixed inset-0 -z-10  opacity-40" />
       <div className="pointer-events-none fixed inset-0 -z-10">
         <div
           className="absolute -top-32 -left-32 w-[55vw] h-[55vw] rounded-full blur-[140px] opacity-30"
@@ -347,7 +347,7 @@ const Home = () => {
             variant="ghost"
             size="icon"
             onClick={() => navigate("/loyalty")}
-            className="text-[#D4AF37] hover:text-[#D4AF37]/80 backdrop-blur-sm bg-background/30 hover:bg-background/50"
+            className="text-primary hover:text-primary/80 backdrop-blur-sm bg-background/30 hover:bg-background/50"
             title="Tarjeta de fidelización"
           >
             <CreditCard className="h-5 w-5" />
@@ -357,7 +357,7 @@ const Home = () => {
           <Button
             variant="ghost"
             onClick={() => navigate("/user")}
-            className="text-foreground hover:text-neon-cyan transition-all duration-300 backdrop-blur-sm bg-background/30 hover:bg-background/50"
+            className="text-foreground hover:text-secondary transition-all duration-300 backdrop-blur-sm bg-background/30 hover:bg-background/50"
           >
             <User className="mr-2 h-4 w-4" />
             {profile.username}
@@ -366,7 +366,7 @@ const Home = () => {
           <Button
             variant="outline"
             onClick={() => navigate("/auth")}
-            className="border-neon-cyan text-neon-cyan hover:bg-neon-cyan hover:text-background transition-all duration-300 magnetic-button backdrop-blur-sm bg-background/30"
+            className="border-secondary text-secondary hover:bg-secondary hover:text-background transition-all duration-300 magnetic-button backdrop-blur-sm bg-background/30"
           >
             <User className="mr-2 h-4 w-4" />
             Iniciar Sesión
@@ -403,7 +403,7 @@ const Home = () => {
         {/* Floating particles */}
         {homeSettings.particles && <FloatingParticles scrollY={scrollY} />}
 
-        <div className="absolute inset-0 bg-scanlines opacity-30 pointer-events-none" />
+        <div className="absolute inset-0  opacity-30 pointer-events-none" />
 
         {/* Content */}
         <div
@@ -413,11 +413,11 @@ const Home = () => {
             opacity: Math.max(0, 1 - scrollY / 400),
           }}
         >
-          <div className="w-24 h-1 bg-secondary mx-auto mb-8 glow-neon-cyan" />
+          <div className="w-24 h-1 bg-secondary mx-auto mb-8 shadow-elegant" />
 
           <h1
             data-text={homeSettings.title || "DIEGCUTZ"}
-            className="glitch text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-neon-cyan"
+            className="text-7xl md:text-9xl font-black mb-6 font-display animate-fade-in text-secondary"
             style={{ animationDuration: "1s" }}
           >
             {homeSettings.title || "DIEGCUTZ"}
@@ -452,15 +452,15 @@ const Home = () => {
           style={{ opacity: Math.max(0, 1 - scrollY / 200) }}
         >
           <span className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">Scroll</span>
-          <div className="w-6 h-10 border-2 border-neon-cyan/50 rounded-full flex justify-center relative overflow-hidden">
-            <div className="w-1.5 h-3 bg-neon-cyan rounded-full mt-2 animate-bounce" />
+          <div className="w-6 h-10 border-2 border-secondary/50 rounded-full flex justify-center relative overflow-hidden">
+            <div className="w-1.5 h-3 bg-secondary rounded-full mt-2 animate-bounce" />
           </div>
         </div>
       </section>
 
       {/* Marquee tagline strip */}
       {marqueeItems.length > 0 && (
-        <div className="relative border-y border-neon-cyan/30 bg-background/40 backdrop-blur-sm py-3 overflow-hidden">
+        <div className="relative border-y border-secondary/30 bg-background/40 backdrop-blur-sm py-3 overflow-hidden">
           <div className="marquee">
             <div className="marquee-track text-sm md:text-base font-black uppercase tracking-[0.3em]">
               {Array.from({ length: 2 }).map((_, dup) => (
@@ -517,14 +517,14 @@ const Home = () => {
 
       {/* About Section with staggered scroll animations */}
       <section className="py-24 px-4 relative" ref={aboutRef}>
-        <div className="aurora" />
+        <div className="noir-ambient" />
         <div className="max-w-6xl mx-auto relative z-10">
           <div
             className={`text-center mb-20 transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
           >
             <h2
               data-text="🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ"
-              className="glitch text-5xl md:text-7xl font-black mb-6 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)] inline-block"
+              className="text-5xl md:text-7xl font-black mb-6 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)] inline-block"
             >
               🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
             </h2>
@@ -537,7 +537,7 @@ const Home = () => {
           <div className="grid md:grid-cols-3 gap-8 mb-20" ref={servicesRef}>
             <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "100ms" }}>
             <div
-              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-purple transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`spotlight bg-card/80 backdrop-blur-sm p-8 rounded-lg shadow-elegant transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               onMouseMove={(e) => {
                 const r = e.currentTarget.getBoundingClientRect();
                 e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
@@ -548,7 +548,7 @@ const Home = () => {
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
                 <Scissors className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-neon-purple">TRENDING CUTS</h3>
+              <h3 className="text-2xl font-bold mb-4 text-primary">TRENDING CUTS</h3>
               <p className="text-foreground">
                 Dominamos el fade que arrasa, los cortes con textura y el estilo que estás buscando.
               </p>
@@ -557,7 +557,7 @@ const Home = () => {
 
             <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "250ms" }}>
             <div
-              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-cyan transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`spotlight bg-card/80 backdrop-blur-sm p-8 rounded-lg shadow-elegant transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               onMouseMove={(e) => {
                 const r = e.currentTarget.getBoundingClientRect();
                 e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
@@ -568,7 +568,7 @@ const Home = () => {
               <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mb-6">
                 <Clock className="w-8 h-8 text-secondary" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-neon-cyan">BEARD GAME</h3>
+              <h3 className="text-2xl font-bold mb-4 text-secondary">BEARD GAME</h3>
               <p className="text-foreground">
                 Diseño de barba profesional y clean shaves a navaja para que salgas impecable.
               </p>
@@ -577,7 +577,7 @@ const Home = () => {
 
             <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "400ms" }}>
             <div
-              className={`neon-border lift-card spotlight bg-card/80 backdrop-blur-sm p-8 rounded-2xl glow-neon-purple transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
+              className={`spotlight bg-card/80 backdrop-blur-sm p-8 rounded-lg shadow-elegant transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
               onMouseMove={(e) => {
                 const r = e.currentTarget.getBoundingClientRect();
                 e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
@@ -588,7 +588,7 @@ const Home = () => {
               <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
                 <MapPin className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold mb-4 text-neon-purple">STYLE COACHING</h3>
+              <h3 className="text-2xl font-bold mb-4 text-primary">STYLE COACHING</h3>
               <p className="text-foreground">Te asesoramos para que el corte le dé el toque a tu vibe. 🚨</p>
             </div>
             </Tilt3D>
@@ -596,7 +596,7 @@ const Home = () => {
 
           {/* Booking Rules with animated border */}
           <div
-            className={`relative p-1 rounded-2xl bg-gradient-to-r from-neon-purple via-neon-cyan to-neon-purple bg-[length:200%_100%] transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+            className={`relative p-1 rounded-lg bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
             style={{
               animation: aboutVisible ? "text-shimmer 4s linear infinite" : "none",
               transitionDelay: "500ms",
@@ -606,13 +606,13 @@ const Home = () => {
               <h3 className="text-3xl font-black mb-6 text-center text-foreground">🚨 BOOKING Y REGLAS CLARAS</h3>
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="bg-background/50 p-6 rounded-lg border border-border">
-                  <h4 className="text-xl font-bold mb-3 text-neon-cyan">Cancelación</h4>
+                  <h4 className="text-xl font-bold mb-3 text-secondary">Cancelación</h4>
                   <p className="text-muted-foreground">
                     Tienes 48 horas (2 días) antes de la cita para{" "}
                     <a
                       href="https://wa.me/34641637576?text=Cancelar%20mi%20cita"
                       target="_blank"
-                      className="text-neon-cyan hover:underline"
+                      className="text-secondary hover:underline"
                     >
                       cancelar
                     </a>{" "}
@@ -620,7 +620,7 @@ const Home = () => {
                     <a
                       href="https://wa.me/34641637576?text=Reubicar%20mi%20cita"
                       target="_blank"
-                      className="text-neon-cyan hover:underline"
+                      className="text-secondary hover:underline"
                     >
                       reubicar
                     </a>{" "}
@@ -628,7 +628,7 @@ const Home = () => {
                   </p>
                 </div>
                 <div className="bg-background/50 p-6 rounded-lg border border-border">
-                  <h4 className="text-xl font-bold mb-3 text-neon-purple">Pago</h4>
+                  <h4 className="text-xl font-bold mb-3 text-primary">Pago</h4>
                   <p className="text-muted-foreground">
                     Solo aceptamos efectivo (CASH). Por seguridad, se paga antes de empezar el servicio. ¡Gracias por
                     elegirnos!
@@ -645,22 +645,22 @@ const Home = () => {
 
       {/* Memberships CTA */}
       <section className="relative py-16 px-4 bg-gradient-to-b from-background to-card/50 overflow-hidden">
-        <div className="aurora" />
+        <div className="noir-ambient" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <Crown
-            className="h-16 w-16 mx-auto text-[#D4AF37] mb-4 drop-shadow-[0_0_25px_rgba(212,175,55,0.6)]"
+            className="h-16 w-16 mx-auto text-primary mb-4 drop-shadow-[0_0_25px_rgba(212,175,55,0.6)]"
             style={{ animation: "glow-pulse 3s ease-in-out infinite" }}
           />
           <h2
             data-text="MEMBRESÍAS EXCLUSIVAS"
-            className="glitch text-4xl font-black mb-4 text-[#D4AF37] drop-shadow-[0_0_20px_rgba(212,175,55,0.5)]"
+            className="text-4xl font-black mb-4 text-primary drop-shadow-[0_0_20px_rgba(212,175,55,0.5)]"
           >
             MEMBRESÍAS EXCLUSIVAS
           </h2>
           <p className="text-xl text-muted-foreground mb-8">Planes mensuales con cortes gratis, descuentos y beneficios VIP</p>
           <Button
             size="lg"
-            className="magnetic-button text-lg px-12 py-6 h-auto bg-gradient-to-r from-[#D4AF37] to-[#B8860B] hover:from-[#B8860B] hover:to-[#D4AF37] text-background font-bold shadow-[0_0_40px_rgba(212,175,55,0.4)]"
+            className="magnetic-button text-lg px-12 py-6 h-auto bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-background font-bold shadow-[0_0_40px_rgba(212,175,55,0.4)]"
             onClick={() => navigate("/membership")}
           >
             <Crown className="mr-2 h-5 w-5" />
@@ -672,15 +672,15 @@ const Home = () => {
 
       {/* Giveaways CTA */}
       <section className="relative py-16 px-4 bg-card/50 overflow-hidden">
-        <div className="aurora" />
+        <div className="noir-ambient" />
         <div className="max-w-4xl mx-auto text-center relative z-10">
           <Gift
-            className="h-16 w-16 mx-auto text-neon-purple mb-4"
+            className="h-16 w-16 mx-auto text-primary mb-4"
             style={{ animation: "glow-pulse 3s ease-in-out infinite" }}
           />
           <h2
             data-text="¡PARTICIPA EN NUESTROS SORTEOS!"
-            className="glitch text-4xl font-black mb-4 text-neon-purple"
+            className="text-4xl font-black mb-4 text-primary"
           >
             ¡PARTICIPA EN NUESTROS SORTEOS!
           </h2>
@@ -705,15 +705,15 @@ const Home = () => {
           className="absolute inset-0 pointer-events-none"
           style={{ transform: `translateY(${(scrollY - 1500) * 0.1}px)` }}
         >
-          <div className="absolute top-0 right-0 w-96 h-96 bg-neon-cyan/5 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-neon-purple/5 rounded-full blur-[100px]" />
+          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-[100px]" />
+          <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px]" />
         </div>
 
         <div className="max-w-4xl mx-auto relative z-10">
           <div
             className={`transition-all duration-1000 ${locationVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
-            <h2 className="text-5xl md:text-6xl font-black text-center mb-6 text-neon-cyan">
+            <h2 className="text-5xl md:text-6xl font-black text-center mb-6 text-secondary">
               <MapPin className="inline-block mr-2 mb-2 animate-bounce" size={48} />
               <span data-text="UBICACIÓN" className="glitch">UBICACIÓN</span>
             </h2>
@@ -723,7 +723,7 @@ const Home = () => {
             <div className="neon-divider mb-10 max-w-md mx-auto" />
           </div>
           <div
-            className={`neon-border rounded-2xl overflow-hidden transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
+            className={`rounded-lg overflow-hidden transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
           >
             <Map />
           </div>
@@ -732,11 +732,11 @@ const Home = () => {
 
       {/* Hours Section with staggered animation */}
       <section className="py-24 px-4 bg-card relative overflow-hidden" ref={hoursRef}>
-        <div className="aurora" />
+        <div className="noir-ambient" />
         <div className="max-w-4xl mx-auto relative z-10">
           <h2
             data-text="HORARIOS"
-            className={`glitch text-5xl md:text-6xl font-black text-center mb-16 text-neon-purple transition-all duration-1000 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
+            className={`text-5xl md:text-6xl font-black text-center mb-16 text-primary transition-all duration-1000 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
           >
             HORARIOS
           </h2>
@@ -762,7 +762,7 @@ const Home = () => {
                         {day.is_closed ? (
                           <span className="text-destructive font-semibold">Cerrado</span>
                         ) : day.is_24h ? (
-                          <span className="text-neon-cyan">Abierto 24h</span>
+                          <span className="text-secondary">Abierto 24h</span>
                         ) : (
                           day.time_ranges.map((range, i) => (
                             <span key={i}>
@@ -775,8 +775,8 @@ const Home = () => {
                     </div>
                     {/* Special hours for this day */}
                     {daySpecialHours.length > 0 && (
-                      <div className="mt-2 pl-4 border-l-2 border-neon-cyan/50">
-                        <p className="text-xs text-neon-cyan font-semibold mb-1">Horarios Especiales:</p>
+                      <div className="mt-2 pl-4 border-l-2 border-secondary/50">
+                        <p className="text-xs text-secondary font-semibold mb-1">Horarios Especiales:</p>
                         {daySpecialHours.map((sh) => {
                           const shDate = new Date(sh.date + "T00:00:00");
                           const dayNum = shDate.getDate();
@@ -855,7 +855,7 @@ const Home = () => {
         href="https://wa.me/34641637576"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20BA5A] text-white p-4 rounded-full shadow-lg transition-all hover:scale-110 glow-neon-cyan"
+        className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20BA5A] text-white p-4 rounded-full shadow-lg transition-all hover:scale-110 shadow-elegant"
         aria-label="Contactar por WhatsApp"
       >
         <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">

@@ -667,7 +667,7 @@ const QueueSlide = ({ bookings, now }: { bookings: Booking[]; now: Date }) => {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="text-center py-20 rounded-3xl border border-cyan-400/30 bg-black/40 backdrop-blur-xl"
+          className="text-center py-20 rounded-lg border border-cyan-400/30 bg-black/40 backdrop-blur-xl"
         >
           <Sparkles className="w-20 h-20 text-cyan-400 mx-auto mb-6 drop-shadow-[0_0_20px_rgba(34,211,238,.8)]" />
           <p className="text-3xl font-bold text-white">¡No quedan turnos hoy!</p>
@@ -683,7 +683,7 @@ const QueueSlide = ({ bookings, now }: { bookings: Booking[]; now: Date }) => {
                 initial={{ opacity: 0, x: -50 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1 * i }}
-                className={`relative rounded-2xl p-5 backdrop-blur-xl border overflow-hidden ${
+                className={`relative rounded-lg p-5 backdrop-blur-xl border overflow-hidden ${
                   isNext
                     ? "bg-gradient-to-r from-cyan-500/30 to-fuchsia-500/30 border-cyan-400/60 shadow-[0_0_40px_rgba(34,211,238,.4)]"
                     : "bg-black/40 border-white/10"
@@ -734,7 +734,7 @@ const ServicesSlide = ({ services }: { services: Service[] }) => (
           initial={{ opacity: 0, y: 30, rotateX: -20 }}
           animate={{ opacity: 1, y: 0, rotateX: 0 }}
           transition={{ delay: 0.08 * i }}
-          className="rounded-2xl p-6 bg-gradient-to-br from-black/60 to-purple-950/40 backdrop-blur-xl border border-cyan-400/20 hover:border-cyan-400/60 transition-all"
+          className="rounded-lg p-6 bg-gradient-to-br from-black/60 to-purple-950/40 backdrop-blur-xl border border-cyan-400/20 hover:border-cyan-400/60 transition-all"
         >
           <div className="text-lg font-bold uppercase tracking-wide text-white">{s.name}</div>
           <div className="mt-3 text-4xl font-black bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
@@ -757,7 +757,7 @@ const PacksSlide = ({ packs }: { packs: Service[] }) => (
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.15 * i }}
-          className="relative rounded-3xl p-8 overflow-hidden bg-gradient-to-br from-fuchsia-600/30 via-purple-700/30 to-cyan-600/30 backdrop-blur-xl border-2 border-fuchsia-400/40"
+          className="relative rounded-lg p-8 overflow-hidden bg-gradient-to-br from-fuchsia-600/30 via-purple-700/30 to-cyan-600/30 backdrop-blur-xl border-2 border-fuchsia-400/40"
         >
           <motion.div
             animate={{ rotate: 360 }}
@@ -796,7 +796,7 @@ const MembershipSlide = ({ memberships }: { memberships: Membership[] }) => (
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 * i }}
-          className="relative rounded-2xl p-6 bg-gradient-to-b from-amber-500/20 via-fuchsia-500/20 to-cyan-500/20 backdrop-blur-xl border border-amber-300/30"
+          className="relative rounded-lg p-6 bg-gradient-to-b from-amber-500/20 via-fuchsia-500/20 to-cyan-500/20 backdrop-blur-xl border border-amber-300/30"
         >
           <div className="text-5xl mb-3">{m.emoji || "👑"}</div>
           <div className="text-xl font-black text-white uppercase tracking-wide">{m.name}</div>
@@ -832,12 +832,12 @@ const GiveawaySlide = ({ giveaway }: { giveaway: Giveaway }) => {
       <motion.div
         animate={{ scale: [1, 1.02, 1] }}
         transition={{ duration: 3, repeat: Infinity }}
-        className="relative rounded-3xl p-12 bg-gradient-to-br from-fuchsia-600/30 via-pink-500/20 to-cyan-500/30 backdrop-blur-xl border-2 border-fuchsia-400/50 overflow-hidden"
+        className="relative rounded-lg p-12 bg-gradient-to-br from-fuchsia-600/30 via-pink-500/20 to-cyan-500/30 backdrop-blur-xl border-2 border-fuchsia-400/50 overflow-hidden"
       >
         <Gift className="w-20 h-20 text-fuchsia-300 mx-auto mb-6 drop-shadow-[0_0_30px_rgba(217,70,239,.8)]" />
         <div className="text-4xl font-black text-white mb-4">{giveaway.title}</div>
         <div className="text-2xl text-cyan-200 mb-8">🎁 {giveaway.prize}</div>
-        <div className="inline-block px-8 py-4 rounded-2xl bg-black/50 border border-cyan-400/40">
+        <div className="inline-block px-8 py-4 rounded-lg bg-black/50 border border-cyan-400/40">
           <div className="text-xs uppercase tracking-widest text-cyan-300/80 mb-1">Termina en</div>
           <div className="text-5xl font-mono font-black text-cyan-300 drop-shadow-[0_0_15px_rgba(34,211,238,.7)]">
             {diff}
@@ -854,7 +854,7 @@ const HoursSlide = ({ hours }: { hours: BusinessHour[] }) => {
   return (
     <div>
       <SlideTitle icon={Calendar} title="HORARIO" subtitle="Cuándo abrimos" />
-      <div className="rounded-3xl bg-black/40 backdrop-blur-xl border border-cyan-400/20 overflow-hidden divide-y divide-cyan-400/10">
+      <div className="rounded-lg bg-black/40 backdrop-blur-xl border border-cyan-400/20 overflow-hidden divide-y divide-cyan-400/10">
         {hours.map((h, i) => {
           const isToday = h.day_of_week === today;
           const ranges = h.is_closed
@@ -954,7 +954,7 @@ const StatsSlide = ({ stats }: { stats: Stats }) => {
             initial={{ opacity: 0, y: 60, rotateY: 20 }}
             animate={{ opacity: 1, y: 0, rotateY: 0 }}
             transition={{ delay: i * 0.12, type: "spring", stiffness: 80 }}
-            className="relative rounded-3xl p-7 bg-black/50 backdrop-blur-xl border border-white/10 overflow-hidden"
+            className="relative rounded-lg p-7 bg-black/50 backdrop-blur-xl border border-white/10 overflow-hidden"
           >
             <motion.div
               animate={{ rotate: 360 }}
@@ -1016,7 +1016,7 @@ const ReviewsSlide = ({ ratings }: { ratings: Rating[] }) => {
           animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
           exit={{ opacity: 0, y: -40, filter: "blur(10px)" }}
           transition={{ duration: 0.6 }}
-          className="relative mx-auto max-w-4xl rounded-3xl p-12 bg-gradient-to-br from-amber-500/10 via-fuchsia-500/10 to-cyan-500/10 backdrop-blur-xl border border-amber-300/30"
+          className="relative mx-auto max-w-4xl rounded-lg p-12 bg-gradient-to-br from-amber-500/10 via-fuchsia-500/10 to-cyan-500/10 backdrop-blur-xl border border-amber-300/30"
         >
           <Quote className="absolute top-4 left-4 w-12 h-12 text-amber-300/40" />
           <div className="flex justify-center gap-1 mb-6">
@@ -1070,7 +1070,7 @@ const CouponsSlide = ({ coupons }: { coupons: Coupon[] }) => (
           initial={{ opacity: 0, x: i % 2 === 0 ? -80 : 80, rotate: i % 2 === 0 ? -3 : 3 }}
           animate={{ opacity: 1, x: 0, rotate: 0 }}
           transition={{ delay: i * 0.12, type: "spring", stiffness: 70 }}
-          className="relative rounded-3xl p-7 overflow-hidden border-2 border-dashed border-fuchsia-400/50 bg-gradient-to-br from-fuchsia-600/20 via-pink-500/15 to-amber-500/20 backdrop-blur-xl"
+          className="relative rounded-lg p-7 overflow-hidden border-2 border-dashed border-fuchsia-400/50 bg-gradient-to-br from-fuchsia-600/20 via-pink-500/15 to-amber-500/20 backdrop-blur-xl"
         >
           <motion.div
             animate={{ rotate: 360 }}
@@ -1119,7 +1119,7 @@ const SocialSlide = () => (
     <motion.div
       animate={{ scale: [1, 1.05, 1] }}
       transition={{ duration: 4, repeat: Infinity }}
-      className="relative inline-block rounded-3xl p-12 bg-gradient-to-br from-fuchsia-600/30 via-pink-500/30 to-amber-500/30 backdrop-blur-xl border-2 border-fuchsia-400/40 overflow-hidden"
+      className="relative inline-block rounded-lg p-12 bg-gradient-to-br from-fuchsia-600/30 via-pink-500/30 to-amber-500/30 backdrop-blur-xl border-2 border-fuchsia-400/40 overflow-hidden"
     >
       <motion.div
         animate={{ rotate: 360 }}
@@ -1150,7 +1150,7 @@ const PromoSlide = () => (
     <motion.div
       animate={{ y: [0, -10, 0] }}
       transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
-      className="relative mx-auto max-w-4xl rounded-3xl p-14 overflow-hidden bg-gradient-to-br from-cyan-600/30 via-purple-700/30 to-fuchsia-600/30 backdrop-blur-xl border-2 border-cyan-400/50"
+      className="relative mx-auto max-w-4xl rounded-lg p-14 overflow-hidden bg-gradient-to-br from-cyan-600/30 via-purple-700/30 to-fuchsia-600/30 backdrop-blur-xl border-2 border-cyan-400/50"
     >
       <motion.div
         animate={{ x: ["-100%", "100%"] }}
@@ -1168,7 +1168,7 @@ const PromoSlide = () => (
         Tu próximo corte<br />
         te está esperando
       </div>
-      <div className="mt-8 inline-block px-10 py-5 rounded-2xl bg-black/50 border border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,.5)]">
+      <div className="mt-8 inline-block px-10 py-5 rounded-lg bg-black/50 border border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,.5)]">
         <div className="text-xs uppercase tracking-widest text-cyan-300/80">Reserva online</div>
         <div className="text-5xl font-black leading-[1.2] pb-2 bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
           diegcutz.es
@@ -1242,7 +1242,7 @@ const AchievementsFeedSlide = ({ items }: { items: AchievementFeedItem[] }) => (
           initial={{ opacity: 0, x: -40 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: i * 0.07 }}
-          className="rounded-2xl p-4 bg-gradient-to-r from-amber-500/15 to-fuchsia-500/15 backdrop-blur-xl border border-amber-300/30 flex items-center gap-4"
+          className="rounded-lg p-4 bg-gradient-to-r from-amber-500/15 to-fuchsia-500/15 backdrop-blur-xl border border-amber-300/30 flex items-center gap-4"
         >
           <div className="w-14 h-14 rounded-full bg-amber-400/20 border border-amber-300/40 flex items-center justify-center shrink-0">
             <Trophy className="w-7 h-7 text-amber-300 drop-shadow-[0_0_10px_rgba(251,191,36,.7)]" />
@@ -1275,7 +1275,7 @@ const SpecialHoursSlide = ({ items }: { items: SpecialHour[] }) => (
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className={`rounded-2xl p-6 backdrop-blur-xl border ${
+            className={`rounded-lg p-6 backdrop-blur-xl border ${
               it.is_closed
                 ? "bg-red-500/10 border-red-400/40"
                 : "bg-gradient-to-br from-cyan-500/15 to-fuchsia-500/15 border-cyan-400/40"
@@ -1306,7 +1306,7 @@ const CutsTodaySlide = ({ count }: { count: number }) => (
       initial={{ opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ type: "spring", stiffness: 90 }}
-      className="relative mx-auto max-w-3xl rounded-3xl p-16 bg-gradient-to-br from-cyan-600/30 via-purple-700/30 to-fuchsia-600/30 backdrop-blur-xl border-2 border-cyan-400/50 overflow-hidden"
+      className="relative mx-auto max-w-3xl rounded-lg p-16 bg-gradient-to-br from-cyan-600/30 via-purple-700/30 to-fuchsia-600/30 backdrop-blur-xl border-2 border-cyan-400/50 overflow-hidden"
     >
       <Activity className="w-20 h-20 text-cyan-300 mx-auto mb-6 drop-shadow-[0_0_25px_rgba(34,211,238,.9)]" />
       <div className="text-2xl text-white/80 uppercase tracking-[0.4em] mb-4">Ya llevamos</div>
@@ -1326,7 +1326,7 @@ const NextSlotSlide = ({ slot }: { slot: { date: string; time: string } }) => {
       <motion.div
         animate={{ scale: [1, 1.02, 1] }}
         transition={{ duration: 3, repeat: Infinity }}
-        className="relative mx-auto max-w-3xl rounded-3xl p-14 bg-gradient-to-br from-emerald-500/25 via-cyan-500/25 to-fuchsia-500/25 backdrop-blur-xl border-2 border-emerald-400/50 overflow-hidden"
+        className="relative mx-auto max-w-3xl rounded-lg p-14 bg-gradient-to-br from-emerald-500/25 via-cyan-500/25 to-fuchsia-500/25 backdrop-blur-xl border-2 border-emerald-400/50 overflow-hidden"
       >
         <Timer className="w-20 h-20 text-emerald-300 mx-auto mb-6 drop-shadow-[0_0_25px_rgba(52,211,153,.9)]" />
         <div className="text-xs uppercase tracking-[0.4em] text-emerald-200/80">
@@ -1353,7 +1353,7 @@ const QrBookSlide = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative mx-auto inline-block rounded-3xl p-8 bg-white border-4 border-cyan-400/70 shadow-[0_0_60px_rgba(34,211,238,.6)]"
+        className="relative mx-auto inline-block rounded-lg p-8 bg-white border-4 border-cyan-400/70 shadow-[0_0_60px_rgba(34,211,238,.6)]"
       >
         <img src={qr} alt="QR diegcutz.es/booking" className="w-[360px] h-[360px] block" />
       </motion.div>

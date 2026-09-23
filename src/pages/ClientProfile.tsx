@@ -554,7 +554,7 @@ const ClientProfile = () => {
         </Button>
 
         <div className="text-center mb-12">
-          <h1 className="text-5xl font-black mb-4 text-neon-purple font-aggressive">
+          <h1 className="text-5xl font-black mb-4 text-primary font-display">
             FICHA DE CLIENTE
           </h1>
         </div>
@@ -679,9 +679,9 @@ const ClientProfile = () => {
               <p className="text-sm text-muted-foreground">Contacto</p>
               <div className="flex items-center gap-2">
                 {profile.contact_method === "email" ? (
-                  <Mail className="w-4 h-4 text-neon-cyan" />
+                  <Mail className="w-4 h-4 text-secondary" />
                 ) : (
-                  <Phone className="w-4 h-4 text-neon-cyan" />
+                  <Phone className="w-4 h-4 text-secondary" />
                 )}
                 <p className="text-lg font-semibold">{profile.contact_value}</p>
               </div>
@@ -712,7 +712,7 @@ const ClientProfile = () => {
         <Card className="bg-card border-border mb-8">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
-              <Gift className="text-neon-cyan" />
+              <Gift className="text-secondary" />
               Cortes gratis
             </CardTitle>
           </CardHeader>
@@ -726,7 +726,7 @@ const ClientProfile = () => {
                 </div>
                 <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
                   <div 
-                    className="h-full bg-gradient-to-r from-primary to-neon-cyan transition-all duration-300"
+                    className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-300"
                     style={{ width: `${(progressToFreeCut / 10) * 100}%` }}
                   />
                 </div>
@@ -736,9 +736,9 @@ const ClientProfile = () => {
               </div>}
 
               {/* Free cuts available */}
-              <div className={`p-4 rounded-lg border ${loyaltyReward && loyaltyReward.free_cuts_available > 0 ? 'bg-neon-cyan/20 border-neon-cyan' : 'bg-muted/50 border-border'}`}>
+              <div className={`p-4 rounded-lg border ${loyaltyReward && loyaltyReward.free_cuts_available > 0 ? 'bg-secondary/20 border-secondary' : 'bg-muted/50 border-border'}`}>
                 <div className="flex items-center justify-between">
-                  <p className={`font-bold ${loyaltyReward && loyaltyReward.free_cuts_available > 0 ? 'text-neon-cyan' : 'text-muted-foreground'}`}>
+                  <p className={`font-bold ${loyaltyReward && loyaltyReward.free_cuts_available > 0 ? 'text-secondary' : 'text-muted-foreground'}`}>
                     {loyaltyReward && loyaltyReward.free_cuts_available > 0
                       ? `🎉 ¡Tiene ${loyaltyReward.free_cuts_available} corte(s) gratis disponible(s)!`
                       : '✂️ No tiene cortes gratis disponibles'}
@@ -793,7 +793,7 @@ const ClientProfile = () => {
           <Card className="bg-card border-border mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
-                <QrCode className="text-[#D4AF37]" />
+                <QrCode className="text-primary" />
                 QR de Fidelización
               </CardTitle>
             </CardHeader>
@@ -897,7 +897,7 @@ const ClientProfile = () => {
         <Card className="bg-card border-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-2xl">
-              <Calendar className="text-neon-cyan" />
+              <Calendar className="text-secondary" />
               Historial de Reservas
             </CardTitle>
             <CardDescription>
@@ -925,7 +925,7 @@ const ClientProfile = () => {
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-neon-cyan" />
+                          <Clock className="w-4 h-4 text-secondary" />
                           <span>{booking.booking_time.slice(0, 5)}</span>
                         </div>
                         <div className="flex items-start gap-2">

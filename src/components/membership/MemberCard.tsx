@@ -15,7 +15,7 @@ export const MemberCard = ({ userName, planName, planEmoji, endDate, memberSince
   const formattedSince = new Date(memberSince).toLocaleDateString("es-ES", { month: "short", year: "numeric" });
 
   return (
-    <div className="relative rounded-2xl overflow-hidden max-w-sm mx-auto">
+    <div className="relative rounded-lg overflow-hidden max-w-sm mx-auto">
       {/* Card background */}
       <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]" />
       <div className="absolute inset-0" style={{
@@ -23,26 +23,26 @@ export const MemberCard = ({ userName, planName, planEmoji, endDate, memberSince
         backgroundSize: "200% 100%",
         animation: "card-shine 4s ease-in-out infinite",
       }} />
-      <div className="absolute inset-0 rounded-2xl border-2 border-[#D4AF37]/50" />
+      <div className="absolute inset-0 rounded-lg border-2 border-primary/50" />
 
       {/* Corner accents */}
-      <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#D4AF37]/60 rounded-tl-lg" />
-      <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#D4AF37]/60 rounded-tr-lg" />
-      <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[#D4AF37]/60 rounded-bl-lg" />
-      <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[#D4AF37]/60 rounded-br-lg" />
+      <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-primary/60 rounded-tl-lg" />
+      <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-primary/60 rounded-tr-lg" />
+      <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-primary/60 rounded-bl-lg" />
+      <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-primary/60 rounded-br-lg" />
 
       <div className="relative p-6">
         {/* Header */}
         <div className="text-center mb-4">
-          <h2 className="text-xl font-black text-[#D4AF37] tracking-wider">DIEGCUTZ</h2>
-          <p className="text-[10px] text-[#D4AF37]/60 tracking-[0.3em] uppercase">Member Card</p>
+          <h2 className="text-xl font-black text-primary tracking-wider">DIEGCUTZ</h2>
+          <p className="text-[10px] text-primary/60 tracking-[0.3em] uppercase">Member Card</p>
         </div>
 
         {/* Plan badge */}
         <div className="flex items-center justify-center gap-2 mb-4">
-          <Sparkles className="h-4 w-4 text-[#D4AF37]" />
-          <span className="text-lg font-bold text-[#D4AF37]">{planEmoji} {planName}</span>
-          <Sparkles className="h-4 w-4 text-[#D4AF37]" />
+          <Sparkles className="h-4 w-4 text-primary" />
+          <span className="text-lg font-bold text-primary">{planEmoji} {planName}</span>
+          <Sparkles className="h-4 w-4 text-primary" />
         </div>
 
         {/* User info */}
@@ -53,7 +53,7 @@ export const MemberCard = ({ userName, planName, planEmoji, endDate, memberSince
 
         {/* Dates */}
         <div className="flex justify-between text-xs text-white/40 mb-4 px-2">
-          <span>Válida hasta: <span className="text-[#D4AF37]">{formattedEnd}</span></span>
+          <span>Válida hasta: <span className="text-primary">{formattedEnd}</span></span>
         </div>
 
         {/* QR */}

@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Crown, Sparkles, Gift } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 
 const Loyalty = () => {
   const navigate = useNavigate();
@@ -106,19 +107,19 @@ const Loyalty = () => {
   if (!loyaltyEnabled) {
     const freeCuts = loyaltyData?.free_cuts_available || 0;
     return (
-      <div className="customer-shell min-h-screen py-8 px-4 pt-safe">
+       <CustomerPage><div className="min-h-screen py-8 px-4 pt-safe">
         <div className="max-w-md mx-auto">
           <Button variant="ghost" onClick={() => navigate("/")} className="mb-10">
             <ArrowLeft className="mr-2 h-4 w-4" /> Volver
           </Button>
           <div className="customer-panel text-center p-8">
-            <div className="w-16 h-1 bg-secondary glow-neon-cyan mx-auto mb-7" />
+            <div className="w-16 h-1 bg-secondary shadow-elegant mx-auto mb-7" />
             <Gift className="w-12 h-12 text-secondary mx-auto mb-5" />
             <p className="customer-kicker">RECOMPENSAS MANUALES</p>
             <h1 className="text-4xl font-black mt-2 mb-4">CORTES GRATIS</h1>
             {freeCuts > 0 ? (
               <>
-                <p className="text-6xl font-black text-neon-cyan my-8">{freeCuts}</p>
+                <p className="text-6xl font-black text-secondary my-8">{freeCuts}</p>
                 <p className="text-muted-foreground mb-8">
                   Tienes {freeCuts} corte{freeCuts === 1 ? "" : "s"} gratis disponible{freeCuts === 1 ? "" : "s"}.
                 </p>
@@ -129,14 +130,14 @@ const Loyalty = () => {
             ) : (
               <p className="text-muted-foreground mt-6">Ahora mismo no tienes cortes gratis disponibles.</p>
             )}
-          </div>
+       </div></CustomerPage>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="customer-shell min-h-screen py-8 px-4 pt-safe">
+    <CustomerPage><div className="min-h-screen py-8 px-4 pt-safe">
       <style>{`
         @keyframes stamp-in {
           0% { transform: scale(0) rotate(-180deg); opacity: 0; }
@@ -187,37 +188,37 @@ const Loyalty = () => {
 
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-2 mb-2">
-            <Crown className="w-8 h-8 text-[#D4AF37]" />
-            <h1 className="text-3xl font-black text-[#D4AF37] font-aggressive">
+            <Crown className="w-8 h-8 text-primary" />
+            <h1 className="text-3xl font-black text-primary font-display">
               LOYALTY CARD
             </h1>
-            <Crown className="w-8 h-8 text-[#D4AF37]" />
+            <Crown className="w-8 h-8 text-primary" />
           </div>
           <p className="text-muted-foreground">@{profile?.username}</p>
         </div>
 
         {/* Loyalty Card */}
-        <div className="relative rounded-2xl overflow-hidden mb-8">
+        <div className="relative rounded-lg overflow-hidden mb-8">
           {/* Card background */}
           <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]" />
           <div className="absolute inset-0 card-shine" />
           
           {/* Gold border */}
-          <div className="absolute inset-0 rounded-2xl border-2 border-[#D4AF37]/50" />
+          <div className="absolute inset-0 rounded-lg border-2 border-primary/50" />
           
           {/* Decorative corner accents */}
-          <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-[#D4AF37]/60 rounded-tl-lg" />
-          <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-[#D4AF37]/60 rounded-tr-lg" />
-          <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-[#D4AF37]/60 rounded-bl-lg" />
-          <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-[#D4AF37]/60 rounded-br-lg" />
+          <div className="absolute top-3 left-3 w-6 h-6 border-t-2 border-l-2 border-primary/60 rounded-tl-lg" />
+          <div className="absolute top-3 right-3 w-6 h-6 border-t-2 border-r-2 border-primary/60 rounded-tr-lg" />
+          <div className="absolute bottom-3 left-3 w-6 h-6 border-b-2 border-l-2 border-primary/60 rounded-bl-lg" />
+          <div className="absolute bottom-3 right-3 w-6 h-6 border-b-2 border-r-2 border-primary/60 rounded-br-lg" />
 
           <div className="relative p-6 pt-8">
             {/* Header */}
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-black text-[#D4AF37] tracking-wider">
+              <h2 className="text-2xl font-black text-primary tracking-wider">
                 DIEGCUTZ
               </h2>
-              <p className="text-xs text-[#D4AF37]/60 tracking-[0.3em] uppercase mt-1">
+              <p className="text-xs text-primary/60 tracking-[0.3em] uppercase mt-1">
                 Urban Barbershop · VIP Card
               </p>
             </div>
@@ -235,10 +236,10 @@ const Loyalty = () => {
                       relative aspect-square rounded-full flex items-center justify-center
                       transition-all duration-300
                       ${isStamped
-                        ? "bg-gradient-to-br from-[#D4AF37] to-[#B8860B] shadow-[0_0_15px_rgba(212,175,55,0.4)]"
+                        ? "bg-gradient-to-br from-primary to-secondary shadow-[0_0_15px_rgba(212,175,55,0.4)]"
                         : isFree
-                          ? "border-2 border-dashed border-[#D4AF37]/40 bg-[#D4AF37]/5"
-                          : "border-2 border-[#D4AF37]/20 bg-white/5"
+                          ? "border-2 border-dashed border-primary/40 bg-primary/5"
+                          : "border-2 border-primary/20 bg-white/5"
                       }
                     `}
                   >
@@ -249,9 +250,9 @@ const Loyalty = () => {
                         </svg>
                       </div>
                     ) : isFree ? (
-                      <Gift className="w-5 h-5 text-[#D4AF37]/40" />
+                      <Gift className="w-5 h-5 text-primary/40" />
                     ) : (
-                      <span className="text-[10px] text-[#D4AF37]/30 font-bold">{i + 1}</span>
+                      <span className="text-[10px] text-primary/30 font-bold">{i + 1}</span>
                     )}
                   </div>
                 );
@@ -261,7 +262,7 @@ const Loyalty = () => {
             {/* Progress text */}
             <div className="text-center mb-2">
               <p className="text-lg font-bold text-white">
-                {stamps}/10 <span className="text-[#D4AF37]">sellos</span>
+                {stamps}/10 <span className="text-primary">sellos</span>
               </p>
               <p className="text-xs text-white/40">
                 {10 - stamps === 0
@@ -272,17 +273,17 @@ const Loyalty = () => {
 
             {/* Free cut badge */}
             {loyaltyData && loyaltyData.free_cuts_available > 0 && (
-              <div className="bg-gradient-to-r from-[#D4AF37]/20 to-[#B8860B]/20 border border-[#D4AF37]/50 rounded-xl p-3 text-center mb-4 space-y-2">
+              <div className="bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/50 rounded-xl p-3 text-center mb-4 space-y-2">
                 <div className="flex items-center justify-center gap-2">
-                  <Sparkles className="w-5 h-5 text-[#D4AF37] animate-pulse" />
-                  <span className="text-[#D4AF37] font-bold text-lg">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  <span className="text-primary font-bold text-lg">
                     ¡{loyaltyData.free_cuts_available} CORTE{loyaltyData.free_cuts_available > 1 ? "S" : ""} GRATIS DISPONIBLE{loyaltyData.free_cuts_available > 1 ? "S" : ""}!
                   </span>
-                  <Sparkles className="w-5 h-5 text-[#D4AF37] animate-pulse" />
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
                 </div>
                 <Button
                   size="sm"
-                  className="bg-[#D4AF37] hover:bg-[#B8860B] text-background font-bold"
+                  className="bg-primary hover:bg-[#B8860B] text-background font-bold"
                   onClick={() => navigate("/booking?free_cut=true")}
                 >
                   ✂️ Reservar corte gratis
@@ -297,12 +298,12 @@ const Loyalty = () => {
             </div>
 
             {/* Separator */}
-            <div className="border-t border-dashed border-[#D4AF37]/20 my-4" />
+            <div className="border-t border-dashed border-primary/20 my-4" />
 
             {/* QR Code */}
             {loyaltyToken && (
               <div className="flex flex-col items-center">
-                <p className="text-xs text-[#D4AF37]/60 uppercase tracking-widest mb-3">
+                <p className="text-xs text-primary/60 uppercase tracking-widest mb-3">
                   Escanea para sumar sello
                 </p>
                 <div className="bg-white rounded-xl p-3 shadow-[0_0_20px_rgba(212,175,55,0.2)]">
@@ -326,11 +327,11 @@ const Loyalty = () => {
         {/* Info */}
         <div className="text-center text-sm text-muted-foreground space-y-2">
           <p>Cada visita suma un sello automáticamente.</p>
-          <p>Al completar 10 sellos, recibirás un <strong className="text-[#D4AF37]">corte GRATIS</strong>.</p>
+          <p>Al completar 10 sellos, recibirás un <strong className="text-primary">corte GRATIS</strong>.</p>
           <p className="text-xs">Muestra tu QR al barbero para sumar el sello al instante.</p>
         </div>
       </div>
-    </div>
+    </div></CustomerPage>
   );
 };
 

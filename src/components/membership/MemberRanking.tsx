@@ -76,14 +76,14 @@ export const MemberRanking = () => {
     <Card className="mb-6">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-lg">
-          <Trophy className="h-5 w-5 text-[#D4AF37]" />
+          <Trophy className="h-5 w-5 text-primary" />
           Ranking de Miembros
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-2">
           {ranking.map((member, i) => (
-            <div key={member.userId} className={`flex items-center gap-3 p-3 rounded-lg ${i < 3 ? "bg-[#D4AF37]/5 border border-[#D4AF37]/20" : "bg-muted/30"}`}>
+            <div key={member.userId} className={`flex items-center gap-3 p-3 rounded-lg ${i < 3 ? "bg-primary/5 border border-primary/20" : "bg-muted/30"}`}>
               <span className="text-lg w-8 text-center shrink-0">
                 {i < 3 ? medals[i] : `#${i + 1}`}
               </span>

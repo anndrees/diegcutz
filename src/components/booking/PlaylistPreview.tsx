@@ -131,7 +131,7 @@ export const PlaylistPreview = ({ url }: { url: string }) => {
               </span>
               {loading && <Loader2 className="w-3 h-3 animate-spin opacity-50" />}
               {confirmed && (
-                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-neon-cyan">
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold text-secondary">
                   <Check className="w-3 h-3" /> Confirmada
                 </span>
               )}

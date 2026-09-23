@@ -72,7 +72,7 @@ export const MyMembershipSection = () => {
         <CardContent className="pt-6 text-center">
           <Crown className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
           <p className="text-muted-foreground mb-3">No tienes una membresía activa</p>
-          <Button variant="outline" className="border-[#D4AF37] text-[#D4AF37]" onClick={() => navigate("/membership")}>
+          <Button variant="outline" className="border-primary text-primary" onClick={() => navigate("/membership")}>
             Ver planes disponibles
           </Button>
         </CardContent>
@@ -89,14 +89,14 @@ export const MyMembershipSection = () => {
   return (
     <>
       <Card className="mb-6 overflow-hidden">
-        <div className="bg-gradient-to-r from-[#D4AF37]/20 to-[#B8860B]/10 p-1" />
+        <div className="bg-gradient-to-r from-primary/20 to-secondary/10 p-1" />
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[#D4AF37]">
+            <div className="flex items-center gap-2 text-primary">
               <Crown className="h-5 w-5" />
               Mi Membresía
             </div>
-            <Badge className="bg-[#D4AF37] text-background">{plan.emoji} {plan.name}</Badge>
+            <Badge className="bg-primary text-background">{plan.emoji} {plan.name}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -115,12 +115,12 @@ export const MyMembershipSection = () => {
           {/* Benefits usage */}
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-muted/50 rounded-lg p-3 text-center">
-              <Scissors className="h-4 w-4 mx-auto mb-1 text-[#D4AF37]" />
+              <Scissors className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">{membership.free_services_remaining}<span className="text-xs font-normal text-muted-foreground">/{plan.free_services_per_month}</span></p>
               <p className="text-[10px] text-muted-foreground">Servicios restantes</p>
             </div>
             <div className="bg-muted/50 rounded-lg p-3 text-center">
-              <Sparkles className="h-4 w-4 mx-auto mb-1 text-[#D4AF37]" />
+              <Sparkles className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">
                 {membership.beard_services_remaining >= 999 ? "∞" : membership.beard_services_remaining}
                 {plan.includes_beard_count !== -1 && <span className="text-xs font-normal text-muted-foreground">/{plan.includes_beard_count}</span>}
@@ -130,15 +130,15 @@ export const MyMembershipSection = () => {
           </div>
 
           {plan.product_discount_percent > 0 && (
-            <div className="bg-[#D4AF37]/10 rounded-lg p-3 text-center">
-              <p className="text-sm font-bold text-[#D4AF37]">-{plan.product_discount_percent}% en productos</p>
+            <div className="bg-primary/10 rounded-lg p-3 text-center">
+              <p className="text-sm font-bold text-primary">-{plan.product_discount_percent}% en productos</p>
               <p className="text-[10px] text-muted-foreground">Se aplica automáticamente</p>
             </div>
           )}
 
           {/* Actions */}
           <div className="grid grid-cols-2 gap-2">
-            <Button variant="outline" size="sm" className="border-[#D4AF37]/30 text-[#D4AF37]" onClick={() => setShowCard(true)}>
+            <Button variant="outline" size="sm" className="border-primary/30 text-primary" onClick={() => setShowCard(true)}>
               <Crown className="h-3 w-3 mr-1" /> Mi Tarjeta
             </Button>
             <Button variant="outline" size="sm" onClick={() => navigate("/membership")}>

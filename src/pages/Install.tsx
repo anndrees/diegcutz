@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { ArrowLeft, Download, Smartphone, CheckCircle2, Share, MoreVertical } from "lucide-react";
 import { NotificationToggle } from "@/components/pwa/NotificationToggle";
 import { useAuth } from "@/hooks/useAuth";
+import { CustomerPage } from "@/components/customer/CustomerPage";
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
@@ -57,6 +58,7 @@ export default function Install() {
   };
 
   return (
+    <CustomerPage>
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8 max-w-2xl pt-safe">
         <Button
@@ -69,7 +71,7 @@ export default function Install() {
         </Button>
 
         <div className="text-center mb-8">
-          <div className="w-24 h-24 mx-auto mb-4 rounded-2xl overflow-hidden shadow-lg">
+          <div className="w-24 h-24 mx-auto mb-4 rounded-lg overflow-hidden shadow-lg">
             <img 
               src="/pwa-192x192.png" 
               alt="DIEGCUTZ" 
@@ -257,5 +259,6 @@ export default function Install() {
         )}
       </div>
     </div>
+    </CustomerPage>
   );
 }

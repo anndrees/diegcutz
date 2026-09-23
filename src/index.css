@@ -806,3 +806,38 @@ html.konami-rave body {
   margin-left: 2px;
   animation: admin-cursor-blink 0.8s step-end infinite;
 }
+
+/* Elegant Urban Noir — customer experience */
+@layer components {
+  .brand-lockup { display:inline-flex; align-items:baseline; color:hsl(var(--primary)); font-family:'Playfair Display',Georgia,serif; font-size:1.35rem; line-height:1; }
+  .brand-lockup strong { color:hsl(var(--foreground)); font-weight:600; }
+  .brand-lockup--large { font-size:2rem; }
+  .customer-header { position:sticky; top:0; z-index:45; border-bottom:1px solid hsl(var(--border)/.75); background:hsl(var(--background)/.88); backdrop-filter:blur(22px); }
+  .customer-header--transparent { position:absolute; width:100%; background:linear-gradient(180deg,hsl(var(--background)/.8),transparent); border:0; }
+  .customer-header__inner { max-width:88rem; margin:auto; min-height:4.5rem; padding:0 1.5rem; display:flex; align-items:center; justify-content:space-between; gap:2rem; }
+  .customer-nav { display:none; align-items:center; gap:2rem; font-size:.72rem; text-transform:uppercase; letter-spacing:.18em; color:hsl(var(--muted-foreground)); }
+  .customer-nav a { position:relative; transition:color .25s ease; }
+  .customer-nav a:hover,.customer-nav a.is-active { color:hsl(var(--foreground)); }
+  .customer-nav a.is-active::after { content:""; position:absolute; left:0; right:0; bottom:-.7rem; height:1px; background:hsl(var(--primary)); }
+  .customer-mobile-nav { display:grid; gap:0; border-top:1px solid hsl(var(--border)); padding:.5rem 1.5rem 1rem; background:hsl(var(--background)); }
+  .customer-mobile-nav a { padding:.9rem 0; border-bottom:1px solid hsl(var(--border)/.6); }
+  .customer-footer { border-top:1px solid hsl(var(--border)); background:hsl(var(--card)); padding:4rem 1.5rem 1.5rem; }
+  .customer-footer__grid { max-width:80rem; margin:auto; display:grid; gap:2.5rem; }
+  .customer-footer__grid>div { display:flex; flex-direction:column; align-items:flex-start; gap:.75rem; color:hsl(var(--muted-foreground)); font-size:.875rem; }
+  .customer-footer__grid svg { width:1rem; height:1rem; display:inline; margin-right:.35rem; }
+  .customer-footer__grid a:hover { color:hsl(var(--primary)); }
+  .customer-footer__legal { max-width:80rem; margin:3rem auto 0; padding-top:1.25rem; border-top:1px solid hsl(var(--border)); display:flex; flex-wrap:wrap; justify-content:space-between; gap:1rem; font-size:.7rem; color:hsl(var(--muted-foreground)); text-transform:uppercase; letter-spacing:.12em; }
+  .customer-footer__legal div { display:flex; flex-wrap:wrap; gap:1rem; }
+  .noir-page-head { padding:clamp(4rem,9vw,8rem) 1.5rem 3rem; border-bottom:1px solid hsl(var(--border)); background:linear-gradient(135deg,hsl(var(--card)),hsl(var(--background))); }
+  .noir-page-head>div { max-width:72rem; margin:auto; }
+  .noir-title { font-size:clamp(2.6rem,7vw,6rem); line-height:.96; color:hsl(var(--foreground)); }
+  .noir-title em { color:hsl(var(--primary)); font-weight:600; }
+  .noir-lede { margin-top:1rem; max-width:38rem; color:hsl(var(--muted-foreground)); font-size:clamp(1rem,2vw,1.2rem); line-height:1.7; }
+  .noir-section { padding:clamp(4rem,8vw,7rem) 1.5rem; }
+  .noir-section__inner { max-width:80rem; margin:auto; }
+  .noir-rule { height:1px; background:linear-gradient(90deg,hsl(var(--primary)),hsl(var(--border)),transparent); }
+  .noir-glass { border:1px solid hsl(var(--border)); background:hsl(var(--card)/.82); backdrop-filter:blur(18px); box-shadow:var(--shadow-elegant); }
+  .noir-gold-text { background:var(--gradient-neon); background-clip:text; color:transparent; }
+}
+@media (min-width:768px){.customer-nav{display:flex}.customer-footer__grid{grid-template-columns:2fr 1fr 1fr 1fr}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
