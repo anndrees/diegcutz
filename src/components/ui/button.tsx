@@ -5,24 +5,24 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-semibold ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-sm text-xs font-semibold uppercase tracking-[0.12em] ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground shadow-elegant hover:bg-secondary hover:-translate-y-0.5",
+        default: "bg-primary text-primary-foreground hover:bg-secondary hover:-translate-y-0.5",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-input bg-background/70 hover:border-primary/60 hover:bg-accent hover:text-accent-foreground",
+        outline: "border border-input bg-transparent hover:border-primary hover:bg-accent hover:text-accent-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        neon: "bg-primary text-primary-foreground hover:bg-secondary shadow-elegant font-bold uppercase tracking-wider",
-        neonCyan: "bg-gradient-neon text-primary-foreground hover:brightness-110 shadow-elegant font-bold uppercase tracking-wider",
-        premium: "bg-gradient-neon text-primary-foreground shadow-elegant hover:brightness-110 hover:-translate-y-0.5",
+        neon: "bg-primary text-primary-foreground hover:bg-secondary font-bold",
+        neonCyan: "bg-primary text-primary-foreground hover:bg-secondary font-bold",
+        premium: "bg-primary text-primary-foreground hover:bg-secondary hover:-translate-y-0.5",
       },
       size: {
-        default: "h-10 px-4 py-2",
+        default: "h-11 px-5 py-2",
         sm: "h-9 rounded-md px-3",
-        lg: "h-11 rounded-md px-8",
+        lg: "h-12 rounded-sm px-8",
         icon: "h-10 w-10",
       },
     },
