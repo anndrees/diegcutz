@@ -66,10 +66,10 @@ export default function Home() {
       <InstallBanner />
       <CustomerHeader transparent />
 
-      <section className="home-hero">
+      <section className="home-hero" onMouseMove={handleHeroTilt} onMouseLeave={resetHeroTilt}>
         <div className="home-hero__copy">
           <div className="home-hero__eyebrow"><span /> ESTUDIO DE BARBERÍA · MONÓVAR</div>
-          <h1><span>DIEG</span><strong>CUTZ</strong></h1>
+          <h1 ref={titleRef} className="home-hero__title"><span>DIEG</span><strong>CUTZ</strong></h1>
           <div className="home-hero__intro">
             <p>Precisión contemporánea, criterio personal y un oficio pensado para acompañar tu forma de estar en el mundo.</p>
             <div className="home-hero__actions">
