@@ -951,7 +951,7 @@ const Booking = () => {
 
   return (
     <CustomerPage footer={false}><div className="booking-editorial min-h-screen">
-      <div className="noir-page-head"><div><p className="customer-kicker">01—04 / RESERVA</p><div><h1 className="noir-title">Elige tu <em>momento.</em></h1><p className="noir-lede">Fecha, hora y servicio. Sin esperas, sin complicaciones.</p></div></div></div>
+      <div className="noir-page-head"><div><p className="customer-kicker">RESERVA ONLINE</p><div><h1 className="noir-title">Construye tu <em>cita.</em></h1><p className="noir-lede">Cuatro decisiones sencillas. Tú marcas el momento y nosotros preparamos el resto.</p></div></div></div>
       <div className="max-w-6xl mx-auto py-10 md:py-16 px-4 relative">
         <Button
           variant="ghost"

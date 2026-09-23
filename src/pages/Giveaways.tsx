@@ -128,7 +128,7 @@ const Giveaways = () => {
 
   return (
     <CustomerPage><div className="giveaways-page min-h-screen">
-      <div className="noir-page-head"><div><p className="customer-kicker">01 / COMUNIDAD</p><div><h1 className="noir-title">Sorteos y <em>momentos.</em></h1><p className="noir-lede">Experiencias, detalles y premios para quienes forman parte de DIEGCUTZ.</p></div></div></div>
+      <div className="noir-page-head"><div><p className="customer-kicker">COMUNIDAD DIEGCUTZ</p><div><h1 className="noir-title">Puede tocarte<br /><em>a ti.</em></h1><p className="noir-lede">Premios, experiencias y detalles para quienes vuelven al estudio.</p></div></div></div>
       <div className="max-w-5xl mx-auto py-12 md:py-20 px-4">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-8">
           <ArrowLeft className="mr-2" />

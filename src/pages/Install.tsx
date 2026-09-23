@@ -60,7 +60,7 @@ export default function Install() {
   return (
     <CustomerPage>
     <div className="install-editorial min-h-screen">
-      <div className="noir-page-head"><div><p className="customer-kicker">DIEGCUTZ / APP</p><div><h1 className="noir-title">El estudio,<br /><em>siempre contigo.</em></h1><p className="noir-lede">Instala la app para reservar más rápido y recibir avisos importantes.</p></div></div></div>
+      <div className="noir-page-head"><div><p className="customer-kicker">DIEGCUTZ EN TU MÓVIL</p><div><h1 className="noir-title">Una cita,<br /><em>a un toque.</em></h1><p className="noir-lede">Accede desde tu pantalla de inicio, reserva más rápido y no pierdas ningún aviso.</p></div></div></div>
       <div className="mx-auto px-4 py-12 md:py-20 max-w-4xl">
         <Button
           variant="ghost"

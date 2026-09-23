@@ -370,7 +370,7 @@ export default function UserProfile() {
   const initials = (profile?.full_name || "U").split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase();
 
   return <CustomerPage><div className="profile-editorial min-h-screen">
-    <div className="noir-page-head"><div><p className="customer-kicker">ÁREA CLIENTE</p><div><h1 className="noir-title">Tu espacio<br /><em>personal.</em></h1><p className="noir-lede">Gestiona tu imagen, tus próximas visitas y todo lo que te conecta con el estudio.</p></div></div></div>
+    <div className="noir-page-head"><div><p className="customer-kicker">TU DIEGCUTZ</p><div><h1 className="noir-title">Todo lo tuyo,<br /><em>en orden.</em></h1><p className="noir-lede">Próximas visitas, historial, beneficios y preferencias en una vista clara.</p></div></div></div>
     <div className="mx-auto px-4 py-10 md:py-16 max-w-6xl">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
@@ -413,7 +413,7 @@ export default function UserProfile() {
       </Card>
 
       {/* Quick Actions */}
-      <div className="profile-editorial__actions grid grid-cols-2 md:grid-cols-4 gap-px bg-border border border-border mb-8">
+      <div className="profile-editorial__actions grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
         <Button
           variant="outline"
           className="h-auto py-3 flex flex-col items-center gap-1.5"

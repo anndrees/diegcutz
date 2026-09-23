@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { Image as ImageIcon, Upload, Trash2, Sparkles, Palette, Home as HomeIcon, RotateCcw } from "lucide-react";
+import { Image as ImageIcon, Upload, Trash2, Sparkles, Palette, Home as HomeIcon, RotateCcw, ArrowUp, ArrowDown, Film, Eye, EyeOff } from "lucide-react";
 import defaultHero from "@/assets/hero-barber.jpg";
 
 type HomeSettings = {
@@ -16,7 +16,10 @@ type HomeSettings = {
   home_show_floating_particles: boolean;
   home_hero_title: string;
   home_hero_subtitle: string;
+  home_hero_slides: HomeMediaSlide[];
 };
+
+type HomeMediaSlide = { id: string; url: string; type: "image" | "video"; order: number; active: boolean };
 
 const DEFAULTS: HomeSettings = {
   home_hero_image_url: "",
@@ -25,6 +28,7 @@ const DEFAULTS: HomeSettings = {
   home_show_floating_particles: true,
   home_hero_title: "",
   home_hero_subtitle: "",
+  home_hero_slides: [],
 };
 
 export const HomepageManagement = () => {
@@ -64,13 +68,15 @@ export const HomepageManagement = () => {
 
   const handleUpload = async (file: File) => {
     if (!file) return;
-    if (file.size > 8 * 1024 * 1024) {
-      toast({ title: "Imagen demasiado grande", description: "Máximo 8MB", variant: "destructive" });
+    const isVideo = file.type.startsWith("video/");
+    const limit = isVideo ? 40 : 10;
+    if ((!file.type.startsWith("image/") && !isVideo) || file.size > limit * 1024 * 1024) {
+      toast({ title: "Archivo no compatible", description: `Usa una foto (máx. 10 MB) o vídeo (máx. 40 MB).`, variant: "destructive" });
       return;
     }
     setUploading(true);
     const ext = file.name.split(".").pop();
-    const path = `hero-${Date.now()}.${ext}`;
+    const path = `carousel-${Date.now()}.${ext}`;
     const { error: upErr } = await supabase.storage.from("homepage").upload(path, file, {
       cacheControl: "3600",
       upsert: true,
@@ -81,9 +87,20 @@ export const HomepageManagement = () => {
       return;
     }
     const { data } = supabase.storage.from("homepage").getPublicUrl(path);
-    await save("home_hero_image_url", data.publicUrl);
+    const next = [...settings.home_hero_slides, { id: crypto.randomUUID(), url: data.publicUrl, type: isVideo ? "video" as const : "image" as const, order: settings.home_hero_slides.length, active: true }];
+    await save("home_hero_slides", next);
     setUploading(false);
   };
+
+  const updateSlides = async (next: HomeMediaSlide[]) => save("home_hero_slides", next.map((slide, order) => ({ ...slide, order })));
+  const moveSlide = (index: number, direction: -1 | 1) => {
+    const target = index + direction;
+    if (target < 0 || target >= settings.home_hero_slides.length) return;
+    const next = [...settings.home_hero_slides];
+    [next[index], next[target]] = [next[target], next[index]];
+    void updateSlides(next);
+  };
+  const removeSlide = async (id: string) => updateSlides(settings.home_hero_slides.filter(slide => slide.id !== id));
 
   const removeImage = async () => {
     await save("home_hero_image_url", "");
@@ -114,15 +131,15 @@ export const HomepageManagement = () => {
         </div>
       </div>
 
-      {/* Hero image */}
+      {/* Hero media */}
       <Card className="bg-card/40 backdrop-blur-xl border-neon-cyan/30 overflow-hidden">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-cyan-400">
             <ImageIcon className="h-5 w-5" />
-            Imagen de fondo (Hero)
+            Carrusel de portada
           </CardTitle>
           <CardDescription>
-            Imagen que aparece en la parte superior de la página principal.
+            Fotos y vídeos que rotan automáticamente en la página principal.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-5">
@@ -177,7 +194,7 @@ export const HomepageManagement = () => {
             <label>
               <input
                 type="file"
-                accept="image/*"
+                accept="image/*,video/*"
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && handleUpload(e.target.files[0])}
               />
@@ -188,7 +205,7 @@ export const HomepageManagement = () => {
               >
                 <span>
                   <Upload className="h-4 w-4 mr-2" />
-                  {uploading ? "Subiendo..." : "Subir nueva imagen"}
+                  {uploading ? "Subiendo..." : "Añadir foto o vídeo"}
                 </span>
               </Button>
             </label>
@@ -201,8 +218,27 @@ export const HomepageManagement = () => {
               <RotateCcw className="h-4 w-4 mr-2" />
               Restaurar imagen por defecto
             </Button>
-            <p className="text-xs text-muted-foreground">JPG / PNG / WEBP · Máx 8MB</p>
+            <p className="text-xs text-muted-foreground">Fotos hasta 10 MB · Vídeos hasta 40 MB</p>
           </div>
+
+          {settings.home_hero_slides.length > 0 && (
+            <div className="grid gap-3">
+              {settings.home_hero_slides.map((slide, index) => (
+                <div key={slide.id} className="grid grid-cols-[4rem_1fr_auto] items-center gap-3 rounded-xl border border-border bg-background/40 p-2">
+                  <div className="h-14 overflow-hidden rounded-lg bg-muted">
+                    {slide.type === "video" ? <video src={slide.url} muted className="h-full w-full object-cover" /> : <img src={slide.url} alt="Vista previa" className="h-full w-full object-cover" />}
+                  </div>
+                  <div className="min-w-0"><p className="flex items-center gap-2 text-sm font-semibold">{slide.type === "video" ? <Film className="h-4 w-4" /> : <ImageIcon className="h-4 w-4" />} Escena {index + 1}</p><p className="truncate text-xs text-muted-foreground">{slide.active ? "Visible" : "Oculta"}</p></div>
+                  <div className="flex gap-1">
+                    <Button variant="ghost" size="icon" onClick={() => moveSlide(index, -1)} disabled={index === 0} aria-label="Subir posición"><ArrowUp /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => moveSlide(index, 1)} disabled={index === settings.home_hero_slides.length - 1} aria-label="Bajar posición"><ArrowDown /></Button>
+                    <Button variant="ghost" size="icon" onClick={() => updateSlides(settings.home_hero_slides.map(item => item.id === slide.id ? { ...item, active: !item.active } : item))} aria-label={slide.active ? "Ocultar" : "Mostrar"}>{slide.active ? <Eye /> : <EyeOff />}</Button>
+                    <Button variant="ghost" size="icon" onClick={() => removeSlide(slide.id)} aria-label="Eliminar"><Trash2 /></Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
 
           <Separator className="bg-neon-purple/20" />
 

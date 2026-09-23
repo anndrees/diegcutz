@@ -12,7 +12,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, LogIn, UserPlus, Check, X, Loader2 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import heroNoir from "@/assets/client-editorial.jpg";
 
 // Username validation regex: only lowercase a-z, 0-9, underscore, period
 const USERNAME_REGEX = /^[a-z0-9_.]+$/;
@@ -643,14 +642,20 @@ const Auth = () => {
   };
 
   return (
-    <div className="customer-shell auth-editorial min-h-screen">
-      <aside className="auth-editorial__image">
-          <img src={heroNoir} alt="Cliente DIEGCUTZ" width={1024} height={1280} />
-          <button onClick={() => navigate("/")} className="auth-editorial__brand" aria-label="Volver al inicio"><span>D/C</span>DIEGCUTZ</button>
-          <div className="auth-editorial__caption"><p className="customer-kicker">ESTUDIO DE BARBERÍA · MONÓVAR</p><h2>Tu estilo.<br />Tu espacio.<br /><em>Tu cuenta.</em></h2></div>
-      </aside>
-      <div className="auth-editorial__form">
-        <section>
+    <div className="customer-shell auth-liquid min-h-screen">
+      <div className="customer-ambient" aria-hidden="true" />
+      <header className="auth-liquid__top">
+        <button onClick={() => navigate("/")} className="brand-lockup" aria-label="Volver al inicio"><span className="brand-lockup__mark">DC</span><span className="brand-lockup__name">DIEGCUTZ<small>MONÓVAR</small></span></button>
+        <span>ÁREA PRIVADA DE CLIENTES</span>
+      </header>
+      <main className="auth-liquid__layout">
+        <section className="auth-liquid__intro">
+          <p className="customer-kicker">TU CUENTA / TU TIEMPO</p>
+          <h1>Todo listo<br />para tu<br /><em>próxima cita.</em></h1>
+          <p>Reserva, repite tu último servicio y gestiona tus visitas desde un solo lugar.</p>
+          <div className="auth-liquid__signal"><span /><span /><span /><small>DIEGCUTZ CONNECT</small></div>
+        </section>
+        <section className="auth-liquid__form">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
@@ -660,9 +665,9 @@ const Auth = () => {
           Volver
         </Button>
 
-        <div className="mb-10">
+        <div className="mb-8">
           <p className="customer-kicker">ÁREA CLIENTE</p>
-          <h1 className="text-4xl md:text-5xl font-semibold mt-3">Tu próxima cita,<br />bajo control.</h1>
+          <h2 className="text-3xl md:text-4xl font-semibold mt-3">Entra o crea tu cuenta.</h2>
         </div>
 
         <Tabs defaultValue="login" className="w-full">
@@ -994,7 +999,8 @@ const Auth = () => {
             </DialogFooter>
           </DialogContent>
         </Dialog>
-        </section></div>
+        </section>
+      </main>
     </div>
   );
 };
