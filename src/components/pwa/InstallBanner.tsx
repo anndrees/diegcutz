@@ -47,7 +47,7 @@ export const InstallBanner = () => {
   }
 
   return (
-    <div className="relative w-full bg-gradient-neon px-4 py-4 shadow-lg animate-in slide-in-from-top duration-300">
+    <div className="relative w-full bg-gradient-to-r from-primary to-[hsl(38_32%_48%)] px-4 py-4 shadow-lg animate-in slide-in-from-top duration-300">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <div className="shrink-0 w-10 h-10 bg-background/20 rounded-full flex items-center justify-center">

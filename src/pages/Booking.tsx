@@ -1524,7 +1524,7 @@ const Booking = () => {
 
             {/* Music Selection */}
             <Card className="bg-card/60 backdrop-blur-xl border-primary/30 shadow-[0_0_40px_hsl(var(--neon-pink)/0.1)] overflow-hidden">
-              <CardHeader className="border-b border-primary/20 bg-gradient-to-r from-neon-pink/10 to-transparent">
+              <CardHeader className="border-b border-primary/20 bg-gradient-to-r from-primary/10 to-transparent">
                 <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                   <Music className="text-primary animate-pulse" />
                   Elige tu música
@@ -1688,7 +1688,7 @@ const Booking = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4 }}
               >
-              <Card className={`border-0 relative overflow-hidden ${isFreeCutReservation ? 'bg-gradient-to-r from-secondary/20 to-primary/20' : 'bg-gradient-neon'} shadow-[0_0_50px_hsl(var(--neon-purple)/0.4)]`}>
+              <Card className={`border-0 relative overflow-hidden ${isFreeCutReservation ? 'bg-gradient-to-r from-secondary/20 to-primary/20' : 'bg-gradient-to-r from-primary to-[hsl(38_32%_48%)]'} shadow-[0_0_50px_hsl(var(--neon-purple)/0.4)]`}>
                 {/* Animated shimmer */}
                 <div className="absolute inset-0 opacity-30 pointer-events-none">
                   <div className="absolute inset-y-0 -left-1/2 w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 animate-[shimmer_3s_infinite]" />
@@ -1774,7 +1774,7 @@ const Booking = () => {
                       localStorage.setItem("pendingBooking", JSON.stringify(bookingState));
                       navigate("/auth", { state: { from: "/booking" } });
                     }}
-                    variant="neon"
+                    variant="premium"
                     className="w-full h-10 sm:h-12 text-sm sm:text-base"
                   >
                     <LogIn className="mr-2" />
@@ -1806,7 +1806,7 @@ const Booking = () => {
               <ChevronLeft className="h-4 w-4 mr-1" /> Atrás
             </Button>
             <Button
-              variant="neon"
+              variant="premium"
               size="lg"
               disabled={
                 (mobileStep === 1 && !selectedDate) ||
