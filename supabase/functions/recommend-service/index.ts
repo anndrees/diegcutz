@@ -94,10 +94,12 @@ Deno.serve(async (request) => {
     const result = streamText({
       model: lovable.responses("openai/gpt-6-astra"),
       system: [
-        "Eres el asesor profesional de DIEGCUTZ, barbería en España.",
-        "Recomienda exactamente un servicio del catálogo y, si hay huecos, una cita de la lista de huecos disponibles que encaje con las preferencias de día y hora del cliente.",
+        "Eres el barbero asesor de DIEGCUTZ, una barbería en España. Hablas de tú, con cercanía y naturalidad, como quien está delante del sillón charlando con el cliente.",
+        "Nada de lenguaje corporativo ni frases robóticas: frases cortas, calidez, algún detalle personal sobre lo que ha contado el cliente.",
+        "Una reserva puede incluir VARIOS servicios a la vez: recomienda de 1 a 3 servicios del catálogo que combinen bien (por ejemplo corte + barba + detalle), según lo que pida el cliente. Si con uno basta, recomienda solo uno.",
+        "Si hay huecos, sugiere también una cita de la lista que encaje con sus preferencias de día y hora.",
         "Responde SOLO con un objeto JSON válido, sin markdown, con esta forma:",
-        '{"message":"dos frases en español, tono adulto y cercano","serviceId":"uuid del catálogo","slot":{"date":"YYYY-MM-DD","time":"HH:MM"} o null}',
+        '{"message":"2-4 frases en español, tono cercano y natural, explicando por qué esa combinación","serviceIds":["uuid", "uuid"],"slot":{"date":"YYYY-MM-DD","time":"HH:MM"} o null}',
         "Nunca inventes servicios, precios ni huecos que no estén en las listas.",
       ].join(" "),
       prompt: `CATÁLOGO:\n${catalogue}\n\nHUECOS DISPONIBLES:\n${slotList}\n\nCLIENTE:\n${description}\n\nPREFERENCIAS DE DÍA Y HORA:\n${preferences || "Sin preferencias indicadas"}`,
@@ -106,18 +108,20 @@ Deno.serve(async (request) => {
 
     const raw = await result.text;
     const jsonMatch = raw.match(/\{[\s\S]*\}/);
-    let parsed: { message?: string; serviceId?: string; slot?: { date?: string; time?: string } | null } = {};
+    let parsed: { message?: string; serviceId?: string; serviceIds?: string[]; slot?: { date?: string; time?: string } | null } = {};
     if (jsonMatch) { try { parsed = JSON.parse(jsonMatch[0]); } catch { parsed = {}; } }
 
-    const serviceId = services.some((s) => s.id === parsed.serviceId) ? parsed.serviceId : undefined;
+    const candidates = Array.isArray(parsed.serviceIds) ? parsed.serviceIds : parsed.serviceId ? [parsed.serviceId] : [];
+    const serviceIds = [...new Set(candidates.filter((id) => services.some((s) => s.id === id)))].slice(0, 3);
     const slotDate = parsed.slot?.date;
     const slotTime = parsed.slot?.time?.slice(0, 5);
     const slot = slots.find((s) => s.date === slotDate && s.time === slotTime) || null;
 
     return Response.json({
-      message: parsed.message?.trim() || raw.replace(/\{[\s\S]*\}/, "").trim() || "Esta es nuestra recomendación para ti.",
-      serviceId: serviceId || null,
-      serviceName: services.find((s) => s.id === serviceId)?.name || null,
+      message: parsed.message?.trim() || raw.replace(/\{[\s\S]*\}/, "").trim() || "Esto es lo que te pega más, dime si te encaja.",
+      serviceId: serviceIds[0] || null,
+      serviceIds,
+      serviceNames: serviceIds.map((id) => services.find((s) => s.id === id)?.name).filter(Boolean),
       slot,
       hasSlots: slots.length > 0,
     }, { headers: cors });
