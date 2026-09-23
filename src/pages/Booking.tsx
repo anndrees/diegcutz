@@ -980,7 +980,7 @@ const Booking = () => {
                 <Gift className="h-5 w-5" />
                 <span className="font-bold">CORTE GRATIS</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black mb-4 text-secondary font-display">
+              <h1 className="text-5xl md:text-7xl font-semibold mb-4 text-secondary font-display">
                 ¡TU CORTE GRATIS!
               </h1>
               <p className="text-xl text-muted-foreground">
@@ -989,7 +989,7 @@ const Booking = () => {
             </>
           ) : (
             <>
-              <h1 className="text-5xl md:text-7xl font-black mb-4 text-primary font-display">
+              <h1 className="text-5xl md:text-7xl font-semibold mb-4 text-primary font-display">
                 RESERVA TU CITA
               </h1>
               <p className="text-xl text-muted-foreground">
@@ -1038,10 +1038,10 @@ const Booking = () => {
         {isMobile && (
           <div className="md:hidden mb-6 sticky top-0 z-30 -mx-4 px-4 py-3 bg-background/85 backdrop-blur-xl border-b border-secondary/20">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+              <span className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
                 Paso {mobileStep} de 4
               </span>
-              <span className="text-sm font-black uppercase text-secondary font-display tracking-wider">
+              <span className="text-sm font-semibold uppercase text-secondary font-display tracking-wider">
                 {mobileStep === 1 && "Fecha"}
                 {mobileStep === 2 && "Hora"}
                 {mobileStep === 3 && "Servicios"}
@@ -1126,7 +1126,7 @@ const Booking = () => {
                     modifiersClassNames={{
                       dayFull: "relative !bg-destructive/15 !text-destructive font-bold ring-1 ring-destructive/40 rounded-full",
                       dayFew:  "relative !bg-yellow-500/15 !text-yellow-400 font-bold ring-1 ring-yellow-500/40 rounded-full",
-                      dayOpen: "relative !bg-secondary/10 !text-secondary font-bold ring-1 ring-neon-cyan/30 rounded-full",
+                      dayOpen: "relative !bg-secondary/10 !text-secondary font-bold ring-1 ring-secondary/30 rounded-full",
                     }}
                     components={{
                       DayContent: ({ date }: any) => {
@@ -1192,7 +1192,7 @@ const Booking = () => {
                   transition={{ duration: 0.4 }}
                 >
                   <Card className="bg-card/60 backdrop-blur-xl border-secondary/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.15)] hover:shadow-[0_0_60px_hsl(var(--neon-cyan)/0.3)] transition-shadow duration-500 overflow-hidden">
-                    <CardHeader className="border-b border-secondary/20 bg-gradient-to-r from-neon-cyan/10 to-transparent">
+                    <CardHeader className="border-b border-secondary/20 bg-gradient-to-r from-secondary/10 to-transparent">
                       <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                         <Clock className="text-secondary animate-pulse" />
                         Horas disponibles
@@ -1267,7 +1267,7 @@ const Booking = () => {
                                 </div>
                                 <div className="flex items-center justify-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
                                   <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-secondary/30 border border-secondary" /> Libre</span>
-                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-neon-cyan to-primary" /> Seleccionada</span>
+                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-gradient-to-br from-secondary to-primary" /> Seleccionada</span>
                                   <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-destructive/30 border border-destructive" /> Ocupada</span>
                                 </div>
                               </div>
@@ -1305,21 +1305,21 @@ const Booking = () => {
                                   isBooked
                                     ? 'border-destructive/30 bg-destructive/5 text-muted-foreground cursor-not-allowed'
                                     : isSelected
-                                    ? 'border-secondary bg-gradient-to-br from-neon-cyan/30 to-primary/30 text-foreground shadow-[0_0_25px_hsl(var(--neon-cyan)/0.6)]'
+                                    ? 'border-secondary bg-gradient-to-br from-secondary/30 to-primary/30 text-foreground shadow-[0_0_25px_hsl(var(--neon-cyan)/0.6)]'
                                     : 'border-border/60 bg-card/40 text-foreground hover:border-secondary hover:bg-secondary/10 hover:text-secondary'
                                 }`}
                               >
                                 {isSelected && !isBooked && (
                                   <motion.span
                                     layoutId="selectedTimeGlow"
-                                    className="absolute inset-0 bg-gradient-to-br from-neon-cyan/20 to-primary/20"
+                                    className="absolute inset-0 bg-gradient-to-br from-secondary/20 to-primary/20"
                                   />
                                 )}
                                 <span className={`relative z-10 ${isBooked ? 'line-through opacity-50' : ''}`}>
                                   {label}
                                 </span>
                                 {isBooked && (
-                                  <span className="absolute top-1 right-1 text-[8px] font-black uppercase text-destructive/80 z-10">
+                                  <span className="absolute top-1 right-1 text-[8px] font-semibold uppercase text-destructive/80 z-10">
                                     ✕
                                   </span>
                                 )}
@@ -1357,7 +1357,7 @@ const Booking = () => {
             {/* Packs - Hidden for free cut reservations */}
             {!isFreeCutReservation && packs.length > 0 && (
               <Card className="bg-card/60 backdrop-blur-xl border-secondary/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.1)] overflow-hidden">
-                <CardHeader className="border-b border-secondary/20 bg-gradient-to-r from-neon-cyan/10 to-transparent">
+                <CardHeader className="border-b border-secondary/20 bg-gradient-to-r from-secondary/10 to-transparent">
                   <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
                     <Package className="text-secondary" />
                     Selecciona un Pack
@@ -1688,7 +1688,7 @@ const Booking = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.4 }}
               >
-              <Card className={`border-0 relative overflow-hidden ${isFreeCutReservation ? 'bg-gradient-to-r from-neon-cyan/20 to-primary/20' : 'bg-gradient-neon'} shadow-[0_0_50px_hsl(var(--neon-purple)/0.4)]`}>
+              <Card className={`border-0 relative overflow-hidden ${isFreeCutReservation ? 'bg-gradient-to-r from-secondary/20 to-primary/20' : 'bg-gradient-neon'} shadow-[0_0_50px_hsl(var(--neon-purple)/0.4)]`}>
                 {/* Animated shimmer */}
                 <div className="absolute inset-0 opacity-30 pointer-events-none">
                   <div className="absolute inset-y-0 -left-1/2 w-1/2 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12 animate-[shimmer_3s_infinite]" />
@@ -1708,7 +1708,7 @@ const Booking = () => {
                   )}
                   <div className={`flex justify-between items-center ${isFreeCutReservation ? 'text-foreground' : 'text-background'}`}>
                     <div>
-                      <span className="text-2xl font-black">TOTAL:</span>
+                      <span className="text-2xl font-semibold">TOTAL:</span>
                       {isFreeCutReservation && totalPrice === 0 && (
                         <p className="text-sm text-secondary">¡Es tu corte gratis!</p>
                       )}
@@ -1717,7 +1717,7 @@ const Booking = () => {
                       key={totalPrice}
                       initial={{ scale: 1.3, opacity: 0 }}
                       animate={{ scale: 1, opacity: 1 }}
-                      className="text-5xl font-black tabular-nums"
+                      className="text-5xl font-semibold tabular-nums"
                     >
                       {totalPrice}€
                     </motion.span>
@@ -1729,7 +1729,7 @@ const Booking = () => {
 
             {/* User Info / Login Prompt */}
             <Card className="bg-card/60 backdrop-blur-xl border-secondary/30 shadow-[0_0_40px_hsl(var(--neon-cyan)/0.15)] overflow-hidden">
-              <CardHeader className="border-b border-secondary/20 bg-gradient-to-r from-neon-cyan/10 to-transparent">
+              <CardHeader className="border-b border-secondary/20 bg-gradient-to-r from-secondary/10 to-transparent">
                 <CardTitle className="text-xl md:text-2xl">
                   {user && profile ? "Tu perfil" : "Inicia sesión"}
                 </CardTitle>

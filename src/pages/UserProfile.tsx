@@ -29,7 +29,7 @@ interface Booking {
   booking_date: string;
   booking_time: string;
   services: any;
-  service_ids?: string[] | null;
+  service_ids?: unknown;
   total_price: number;
   created_at: string;
   is_cancelled?: boolean;

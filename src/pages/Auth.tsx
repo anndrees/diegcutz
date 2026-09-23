@@ -677,14 +677,14 @@ const Auth = () => {
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2 bg-[hsl(0_0%_8%/0.7)] backdrop-blur border border-[hsl(var(--neon-purple)/0.3)]">
             <TabsTrigger value="login" className="data-[state=active]:bg-[hsl(var(--neon-purple)/0.2)] data-[state=active]:text-[hsl(var(--neon-cyan))] uppercase tracking-wider text-xs">Iniciar Sesión</TabsTrigger>
-            <TabsTrigger value="signup" className="data-[state=active]:bg-[hsl(var(--neon-cyan)/0.15)] data-[state=active]:text-[hsl(var(--neon-cyan))] uppercase tracking-wider text-xs">Registrarse</TabsTrigger>
+            <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground uppercase tracking-wider text-xs">Registrarse</TabsTrigger>
           </TabsList>
 
           <TabsContent value="login">
-            <Card className="relative bg-[hsl(0_0%_6%/0.85)] backdrop-blur-xl border border-[hsl(var(--neon-purple)/0.4)] shadow-[0_0_40px_hsl(var(--neon-purple)/0.2)]">
+            <Card className="relative bg-card/85 backdrop-blur-xl border border-primary/30 shadow-elegant">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <LogIn className="text-[hsl(var(--neon-cyan))] drop-shadow-[0_0_8px_hsl(var(--neon-cyan))]" />
+                  <LogIn className="text-primary" />
                   Iniciar Sesión
                 </CardTitle>
                 <CardDescription>
@@ -778,10 +778,10 @@ const Auth = () => {
           </TabsContent>
 
           <TabsContent value="signup">
-            <Card className="relative bg-[hsl(0_0%_6%/0.85)] backdrop-blur-xl border border-[hsl(var(--neon-cyan)/0.4)] shadow-[0_0_40px_hsl(var(--neon-cyan)/0.15)]">
+            <Card className="relative bg-card/85 backdrop-blur-xl border border-secondary/30 shadow-elegant">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <UserPlus className="text-[hsl(var(--neon-cyan))] drop-shadow-[0_0_8px_hsl(var(--neon-cyan))]" />
+                  <UserPlus className="text-primary" />
                   Crear Cuenta
                 </CardTitle>
                 <CardDescription>
