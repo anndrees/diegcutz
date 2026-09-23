@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Center, Environment, Lightformer, Text3D, type FontData } from "@react-three/drei";
+import { Environment, Lightformer, Text3D, type FontData } from "@react-three/drei";
 import helvetiker from "three/examples/fonts/helvetiker_bold.typeface.json";
 import * as THREE from "three";
 
@@ -50,30 +50,28 @@ function Wordmark() {
 
   return (
     <primitive object={group}>
-      <Center position={[0, 0.08, 0]}>
-        <group>
-          {LETTERS.map((letter, index) => (
-            <Text3D
-              key={`${letter}-${index}`}
-              position={[positions[index], Math.sin(index * 1.7) * 0.035, index % 2 === 0 ? 0.04 : -0.02]}
-              font={helvetiker as unknown as FontData}
-              size={1.5}
-              height={0.72}
-              curveSegments={24}
-              bevelEnabled
-              bevelThickness={0.32}
-              bevelSize={0.22}
-              bevelOffset={-0.055}
-              bevelSegments={18}
-              scale={[1, 1.06 + (index % 3) * 0.015, 1.12]}
-              castShadow
-            >
-              {letter}
-              <ChromeMaterial />
-            </Text3D>
-          ))}
-        </group>
-      </Center>
+      <group position={[0, -0.72, 0]}>
+        {LETTERS.map((letter, index) => (
+          <Text3D
+            key={`${letter}-${index}`}
+            position={[positions[index], Math.sin(index * 1.7) * 0.035, index % 2 === 0 ? 0.04 : -0.02]}
+            font={helvetiker as unknown as FontData}
+            size={1.5}
+            height={0.72}
+            curveSegments={24}
+            bevelEnabled
+            bevelThickness={0.32}
+            bevelSize={0.22}
+            bevelOffset={-0.055}
+            bevelSegments={18}
+            scale={[1, 1.06 + (index % 3) * 0.015, 1.12]}
+            castShadow
+          >
+            {letter}
+            <ChromeMaterial />
+          </Text3D>
+        ))}
+      </group>
     </primitive>
   );
 }
