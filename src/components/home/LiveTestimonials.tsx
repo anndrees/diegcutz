@@ -62,9 +62,7 @@ const TestimonialToast = ({
     <div
       className={`
         fixed right-5 z-50 w-[340px] max-w-[calc(100vw-2rem)]
-        bg-card/70 backdrop-blur-xl
-        border border-border rounded-lg p-4
-        shadow-elegant
+        bg-card border border-border rounded-sm p-4
         transition-all duration-1000 ease-[cubic-bezier(0.22,1,0.36,1)]
         ${isEntering || isExiting
           ? "translate-x-6 opacity-0 scale-95 blur-sm"
@@ -75,8 +73,6 @@ const TestimonialToast = ({
         top: `${96 + notification.position * 130}px`,
       }}
     >
-      <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
-      
       <div className="relative">
         <div className="flex items-center justify-between mb-2">
           <div className="flex gap-0.5">
@@ -120,7 +116,7 @@ const TestimonialToast = ({
         )}
 
         <div className="flex items-center gap-2 pt-2 border-t border-border/30">
-          <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center ring-1 ring-primary/20">
+          <div className="w-7 h-7 border border-primary flex items-center justify-center">
             <span className="text-[11px] font-bold text-primary">
               {(rating.profile?.full_name || "A")[0].toUpperCase()}
             </span>
@@ -211,7 +207,7 @@ export const LiveTestimonials = () => {
   // Don't render toasts on mobile at all
   if (isMobile) {
     return (
-      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-border rounded-full px-3 py-1.5 shadow-elegant">
+      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 bg-card border border-border rounded-sm px-3 py-1.5">
         <MessageCircle className="h-4 w-4 text-primary" />
         <span className="text-xs text-muted-foreground">
           {ratings.length} opiniones
@@ -222,15 +218,8 @@ export const LiveTestimonials = () => {
 
   return (
     <>
-      <style>{`
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-      `}</style>
-      
-      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 bg-card/80 backdrop-blur-sm border border-secondary/30 rounded-full px-3 py-1.5">
-        <MessageCircle className="h-4 w-4 text-secondary animate-pulse" />
+      <div className="fixed bottom-4 left-4 z-40 flex items-center gap-2 bg-card border border-secondary/30 rounded-sm px-3 py-1.5">
+        <MessageCircle className="h-4 w-4 text-secondary" />
         <span className="text-xs text-muted-foreground">
           {ratings.length} opiniones
         </span>

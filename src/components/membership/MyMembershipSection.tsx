@@ -89,14 +89,14 @@ export const MyMembershipSection = () => {
   return (
     <>
       <Card className="mb-6 overflow-hidden">
-        <div className="bg-gradient-to-r from-primary/20 to-secondary/10 p-1" />
+        <div className="bg-primary p-0.5" />
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-primary">
               <Crown className="h-5 w-5" />
               Mi Membresía
             </div>
-            <Badge className="bg-primary text-background">{plan.emoji} {plan.name}</Badge>
+            <Badge className="bg-primary text-background"><Crown className="h-3 w-3 mr-1" /> {plan.name}</Badge>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -114,12 +114,12 @@ export const MyMembershipSection = () => {
 
           {/* Benefits usage */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="bg-muted/50 rounded-lg p-3 text-center">
+            <div className="bg-muted/50 border border-border p-3 text-center">
               <Scissors className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">{membership.free_services_remaining}<span className="text-xs font-normal text-muted-foreground">/{plan.free_services_per_month}</span></p>
               <p className="text-[10px] text-muted-foreground">Servicios restantes</p>
             </div>
-            <div className="bg-muted/50 rounded-lg p-3 text-center">
+            <div className="bg-muted/50 border border-border p-3 text-center">
               <Sparkles className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">
                 {membership.beard_services_remaining >= 999 ? "∞" : membership.beard_services_remaining}

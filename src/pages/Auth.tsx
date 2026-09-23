@@ -651,8 +651,6 @@ const Auth = () => {
       </aside>
       <div className="auth-editorial__form">
         <section>
-        </aside>
-        <section className="p-6 md:p-12 lg:p-16">
         <Button
           variant="ghost"
           onClick={() => navigate("/")}
