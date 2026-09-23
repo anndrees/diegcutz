@@ -71,7 +71,6 @@ const DEFAULT_TV_SETTINGS: TvSettings = {
     { key: "memberships", enabled: true },
     { key: "giveaways", enabled: true },
     { key: "qr_book", enabled: true },
-    { key: "loyalty_program", enabled: true },
     { key: "achievements_feed", enabled: true },
     { key: "special_hours_upcoming", enabled: true },
     { key: "promo", enabled: true },
@@ -307,9 +306,6 @@ const TvMode = () => {
           break;
         case "qr_book":
           arr.push({ key: "qr_book", render: () => <QrBookSlide /> });
-          break;
-        case "loyalty_program":
-          arr.push({ key: "loyalty_program", render: () => <LoyaltyProgramSlide /> });
           break;
       }
     }

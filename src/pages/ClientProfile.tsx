@@ -39,6 +39,7 @@ import { ClientAchievements } from "@/components/admin/ClientAchievements";
 import { ClientMembership } from "@/components/admin/ClientMembership";
 import { AdminBookingDialog } from "@/components/admin/AdminBookingDialog";
 import { MembershipHistory } from "@/components/admin/MembershipHistory";
+import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 
 interface Profile {
   id: string;
@@ -112,6 +113,7 @@ const ClientProfile = () => {
   const [restrictionTimeLeft, setRestrictionTimeLeft] = useState<string>("");
   
   const isMobile = useIsMobile();
+  const { enabled: loyaltyEnabled } = useLoyaltyProgram();
 
   // Admin booking dialog
   const [showBookingDialog, setShowBookingDialog] = useState(false);
@@ -716,8 +718,8 @@ const ClientProfile = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
-              {/* Progress */}
-              <div>
+              {/* Historical points progress, only while the program is active */}
+              {loyaltyEnabled && <div>
                 <div className="flex justify-between mb-2">
                   <span className="text-sm text-muted-foreground">Progreso hacia corte gratis</span>
                   <span className="text-sm font-semibold">{progressToFreeCut}/10</span>
@@ -731,7 +733,7 @@ const ClientProfile = () => {
                 <p className="text-sm text-muted-foreground mt-2">
                   Total de reservas válidas: {loyaltyReward?.completed_bookings || 0}
                 </p>
-              </div>
+              </div>}
 
               {/* Free cuts available */}
               <div className={`p-4 rounded-lg border ${loyaltyReward && loyaltyReward.free_cuts_available > 0 ? 'bg-neon-cyan/20 border-neon-cyan' : 'bg-muted/50 border-border'}`}>
@@ -763,7 +765,7 @@ const ClientProfile = () => {
               </div>
 
               {/* Admin Controls */}
-              <div className="grid grid-cols-2 gap-3">
+              {loyaltyEnabled && <div className="grid grid-cols-2 gap-3">
                 <Button 
                   variant="outline" 
                   onClick={handleAddToCounter}
@@ -781,13 +783,13 @@ const ClientProfile = () => {
                   <Minus className="w-4 h-4" />
                   -1 al contador
                 </Button>
-              </div>
+              </div>}
             </div>
           </CardContent>
         </Card>
 
         {/* Client Loyalty QR */}
-        {profile.loyalty_token && (
+        {loyaltyEnabled && profile.loyalty_token && (
           <Card className="bg-card border-border mb-8">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-2xl">
