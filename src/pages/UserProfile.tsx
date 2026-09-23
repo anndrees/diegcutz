@@ -774,8 +774,8 @@ export default function UserProfile() {
               placeholder="nuevo_username"
             />
             {checkingUsername && <p className="text-xs text-muted-foreground mt-1">Verificando...</p>}
-            {usernameAvailable === true && <p className="text-xs text-green-500 mt-1">✓ Disponible</p>}
-            {usernameAvailable === false && <p className="text-xs text-destructive mt-1">✗ No disponible</p>}
+            {usernameAvailable === true && <p className="text-xs text-green-500 mt-1 flex items-center gap-1"><Check className="h-3 w-3" /> Disponible</p>}
+            {usernameAvailable === false && <p className="text-xs text-destructive mt-1 flex items-center gap-1"><X className="h-3 w-3" /> No disponible</p>}
           </div>
         </div>
         <DialogFooter>

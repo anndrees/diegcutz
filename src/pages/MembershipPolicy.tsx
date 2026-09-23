@@ -7,13 +7,13 @@ const MembershipPolicy = () => {
   const navigate = useNavigate();
 
   return (
-    <CustomerPage><div className="min-h-screen py-8 px-4 pt-safe">
-      <div className="max-w-3xl mx-auto">
+    <CustomerPage><div className="min-h-screen">
+      <div className="legal-editorial">
         <Button variant="ghost" onClick={() => navigate(-1)} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" /> Volver
         </Button>
 
-        <h1 className="text-3xl font-black mb-8 text-primary">Política de Membresías</h1>
+        <p className="customer-kicker">INFORMACIÓN LEGAL / 03</p><h1>Política de<br />Membresías</h1>
 
         <div className="prose prose-invert max-w-none space-y-6 text-foreground">
           <section>
