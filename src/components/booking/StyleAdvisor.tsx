@@ -65,8 +65,8 @@ export function StyleAdvisor({ onSelect, onSlotSelect, services }: Props) {
         </div>
         <div>
           <p className="customer-kicker">ASESOR DE ESTILO / IA</p>
-          <h3 className="text-2xl mt-2">Encuentra el corte y la cita adecuados</h3>
-          <p className="text-sm text-muted-foreground mt-1">Describe la ocasión o el corte que buscas y cuándo te viene bien.</p>
+          <h3 className="text-2xl mt-2">Cuéntanos qué buscas y te lo montamos</h3>
+          <p className="text-sm text-muted-foreground mt-1">Dinos la ocasión o el corte que tienes en mente y cuándo te viene bien. Podemos combinar varios servicios en la misma cita.</p>
         </div>
       </div>
       <Textarea
