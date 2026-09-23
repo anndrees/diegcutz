@@ -130,9 +130,9 @@ const Loyalty = () => {
             ) : (
               <p className="text-muted-foreground mt-6">Ahora mismo no tienes cortes gratis disponibles.</p>
             )}
-       </div></CustomerPage>
-        </div>
-      </div>
+            </div>
+          </div>
+        </div></CustomerPage>
     );
   }
 

@@ -2,7 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Crown, ArrowRight, CreditCard } from "lucide-react";
-import heroImage from "@/assets/hero-barber.jpg";
+import heroImage from "@/assets/hero-noir.jpg";
+import { CustomerHeader } from "@/components/customer/CustomerHeader";
+import { CustomerFooter } from "@/components/customer/CustomerFooter";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -374,8 +376,9 @@ const Home = () => {
         )}
       </div>
 
+      <CustomerHeader transparent />
       {/* Hero Section with Advanced Parallax */}
-      <section className="relative min-h-[92svh] flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[92svh] flex items-end overflow-hidden pb-24">
         {/* Main background with deep parallax */}
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -407,30 +410,30 @@ const Home = () => {
 
         {/* Content */}
         <div
-          className="relative z-10 text-center px-4 max-w-6xl mx-auto"
+          className="relative z-10 text-left px-6 max-w-7xl w-full mx-auto"
           style={{
             transform: `translateY(${scrollY * 0.15}px)`,
             opacity: Math.max(0, 1 - scrollY / 400),
           }}
         >
-          <div className="w-24 h-1 bg-secondary mx-auto mb-8 shadow-elegant" />
+          <p className="customer-kicker mb-5">BARBERÍA · MONÓVAR</p>
 
           <h1
             data-text={homeSettings.title || "DIEGCUTZ"}
-            className="text-7xl md:text-9xl font-black mb-6 font-display animate-fade-in text-secondary"
+            className="text-7xl md:text-9xl font-semibold mb-6 font-display animate-fade-in noir-gold-text"
             style={{ animationDuration: "1s" }}
           >
             {homeSettings.title || "DIEGCUTZ"}
           </h1>
 
           <p
-            className="text-base md:text-xl text-muted-foreground mb-10 font-bold uppercase tracking-[0.2em] animate-fade-in"
+            className="text-base md:text-xl text-stone mb-10 max-w-xl font-light leading-relaxed animate-fade-in"
             style={{
               animationDelay: "300ms",
               animationDuration: "1s",
             }}
           >
-            {homeSettings.subtitle || "Urban Barbershop · Estilo Callejero"}
+            {homeSettings.subtitle || "Oficio contemporáneo, precisión y un estilo que habla de ti."}
           </p>
 
           <Button
@@ -441,7 +444,7 @@ const Home = () => {
             style={{ animationDelay: "500ms", animationDuration: "1s" }}
           >
             <Scissors className="mr-3 h-6 w-6" />
-            Reserva tu Cita
+            Reservar una cita
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
@@ -863,8 +866,8 @@ const Home = () => {
         </svg>
       </a>
 
-      {/* Footer */}
-      <footer className="py-8 px-4 text-center border-t border-border">
+      {/* Legacy links are retained but the new shared footer presents them. */}
+      <footer className="hidden">
         <p className="text-muted-foreground/40 text-xs mb-3">Sistema de reservas online para barbería</p>
         <p className="text-muted-foreground">© 2025 DIEGCUTZ - Barbería Urbana</p>
         <div className="flex justify-center gap-4 mt-3 flex-wrap">
@@ -893,6 +896,7 @@ const Home = () => {
         </Button>
         <p className="text-muted-foreground text-xs mt-2">v 1.3.0</p>
       </footer>
+      <CustomerFooter />
     </div>
   );
 };
