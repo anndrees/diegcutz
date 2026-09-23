@@ -50,7 +50,7 @@ function Wordmark() {
 
   return (
     <primitive object={group}>
-      <group position={[1.9, -0.72, 0]}>
+      <group position={[0, -0.72, 0]}>
         {LETTERS.map((letter, index) => (
           <Text3D
             key={`${letter}-${index}`}
