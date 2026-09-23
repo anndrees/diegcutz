@@ -1,6 +1,6 @@
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Center, Environment, Lightformer, Text3D, type FontData } from "@react-three/drei";
+import { Environment, Lightformer, Text3D, type FontData } from "@react-three/drei";
 import helvetiker from "three/examples/fonts/helvetiker_bold.typeface.json";
 import * as THREE from "three";
 
@@ -41,39 +41,37 @@ function Wordmark() {
     group.rotation.y = THREE.MathUtils.damp(group.rotation.y, pointer.x * 0.34 + Math.sin(time * 0.42) * 0.055, 5.8, dt);
     group.rotation.x = THREE.MathUtils.damp(group.rotation.x, -pointer.y * 0.19 + Math.cos(time * 0.48) * 0.035, 5.8, dt);
     group.rotation.z = THREE.MathUtils.damp(group.rotation.z, pointer.x * -0.025, 4.5, dt);
-    group.position.x = THREE.MathUtils.damp(group.position.x, pointer.x * 0.38 + viewport.width * 0.14, 4.8, dt);
+    group.position.x = THREE.MathUtils.damp(group.position.x, pointer.x * Math.min(0.38, viewport.width * 0.018), 4.8, dt);
     group.position.y = THREE.MathUtils.damp(group.position.y, pointer.y * 0.16 + Math.sin(time * 0.9) * 0.09, 4.8, dt);
     group.position.z = THREE.MathUtils.damp(group.position.z, Math.sin(time * 0.7) * 0.24 + Math.abs(pointer.x) * 0.18, 4.8, dt);
-    const targetScale = Math.min(1.02, Math.max(0.48, viewport.width / 11.8)) * (1 + Math.sin(time * 0.72) * 0.018);
+    const targetScale = Math.min(0.88, Math.max(0.44, viewport.width / 13.5)) * (1 + Math.sin(time * 0.72) * 0.018);
     group.scale.setScalar(THREE.MathUtils.damp(group.scale.x, targetScale, 6, dt));
   });
 
   return (
     <primitive object={group}>
-      <Center position={[0, 0.08, 0]}>
-        <group>
-          {LETTERS.map((letter, index) => (
-            <Text3D
-              key={`${letter}-${index}`}
-              position={[positions[index], Math.sin(index * 1.7) * 0.035, index % 2 === 0 ? 0.04 : -0.02]}
-              font={helvetiker as unknown as FontData}
-              size={1.5}
-              height={0.72}
-              curveSegments={24}
-              bevelEnabled
-              bevelThickness={0.32}
-              bevelSize={0.22}
-              bevelOffset={-0.055}
-              bevelSegments={18}
-              scale={[1, 1.06 + (index % 3) * 0.015, 1.12]}
-              castShadow
-            >
-              {letter}
-              <ChromeMaterial />
-            </Text3D>
-          ))}
-        </group>
-      </Center>
+      <group position={[1.9, -0.72, 0]}>
+        {LETTERS.map((letter, index) => (
+          <Text3D
+            key={`${letter}-${index}`}
+            position={[positions[index], Math.sin(index * 1.7) * 0.035, index % 2 === 0 ? 0.04 : -0.02]}
+            font={helvetiker as unknown as FontData}
+            size={1.5}
+            height={0.72}
+            curveSegments={24}
+            bevelEnabled
+            bevelThickness={0.32}
+            bevelSize={0.22}
+            bevelOffset={-0.055}
+            bevelSegments={18}
+            scale={[1, 1.06 + (index % 3) * 0.015, 1.12]}
+            castShadow
+          >
+            {letter}
+            <ChromeMaterial />
+          </Text3D>
+        ))}
+      </group>
     </primitive>
   );
 }
