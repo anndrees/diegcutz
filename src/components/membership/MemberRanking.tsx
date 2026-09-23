@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { supabase } from "@/integrations/supabase/client";
-import { Trophy, Crown } from "lucide-react";
+import { Trophy, Crown, Medal } from "lucide-react";
 import { MemberLevelBadge } from "./MemberLevelBadge";
 
 interface RankedMember {
@@ -70,8 +70,6 @@ export const MemberRanking = () => {
   if (loading) return null;
   if (ranking.length === 0) return null;
 
-  const medals = ["🥇", "🥈", "🥉"];
-
   return (
     <Card className="mb-6">
       <CardHeader>
@@ -84,12 +82,12 @@ export const MemberRanking = () => {
         <div className="space-y-2">
           {ranking.map((member, i) => (
             <div key={member.userId} className={`flex items-center gap-3 p-3 rounded-lg ${i < 3 ? "bg-primary/5 border border-primary/20" : "bg-muted/30"}`}>
-              <span className="text-lg w-8 text-center shrink-0">
-                {i < 3 ? medals[i] : `#${i + 1}`}
+              <span className="text-sm w-8 text-center shrink-0 text-primary">
+                {i < 3 ? <Medal className="h-5 w-5 mx-auto" aria-label={`Posición ${i + 1}`} /> : `#${i + 1}`}
               </span>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm truncate">{member.userName}</p>
-                <p className="text-xs text-muted-foreground">{member.planEmoji} {member.planName}</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1"><Crown className="h-3 w-3" /> {member.planName}</p>
               </div>
               <MemberLevelBadge consecutiveMonths={member.totalMonths} />
               <span className="text-xs text-muted-foreground whitespace-nowrap">{member.totalMonths} mes{member.totalMonths !== 1 ? "es" : ""}</span>
