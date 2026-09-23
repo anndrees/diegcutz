@@ -8,49 +8,54 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    --background: 0 0% 5%;
-    --foreground: 0 0% 98%;
+    --background: 0 0% 2%;
+    --foreground: 38 20% 92%;
 
-    --card: 0 0% 8%;
-    --card-foreground: 0 0% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 38 20% 92%;
 
-    --popover: 0 0% 8%;
-    --popover-foreground: 0 0% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 38 20% 92%;
 
-    --primary: 280 80% 60%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 43 50% 55%;
+    --primary-foreground: 0 0% 5%;
 
-    --secondary: 190 95% 50%;
+    --secondary: 34 54% 65%;
     --secondary-foreground: 0 0% 5%;
 
-    --muted: 0 0% 15%;
-    --muted-foreground: 0 0% 60%;
+    --muted: 30 4% 14%;
+    --muted-foreground: 30 6% 58%;
 
-    --accent: 280 80% 60%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 32% 18%;
+    --accent-foreground: 38 20% 92%;
 
     --destructive: 0 85% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%;
-    --input: 0 0% 20%;
-    --ring: 280 80% 60%;
+    --border: 35 9% 20%;
+    --input: 35 9% 20%;
+    --ring: 43 50% 55%;
 
-    --radius: 0.3rem;
+    --radius: 0.5rem;
 
-    --neon-purple: 280 80% 60%;
-    --neon-cyan: 190 95% 50%;
-    --neon-pink: 330 85% 60%;
+    --neon-purple: 43 50% 55%;
+    --neon-cyan: 34 54% 65%;
+    --neon-pink: 25 32% 56%;
+    --success: 151 35% 48%;
+    --warning: 38 80% 58%;
+    --stone: 38 20% 92%;
+    --surface-raised: 30 4% 10%;
     
     --chart-3: 30 80% 55%;
     --chart-4: 340 75% 55%;
     --chart-5: 210 70% 50%;
     
-    --gradient-neon: linear-gradient(135deg, hsl(280 80% 60%) 0%, hsl(190 95% 50%) 100%);
-    --gradient-dark: linear-gradient(180deg, hsl(0 0% 5%) 0%, hsl(0 0% 8%) 100%);
+    --gradient-neon: linear-gradient(115deg, hsl(34 38% 42%) 0%, hsl(43 58% 70%) 55%, hsl(34 38% 42%) 100%);
+    --gradient-dark: linear-gradient(180deg, hsl(0 0% 2%) 0%, hsl(0 0% 7%) 100%);
     
-    --shadow-neon-purple: 0 0 20px hsl(280 80% 60% / 0.5), 0 0 40px hsl(280 80% 60% / 0.3);
-    --shadow-neon-cyan: 0 0 20px hsl(190 95% 50% / 0.5), 0 0 40px hsl(190 95% 50% / 0.3);
+    --shadow-neon-purple: 0 18px 50px hsl(0 0% 0% / 0.45);
+    --shadow-neon-cyan: 0 18px 50px hsl(0 0% 0% / 0.45);
+    --shadow-elegant: 0 28px 80px hsl(0 0% 0% / 0.52);
     
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
@@ -67,10 +72,7 @@ All colors MUST be HSL.
     position: relative;
     isolation: isolate;
     background-color: hsl(var(--background));
-    background-image:
-      linear-gradient(115deg, hsl(var(--secondary) / 0.035) 1px, transparent 1px),
-      linear-gradient(25deg, hsl(var(--primary) / 0.025) 1px, transparent 1px);
-    background-size: 34px 34px, 52px 52px;
+    background-image: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card)) 55%, hsl(var(--background)));
   }
 
   .customer-shell::before {
@@ -79,7 +81,7 @@ All colors MUST be HSL.
     inset: 0;
     pointer-events: none;
     z-index: -1;
-    background: linear-gradient(180deg, hsl(var(--secondary) / 0.035), transparent 28%);
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.025), transparent);
   }
 
   .customer-shell :is(.rounded-xl, .rounded-2xl, .rounded-3xl) {
@@ -88,16 +90,16 @@ All colors MUST be HSL.
 
   .customer-panel {
     border: 1px solid hsl(var(--border));
-    border-left: 2px solid hsl(var(--secondary));
+    border-top: 1px solid hsl(var(--primary) / 0.55);
     background: hsl(var(--card) / 0.82);
     backdrop-filter: blur(16px);
     box-shadow: 0 24px 80px -48px hsl(var(--secondary) / 0.55);
   }
 
   .customer-kicker {
-    color: hsl(var(--secondary));
+    color: hsl(var(--primary));
     font-size: 0.7rem;
-    font-weight: 900;
+    font-weight: 700;
     letter-spacing: 0.2em;
   }
 }
@@ -112,12 +114,13 @@ All colors MUST be HSL.
   }
   
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold tracking-tight;
+    font-family: 'Playfair Display', Georgia, serif;
+    @apply font-semibold;
   }
   
   .font-aggressive {
-    font-family: 'A Dripping Marker', 'Black Ops One', system-ui, sans-serif;
-    letter-spacing: 0.05em;
+    font-family: 'Playfair Display', Georgia, serif;
+    letter-spacing: 0;
   }
 }
 
