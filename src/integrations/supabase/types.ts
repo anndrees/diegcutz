@@ -129,6 +129,7 @@ export type Database = {
           loyalty_credited_by: string | null
           original_price: number | null
           playlist_url: string | null
+          service_ids: Json | null
           services: Json
           total_price: number
           user_id: string | null
@@ -149,6 +150,7 @@ export type Database = {
           loyalty_credited_by?: string | null
           original_price?: number | null
           playlist_url?: string | null
+          service_ids?: Json | null
           services?: Json
           total_price?: number
           user_id?: string | null
@@ -169,6 +171,7 @@ export type Database = {
           loyalty_credited_by?: string | null
           original_price?: number | null
           playlist_url?: string | null
+          service_ids?: Json | null
           services?: Json
           total_price?: number
           user_id?: string | null
