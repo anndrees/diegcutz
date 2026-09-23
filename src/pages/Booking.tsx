@@ -1280,7 +1280,7 @@ const Booking = () => {
           >
             <MobileStep isMobile={isMobile} active={mobileStep === 3} step={3} currentStep={mobileStep}>
             <div className="space-y-6">
-            {!isFreeCutReservation && <StyleAdvisor services={services.filter(service => !service.coming_soon)} onSelect={(id) => { setSelectedPack(null); setSelectedServices(current => current.includes(id) ? current : [...current, id]); }} />}
+            {!isFreeCutReservation && <StyleAdvisor services={services.filter(service => !service.coming_soon)} onSelect={(id) => { setSelectedPack(null); setSelectedServices(current => current.includes(id) ? current : [...current, id]); }} onSlotSelect={({ date, time }) => { const [y, m, d] = date.split("-").map(Number); setSelectedDate(new Date(y, m - 1, d)); setSelectedTime(`${time}:00`); }} />}
             {/* Packs - Hidden for free cut reservations */}
             {!isFreeCutReservation && packs.length > 0 && (
               <Card className="booking-step-card overflow-hidden">
