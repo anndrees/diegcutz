@@ -62,6 +62,46 @@ All colors MUST be HSL.
   }
 }
 
+@layer components {
+  .customer-shell {
+    position: relative;
+    isolation: isolate;
+    background-color: hsl(var(--background));
+    background-image:
+      linear-gradient(115deg, hsl(var(--secondary) / 0.035) 1px, transparent 1px),
+      linear-gradient(25deg, hsl(var(--primary) / 0.025) 1px, transparent 1px);
+    background-size: 34px 34px, 52px 52px;
+  }
+
+  .customer-shell::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -1;
+    background: linear-gradient(180deg, hsl(var(--secondary) / 0.035), transparent 28%);
+  }
+
+  .customer-shell :is(.rounded-xl, .rounded-2xl, .rounded-3xl) {
+    border-radius: var(--radius);
+  }
+
+  .customer-panel {
+    border: 1px solid hsl(var(--border));
+    border-left: 2px solid hsl(var(--secondary));
+    background: hsl(var(--card) / 0.82);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 24px 80px -48px hsl(var(--secondary) / 0.55);
+  }
+
+  .customer-kicker {
+    color: hsl(var(--secondary));
+    font-size: 0.7rem;
+    font-weight: 900;
+    letter-spacing: 0.2em;
+  }
+}
+
 @layer base {
   * {
     @apply border-border;

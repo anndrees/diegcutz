@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Crown, Calendar, Scissors, Sparkles, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { MemberCard } from "./MemberCard";
+import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +19,7 @@ import {
 export const MyMembershipSection = () => {
   const { user, profile, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const { enabled: loyaltyEnabled } = useLoyaltyProgram();
   const [membership, setMembership] = useState<any>(null);
   const [plan, setPlan] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -161,7 +163,7 @@ export const MyMembershipSection = () => {
             planEmoji={plan.emoji}
             endDate={membership.end_date}
             memberSince={membership.start_date}
-            loyaltyToken={loyaltyToken}
+            loyaltyToken={loyaltyEnabled ? loyaltyToken : null}
           />
         </DialogContent>
       </Dialog>

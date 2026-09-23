@@ -20,7 +20,7 @@ export type TvSlideKey =
   | "queue" | "services" | "packs" | "memberships" | "giveaways" | "hours"
   | "brand" | "stats" | "reviews" | "coupons" | "social" | "promo"
   | "achievements_feed" | "special_hours_upcoming" | "cuts_today"
-  | "next_slot" | "qr_book" | "loyalty_program";
+  | "next_slot" | "qr_book";
 
 export type TvSettings = {
   passcode: string;
@@ -40,7 +40,6 @@ const DEFAULT_SETTINGS: TvSettings = {
     { key: "memberships", enabled: true },
     { key: "giveaways", enabled: true },
     { key: "qr_book", enabled: true },
-    { key: "loyalty_program", enabled: true },
     { key: "achievements_feed", enabled: true },
     { key: "special_hours_upcoming", enabled: true },
     { key: "promo", enabled: true },
@@ -71,7 +70,6 @@ const META: Record<TvSlideKey, { label: string; icon: React.ComponentType<{ clas
   cuts_today:             { label: "Cortes hoy en directo",    icon: Sparkles,  color: "text-cyan-300" },
   next_slot:              { label: "Próximo hueco libre",      icon: Clock,     color: "text-teal-400" },
   qr_book:                { label: "QR para reservar",         icon: QrCode,    color: "text-white" },
-  loyalty_program:        { label: "Programa de fidelidad",    icon: Crown,     color: "text-amber-400" },
 };
 
 function SortableRow({

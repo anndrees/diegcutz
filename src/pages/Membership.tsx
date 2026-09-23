@@ -66,7 +66,7 @@ const Membership = () => {
   }
 
   return (
-    <div className="min-h-screen py-8 px-4 pt-safe">
+    <div className="customer-shell min-h-screen py-8 px-4 pt-safe">
       <div className="max-w-5xl mx-auto">
         <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
           <ArrowLeft className="mr-2 h-4 w-4" /> Volver

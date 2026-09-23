@@ -71,7 +71,6 @@ const DEFAULT_TV_SETTINGS: TvSettings = {
     { key: "memberships", enabled: true },
     { key: "giveaways", enabled: true },
     { key: "qr_book", enabled: true },
-    { key: "loyalty_program", enabled: true },
     { key: "achievements_feed", enabled: true },
     { key: "special_hours_upcoming", enabled: true },
     { key: "promo", enabled: true },
@@ -307,9 +306,6 @@ const TvMode = () => {
           break;
         case "qr_book":
           arr.push({ key: "qr_book", render: () => <QrBookSlide /> });
-          break;
-        case "loyalty_program":
-          arr.push({ key: "loyalty_program", render: () => <LoyaltyProgramSlide /> });
           break;
       }
     }
@@ -1368,53 +1364,6 @@ const QrBookSlide = () => {
     </div>
   );
 };
-
-// ===== LOYALTY PROGRAM =====
-const LoyaltyProgramSlide = () => (
-  <div className="text-center">
-    <SlideTitle icon={Award} title="PROGRAMA DE FIDELIDAD" subtitle="Cada corte cuenta" />
-    <motion.div
-      initial={{ opacity: 0, rotateY: -25 }}
-      animate={{ opacity: 1, rotateY: 0 }}
-      transition={{ type: "spring", stiffness: 60 }}
-      className="relative mx-auto max-w-3xl rounded-3xl p-12 bg-gradient-to-br from-amber-500/25 via-fuchsia-500/20 to-cyan-500/25 backdrop-blur-xl border-2 border-amber-300/50 overflow-hidden"
-    >
-      <motion.div
-        animate={{ rotate: 360 }}
-        transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-        className="absolute -top-20 -right-20 w-72 h-72 rounded-full bg-amber-300/20 blur-3xl"
-      />
-      <Award className="w-24 h-24 text-amber-300 mx-auto mb-6 drop-shadow-[0_0_30px_rgba(251,191,36,.9)]" />
-      <div className="text-5xl font-black text-white mb-4">GANA CORTES GRATIS</div>
-      <p className="text-2xl text-white/80 mb-8">
-        Acumula puntos en cada visita y consigue recompensas exclusivas
-      </p>
-      <div className="grid grid-cols-3 gap-4 max-w-2xl mx-auto">
-        {[
-          { n: "1", t: "Reserva", c: "from-cyan-400 to-blue-500" },
-          { n: "2", t: "Escanea QR", c: "from-fuchsia-400 to-purple-500" },
-          { n: "3", t: "Suma puntos", c: "from-amber-400 to-orange-500" },
-        ].map((s, i) => (
-          <motion.div
-            key={s.n}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 + i * 0.15 }}
-            className="rounded-2xl p-5 bg-black/40 border border-white/10"
-          >
-            <div className={`text-4xl font-black bg-gradient-to-br ${s.c} bg-clip-text text-transparent`}>
-              {s.n}
-            </div>
-            <div className="mt-2 text-sm uppercase tracking-widest text-white/80">{s.t}</div>
-          </motion.div>
-        ))}
-      </div>
-      <p className="mt-8 text-lg text-amber-200/90">
-        ¡Cada <span className="font-black">5 cortes</span> = 1 corte <span className="font-black">GRATIS</span>!
-      </p>
-    </motion.div>
-  </div>
-);
 
 // ===== LOADING SCREEN =====
 const TvLoadingScreen = () => (

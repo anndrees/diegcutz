@@ -5,10 +5,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ArrowLeft, Crown, Sparkles, Gift } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
+import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 
 const Loyalty = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { enabled: loyaltyEnabled, loading: settingLoading } = useLoyaltyProgram();
   const [loyaltyData, setLoyaltyData] = useState<{
     completed_bookings: number;
     free_cuts_available: number;
@@ -93,7 +95,7 @@ const Loyalty = () => {
   const stamps = loyaltyData ? loyaltyData.completed_bookings % 10 : 0;
   const totalVisits = loyaltyData?.completed_bookings || 0;
 
-  if (loading) {
+  if (loading || settingLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-muted-foreground">Cargando...</div>
@@ -101,8 +103,40 @@ const Loyalty = () => {
     );
   }
 
+  if (!loyaltyEnabled) {
+    const freeCuts = loyaltyData?.free_cuts_available || 0;
+    return (
+      <div className="customer-shell min-h-screen py-8 px-4 pt-safe">
+        <div className="max-w-md mx-auto">
+          <Button variant="ghost" onClick={() => navigate("/")} className="mb-10">
+            <ArrowLeft className="mr-2 h-4 w-4" /> Volver
+          </Button>
+          <div className="customer-panel text-center p-8">
+            <div className="w-16 h-1 bg-secondary glow-neon-cyan mx-auto mb-7" />
+            <Gift className="w-12 h-12 text-secondary mx-auto mb-5" />
+            <p className="customer-kicker">RECOMPENSAS MANUALES</p>
+            <h1 className="text-4xl font-black mt-2 mb-4">CORTES GRATIS</h1>
+            {freeCuts > 0 ? (
+              <>
+                <p className="text-6xl font-black text-neon-cyan my-8">{freeCuts}</p>
+                <p className="text-muted-foreground mb-8">
+                  Tienes {freeCuts} corte{freeCuts === 1 ? "" : "s"} gratis disponible{freeCuts === 1 ? "" : "s"}.
+                </p>
+                <Button variant="neonCyan" size="lg" onClick={() => navigate("/booking?free_cut=true")}>
+                  <Sparkles className="h-5 w-5" /> Reservar corte gratis
+                </Button>
+              </>
+            ) : (
+              <p className="text-muted-foreground mt-6">Ahora mismo no tienes cortes gratis disponibles.</p>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen py-8 px-4 pt-safe">
+    <div className="customer-shell min-h-screen py-8 px-4 pt-safe">
       <style>{`
         @keyframes stamp-in {
           0% { transform: scale(0) rotate(-180deg); opacity: 0; }

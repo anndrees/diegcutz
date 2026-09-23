@@ -23,7 +23,7 @@ type Client = {
 type LoyaltyMap = Record<string, number>;
 type MembershipInfo = { membership_id: string; plan_name: string; plan_emoji: string; sort_order: number };
 type MembershipMap = Record<string, MembershipInfo>;
-type SortOption = "newest" | "oldest" | "name_asc" | "name_desc" | "points_desc" | "points_asc" | "last_seen_desc" | "last_seen_asc";
+type SortOption = "newest" | "oldest" | "name_asc" | "name_desc" | "last_seen_desc" | "last_seen_asc";
 
 // Tier colors by sort_order
 const TIER_COLORS: Record<number, { border: string; bg: string; text: string }> = {
@@ -128,8 +128,6 @@ export const ClientsManagement = () => {
         case "oldest": return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
         case "name_asc": return a.full_name.localeCompare(b.full_name);
         case "name_desc": return b.full_name.localeCompare(a.full_name);
-        case "points_desc": return getPoints(b.id) - getPoints(a.id);
-        case "points_asc": return getPoints(a.id) - getPoints(b.id);
         case "last_seen_desc": return new Date(b.last_seen_at || 0).getTime() - new Date(a.last_seen_at || 0).getTime();
         case "last_seen_asc": return new Date(a.last_seen_at || "9999-12-31").getTime() - new Date(b.last_seen_at || "9999-12-31").getTime();
         default: return 0;
@@ -156,8 +154,6 @@ export const ClientsManagement = () => {
                 <SelectItem value="oldest">Más antiguos</SelectItem>
                 <SelectItem value="name_asc">Nombre A-Z</SelectItem>
                 <SelectItem value="name_desc">Nombre Z-A</SelectItem>
-                <SelectItem value="points_desc">Más puntos</SelectItem>
-                <SelectItem value="points_asc">Menos puntos</SelectItem>
                 <SelectItem value="last_seen_desc">Última actividad</SelectItem>
                 <SelectItem value="last_seen_asc">Inactivos hace más</SelectItem>
               </SelectContent>
@@ -191,7 +187,7 @@ export const ClientsManagement = () => {
                         {client.pwa_installed_at && <Smartphone className="h-3 w-3 text-primary shrink-0" />}
                       </div>
                       <p className="text-xs text-muted-foreground truncate">
-                        @{client.username} · {getPoints(client.id)} pts
+                        @{client.username}
                         {mem && <span className={`ml-1 ${tierStyle?.text}`}> · {mem.plan_emoji} {mem.plan_name}</span>}
                       </p>
                       <p className="text-[10px] text-muted-foreground/70 truncate">Últ. acceso: {formatLastSeen(client.last_seen_at)}</p>
@@ -226,7 +222,6 @@ export const ClientsManagement = () => {
                         <div className="flex items-center gap-1.5">
                           {mem && <Crown className={`h-4 w-4 ${tierStyle?.text}`} />}
                           {client.full_name}
-                          <span className="text-xs text-muted-foreground">({getPoints(client.id)})</span>
                           {client.pwa_installed_at && (
                             <TooltipProvider><Tooltip><TooltipTrigger><Smartphone className="h-3.5 w-3.5 text-primary" /></TooltipTrigger><TooltipContent><p>PWA instalada</p></TooltipContent></Tooltip></TooltipProvider>
                           )}

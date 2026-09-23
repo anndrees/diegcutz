@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Sparkles, Zap, CreditCard, Crown } from "lucide-react";
+import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Crown, ArrowRight, CreditCard } from "lucide-react";
 import heroImage from "@/assets/hero-barber.jpg";
 import Map from "@/components/Map";
 import { useAuth } from "@/hooks/useAuth";
@@ -15,6 +15,7 @@ import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
 import { Tilt3D } from "@/components/fx/Tilt3D";
 import { colorClassFor } from "@/components/admin/MarqueeManagement";
+import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 // Custom hook for parallax effect with smooth interpolation
 const useParallax = () => {
   const [scrollY, setScrollY] = useState(0);
@@ -120,6 +121,7 @@ const FloatingParticles = ({ scrollY }: { scrollY: number }) => {
 const Home = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { enabled: loyaltyEnabled } = useLoyaltyProgram();
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
@@ -273,7 +275,7 @@ const Home = () => {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden relative">
+    <div className="customer-shell min-h-screen overflow-x-hidden relative">
       {/* Global ambient FX layers (decoration only, behind everything) */}
       <div className="pointer-events-none fixed inset-0 -z-10 bg-neon-grid opacity-60" />
       <div className="pointer-events-none fixed inset-0 -z-10 bg-noise opacity-[0.18] mix-blend-overlay" />
@@ -340,7 +342,7 @@ const Home = () => {
 
       {/* Top Bar with Login/Profile */}
       <div className="fixed top-0 right-0 z-50 p-4 pt-safe flex items-center gap-2">
-        {user && profile && (
+        {user && profile && loyaltyEnabled && (
           <Button
             variant="ghost"
             size="icon"
@@ -373,7 +375,7 @@ const Home = () => {
       </div>
 
       {/* Hero Section with Advanced Parallax */}
-      <section className="relative h-screen flex items-center justify-center overflow-hidden">
+      <section className="relative min-h-[92svh] flex items-center justify-center overflow-hidden">
         {/* Main background with deep parallax */}
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -401,58 +403,28 @@ const Home = () => {
         {/* Floating particles */}
         {homeSettings.particles && <FloatingParticles scrollY={scrollY} />}
 
-        {/* Animated orbs with mouse parallax */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div
-            className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-purple/20 rounded-full blur-[100px]"
-            style={{
-              transform: `translate(${mousePos.x * 30}px, ${mousePos.y * 30 + scrollY * -0.3}px)`,
-              animation: "glow-pulse 4s ease-in-out infinite",
-            }}
-          />
-          <div
-            className="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-neon-cyan/15 rounded-full blur-[120px]"
-            style={{
-              transform: `translate(${mousePos.x * -20}px, ${mousePos.y * -20 + scrollY * -0.2}px)`,
-              animation: "glow-pulse 5s ease-in-out infinite",
-              animationDelay: "1s",
-            }}
-          />
-          <div
-            className="absolute top-1/2 left-1/2 w-72 h-72 bg-neon-pink/10 rounded-full blur-[80px]"
-            style={{
-              transform: `translate(-50%, -50%) translate(${mousePos.x * 40}px, ${mousePos.y * 40 + scrollY * -0.4}px)`,
-              animation: "glow-pulse 3s ease-in-out infinite",
-              animationDelay: "0.5s",
-            }}
-          />
-        </div>
+        <div className="absolute inset-0 bg-scanlines opacity-30 pointer-events-none" />
 
         {/* Content */}
         <div
-          className="relative z-10 text-center px-4 max-w-5xl mx-auto"
+          className="relative z-10 text-center px-4 max-w-6xl mx-auto"
           style={{
             transform: `translateY(${scrollY * 0.15}px)`,
             opacity: Math.max(0, 1 - scrollY / 400),
           }}
         >
-          {/* Decorative elements */}
-          <div className="flex justify-center gap-4 mb-4 animate-fade-in" style={{ animationDelay: "100ms" }}>
-            <Sparkles className="w-6 h-6 text-neon-cyan animate-pulse" />
-            <Zap className="w-6 h-6 text-neon-purple animate-pulse" style={{ animationDelay: "0.3s" }} />
-            <Sparkles className="w-6 h-6 text-neon-cyan animate-pulse" style={{ animationDelay: "0.6s" }} />
-          </div>
+          <div className="w-24 h-1 bg-secondary mx-auto mb-8 glow-neon-cyan" />
 
           <h1
             data-text={homeSettings.title || "DIEGCUTZ"}
-            className="glitch title-flicker text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,0.8)]"
+            className="glitch text-7xl md:text-9xl font-black mb-6 font-aggressive animate-fade-in text-neon-cyan"
             style={{ animationDuration: "1s" }}
           >
             {homeSettings.title || "DIEGCUTZ"}
           </h1>
 
           <p
-            className="text-xl md:text-3xl text-neon-cyan mb-10 font-bold uppercase tracking-[0.2em] animate-fade-in"
+            className="text-base md:text-xl text-muted-foreground mb-10 font-bold uppercase tracking-[0.2em] animate-fade-in"
             style={{
               animationDelay: "300ms",
               animationDuration: "1s",
@@ -463,13 +435,14 @@ const Home = () => {
 
           <Button
             size="lg"
-            variant="neon"
+            variant="neonCyan"
             onClick={() => navigate("/booking")}
-            className="text-xl px-16 py-8 h-auto animate-fade-in magnetic-button transition-all duration-300"
+            className="text-base px-12 py-6 h-auto animate-fade-in magnetic-button transition-all duration-300"
             style={{ animationDelay: "500ms", animationDuration: "1s" }}
           >
             <Scissors className="mr-3 h-6 w-6" />
             Reserva tu Cita
+            <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
         </div>
 

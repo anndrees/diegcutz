@@ -22,7 +22,7 @@ type ActiveBooking = {
 };
 
 interface ActiveAppointmentBannerProps {
-  onOpenQrScanner: () => void;
+  onOpenQrScanner?: () => void;
 }
 
 export const ActiveAppointmentBanner = ({ onOpenQrScanner }: ActiveAppointmentBannerProps) => {
@@ -189,15 +189,12 @@ export const ActiveAppointmentBanner = ({ onOpenQrScanner }: ActiveAppointmentBa
                 </Button>
               </a>
             )}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={onOpenQrScanner}
-              className="border-[#D4AF37]/40 text-[#D4AF37] hover:bg-[#D4AF37]/10"
-            >
-              <QrCode className="h-4 w-4 mr-1.5" />
-              Fidelización
-            </Button>
+            {onOpenQrScanner && (
+              <Button variant="outline" size="sm" onClick={onOpenQrScanner} className="border-primary/40 text-primary">
+                <QrCode className="h-4 w-4 mr-1.5" />
+                Fidelización
+              </Button>
+            )}
           </div>
         </div>
       </div>

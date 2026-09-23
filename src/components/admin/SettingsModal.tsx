@@ -118,8 +118,8 @@ export const SettingsModal = () => {
     },
     {
       key: "loyalty_program_enabled" as const,
-      label: "Programa de fidelización",
-      description: "Sistema de cortes gratis cada 10 reservas",
+      label: "Programa de puntos y QR",
+      description: "Activa sellos, puntos, tarjeta QR y premios automáticos. Los cortes gratis manuales siempre se conservan.",
       type: "switch",
     },
     {
