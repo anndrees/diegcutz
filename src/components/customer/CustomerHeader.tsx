@@ -14,6 +14,7 @@ const links = [
 
 export function CustomerHeader({ transparent = false }: { transparent?: boolean }) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { pathname } = useLocation();
   const { user, profile, signOut } = useAuth();
 
@@ -22,8 +23,15 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
     setOpen(false);
   };
 
+  useState(() => {
+    const sync = () => setScrolled(window.scrollY > 36);
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    return () => window.removeEventListener("scroll", sync);
+  });
+
   return (
-    <header className={cn("customer-header", transparent && "customer-header--transparent")}>
+    <header className={cn("customer-header", transparent && "customer-header--transparent", scrolled && "is-scrolled")}>
       <div className="customer-header__inner">
         <Link to="/" className="brand-lockup" aria-label="DIEGCUTZ inicio">
           <span className="brand-lockup__mark" aria-hidden="true">DC</span>
