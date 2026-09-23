@@ -113,7 +113,7 @@ export const sendBookingConfirmation = async (
   });
 
   return sendPushNotification(userId, {
-    title: "✅ Reserva confirmada",
+    title: "Reserva confirmada",
     body: `Tu cita para ${services.join(", ")} es el ${formattedDate} a las ${bookingTime.slice(0, 5)}`,
     tag: "booking-confirmation",
     data: {
@@ -164,7 +164,7 @@ export const sendBookingCancellation = async (
   });
 
   return sendPushNotification(userId, {
-    title: cancelledByAdmin ? "❌ Cita cancelada" : "📝 Cancelación confirmada",
+    title: cancelledByAdmin ? "Cita cancelada" : "Cancelación confirmada",
     body: cancelledByAdmin 
       ? `Tu cita del ${formattedDate} a las ${bookingTime.slice(0, 5)} ha sido cancelada. Contacta con nosotros para más info.`
       : `Has cancelado tu cita del ${formattedDate} a las ${bookingTime.slice(0, 5)}`,
@@ -185,7 +185,7 @@ export const sendGiveawayWinnerNotification = async (
   prize: string
 ): Promise<{ success: boolean }> => {
   return sendPushNotification(userId, {
-    title: "🎉 ¡FELICIDADES!",
+    title: "Felicidades",
     body: `¡Has ganado el sorteo "${giveawayTitle}"! Tu premio: ${prize}`,
     tag: "giveaway-winner",
     data: {
@@ -209,7 +209,7 @@ export const sendNewGiveawayNotification = async (
   });
 
   return sendPushNotificationToAll({
-    title: "🎁 ¡Nuevo Sorteo!",
+    title: "Nuevo sorteo",
     body: `Participa en "${giveawayTitle}" y gana: ${prize}. Hasta el ${formattedEndDate}`,
     tag: "new-giveaway",
     data: {
@@ -234,7 +234,7 @@ export const sendMembershipActivatedNotification = async (
   });
 
   return sendPushNotification(userId, {
-    title: "👑 ¡Membresía activada!",
+    title: "Membresía activada",
     body: `Tu membresía ${membershipName} está activa hasta el ${formattedEndDate}. ¡Disfruta de tus beneficios!`,
     tag: "membership-activated",
     data: { type: "membership-activated", url: "/membership" }
@@ -293,7 +293,7 @@ export const sendMembershipUpgradedNotification = async (
   });
 
   return sendPushNotification(userId, {
-    title: "⬆️ ¡Upgrade de membresía!",
+    title: "Membresía actualizada",
     body: `Has sido actualizado a ${newMembershipName} hasta el ${formattedEndDate}. ¡Disfruta de más beneficios!`,
     tag: "membership-upgraded",
     data: { type: "membership-upgraded", url: "/membership" }
@@ -340,7 +340,7 @@ export const sendMembershipWelcomeNotification = async (
   membershipName: string
 ): Promise<{ success: boolean }> => {
   return sendPushNotification(userId, {
-    title: "🎉 ¡Bienvenido a tu membresía!",
+    title: "Bienvenido a tu membresía",
     body: `Ya eres miembro de ${membershipName}. Revisa tu perfil para ver todos tus beneficios disponibles.`,
     tag: "membership-welcome",
     data: { type: "membership-welcome", url: "/user" }

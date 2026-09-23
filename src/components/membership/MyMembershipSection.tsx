@@ -148,7 +148,7 @@ export const MyMembershipSection = () => {
 
           {membership.is_paused && (
             <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-lg p-3 text-center text-sm text-yellow-500">
-              ⏸️ Tu membresía está pausada temporalmente
+              Tu membresía está pausada temporalmente
             </div>
           )}
         </CardContent>

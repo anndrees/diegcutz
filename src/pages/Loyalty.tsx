@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { ArrowLeft, Crown, Sparkles, Gift } from "lucide-react";
+import { ArrowLeft, Crown, Sparkles, Gift, Scissors } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 import { CustomerPage } from "@/components/customer/CustomerPage";
@@ -286,7 +286,7 @@ const Loyalty = () => {
                   className="bg-primary hover:bg-[#B8860B] text-background font-bold"
                   onClick={() => navigate("/booking?free_cut=true")}
                 >
-                  ✂️ Reservar corte gratis
+                  <Scissors className="h-4 w-4" /> Reservar corte gratis
                 </Button>
               </div>
             )}

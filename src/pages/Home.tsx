@@ -1,904 +1,160 @@
-import { useNavigate } from "react-router-dom";
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowDownRight, ArrowRight, ArrowUpRight, Clock3, Gift, MapPin, Scissors, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Scissors, Clock, MapPin, MessageCircle, User, Gift, Crown, ArrowRight, CreditCard } from "lucide-react";
-import heroImage from "@/assets/hero-noir.jpg";
 import { CustomerHeader } from "@/components/customer/CustomerHeader";
 import { CustomerFooter } from "@/components/customer/CustomerFooter";
-import Map from "@/components/Map";
-import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { NextAvailableSlot } from "@/components/home/NextAvailableSlot";
 import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { LiveTestimonials } from "@/components/home/LiveTestimonials";
 import { ReviewsShowcase } from "@/components/home/ReviewsShowcase";
 import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
-import { InstallBanner } from "@/components/pwa/InstallBanner";
 import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
-import { Tilt3D } from "@/components/fx/Tilt3D";
-import { colorClassFor } from "@/components/admin/MarqueeManagement";
-import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
-// Custom hook for parallax effect with smooth interpolation
-const useParallax = () => {
-  const [scrollY, setScrollY] = useState(0);
-  const frameRef = useRef<number>();
+import { InstallBanner } from "@/components/pwa/InstallBanner";
+import Map from "@/components/Map";
+import defaultHero from "@/assets/studio-architectural.jpg";
+import craftDetail from "@/assets/craft-detail.jpg";
+import clientEditorial from "@/assets/client-editorial.jpg";
 
-  useEffect(() => {
-    const handleScroll = () => {
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-      frameRef.current = requestAnimationFrame(() => {
-        setScrollY(window.scrollY);
-      });
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-      if (frameRef.current) cancelAnimationFrame(frameRef.current);
-    };
-  }, []);
-
-  return scrollY;
-};
-
-// Custom hook for mouse parallax
-const useMouseParallax = () => {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePos({
-        x: (e.clientX / window.innerWidth - 0.5) * 2,
-        y: (e.clientY / window.innerHeight - 0.5) * 2,
-      });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, []);
-
-  return mousePos;
-};
-
-type TimeRange = {
-  start: string;
-  end: string;
-};
-
-type BusinessHour = {
-  day_of_week: number;
-  is_closed: boolean;
-  is_24h: boolean;
-  time_ranges: TimeRange[];
-};
-
-type SpecialHour = {
-  id: string;
-  date: string;
-  is_closed: boolean;
-  time_ranges: TimeRange[];
-  note: string | null;
-};
-
-type Giveaway = {
-  id: string;
-  title: string;
-  prize: string;
-  end_date: string;
-};
+type TimeRange = { start: string; end: string };
+type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: TimeRange[] };
+type SpecialHour = { id: string; date: string; is_closed: boolean; time_ranges: TimeRange[]; note: string | null };
+type Giveaway = { id: string; title: string; prize: string; end_date: string };
+type MarqueeItem = { id: string; text: string; color: string };
+type HomeSettings = { image: string; filter: boolean; overlay: number };
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-// Floating particles component
-const FloatingParticles = ({ scrollY }: { scrollY: number }) => {
-  const particles = Array.from({ length: 20 }, (_, i) => ({
-    id: i,
-    size: Math.random() * 6 + 2,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    delay: Math.random() * 5,
-    duration: 3 + Math.random() * 4,
-  }));
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map((p) => (
-        <div
-          key={p.id}
-          className="absolute rounded-full bg-secondary/30"
-          style={{
-            width: p.size,
-            height: p.size,
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            transform: `translateY(${scrollY * (0.1 + p.id * 0.02)}px)`,
-            animation: `float ${p.duration}s ease-in-out infinite`,
-            animationDelay: `${p.delay}s`,
-            boxShadow: `0 0 ${p.size * 2}px ${p.size / 2}px rgba(0, 245, 255, 0.3)`,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-const Home = () => {
+export default function Home() {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
-  const { enabled: loyaltyEnabled } = useLoyaltyProgram();
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
   const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
-  const [marqueeItems, setMarqueeItems] = useState<{ id: string; text: string; color: string }[]>([]);
-  const [homeSettings, setHomeSettings] = useState<{
-    image: string;
-    filter: boolean;
-    overlay: number;
-    particles: boolean;
-    title: string;
-    subtitle: string;
-  }>({
-    image: "",
-    filter: false,
-    overlay: 60,
-    particles: true,
-    title: "",
-    subtitle: "",
-  });
-  const scrollY = useParallax();
-  const mousePos = useMouseParallax();
-
-  // Refs for scroll-triggered animations
-  const aboutRef = useRef<HTMLDivElement>(null);
-  const servicesRef = useRef<HTMLDivElement>(null);
-  const locationRef = useRef<HTMLDivElement>(null);
-  const hoursRef = useRef<HTMLDivElement>(null);
-
-  const [aboutVisible, setAboutVisible] = useState(false);
-  const [servicesVisible, setServicesVisible] = useState(false);
-  const [locationVisible, setLocationVisible] = useState(false);
-  const [hoursVisible, setHoursVisible] = useState(false);
+  const [marqueeItems, setMarqueeItems] = useState<MarqueeItem[]>([]);
+  const [homeSettings, setHomeSettings] = useState<HomeSettings>({ image: "", filter: false, overlay: 38 });
 
   useEffect(() => {
-    loadBusinessHours();
-    loadSpecialHours();
-    loadActiveGiveaway();
-    loadMarquee();
-    loadHomeSettings();
+    const today = new Date();
+    const later = new Date(today);
+    later.setDate(later.getDate() + 28);
+    const todayString = today.toISOString().split("T")[0];
+    const laterString = later.toISOString().split("T")[0];
 
-    // Intersection observer for scroll animations
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            if (entry.target === aboutRef.current) setAboutVisible(true);
-            if (entry.target === servicesRef.current) setServicesVisible(true);
-            if (entry.target === locationRef.current) setLocationVisible(true);
-            if (entry.target === hoursRef.current) setHoursVisible(true);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "-50px" },
-    );
-
-    [aboutRef, servicesRef, locationRef, hoursRef].forEach((ref) => {
-      if (ref.current) observer.observe(ref.current);
+    Promise.all([
+      supabase.from("business_hours").select("*").order("day_of_week"),
+      supabase.from("special_hours").select("*").gte("date", todayString).lte("date", laterString).order("date"),
+      supabase.from("giveaways").select("id,title,prize,end_date").eq("is_finished", false).lte("start_date", new Date().toISOString()).gte("end_date", new Date().toISOString()).order("end_date").limit(1).maybeSingle(),
+      supabase.from("marquee_items").select("id,text,color").eq("is_active", true).order("sort_order"),
+      supabase.from("app_settings").select("key,value").in("key", ["home_hero_image_url", "home_hero_color_filter", "home_hero_overlay_intensity"]),
+    ]).then(([hours, specials, giveaway, marquee, settings]) => {
+      if (hours.data) setBusinessHours(hours.data.map(day => ({ ...day, time_ranges: Array.isArray(day.time_ranges) ? day.time_ranges as TimeRange[] : [] })));
+      if (specials.data) setSpecialHours(specials.data.map(day => ({ ...day, time_ranges: Array.isArray(day.time_ranges) ? day.time_ranges as TimeRange[] : [] })));
+      if (giveaway.data) setActiveGiveaway(giveaway.data as Giveaway);
+      setMarqueeItems((marquee.data as MarqueeItem[] | null) || []);
+      const next = { image: "", filter: false, overlay: 38 };
+      settings.data?.forEach(setting => {
+        if (setting.key === "home_hero_image_url" && typeof setting.value === "string") next.image = setting.value;
+        if (setting.key === "home_hero_color_filter") next.filter = setting.value === true;
+        if (setting.key === "home_hero_overlay_intensity" && typeof setting.value === "number") next.overlay = setting.value;
+      });
+      setHomeSettings(next);
     });
-
-    return () => observer.disconnect();
   }, []);
 
-  const loadBusinessHours = async () => {
-    const { data } = await supabase.from("business_hours").select("*").order("day_of_week", { ascending: true });
-
-    if (data) {
-      const formattedData = data.map((d) => ({
-        ...d,
-        time_ranges: Array.isArray(d.time_ranges) ? (d.time_ranges as TimeRange[]) : [],
-      }));
-      setBusinessHours(formattedData);
-    }
-  };
-
-  const loadSpecialHours = async () => {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split("T")[0];
-    
-    // Get special hours for the next 4 weeks
-    const fourWeeksLater = new Date(today);
-    fourWeeksLater.setDate(fourWeeksLater.getDate() + 28);
-    const fourWeeksStr = fourWeeksLater.toISOString().split("T")[0];
-
-    const { data } = await supabase
-      .from("special_hours")
-      .select("*")
-      .gte("date", todayStr)
-      .lte("date", fourWeeksStr)
-      .order("date", { ascending: true });
-
-    if (data) {
-      setSpecialHours(
-        data.map((d) => ({
-          ...d,
-          time_ranges: Array.isArray(d.time_ranges) ? (d.time_ranges as TimeRange[]) : [],
-        }))
-      );
-    }
-  };
-
-  const loadActiveGiveaway = async () => {
-    const now = new Date().toISOString();
-    const { data } = await supabase
-      .from("giveaways")
-      .select("id, title, prize, end_date")
-      .eq("is_finished", false)
-      .lte("start_date", now)
-      .gte("end_date", now)
-      .order("end_date", { ascending: true })
-      .limit(1)
-      .maybeSingle();
-
-    if (data) {
-      setActiveGiveaway(data as Giveaway);
-    }
-  };
-
-  const loadMarquee = async () => {
-    const { data } = await supabase
-      .from("marquee_items")
-      .select("id, text, color")
-      .eq("is_active", true)
-      .order("sort_order", { ascending: true });
-    setMarqueeItems((data as any[]) || []);
-  };
-
-  const loadHomeSettings = async () => {
-    const { data } = await supabase
-      .from("app_settings")
-      .select("key, value")
-      .in("key", [
-        "home_hero_image_url",
-        "home_hero_color_filter",
-        "home_hero_overlay_intensity",
-        "home_show_floating_particles",
-        "home_hero_title",
-        "home_hero_subtitle",
-      ]);
-    if (!data) return;
-    const next = { ...homeSettings };
-    data.forEach((r: any) => {
-      if (r.key === "home_hero_image_url") next.image = typeof r.value === "string" ? r.value : "";
-      if (r.key === "home_hero_color_filter") next.filter = r.value === true;
-      if (r.key === "home_hero_overlay_intensity") next.overlay = typeof r.value === "number" ? r.value : 60;
-      if (r.key === "home_show_floating_particles") next.particles = r.value !== false;
-      if (r.key === "home_hero_title") next.title = typeof r.value === "string" ? r.value : "";
-      if (r.key === "home_hero_subtitle") next.subtitle = typeof r.value === "string" ? r.value : "";
-    });
-    setHomeSettings(next);
-  };
-
   return (
-    <div className="customer-shell min-h-screen overflow-x-hidden relative">
-      {/* Global ambient FX layers (decoration only, behind everything) */}
-      <div className="pointer-events-none fixed inset-0 -z-10  opacity-60" />
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-noise opacity-[0.18] mix-blend-overlay" />
-      <div className="pointer-events-none fixed inset-0 -z-10  opacity-40" />
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        <div
-          className="absolute -top-32 -left-32 w-[55vw] h-[55vw] rounded-full blur-[140px] opacity-30"
-          style={{
-            background: "radial-gradient(circle, hsl(var(--neon-purple) / 0.85), transparent 60%)",
-            transform: `translate3d(${mousePos.x * 25}px, ${mousePos.y * 25}px, 0)`,
-            transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
-          }}
-        />
-        <div
-          className="absolute -bottom-32 -right-32 w-[55vw] h-[55vw] rounded-full blur-[140px] opacity-25"
-          style={{
-            background: "radial-gradient(circle, hsl(var(--neon-cyan) / 0.85), transparent 60%)",
-            transform: `translate3d(${mousePos.x * -25}px, ${mousePos.y * -25}px, 0)`,
-            transition: "transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)",
-          }}
-        />
-      </div>
-      {/* PWA Install Banner - only shows in browser, not in PWA */}
+    <div className="customer-shell home-new min-h-screen overflow-x-hidden">
       <InstallBanner />
-      {/* CSS for custom animations */}
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
-        }
-        @keyframes glow-pulse {
-          0%, 100% { filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.5)); }
-          50% { filter: drop-shadow(0 0 40px rgba(139, 92, 246, 0.8)); }
-        }
-        @keyframes slide-up {
-          from { opacity: 0; transform: translateY(60px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes text-shimmer {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        .shimmer-text {
-          background: linear-gradient(90deg, #8B5CF6 0%, #00F5FF 25%, #8B5CF6 50%, #00F5FF 75%, #8B5CF6 100%);
-          background-size: 200% auto;
-          -webkit-background-clip: text;
-          background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: text-shimmer 28s linear infinite;
-        }
-        .magnetic-button:hover {
-          transform: scale(1.05) translateY(-2px);
-          box-shadow: 0 20px 40px -10px rgba(139, 92, 246, 0.5);
-        }
-        @keyframes title-flicker {
-          0%, 100% { opacity: 1; text-shadow: 0 0 30px rgba(34,211,238,0.85), 0 0 60px rgba(34,211,238,0.5); }
-          42%      { opacity: 0.92; }
-          43%      { opacity: 0.6; text-shadow: 0 0 6px rgba(34,211,238,0.4); }
-          45%      { opacity: 1; }
-          75%      { opacity: 0.95; }
-        }
-        .title-flicker { animation: title-flicker 5.5s ease-in-out infinite; }
-      `}</style>
-
-      {/* Top Bar with Login/Profile */}
-      <div className="fixed top-0 right-0 z-50 p-4 pt-safe flex items-center gap-2">
-        {user && profile && loyaltyEnabled && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => navigate("/loyalty")}
-            className="text-primary hover:text-primary/80 backdrop-blur-sm bg-background/30 hover:bg-background/50"
-            title="Tarjeta de fidelización"
-          >
-            <CreditCard className="h-5 w-5" />
-          </Button>
-        )}
-        {user && profile ? (
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/user")}
-            className="text-foreground hover:text-secondary transition-all duration-300 backdrop-blur-sm bg-background/30 hover:bg-background/50"
-          >
-            <User className="mr-2 h-4 w-4" />
-            {profile.username}
-          </Button>
-        ) : (
-          <Button
-            variant="outline"
-            onClick={() => navigate("/auth")}
-            className="border-secondary text-secondary hover:bg-secondary hover:text-background transition-all duration-300 magnetic-button backdrop-blur-sm bg-background/30"
-          >
-            <User className="mr-2 h-4 w-4" />
-            Iniciar Sesión
-          </Button>
-        )}
-      </div>
-
       <CustomerHeader transparent />
-      {/* Hero Section with Advanced Parallax */}
-      <section className="relative min-h-[92svh] flex items-end overflow-hidden pb-24">
-        {/* Main background with deep parallax */}
-        <div
-          className="absolute inset-0 bg-cover bg-center"
-          style={{
-            backgroundImage: `url(${homeSettings.image || heroImage})`,
-            transform: `translateY(${scrollY * 0.4}px) scale(${1.1 + scrollY * 0.0003})`,
-            filter: `${
-              homeSettings.filter
-                ? "hue-rotate(220deg) saturate(1.3) contrast(1.05) "
-                : ""
-            }brightness(${Math.max(0.3, 0.6 - scrollY * 0.0005)})`,
-          }}
-        />
 
-        {/* Gradient overlays */}
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-background to-background"
-          style={{ opacity: homeSettings.overlay / 100 }}
-        />
-        <div
-          className="absolute inset-0 bg-gradient-radial from-transparent via-transparent to-background/80"
-          style={{ transform: `translateY(${scrollY * 0.2}px)` }}
-        />
-
-        {/* Floating particles */}
-        {homeSettings.particles && <FloatingParticles scrollY={scrollY} />}
-
-        <div className="absolute inset-0  opacity-30 pointer-events-none" />
-
-        {/* Content */}
-        <div
-          className="relative z-10 text-left px-6 max-w-7xl w-full mx-auto"
-          style={{
-            transform: `translateY(${scrollY * 0.15}px)`,
-            opacity: Math.max(0, 1 - scrollY / 400),
-          }}
-        >
-          <p className="customer-kicker mb-5">BARBERÍA · MONÓVAR</p>
-
-          <h1
-            data-text={homeSettings.title || "DIEGCUTZ"}
-            className="text-7xl md:text-9xl font-semibold mb-6 font-display animate-fade-in noir-gold-text"
-            style={{ animationDuration: "1s" }}
-          >
-            {homeSettings.title || "DIEGCUTZ"}
-          </h1>
-
-          <p
-            className="text-base md:text-xl text-stone mb-10 max-w-xl font-light leading-relaxed animate-fade-in"
-            style={{
-              animationDelay: "300ms",
-              animationDuration: "1s",
-            }}
-          >
-            {homeSettings.subtitle || "Oficio contemporáneo, precisión y un estilo que habla de ti."}
-          </p>
-
-          <Button
-            size="lg"
-            variant="premium"
-            onClick={() => navigate("/booking")}
-            className="text-base px-12 py-6 h-auto animate-fade-in magnetic-button transition-all duration-300"
-            style={{ animationDelay: "500ms", animationDuration: "1s" }}
-          >
-            <Scissors className="mr-3 h-6 w-6" />
-            Reservar una cita
-            <ArrowRight className="ml-2 h-5 w-5" />
-          </Button>
-        </div>
-
-        {/* Enhanced scroll indicator */}
-        <div
-          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
-          style={{ opacity: Math.max(0, 1 - scrollY / 200) }}
-        >
-          <span className="text-xs uppercase tracking-widest text-muted-foreground">Scroll</span>
-          <div className="w-6 h-10 border-2 border-secondary/50 rounded-full flex justify-center relative overflow-hidden">
-            <div className="w-1.5 h-3 bg-secondary rounded-full mt-2 animate-bounce" />
+      <section className="home-hero">
+        <div className="home-hero__copy">
+          <div className="home-hero__eyebrow"><span /> ESTUDIO DE BARBERÍA · MONÓVAR</div>
+          <h1><span>DIEG</span><strong>CUTZ</strong></h1>
+          <div className="home-hero__intro">
+            <p>Precisión contemporánea, criterio personal y un oficio pensado para acompañar tu forma de estar en el mundo.</p>
+            <div className="home-hero__actions">
+              <Button size="lg" onClick={() => navigate("/booking")}>Reservar experiencia <ArrowUpRight /></Button>
+              <a href="#estudio">Conocer el estudio <ArrowDownRight /></a>
+            </div>
           </div>
         </div>
+
+        <figure className="home-hero__image">
+          <img src={homeSettings.image || defaultHero} alt="Estudio contemporáneo DIEGCUTZ" width={1600} height={1200} className={homeSettings.filter ? "is-filtered" : ""} />
+          <span className="home-hero__veil" style={{ opacity: Math.min(homeSettings.overlay / 180, 0.55) }} />
+          <figcaption><span><small>01 / ESTUDIO</small>Oficio contemporáneo</span><ArrowUpRight /></figcaption>
+        </figure>
       </section>
 
-      {/* Marquee tagline strip */}
       {marqueeItems.length > 0 && (
-        <div className="relative border-y border-secondary/30 bg-background/40 backdrop-blur-sm py-3 overflow-hidden">
-          <div className="marquee">
-            <div className="marquee-track text-sm md:text-base font-black uppercase tracking-[0.3em]">
-              {Array.from({ length: 2 }).map((_, dup) => (
-                <div key={dup} className="flex items-center gap-12 pr-12" aria-hidden={dup === 1}>
-                  {marqueeItems.map((item) => (
-                    <span
-                      key={`${dup}-${item.id}`}
-                      className={colorClassFor(item.color)}
-                      style={{ textShadow: "0 0 12px currentColor" }}
-                    >
-                      {item.text}
-                    </span>
-                  ))}
-                </div>
-              ))}
-            </div>
+        <div className="editorial-marquee" aria-label="Información destacada">
+          <div className="editorial-marquee__track">
+            {[...marqueeItems, ...marqueeItems].map((item, index) => (
+              <span key={`${item.id}-${index}`}><Scissors aria-hidden="true" />{item.text}</span>
+            ))}
           </div>
         </div>
       )}
 
-      {/* Active Giveaway Banner */}
-      {activeGiveaway && (
-        <section className="py-6 px-4 bg-gradient-to-r from-primary to-[hsl(38_32%_48%)]">
-          <div className="max-w-4xl mx-auto text-center">
-            <button
-              onClick={() => navigate("/giveaways")}
-              className="flex items-center justify-center gap-4 w-full group"
-            >
-              <Gift className="h-8 w-8 text-background animate-bounce" />
-              <div>
-                <p className="text-lg font-black text-background uppercase">🎁 SORTEO ACTIVO: {activeGiveaway.title}</p>
-                <p className="text-sm text-background/80">Premio: {activeGiveaway.prize} — ¡Participa ahora!</p>
-              </div>
-              <Gift className="h-8 w-8 text-background animate-bounce" />
-            </button>
+      <section className="home-status">
+        <div className="home-status__notices"><MembershipExpirationBanner /><PendingRatingBanner /></div>
+        <NextAvailableSlot />
+      </section>
+
+      <section id="estudio" className="home-manifesto">
+        <header><span>02 / NUESTRO ENFOQUE</span><h2>Más que seguir tendencias,<br />construimos <em>presencia.</em></h2></header>
+        <div className="home-manifesto__grid">
+          <figure><img src={craftDetail} alt="Trabajo de precisión con tijera" width={1024} height={1280} loading="lazy" /></figure>
+          <div className="home-manifesto__copy">
+            <p className="home-manifesto__lead">Cada corte parte de una conversación: tus hábitos, tu imagen y el tiempo que quieres dedicarle después.</p>
+            {[
+              { icon: Scissors, number: "01", title: "Corte con criterio", text: "Técnica, textura y proporción al servicio de tu estilo." },
+              { icon: ShieldCheck, number: "02", title: "Acabado profesional", text: "Un resultado limpio que funciona dentro y fuera del estudio." },
+              { icon: Sparkles, number: "03", title: "Asesoramiento personal", text: "Recomendaciones claras, también con nuestro asesor inteligente." },
+            ].map(({ icon: FeatureIcon, number, title, text }) => (
+              <article key={number}><FeatureIcon /><span>{number}</span><div><h3>{title}</h3><p>{text}</p></div></article>
+            ))}
+            <Button variant="outline" onClick={() => navigate("/booking")}>Elegir mi cita <ArrowRight /></Button>
           </div>
+        </div>
+      </section>
+
+      {activeGiveaway && (
+        <section className="home-feature-band">
+          <span>ACTIVO AHORA</span><Gift />
+          <div><h2>{activeGiveaway.title}</h2><p>{activeGiveaway.prize}</p></div>
+          <Button variant="outline" onClick={() => navigate("/giveaways")}>Ver sorteo <ArrowUpRight /></Button>
         </section>
       )}
 
-      {/* Pending Rating Banner */}
-      <section className="py-6 px-4">
-        <div className="max-w-2xl mx-auto space-y-4">
-          <MembershipExpirationBanner />
-          <PendingRatingBanner />
-        </div>
+      <section className="home-experience">
+        <div className="home-experience__copy"><span>03 / LA EXPERIENCIA</span><h2>Tu tiempo también forma parte del servicio.</h2><p>Reserva online, elige tu música y llega sabiendo que el espacio y el tiempo están preparados para ti.</p><div className="home-experience__rules"><div><Clock3 /><strong>Reserva clara</strong><p>Puedes cancelar o reubicar con 48 horas de antelación.</p></div><div><ShieldCheck /><strong>Pago sencillo</strong><p>El servicio se abona en efectivo antes de comenzar.</p></div></div><Link to="/membership">Explorar membresías <ArrowUpRight /></Link></div>
+        <figure><img src={clientEditorial} alt="Cliente con corte contemporáneo" width={1024} height={1280} loading="lazy" /><figcaption>ESTILO QUE PERMANECE / 03</figcaption></figure>
       </section>
 
-      {/* Next Available Slot Widget */}
-      <section className="py-12 px-4">
-        <div className="max-w-2xl mx-auto">
-          <NextAvailableSlot />
-        </div>
-      </section>
-
-      {/* About Section with staggered scroll animations */}
-      <section className="py-24 px-4 relative" ref={aboutRef}>
-        <div className="noir-ambient" />
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div
-            className={`text-center mb-20 transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"}`}
-          >
-            <h2
-              data-text="🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ"
-              className="text-5xl md:text-7xl font-black mb-6 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,0.6)] inline-block"
-            >
-              🔥 TU NEXT-LEVEL LOOK ESTÁ AQUÍ
-            </h2>
-            <p className="text-xl md:text-2xl text-foreground font-bold mt-4">
-              En nuestro spot de Monóvar, el flow nunca falta.
-            </p>
-            <div className="noir-divider mt-8 max-w-md mx-auto" />
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-20" ref={servicesRef}>
-            <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "100ms" }}>
-            <div
-              className={`spotlight bg-card/80 backdrop-blur-sm p-8 rounded-lg shadow-elegant transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
-              onMouseMove={(e) => {
-                const r = e.currentTarget.getBoundingClientRect();
-                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
-                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
-              }}
-              style={{ transitionDelay: "100ms" }}
-            >
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
-                <Scissors className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-primary">TRENDING CUTS</h3>
-              <p className="text-foreground">
-                Dominamos el fade que arrasa, los cortes con textura y el estilo que estás buscando.
-              </p>
-            </div>
-            </Tilt3D>
-
-            <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "250ms" }}>
-            <div
-              className={`spotlight bg-card/80 backdrop-blur-sm p-8 rounded-lg shadow-elegant transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
-              onMouseMove={(e) => {
-                const r = e.currentTarget.getBoundingClientRect();
-                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
-                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
-              }}
-              style={{ transitionDelay: "250ms" }}
-            >
-              <div className="w-16 h-16 rounded-full bg-secondary/20 flex items-center justify-center mb-6">
-                <Clock className="w-8 h-8 text-secondary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-secondary">BEARD GAME</h3>
-              <p className="text-foreground">
-                Diseño de barba profesional y clean shaves a navaja para que salgas impecable.
-              </p>
-            </div>
-            </Tilt3D>
-
-            <Tilt3D max={10} className={`transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`} style={{ transitionDelay: "400ms" }}>
-            <div
-              className={`spotlight bg-card/80 backdrop-blur-sm p-8 rounded-lg shadow-elegant transition-all duration-700 ${servicesVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-20"}`}
-              onMouseMove={(e) => {
-                const r = e.currentTarget.getBoundingClientRect();
-                e.currentTarget.style.setProperty("--mx", `${e.clientX - r.left}px`);
-                e.currentTarget.style.setProperty("--my", `${e.clientY - r.top}px`);
-              }}
-              style={{ transitionDelay: "400ms" }}
-            >
-              <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
-                <MapPin className="w-8 h-8 text-primary" />
-              </div>
-              <h3 className="text-2xl font-bold mb-4 text-primary">STYLE COACHING</h3>
-              <p className="text-foreground">Te asesoramos para que el corte le dé el toque a tu vibe. 🚨</p>
-            </div>
-            </Tilt3D>
-          </div>
-
-          {/* Booking Rules with animated border */}
-          <div
-            className={`relative p-1 rounded-lg bg-gradient-to-r from-primary via-secondary to-primary bg-[length:200%_100%] transition-all duration-1000 ${aboutVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-            style={{
-              animation: aboutVisible ? "text-shimmer 4s linear infinite" : "none",
-              transitionDelay: "500ms",
-            }}
-          >
-            <div className="bg-card p-8 rounded-xl">
-              <h3 className="text-3xl font-black mb-6 text-center text-foreground">🚨 BOOKING Y REGLAS CLARAS</h3>
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-background/50 p-6 rounded-lg border border-border">
-                  <h4 className="text-xl font-bold mb-3 text-secondary">Cancelación</h4>
-                  <p className="text-muted-foreground">
-                    Tienes 48 horas (2 días) antes de la cita para{" "}
-                    <a
-                      href="https://wa.me/34641637576?text=Cancelar%20mi%20cita"
-                      target="_blank"
-                      className="text-secondary hover:underline"
-                    >
-                      cancelar
-                    </a>{" "}
-                    o{" "}
-                    <a
-                      href="https://wa.me/34641637576?text=Reubicar%20mi%20cita"
-                      target="_blank"
-                      className="text-secondary hover:underline"
-                    >
-                      reubicar
-                    </a>{" "}
-                    tu cita. ¡Máximo respeto por el tiempo!
-                  </p>
-                </div>
-                <div className="bg-background/50 p-6 rounded-lg border border-border">
-                  <h4 className="text-xl font-bold mb-3 text-primary">Pago</h4>
-                  <p className="text-muted-foreground">
-                    Solo aceptamos efectivo (CASH). Por seguridad, se paga antes de empezar el servicio. ¡Gracias por
-                    elegirnos!
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Reviews Showcase */}
       <ReviewsShowcase />
 
-      {/* Memberships CTA */}
-      <section className="relative py-16 px-4 bg-gradient-to-b from-background to-card/50 overflow-hidden">
-        <div className="noir-ambient" />
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <Crown
-            className="h-16 w-16 mx-auto text-primary mb-4 drop-shadow-[0_0_25px_rgba(212,175,55,0.6)]"
-            style={{ animation: "glow-pulse 3s ease-in-out infinite" }}
-          />
-          <h2
-            data-text="MEMBRESÍAS EXCLUSIVAS"
-            className="text-4xl font-black mb-4 text-primary drop-shadow-[0_0_20px_rgba(212,175,55,0.5)]"
-          >
-            MEMBRESÍAS EXCLUSIVAS
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8">Planes mensuales con cortes gratis, descuentos y beneficios VIP</p>
-          <Button
-            size="lg"
-            className="magnetic-button text-lg px-12 py-6 h-auto bg-gradient-to-r from-primary to-secondary hover:from-secondary hover:to-primary text-background font-bold shadow-[0_0_40px_rgba(212,175,55,0.4)]"
-            onClick={() => navigate("/membership")}
-          >
-            <Crown className="mr-2 h-5 w-5" />
-            Ver Membresías
-          </Button>
-        </div>
-        <div className="noir-divider mt-16" />
-      </section>
-
-      {/* Giveaways CTA */}
-      <section className="relative py-16 px-4 bg-card/50 overflow-hidden">
-        <div className="noir-ambient" />
-        <div className="max-w-4xl mx-auto text-center relative z-10">
-          <Gift
-            className="h-16 w-16 mx-auto text-primary mb-4"
-            style={{ animation: "glow-pulse 3s ease-in-out infinite" }}
-          />
-          <h2
-            data-text="¡PARTICIPA EN NUESTROS SORTEOS!"
-            className="text-4xl font-black mb-4 text-primary"
-          >
-            ¡PARTICIPA EN NUESTROS SORTEOS!
-          </h2>
-          <p className="text-xl text-muted-foreground mb-8">Gana cortes gratis, productos exclusivos y más premios</p>
-          <Button
-            size="lg"
-            variant="premium"
-            onClick={() => navigate("/giveaways")}
-            className="text-lg px-12 py-6 h-auto magnetic-button"
-          >
-            <Gift className="mr-2 h-5 w-5" />
-            Ver Sorteos
-          </Button>
-        </div>
-        <div className="noir-divider mt-16" />
-      </section>
-
-      {/* Location Section with parallax */}
-      <section className="py-24 px-4 bg-background relative overflow-hidden" ref={locationRef}>
-        {/* Background decoration */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ transform: `translateY(${(scrollY - 1500) * 0.1}px)` }}
-        >
-          <div className="absolute top-0 right-0 w-96 h-96 bg-secondary/5 rounded-full blur-[100px]" />
-          <div className="absolute bottom-0 left-0 w-96 h-96 bg-primary/5 rounded-full blur-[100px]" />
-        </div>
-
-        <div className="max-w-4xl mx-auto relative z-10">
-          <div
-            className={`transition-all duration-1000 ${locationVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-          >
-            <h2 className="text-5xl md:text-6xl font-black text-center mb-6 text-secondary">
-              <MapPin className="inline-block mr-2 mb-2 animate-bounce" size={48} />
-              <span data-text="UBICACIÓN" className="glitch">UBICACIÓN</span>
-            </h2>
-            <p className="text-center text-lg mb-10 text-muted-foreground">
-              Carrer Sant Antoni, Monóvar, Alicante, España, 03640
-            </p>
-            <div className="noir-divider mb-10 max-w-md mx-auto" />
-          </div>
-          <div
-            className={`rounded-lg overflow-hidden transition-all duration-1000 delay-300 ${locationVisible ? "opacity-100 scale-100" : "opacity-0 scale-95"}`}
-          >
-            <Map />
+      <section className="home-location">
+        <div className="home-location__info">
+          <span>04 / VISÍTANOS</span><h2>Un estudio urbano en el centro de Monóvar.</h2><p><MapPin /> Carrer Sant Antoni · 03640 Monóvar, Alicante</p>
+          <div className="home-hours">
+            {businessHours.length > 0 ? businessHours.map(day => {
+              const special = specialHours.find(item => new Date(`${item.date}T00:00:00`).getDay() === day.day_of_week);
+              return <div key={day.day_of_week}><span>{DAYS[day.day_of_week]}</span><strong>{special?.is_closed || day.is_closed ? "Cerrado" : special ? special.time_ranges.map(range => `${range.start.slice(0, 5)}–${range.end.slice(0, 5)}`).join(" / ") : day.is_24h ? "24 horas" : day.time_ranges.map(range => `${range.start.slice(0, 5)}–${range.end.slice(0, 5)}`).join(" / ")}</strong></div>;
+            }) : <p className="text-muted-foreground">Consulta la disponibilidad al reservar.</p>}
           </div>
         </div>
+        <div className="home-location__map"><Map /></div>
       </section>
 
-      {/* Hours Section with staggered animation */}
-      <section className="py-24 px-4 bg-card relative overflow-hidden" ref={hoursRef}>
-        <div className="noir-ambient" />
-        <div className="max-w-4xl mx-auto relative z-10">
-          <h2
-            data-text="HORARIOS"
-            className={`text-5xl md:text-6xl font-black text-center mb-16 text-primary transition-all duration-1000 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-          >
-            HORARIOS
-          </h2>
-
-          <div className="space-y-4 text-lg">
-            {businessHours.length > 0 ? (
-              businessHours.map((day, index) => {
-                // Get special hours for this day of week in the next 4 weeks
-                const daySpecialHours = specialHours.filter((sh) => {
-                  const shDate = new Date(sh.date + "T00:00:00");
-                  return shDate.getDay() === day.day_of_week;
-                });
-
-                return (
-                  <div
-                    key={day.day_of_week}
-                    className={`py-4 border-b border-border transition-all duration-500 hover:bg-primary/5 hover:px-4 rounded ${hoursVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}`}
-                    style={{ transitionDelay: `${index * 100}ms` }}
-                  >
-                    <div className="flex justify-between">
-                      <span className="font-bold">{DAYS[day.day_of_week]}</span>
-                      <span className="text-muted-foreground">
-                        {day.is_closed ? (
-                          <span className="text-destructive font-semibold">Cerrado</span>
-                        ) : day.is_24h ? (
-                          <span className="text-secondary">Abierto 24h</span>
-                        ) : (
-                          day.time_ranges.map((range, i) => (
-                            <span key={i}>
-                              {range.start.slice(0, 5)} - {range.end.slice(0, 5)}
-                              {i < day.time_ranges.length - 1 && ", "}
-                            </span>
-                          ))
-                        )}
-                      </span>
-                    </div>
-                    {/* Special hours for this day */}
-                    {daySpecialHours.length > 0 && (
-                      <div className="mt-2 pl-4 border-l-2 border-secondary/50">
-                        <p className="text-xs text-secondary font-semibold mb-1">Horarios Especiales:</p>
-                        {daySpecialHours.map((sh) => {
-                          const shDate = new Date(sh.date + "T00:00:00");
-                          const dayNum = shDate.getDate();
-                          const monthName = shDate.toLocaleDateString("es-ES", { month: "short" });
-                          return (
-                            <div key={sh.id} className="text-xs text-muted-foreground flex justify-between">
-                              <span>{dayNum} {monthName}{sh.note ? ` - ${sh.note}` : ""}</span>
-                              <span>
-                                {sh.is_closed ? (
-                                  <span className="text-destructive">Cerrado</span>
-                                ) : (
-                                  sh.time_ranges.map((r, i) => (
-                                    <span key={i}>
-                                      {r.start.slice(0, 5)}-{r.end.slice(0, 5)}
-                                      {i < sh.time_ranges.length - 1 && ", "}
-                                    </span>
-                                  ))
-                                )}
-                              </span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                );
-              })
-            ) : (
-              <>
-                {[
-                  { day: "Lunes - Martes", hours: "11:00 - 21:00" },
-                  { day: "Miércoles - Jueves", hours: "12:00 - 21:00" },
-                  { day: "Viernes", hours: "11:00 - 16:00" },
-                  { day: "Sábado", hours: "11:00 - 17:00" },
-                  { day: "Domingo", hours: null },
-                ].map((item, index) => (
-                  <div
-                    key={item.day}
-                    className={`flex justify-between py-4 border-b border-border transition-all duration-500 ${hoursVisible ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-10"}`}
-                    style={{ transitionDelay: `${index * 100}ms` }}
-                  >
-                    <span className="font-bold">{item.day}</span>
-                    <span className={item.hours ? "text-muted-foreground" : "text-destructive"}>
-                      {item.hours || "Cerrado"}
-                    </span>
-                  </div>
-                ))}
-              </>
-            )}
-          </div>
-
-          <div
-            className={`text-center mt-16 transition-all duration-1000 delay-700 ${hoursVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"}`}
-          >
-            <Button
-              size="lg"
-              variant="premium"
-              onClick={() => navigate("/booking")}
-              className="text-xl px-16 py-8 h-auto magnetic-button"
-            >
-              <Scissors className="mr-3 h-6 w-6" />
-              Reserva Ahora
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Instagram Feed Section */}
       <InstagramFeed />
-
-      {/* Live Testimonials */}
+      <CustomerFooter />
       <LiveTestimonials />
 
-      {/* WhatsApp Floating Button */}
-      <a
-        href="https://wa.me/34641637576"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="fixed bottom-6 right-6 z-50 bg-[#25D366] hover:bg-[#20BA5A] text-white p-4 rounded-full shadow-lg transition-all hover:scale-110 shadow-elegant"
-        aria-label="Contactar por WhatsApp"
-      >
-        <svg className="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-        </svg>
+      <a href="https://wa.me/34641637576" target="_blank" rel="noopener noreferrer" className="whatsapp-architectural" aria-label="Contactar por WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884" /></svg>
       </a>
-
-      {/* Legacy links are retained but the new shared footer presents them. */}
-      <footer className="hidden">
-        <p className="text-muted-foreground/40 text-xs mb-3">Sistema de reservas online para barbería</p>
-        <p className="text-muted-foreground">© 2025 DIEGCUTZ - Barbería Urbana</p>
-        <div className="flex justify-center gap-4 mt-3 flex-wrap">
-          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
-            Política de Privacidad
-          </a>
-          <span className="text-muted-foreground">|</span>
-          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
-            Términos de Servicio
-          </a>
-          <span className="text-muted-foreground">|</span>
-          <a href="/membership-policy" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary text-sm underline-offset-4 hover:underline">
-            Política de Membresías
-          </a>
-          <span className="text-muted-foreground">|</span>
-          <a href="/tv" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:text-cyan-300 text-sm underline-offset-4 hover:underline drop-shadow-[0_0_8px_rgba(34,211,238,.6)]">
-            📺 Modo TV
-          </a>
-        </div>
-        <Button
-          variant="link"
-          onClick={() => navigate("/admin")}
-          className="text-muted-foreground hover:text-primary mt-2"
-        >
-          Admin
-        </Button>
-        <p className="text-muted-foreground text-xs mt-2">v 1.3.0</p>
-      </footer>
-      <CustomerFooter />
     </div>
   );
-};
-
-export default Home;
+}

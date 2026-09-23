@@ -1082,7 +1082,7 @@ const Booking = () => {
             className="mb-8 p-4 bg-yellow-500/20 border border-yellow-500 rounded-lg shadow-[0_0_30px_rgb(234_179_8/0.3)]"
           >
             <div className="flex items-center gap-2 text-yellow-500 font-bold mb-1">
-              <span>⚠️ CUENTA RESTRINGIDA</span>
+              <span>CUENTA RESTRINGIDA</span>
             </div>
             <p className="text-muted-foreground">
               No puedes hacer reservas temporalmente. Podrás volver a reservar en:{" "}

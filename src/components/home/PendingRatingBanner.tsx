@@ -115,7 +115,7 @@ export const PendingRatingBanner = () => {
                   ¡Tienes {pendingBookings.length} {pendingBookings.length === 1 ? "visita" : "visitas"} sin valorar!
                 </h3>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Tu opinión nos ayuda a mejorar. ¡Déjanos una reseña! ⭐
+                  Tu opinión nos ayuda a mejorar. Déjanos una reseña.
                 </p>
 
                 <button
