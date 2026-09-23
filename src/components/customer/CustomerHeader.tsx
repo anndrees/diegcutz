@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { ArrowUpRight, LogOut, Menu, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,12 +23,12 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
     setOpen(false);
   };
 
-  useState(() => {
+  useEffect(() => {
     const sync = () => setScrolled(window.scrollY > 36);
     sync();
     window.addEventListener("scroll", sync, { passive: true });
     return () => window.removeEventListener("scroll", sync);
-  });
+  }, []);
 
   return (
     <header className={cn("customer-header", transparent && "customer-header--transparent", scrolled && "is-scrolled")}>
