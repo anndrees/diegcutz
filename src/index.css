@@ -1136,3 +1136,7 @@ html.konami-rave body {
 }
 @media(max-width:767px){.noir-page-head>div{grid-template-columns:1fr!important}.noir-page-head:after{width:18rem}.install-editorial>.max-w-4xl{grid-template-columns:1fr}.auth-liquid__intro h1{font-size:clamp(3.5rem,16vw,5.5rem)}}
 @media(prefers-reduced-motion:reduce){.noir-page-head:after{animation:none}}
+
+.install-banner-liquid + .customer-header{top:4.5rem}
+.install-banner-liquid + .customer-header + .liquid-hero{padding-top:11rem}
+@media(max-width:640px){.install-banner-liquid + .customer-header{top:4.55rem}.install-banner-liquid + .customer-header + .liquid-hero{padding-top:11rem}}
