@@ -395,7 +395,7 @@ export default function UserProfile() {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center shadow-lg hover:scale-110 transition-transform"
+                className="absolute bottom-0 right-0 w-8 h-8 bg-primary text-primary-foreground flex items-center justify-center hover:-translate-y-0.5 transition-transform"
               >
                 <Camera className="h-4 w-4" />
               </button>

@@ -241,7 +241,7 @@ const Loyalty = () => {
                 </div>
                 <Button
                   size="sm"
-                  className="bg-primary hover:bg-[#B8860B] text-background font-bold"
+                  className="font-bold"
                   onClick={() => navigate("/booking?free_cut=true")}
                 >
                   <Scissors className="h-4 w-4" /> Reservar corte gratis

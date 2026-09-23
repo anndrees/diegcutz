@@ -312,7 +312,7 @@ export const ReviewsShowcase = () => {
                 variant="ghost"
                 size="icon"
                 onClick={goPrev}
-                className="absolute -left-2 md:-left-14 top-1/2 -translate-y-1/2 z-10 bg-card/80 border border-border/50 hover:bg-primary/10 hover:border-primary/40 rounded-full shadow-lg h-10 w-10"
+                className="absolute -left-2 md:-left-14 top-1/2 -translate-y-1/2 z-10 bg-card border border-border/50 hover:bg-primary/10 hover:border-primary/40 h-10 w-10"
               >
                 <ChevronLeft className="h-5 w-5" />
               </Button>
@@ -320,7 +320,7 @@ export const ReviewsShowcase = () => {
                 variant="ghost"
                 size="icon"
                 onClick={goNext}
-                className="absolute -right-2 md:-right-14 top-1/2 -translate-y-1/2 z-10 bg-card/80 border border-border/50 hover:bg-primary/10 hover:border-primary/40 rounded-full shadow-lg h-10 w-10"
+                className="absolute -right-2 md:-right-14 top-1/2 -translate-y-1/2 z-10 bg-card border border-border/50 hover:bg-primary/10 hover:border-primary/40 h-10 w-10"
               >
                 <ChevronRight className="h-5 w-5" />
               </Button>
