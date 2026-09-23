@@ -10,3 +10,8 @@
 - [x] Add Google Calendar, Apple Calendar, and ICS actions after booking
 - [x] Add WhatsApp contact actions to bookings and client records
 - [x] Validate core customer, booking, admin, PWA, and responsive flows
+- [x] Center and simplify customer review notifications
+- [x] Keep next-available and pending-rating notices independently centered
+- [x] Center the reviews section heading
+- [x] Rebuild the complete booking interaction with persistent summary sidebar and accessible mobile flow
+

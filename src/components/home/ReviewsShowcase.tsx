@@ -278,8 +278,8 @@ export const ReviewsShowcase = () => {
     <section className="reviews-editorial py-20 md:py-32 px-4 relative overflow-hidden border-y border-border">
       <div className="max-w-6xl mx-auto relative">
         {/* Header */}
-        <div className="grid md:grid-cols-[1fr_2fr] gap-8 mb-14 items-end">
-          <div className="inline-flex items-center gap-2 mb-2">
+        <div className="reviews-editorial__header mb-14">
+          <div className="inline-flex items-center justify-center gap-2 mb-5">
             <div className="flex gap-0.5">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star
