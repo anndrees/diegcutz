@@ -28,13 +28,15 @@ function ChromeMaterial() {
 
 function Wordmark() {
   const group = useMemo(() => new THREE.Group(), []);
-  const { pointer } = useThree();
+  const { pointer, viewport } = useThree();
 
   useFrame((state, rawDelta) => {
     const dt = Math.min(rawDelta, 0.05);
     group.rotation.y = THREE.MathUtils.damp(group.rotation.y, pointer.x * 0.12, 4.5, dt);
     group.rotation.x = THREE.MathUtils.damp(group.rotation.x, -pointer.y * 0.07, 4.5, dt);
     group.position.y = Math.sin(state.clock.elapsedTime * 0.55) * 0.035;
+    const targetScale = Math.min(0.78, viewport.width / 15.5);
+    group.scale.setScalar(THREE.MathUtils.damp(group.scale.x, targetScale, 6, dt));
   });
 
   return (
@@ -100,7 +102,7 @@ export function LiquidChromeWordmark() {
       <Canvas
         dpr={[1, 1.5]}
         shadows
-        camera={{ position: [0, 0.05, 10.6], fov: 34 }}
+        camera={{ position: [0, 0.05, 11.4], fov: 34 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
         <ambientLight intensity={1.2} />

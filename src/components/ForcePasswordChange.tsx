@@ -80,12 +80,12 @@ export const ForcePasswordChange = ({ onPasswordChanged, userId }: ForcePassword
   };
 
   return (
-    <div className="customer-shell min-h-screen bg-background flex items-center justify-center p-4">
+    <div className="customer-shell account-gate min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        <div className="bg-card border border-border border-t-2 border-t-primary p-8 animate-scale-in">
+        <div className="rounded-3xl bg-card border border-border p-8 animate-scale-in shadow-elegant">
           {/* Header with icon */}
           <div className="text-center mb-8">
-            <div className="mx-auto w-20 h-20 border border-primary flex items-center justify-center mb-4">
+            <div className="mx-auto w-20 h-20 rounded-full border border-primary flex items-center justify-center mb-4">
               <Lock className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-3xl font-semibold text-foreground mb-2">
