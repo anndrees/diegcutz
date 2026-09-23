@@ -953,10 +953,7 @@ const Booking = () => {
 
   return (
     <CustomerPage footer={false}><div className="min-h-screen py-12 px-4 pt-safe relative overflow-hidden">
-      {/* Decorative neon background */}
-      <div className="pointer-events-none absolute inset-0  opacity-40" />
-      <div className="pointer-events-none absolute -top-32 -left-32 w-96 h-96 rounded-full bg-primary/20 blur-3xl animate-pulse" />
-      <div className="pointer-events-none absolute -bottom-32 -right-32 w-96 h-96 rounded-full bg-secondary/20 blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,hsl(var(--primary)/.07),transparent_36%)]" />
 
       <div className="max-w-5xl mx-auto relative">
         <Button

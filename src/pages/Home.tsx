@@ -454,7 +454,7 @@ const Home = () => {
           className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
           style={{ opacity: Math.max(0, 1 - scrollY / 200) }}
         >
-          <span className="text-xs uppercase tracking-widest text-muted-foreground animate-pulse">Scroll</span>
+          <span className="text-xs uppercase tracking-widest text-muted-foreground">Scroll</span>
           <div className="w-6 h-10 border-2 border-secondary/50 rounded-full flex justify-center relative overflow-hidden">
             <div className="w-1.5 h-3 bg-secondary rounded-full mt-2 animate-bounce" />
           </div>

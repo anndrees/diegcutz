@@ -2,11 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
 import { ReactNode } from "react";
 
-/**
- * Diagonal neon wipe transition between routes.
- * Two diagonal panels sweep across the viewport with neon edges,
- * masking the route swap.
- */
+/** Restrained crossfade between customer routes. */
 export const RouteTransition = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
 
@@ -14,10 +10,10 @@ export const RouteTransition = ({ children }: { children: ReactNode }) => {
     <AnimatePresence mode="wait">
       <motion.div
         key={location.pathname}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.2, ease: "easeOut" }}
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -3 }}
+        transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
       >
         {children}
       </motion.div>
