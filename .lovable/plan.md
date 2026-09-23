@@ -18,9 +18,10 @@ Desactivar el programa de puntos sin perder datos ni romper reservas existentes,
    - Mostrar claramente el periodo activo y un estado vacío cuando no haya datos.
 
 3. **Renovación visual para clientes**
-   - Mantener la estética urbana oscura con neón rosa, morado y cian.
+   - Aplicar la dirección elegida **Urban Cyber Noir**: composición editorial centrada, negro tinta, cian eléctrico dominante y magenta como acento.
+   - Usar fotografía de barbería a sangre, tipografía de marca dominante, líneas luminosas finas, bloques compactos y textura urbana sutil.
    - Actualizar los elementos compartidos y las páginas principales del cliente: inicio, acceso/registro, reserva, perfil, sorteos, membresías e instalación.
-   - Mejorar jerarquía, fondos, cabeceras, navegación, tarjetas, estados vacíos y transiciones, sin cambiar funciones ni flujos.
+   - Mejorar jerarquía, fondos, cabeceras, navegación, tarjetas, estados vacíos y transiciones breves tipo corte editorial, sin cambiar funciones ni flujos.
    - Respetar móviles, accesibilidad y reducción de movimiento.
 
 4. **Comprobación**
