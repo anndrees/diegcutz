@@ -47,18 +47,18 @@ export const InstallBanner = () => {
   }
 
   return (
-    <div className="relative w-full bg-primary px-4 py-4 border-b border-primary animate-in slide-in-from-top duration-300">
+    <div className="install-banner-liquid relative w-full bg-primary px-4 py-4 border-b border-primary animate-in slide-in-from-top duration-300">
       <div className="max-w-4xl mx-auto flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 flex-1 min-w-0">
-          <div className="shrink-0 w-10 h-10 border border-background/30 flex items-center justify-center">
+          <div className="shrink-0 w-10 h-10 rounded-full border border-background/30 flex items-center justify-center">
             <Smartphone className="h-5 w-5 text-background" />
           </div>
           <div className="min-w-0">
             <p className="font-bold text-background text-sm md:text-base truncate">
-              ¡Instala la App DIEGCUTZ!
+              Instala DIEGCUTZ
             </p>
             <p className="text-xs text-background/80 hidden sm:block">
-              Acceso rápido, notificaciones y mejor experiencia
+               Reserva en segundos y recibe avisos importantes
             </p>
           </div>
         </div>

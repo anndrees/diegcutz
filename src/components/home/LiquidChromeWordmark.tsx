@@ -18,10 +18,10 @@ function ChromeMaterial() {
     <meshPhysicalMaterial
       color="#d7dce0"
       metalness={1}
-      roughness={0.08}
+      roughness={0.14}
       clearcoat={1}
       clearcoatRoughness={0.04}
-      envMapIntensity={2.8}
+      envMapIntensity={4.2}
     />
   );
 }
@@ -43,11 +43,11 @@ function Wordmark() {
         <Text3D
           font={helvetiker as unknown as FontData}
           size={1.45}
-          height={0.42}
+          height={0.34}
           curveSegments={14}
           bevelEnabled
-          bevelThickness={0.18}
-          bevelSize={0.11}
+          bevelThickness={0.25}
+          bevelSize={0.2}
           bevelOffset={0}
           bevelSegments={9}
           letterSpacing={-0.035}
@@ -103,16 +103,18 @@ export function LiquidChromeWordmark() {
         camera={{ position: [0, 0.05, 10.6], fov: 34 }}
         gl={{ antialias: true, alpha: true, powerPreference: "high-performance" }}
       >
-        <ambientLight intensity={0.4} />
-        <directionalLight position={[3, 5, 7]} intensity={2.8} castShadow />
+        <ambientLight intensity={1.2} />
+        <hemisphereLight intensity={1.6} color="#f7f7f4" groundColor="#33424a" />
+        <directionalLight position={[3, 5, 7]} intensity={5.5} castShadow />
         <pointLight position={[-5, -1, 4]} intensity={45} color="#26d9ff" distance={12} />
         <Suspense fallback={null}>
           <Wordmark />
           <Environment resolution={256}>
-            <Lightformer intensity={5} position={[0, 5, 4]} scale={[9, 2, 1]} />
-            <Lightformer intensity={3} position={[-5, 0, 2]} rotation-y={Math.PI / 2} scale={[5, 1, 1]} color="#26d9ff" />
-            <Lightformer intensity={4} position={[5, 1, 1]} rotation-y={-Math.PI / 2} scale={[6, 1, 1]} />
-            <Lightformer intensity={2} position={[0, -4, 2]} scale={[8, 1, 1]} />
+            <Lightformer intensity={9} position={[0, 5, 4]} scale={[10, 3, 1]} />
+            <Lightformer intensity={6} position={[-5, 0, 2]} rotation-y={Math.PI / 2} scale={[6, 2, 1]} color="#26d9ff" />
+            <Lightformer intensity={9} position={[5, 1, 1]} rotation-y={-Math.PI / 2} scale={[7, 2, 1]} />
+            <Lightformer intensity={7} position={[0, -4, 2]} scale={[9, 2, 1]} />
+            <Lightformer intensity={6} position={[0, 0, 6]} scale={[4, 8, 1]} />
           </Environment>
         </Suspense>
       </Canvas>
