@@ -1220,7 +1220,7 @@ html.konami-rave body {
 @media(max-width:640px){.install-banner-liquid + .customer-header{top:4.55rem}.install-banner-liquid + .customer-header + .liquid-hero{padding-top:11rem}}
 
 /* Homepage kinetic choreography */
-.liquid-home { perspective:1200px; }
+.liquid-home { position:relative; }
 .home-motion-layer { position:absolute; z-index:0; inset:0; overflow:hidden; pointer-events:none; }
 .home-scroll-rail { position:fixed; z-index:70; top:0; right:0; width:3px; height:100svh; transform-origin:top; background:linear-gradient(to bottom,hsl(var(--primary)),hsl(var(--foreground))); box-shadow:0 0 18px hsl(var(--primary)/.7); }
 .home-parallax-mesh { position:absolute; top:65vh; right:-18rem; width:42rem; aspect-ratio:1; border:1px solid hsl(var(--foreground)/.09); border-radius:42% 58% 61% 39%; background:radial-gradient(circle at 32% 28%,hsl(var(--foreground)/.08),transparent 18%),radial-gradient(circle at 62% 65%,hsl(var(--primary)/.08),transparent 30%); box-shadow:inset 30px 25px 80px hsl(var(--foreground)/.035),inset -55px -45px 100px hsl(var(--background)/.75); }
