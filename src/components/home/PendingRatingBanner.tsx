@@ -88,13 +88,8 @@ export const PendingRatingBanner = () => {
 
   return (
     <>
-      <div className="relative overflow-hidden">
-        {/* Animated gradient border */}
-        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-amber-500 via-primary to-amber-500 bg-[length:200%_100%] p-[2px] animate-[text-shimmer_3s_linear_infinite]">
-          <div className="absolute inset-[2px] bg-card rounded-lg" />
-        </div>
-
-        <div className="relative bg-card/95 backdrop-blur-sm rounded-lg p-5 border border-transparent">
+      <div className="relative overflow-hidden border border-border border-l-2 border-l-primary bg-card">
+        <div className="relative p-5">
           {/* Close button */}
           <button
             onClick={() => setDismissed(true)}
@@ -106,8 +101,8 @@ export const PendingRatingBanner = () => {
           {!showSelector ? (
             // Banner view
             <div className="flex items-start gap-4">
-              <div className="shrink-0 w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <Star className="h-6 w-6 text-amber-400 fill-amber-400 animate-pulse" />
+              <div className="shrink-0 w-12 h-12 border border-primary flex items-center justify-center">
+                <Star className="h-6 w-6 text-primary fill-primary" />
               </div>
 
               <div className="flex-1 min-w-0">
