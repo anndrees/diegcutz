@@ -91,9 +91,10 @@ export function StyleAdvisor({ onSelect, onSlotSelect, services }: Props) {
       {answer && (
         <div className="mt-4 border-l border-primary pl-4">
           <p className="text-sm leading-relaxed">{answer}</p>
-          {selected && (
+          {selected.length > 0 && (
             <p className="mt-2 text-xs text-primary flex items-center gap-1">
-              <Check className="h-3 w-3" />Servicio seleccionado; puedes cambiarlo abajo.
+              <Check className="h-3 w-3" />
+              {selected.length === 1 ? "Servicio añadido" : `${selected.length} servicios añadidos`}: {selected.map((id) => services.find((s) => s.id === id)?.name).filter(Boolean).join(" + ")}. Puedes ajustarlo abajo.
             </p>
           )}
           {slot && (
