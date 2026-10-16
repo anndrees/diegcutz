@@ -657,15 +657,6 @@ const Auth = () => {
           <div className="auth-liquid__signal"><span /><span /><span /><small>DIEGCUTZ CONNECT</small></div>
         </section>
         <section className="auth-liquid__form">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-8 hover:text-primary"
-        >
-          <ArrowLeft className="mr-2" />
-          Volver
-        </Button>
-
         <div className="mb-8">
           <p className="customer-kicker">ÁREA CLIENTE</p>
           <h2 className="text-3xl md:text-4xl font-semibold mt-3">Entra o crea tu cuenta.</h2>

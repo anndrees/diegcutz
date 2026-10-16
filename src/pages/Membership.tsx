@@ -70,10 +70,6 @@ const Membership = () => {
     <CustomerPage><div className="membership-page min-h-screen">
       <div className="noir-page-head"><div><p className="customer-kicker">MEMBRESÍAS</p><div><h1 className="noir-title">Tu rutina,<br /><em>mejor resuelta.</em></h1><p className="noir-lede">Planes flexibles para mantener tu estilo sin pensar cada vez desde cero.</p></div></div></div>
       <div className="max-w-6xl mx-auto py-12 md:py-20 px-4">
-        <Button variant="ghost" onClick={() => navigate("/")} className="mb-6">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Volver
-        </Button>
-
         {/* Plans Grid */}
         <div className="membership-plans grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-16">
           {memberships.map((plan, i) => {
