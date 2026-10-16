@@ -30,6 +30,7 @@ type Message = {
 export const FloatingChat = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
