@@ -182,8 +182,8 @@ export const FloatingChat = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Don't render if user is not logged in
-  if (!user || !profile) return null;
+  // Don't render if user is not logged in, and keep it off the mobile app experience
+  if (!user || !profile || isMobile) return null;
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();

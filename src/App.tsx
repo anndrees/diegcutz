@@ -99,6 +99,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <ScrollToTop />
           <SplashScreen />
           <KonamiCode />
           <AppContent />
