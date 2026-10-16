@@ -1011,15 +1011,6 @@ const Booking = () => {
     <CustomerPage footer={false}><div className="booking-editorial min-h-screen">
       <div className="noir-page-head"><div><p className="customer-kicker">RESERVA ONLINE</p><div><h1 className="noir-title">Construye tu <em>cita.</em></h1><p className="noir-lede">Cuatro decisiones sencillas. Tú marcas el momento y nosotros preparamos el resto.</p></div></div></div>
       <div className="max-w-6xl mx-auto py-10 md:py-16 px-4 relative">
-        <Button
-          variant="ghost"
-          onClick={() => navigate("/")}
-          className="mb-8 hover:text-secondary transition-colors"
-        >
-          <ArrowLeft className="mr-2" />
-          Volver
-        </Button>
-
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
