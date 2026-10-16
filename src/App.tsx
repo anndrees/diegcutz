@@ -10,6 +10,7 @@ import { FloatingChat } from "./components/chat/FloatingChat";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import { RouteTransition } from "./components/fx/RouteTransition";
 import { SplashScreen } from "./components/fx/SplashScreen";
+import { ScrollToTop } from "./components/fx/ScrollToTop";
 import { MobileTabBar } from "./components/mobile/MobileTabBar";
 import { KonamiCode } from "./components/fx/KonamiCode";
 import Home from "./pages/Home";
