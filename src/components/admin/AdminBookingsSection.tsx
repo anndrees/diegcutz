@@ -18,6 +18,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Label } from "@/components/ui/label";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { WhatsAppButton } from "./WhatsAppButton";
+import { ListPager, usePaged } from "./ListPager";
+import { MoreVertical } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 export type AdminBooking = {
   id: string;
@@ -211,9 +214,81 @@ export const AdminBookingsSection = ({
 
   const filtered = bookings.filter(matchesFilters);
   const currentBookings = filtered.filter(b => !isPastBooking(b));
-  const pastBookings = filtered.filter(b => isPastBooking(b));
+  const pastBookings = filtered
+    .filter(b => isPastBooking(b))
+    .sort((a, b) => (b.booking_date + b.booking_time).localeCompare(a.booking_date + a.booking_time));
+  const filterKey = `${searchQuery}|${statusFilter}|${serviceFilter}|${bookings.length}`;
+  const currentPaged = usePaged(currentBookings, 10, filterKey);
+  const pastPaged = usePaged(pastBookings, 10, filterKey);
 
-  const BookingRow = ({ b }: { b: AdminBooking }) => (
+  const MobileBookingCard = ({ b }: { b: AdminBooking }) => {
+    const phone = b.user_id && b.profile ? b.profile.contact_value : b.client_contact;
+    const today = isToday(parseISO(b.booking_date));
+    return (
+      <div className={`relative overflow-hidden rounded-2xl border bg-card ${b.is_cancelled ? "border-destructive/30 opacity-80" : today ? "border-primary/50" : "border-border"}`}>
+        <div className={`absolute inset-y-0 left-0 w-1 ${b.is_cancelled ? "bg-destructive" : today ? "bg-primary" : "bg-foreground/15"}`} />
+        <div className="flex items-start gap-3 p-4 pl-5">
+          <div className={`shrink-0 rounded-xl px-2.5 py-2 text-center min-w-[60px] ${b.is_cancelled ? "bg-destructive/10 text-destructive" : today ? "bg-primary text-primary-foreground" : "bg-foreground text-background"}`}>
+            <p className={`text-lg font-black tabular-nums leading-none ${b.is_cancelled ? "line-through" : ""}`}>{b.booking_time.slice(0, 5)}</p>
+            <p className="text-[10px] uppercase tracking-wider font-semibold mt-1 opacity-80">{format(parseISO(b.booking_date), "d MMM", { locale: es })}</p>
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-start justify-between gap-2">
+              <p className={`font-bold text-[15px] leading-tight truncate ${b.is_cancelled ? "line-through text-destructive" : ""}`}>
+                {b.user_id && b.profile ? (
+                  <Link to={`/admin/client/${b.user_id}`} className="text-foreground">{b.profile.full_name}</Link>
+                ) : b.client_name}
+              </p>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button size="icon" variant="ghost" className="h-8 w-8 -mt-1 -mr-2 shrink-0" aria-label="Acciones">
+                    <MoreVertical className="h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-44">
+                  {b.is_cancelled ? (
+                    <>
+                      <DropdownMenuItem onClick={() => onReactivate(b.id)}><CheckCircle className="h-4 w-4 mr-2" />Reactivar</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onCancel(b, "reschedule")}><RotateCcw className="h-4 w-4 mr-2" />Reubicar</DropdownMenuItem>
+                    </>
+                  ) : (
+                    <>
+                      <DropdownMenuItem onClick={() => onEdit(b)}><Edit2 className="h-4 w-4 mr-2" />Editar</DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onCancel(b, "cancel")}><X className="h-4 w-4 mr-2" />Cancelar</DropdownMenuItem>
+                    </>
+                  )}
+                  {b.user_id && (
+                    <DropdownMenuItem asChild><Link to={`/admin/client/${b.user_id}`}><ExternalLink className="h-4 w-4 mr-2" />Ver cliente</Link></DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => onDelete(b.id)} className="text-destructive focus:text-destructive"><Trash2 className="h-4 w-4 mr-2" />Eliminar</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div className="mt-1"><StatusChip booking={b} /></div>
+            <div className="flex flex-wrap gap-1 mt-2">
+              {b.services?.slice(0, 3).map((s, i) => (
+                <span key={i} className="text-[11px] font-medium bg-muted px-2 py-0.5 rounded-full">{s.length > 24 ? s.slice(0, 24) + "…" : s}</span>
+              ))}
+              {b.services && b.services.length > 3 && <span className="text-[11px] text-muted-foreground">+{b.services.length - 3}</span>}
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center justify-between gap-2 border-t border-border px-4 py-2.5 pl-5">
+          <span className="text-xs text-muted-foreground truncate">{phone}</span>
+          <div className="flex items-center gap-2 shrink-0">
+            {b.playlist_url && (
+              <a href={b.playlist_url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-[11px] text-primary"><Music className="h-3 w-3" />Playlist</a>
+            )}
+            <span className="text-sm font-black tabular-nums">{Number(b.total_price || 0).toFixed(0)}€</span>
+            <WhatsAppButton phone={phone} />
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const BookingRow = ({ b }: { b: AdminBooking }) => isMobile ? <MobileBookingCard b={b} /> : (
     <motion.div
       layout
       initial={{ opacity: 0, y: 8 }}
@@ -255,7 +330,7 @@ export const AdminBookingsSection = ({
             <StatusChip booking={b} />
           </div>
           <div className="text-xs text-muted-foreground mb-1.5 flex items-center gap-2">
-            <span>📞 {b.user_id && b.profile ? b.profile.contact_value : b.client_contact}</span>
+            <span>{b.user_id && b.profile ? b.profile.contact_value : b.client_contact}</span>
             <WhatsAppButton phone={b.user_id && b.profile ? b.profile.contact_value : b.client_contact} />
           </div>
           <div className="flex items-center gap-1 flex-wrap">
@@ -510,10 +585,12 @@ export const AdminBookingsSection = ({
               </TabsTrigger>
             </TabsList>
             <TabsContent value="current" className="mt-4">
-              <List items={currentBookings} />
+              <List items={currentPaged.slice} />
+              <ListPager {...currentPaged} />
             </TabsContent>
             <TabsContent value="past" className="mt-4">
-              <List items={pastBookings} />
+              <List items={pastPaged.slice} />
+              <ListPager {...pastPaged} />
             </TabsContent>
           </Tabs>
         </CardContent>
