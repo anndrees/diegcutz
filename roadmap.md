@@ -1,13 +1,13 @@
 # Roadmap
 
 ## Extensión de la estética aprobada a toda la web
-- [ ] Unificar el sistema visual con la portada aprobada
-- [ ] Renovar reservas, perfil, membresías, sorteos y fidelidad
-- [ ] Renovar acceso, recuperación, instalación y páginas legales
-- [ ] Renovar administración, ficha de cliente y todas sus pestañas
-- [ ] Renovar pantalla TV, bloqueo y estados de conexión
-- [ ] Unificar ventanas, formularios, chat, avisos y estados globales
-- [ ] Verificar todas las rutas y pantallas en ordenador y móvil
+- [x] Unificar el sistema visual con la portada aprobada
+- [x] Renovar reservas, perfil, membresías, sorteos y fidelidad
+- [x] Renovar acceso, recuperación, instalación y páginas legales
+- [x] Renovar administración, ficha de cliente y todas sus pestañas
+- [x] Renovar pantalla TV, bloqueo y estados de conexión
+- [x] Unificar ventanas, formularios, chat, avisos y estados globales
+- [x] Verificar todas las rutas y pantallas en ordenador y móvil
 
 ## Reconstrucción Liquid Chrome
 - [x] Nueva portada con wordmark cromado 3D real y carrusel multimedia
