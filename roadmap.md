@@ -1,5 +1,11 @@
 # Roadmap
 
+## Retirada del juego y acceso oculto móvil
+- [x] Retirar CUT / BEAT y sus accesos sin tocar Administración en escritorio
+- [x] Acceso móvil año → DIEGCUTZ → Monóvar, cancelado por cualquier acción intermedia
+- [x] Probar orden, interrupciones de 1px y entrada real al acceso admin
+- [x] Proponer nuevos juegos impresionantes exclusivamente para PC: lista y después detalles
+
 ## CUT / BEAT
 - [x] Añadir accesos a Administración y CUT / BEAT en los pies de portada
 - [x] Crear juego de precisión completo con ritmo, cortes, puntuación y revancha

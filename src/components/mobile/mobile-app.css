@@ -101,6 +101,9 @@
 .mh-addr svg { width: .9rem; height: .9rem; }
 .mh-end { padding: 2rem 1rem 1.5rem; text-align: center; font-size: .72rem; color: hsl(var(--muted-foreground)); display: grid; gap: .5rem; justify-items: center; }
 .mh-end nav { display: flex; gap: 1rem; }
+.mh-end__signature { display: flex; align-items: center; gap: .25rem; }
+.mh-end .mh-end__word { height: 2.75rem; padding: 0 .15rem; border-radius: 0; font: inherit; letter-spacing: 0; text-transform: none; color: inherit; background: transparent; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+.mh-end .mh-end__word:hover, .mh-end .mh-end__word:active, .mh-end .mh-end__word:focus:not(:focus-visible) { background: transparent !important; color: inherit !important; box-shadow: none; }
 
 /* Story viewer */
 .mh-viewer { position: fixed; inset: 0; z-index: 200; height: 100dvh; background: hsl(var(--ink)); color: hsl(var(--paper)); }

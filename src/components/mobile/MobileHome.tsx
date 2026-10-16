@@ -13,6 +13,8 @@ import "./mobile-app.css";
 import { supabase } from "@/integrations/supabase/client";
 import { StoryFrame, type StoryItem } from "@/components/stories/StoryFrame";
 import "@/components/stories/stories.css";
+import { Button } from "@/components/ui/button";
+import { useFooterAdminGesture } from "@/hooks/useFooterAdminGesture";
 
 type TimeRange = { start: string; end: string };
 type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: TimeRange[] };
@@ -38,6 +40,7 @@ const greeting = () => {
 };
 
 export function MobileHome({ title, slides, giveaway, marquee, businessHours, specialHours, igEnabled }: Props) {
+  useFooterAdminGesture();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [story, setStory] = useState<{ g: number; i: number } | null>(null);
@@ -193,9 +196,8 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
       </motion.section>
 
       <footer className="mh-end">
-        <nav><Link to="/cut-beat">CUT / BEAT <ArrowUpRight size={14} /></Link><Link to="/admin">Administración <ArrowUpRight size={14} /></Link></nav>
         <nav><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/install">App</Link></nav>
-        <span>© {new Date().getFullYear()} DIEGCUTZ · Monóvar</span>
+        <div className="mh-end__signature">© <Button variant="ghost" className="mh-end__word" data-footer-admin="year">{new Date().getFullYear()}</Button><span aria-hidden="true"> · </span><Button variant="ghost" className="mh-end__word" data-footer-admin="brand">DIEGCUTZ</Button><span aria-hidden="true"> - </span><Button variant="ghost" className="mh-end__word" data-footer-admin="place">Monóvar</Button></div>
       </footer>
 
       {createPortal(<AnimatePresence>

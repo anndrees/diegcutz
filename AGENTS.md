@@ -1,6 +1,6 @@
 # Architecture rules
 
-- Keep CUT / BEAT rendering and timing in a lazily loaded Phaser scene, with pure tested scoring rules and React controls; this isolates the game from booking and avoids loading its engine on the homepage.
+- Keep the mobile footer entry gesture in a pure tested state machine with document-level interruption listeners; this enforces uninterrupted taps without changing AdminGuard authentication.
 
 - Keep booking steps inside one keyed AnimatePresence boundary with wait mode; separate step boundaries reserve incoming space above outgoing content on backwards navigation.
 - Mount mobile booking actions in a body portal and measure the header/tab bar for sticky offsets; route transforms must not trap viewport controls.
