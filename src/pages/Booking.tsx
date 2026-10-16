@@ -744,19 +744,13 @@ const Booking = () => {
     return Math.min(appliedCoupon.discount_value, subtotal);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setConfirmOpen(false);
+
     // Check if user is logged in
     if (!user || !profile) {
-      // Save booking state to localStorage
-      const bookingState = {
-        date: selectedDate?.toISOString(),
-        time: selectedTime,
-        services: selectedServices,
-        pack: selectedPack,
-      };
-      localStorage.setItem("pendingBooking", JSON.stringify(bookingState));
+      localStorage.setItem("pendingBooking", JSON.stringify(buildPendingBooking()));
       
       toast({
         title: "Inicia sesión",
