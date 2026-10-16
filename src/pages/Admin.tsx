@@ -645,6 +645,7 @@ const Admin = () => {
           </main>
         </div>
 
+        </div>
       </div>
       )}
 
