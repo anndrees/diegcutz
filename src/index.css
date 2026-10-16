@@ -763,43 +763,6 @@ html.konami-rave body {
   animation: admin-floater-rise linear infinite;
 }
 
-/* Burst particle on unlock */
-@keyframes admin-particle-burst {
-  0% { transform: translate(0, 0) scale(1); opacity: 1; }
-  100% { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; }
-}
-.admin-particle {
-  animation: admin-particle-burst 1.4s cubic-bezier(0.2, 0.6, 0.2, 1) forwards;
-}
-
-/* Flash on unlock */
-@keyframes admin-flash-anim {
-  0% { opacity: 0; }
-  20% { opacity: 0.85; }
-  100% { opacity: 0; }
-}
-.admin-flash {
-  background: radial-gradient(circle at center, hsl(var(--neon-cyan) / 0.6), transparent 60%);
-  animation: admin-flash-anim 1.4s ease-out forwards;
-}
-
-/* HUD terminal */
-@keyframes admin-hud-typein {
-  from { opacity: 0; transform: translateX(-6px); }
-  to { opacity: 1; transform: translateX(0); }
-}
-.admin-hud-line {
-  animation: admin-hud-typein 0.25s ease-out;
-}
-@keyframes admin-cursor-blink {
-  0%, 49% { opacity: 1; }
-  50%, 100% { opacity: 0; }
-}
-.admin-cursor {
-  display: inline-block;
-  margin-left: 2px;
-  animation: admin-cursor-blink 0.8s step-end infinite;
-}
 
 /* Elegant Urban Noir — customer experience */
 @layer components {
@@ -1186,8 +1149,6 @@ html.konami-rave body {
 .admin-access__panel-head>div { display:grid; place-items:center; width:3.2rem; aspect-ratio:1; border-radius:50%; background:linear-gradient(145deg,hsl(var(--foreground)),hsl(var(--muted-foreground))); color:hsl(var(--background)); box-shadow:inset 2px 2px 6px hsl(var(--foreground)/.7),inset -3px -3px 7px hsl(var(--background)/.35); }
 .admin-access__panel h2 { margin-top:2.2rem; font-size:2rem; }.admin-access__panel>p { margin:.5rem 0 2rem; color:hsl(var(--muted-foreground)); }
 .admin-access__submit { background:linear-gradient(105deg,hsl(var(--foreground)),hsl(var(--secondary)) 45%,hsl(var(--foreground))); color:hsl(var(--background)); box-shadow:inset 2px 2px 5px hsl(var(--foreground)/.75),inset -3px -3px 6px hsl(var(--background)/.25); }
-.admin-access__status { display:grid; gap:.55rem; margin-top:1rem; padding:1rem; border:1px solid hsl(var(--foreground)/.09); border-radius:1rem; background:hsl(var(--background)/.58); color:hsl(var(--muted-foreground)); font-size:.68rem; }
-.admin-access__status>div { display:flex; align-items:center; gap:.6rem; }.admin-access__status span { width:.4rem; aspect-ratio:1; border-radius:50%; background:hsl(var(--primary)); box-shadow:0 0 10px hsl(var(--primary)); }
 @media(max-width:1023px){.admin-chrome{padding-top:5rem}.admin-chrome__topbar{padding-left:3.7rem}.admin-chrome__heading{text-align:center}.admin-neon{display:block}.admin-sidebar__head>span{float:none}.admin-access__layout{grid-template-columns:1fr;max-width:34rem}.admin-access__statement{display:none}}
 @media(prefers-reduced-motion:reduce){.admin-chrome__orb,.admin-access__chrome,.admin-chrome__heading h1{animation:none}}
 
