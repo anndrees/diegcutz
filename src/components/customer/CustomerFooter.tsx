@@ -15,7 +15,7 @@ export function CustomerFooter() {
           <div className="brand-lockup brand-lockup--large"><BrandMark variant="light" /><span className="brand-lockup__name">DIEGCUTZ</span></div>
           <p>Estudio de barbería urbana. Precisión, conversación y estilo propio.</p>
         </div>
-        <div><p className="customer-kicker">ESTUDIO</p><a href="https://maps.google.com/?q=Carrer+Sant+Antoni+Monovar+Alicante" target="_blank" rel="noreferrer"><MapPin /> Carrer Sant Antoni · Monóvar</a><a href="https://instagram.com/diegcutz" target="_blank" rel="noreferrer"><Instagram /> @diegcutz</a></div>
+        <div><p className="customer-kicker">ESTUDIO</p><a href="https://maps.app.goo.gl/H1wTD6r3dBjsqRHA7" target="_blank" rel="noreferrer"><MapPin /> Carrer Sant Antoni · Monóvar</a><a href="https://instagram.com/diegcutz" target="_blank" rel="noreferrer"><Instagram /> @diegcutz</a></div>
         <div><p className="customer-kicker">EXPLORA</p><Link to="/booking">Reservar</Link><Link to="/membership">Membresías</Link><Link to="/giveaways">Sorteos</Link><Link to="/install">Instalar la app</Link></div>
         <div><p className="customer-kicker">ACCESO</p><Link to="/auth">Cuenta cliente</Link><Link to="/tv">Modo TV</Link><Link to="/admin">Administración</Link></div>
       </div>

@@ -114,7 +114,7 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
           <Link to="/booking" className="mh-tile mh-tile--ink"><Scissors /><span><strong>Reservar</strong><small>Elige día y hora</small></span></Link>
           <Link to="/membership" className="mh-tile"><Crown /><span><strong>Club</strong><small>Membresías</small></span></Link>
           <Link to="/giveaways" className="mh-tile"><Gift /><span><strong>Sorteos</strong><small>Participa gratis</small></span></Link>
-          <a href="https://maps.google.com/?q=Carrer+Sant+Antoni+Monovar+Alicante" target="_blank" rel="noreferrer" className="mh-tile"><MapPin /><span><strong>Cómo llegar</strong><small>Carrer Sant Antoni</small></span></a>
+          <a href="https://maps.app.goo.gl/H1wTD6r3dBjsqRHA7" target="_blank" rel="noreferrer" className="mh-tile"><MapPin /><span><strong>Cómo llegar</strong><small>Carrer Sant Antoni</small></span></a>
         </div>
       </motion.section>
 

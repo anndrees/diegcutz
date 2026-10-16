@@ -173,6 +173,13 @@ export const AdminMobileShell = ({
               aria-current={active ? "page" : undefined}
               aria-label={label}
             >
+              {active && !main && (
+                <motion.span
+                  layoutId="admin-tab-pill"
+                  className="admin-app__tab-pill"
+                  transition={{ type: "spring", stiffness: 420, damping: 32 }}
+                />
+              )}
               {main ? (
                 <span className="admin-app__tab-main">
                   <Icon />
