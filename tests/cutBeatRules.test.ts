@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { cutPoints, cutTime, finalRank, judgeCut, TOTAL_CUTS } from "./cutBeatRules";
+import { cutPoints, cutTime, finalRank, judgeCut, TOTAL_CUTS } from "../src/components/game/cutBeatRules";
 
 describe("CUT / BEAT timing and scoring", () => {
   test("precision is symmetric with exact grade boundaries", () => {
