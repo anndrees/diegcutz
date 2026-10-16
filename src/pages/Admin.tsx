@@ -644,8 +644,6 @@ const Admin = () => {
             {sectionContent}
           </main>
         </div>
-
-        </div>
       </div>
       )}
 
