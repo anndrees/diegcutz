@@ -928,11 +928,19 @@ const Booking = () => {
 
     if (error) {
       setLoading(false);
+      // The database guards the slot, so a duplicate means someone confirmed it first.
+      const slotTaken = error.code === "23505";
       toast({
-        title: "Error",
-        description: "No se pudo completar la reserva. Inténtalo de nuevo.",
+        title: slotTaken ? "Oh... alguien ha sido más rápido" : "Error",
+        description: slotTaken
+          ? "Esa hora acaba de ocuparse mientras confirmabas. Elige otra hora, por favor."
+          : "No se pudo completar la reserva. Inténtalo de nuevo.",
         variant: "destructive",
       });
+      if (slotTaken) {
+        setSelectedTime("");
+        setMobileStep(2);
+      }
       loadBookedTimes();
       return;
     }
