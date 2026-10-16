@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
 import "./mobile-app.css";
 
-const HIDDEN = ["/admin", "/tv", "/auth", "/forgot-password", "/cut-beat"];
+const HIDDEN = ["/admin", "/tv", "/auth", "/forgot-password"];
 
 export function MobileTabBar() {
   const { pathname } = useLocation();

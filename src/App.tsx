@@ -2,8 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { lazy, Suspense } from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { ForcePasswordChange } from "./components/ForcePasswordChange";
 import { CompleteProfileForm } from "./components/CompleteProfileForm";
@@ -32,11 +31,9 @@ import TvMode from "./pages/TvMode";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
-const CutBeat = lazy(() => import("./pages/CutBeat"));
 
 // Wrapper to check for forced password change and incomplete profile
 const AppContent = () => {
-  const { pathname } = useLocation();
   const { user, profile, requiresPasswordChange, requiresProfileCompletion, clearPasswordChangeRequirement, refreshProfile } = useAuth();
 
   // If user needs to change password, show only that screen
@@ -84,14 +81,13 @@ const AppContent = () => {
         <Route path="/membership-policy" element={<MembershipPolicy />} />
         <Route path="/install" element={<Install />} />
         <Route path="/tv" element={<TvMode />} />
-        <Route path="/cut-beat" element={<Suspense fallback={<div className="min-h-screen bg-background" />}><CutBeat /></Suspense>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
         </Routes>
       </RouteTransition>
       <MobileTabBar />
-      {pathname !== "/cut-beat" && <FloatingChat />}
-      {pathname !== "/cut-beat" && <InstallPrompt />}
+      <FloatingChat />
+      <InstallPrompt />
     </>
   );
 };
