@@ -1,9 +1,9 @@
 # Roadmap
 
 ## Ajustes finales de reserva
-- [ ] Unificar encabezado y mantener círculos redondos en escritorio
-- [ ] Cerrar el resumen móvil al interactuar fuera y verificarlo
-- [ ] Proponer ideas sorprendentes nuevas: lista primero y detalles después
+- [x] Unificar encabezado y mantener círculos redondos en escritorio
+- [x] Cerrar el resumen móvil al interactuar fuera y verificarlo
+- [x] Proponer ideas sorprendentes nuevas: lista primero y detalles después
 
 ## Reserva editorial y experiencia móvil
 - [x] Corregir transición al volver a pasos anteriores
