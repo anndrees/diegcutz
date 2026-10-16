@@ -23,6 +23,7 @@ import { PlaylistPreview } from "@/components/booking/PlaylistPreview";
 import { StyleAdvisor } from "@/components/booking/StyleAdvisor";
 import { BookingConfirmation } from "@/components/booking/BookingConfirmation";
 import { CustomerPage } from "@/components/customer/CustomerPage";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Validation schema for playlist URL
 const playlistUrlSchema = z.string().max(500, "URL demasiado larga").refine(
