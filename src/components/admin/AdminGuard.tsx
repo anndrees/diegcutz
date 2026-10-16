@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,6 +11,8 @@ interface AdminGuardProps {
   children: React.ReactNode;
 }
 
+const WORD = "DIEGCUTZ";
+
 export const AdminGuard = ({ children }: AdminGuardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -19,53 +22,28 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [shake, setShake] = useState(false);
+  const [error, setError] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
-  const [hudLines, setHudLines] = useState<string[]>([]);
-  const [particles, setParticles] = useState<{ id: number; x: number; y: number; dx: number; dy: number; color: string }[]>([]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
+    setError(false);
 
     if (username === "diego" && password === "DiegCutz#2025Pro") {
       setUnlocking(true);
       sessionStorage.setItem("adminAuth", "true");
-      // HUD sequence
-      const steps = [
-        "CONECTANDO CON EL ESTUDIO",
-        "VALIDANDO IDENTIDAD",
-        "SINCRONIZANDO EL PANEL",
-        "PREPARANDO EL ESPACIO",
-        "ACCESO AUTORIZADO",
-      ];
-      steps.forEach((line, i) => {
-        setTimeout(() => setHudLines((prev) => [...prev, line]), i * 260);
-      });
-      // Burst of particles
-      const colors = ["189 100% 57%", "207 9% 86%", "216 14% 42%"];
-      const burst = Array.from({ length: 60 }, (_, i) => {
-        const angle = (Math.PI * 2 * i) / 60;
-        const speed = 80 + Math.random() * 180;
-        return {
-          id: Date.now() + i,
-          x: 50,
-          y: 50,
-          dx: Math.cos(angle) * speed,
-          dy: Math.sin(angle) * speed,
-          color: colors[i % colors.length],
-        };
-      });
-      setParticles(burst);
       setTimeout(() => {
         setIsAuthenticated(true);
+        setUnlocking(false);
         toast({
           title: "ACCESO CONCEDIDO",
           description: "Bienvenido al panel de administración.",
         });
-      }, 1700);
+      }, 2000);
     } else {
       setShake(true);
+      setError(true);
       setTimeout(() => setShake(false), 600);
-      setHudLines((prev) => [...prev.slice(-4), "CREDENCIALES NO VÁLIDAS"]);
       toast({
         title: "ACCESO DENEGADO",
         description: "Credenciales incorrectas. Intento registrado.",
@@ -77,29 +55,82 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
   if (!isAuthenticated) {
     return (
       <div className="admin-access relative min-h-screen w-full overflow-hidden bg-background">
-        <div className="admin-access__mesh" aria-hidden="true" />
         <div className="admin-access__chrome admin-access__chrome--one" aria-hidden="true" />
         <div className="admin-access__chrome admin-access__chrome--two" aria-hidden="true" />
-        {unlocking && (
-          <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center">
-            <div className="relative">
-              {particles.map((p) => (
-                <span
-                  key={p.id}
-                  className="absolute block h-1.5 w-1.5 rounded-full admin-particle"
-                  style={{
-                    background: `hsl(${p.color})`,
-                    boxShadow: `0 0 12px hsl(${p.color})`,
-                    ['--dx' as any]: `${p.dx}px`,
-                    ['--dy' as any]: `${p.dy}px`,
-                  }}
-                />
-              ))}
-            </div>
-          </div>
-        )}
 
-        {unlocking && <div className="pointer-events-none absolute inset-0 z-30 admin-flash" />}
+        <AnimatePresence>
+          {unlocking && (
+            <motion.div
+              key="admin-unlock"
+              aria-hidden
+              className="admin-unlock"
+              initial={{ opacity: 1 }}
+              exit={{ opacity: 0, transition: { duration: 0.45, ease: "easeOut" } }}
+            >
+              <motion.div
+                className="admin-unlock__seal"
+                initial={{ scale: 1.7, rotate: 10, opacity: 0 }}
+                animate={{ scale: 1, rotate: -6, opacity: 1 }}
+                transition={{ type: "spring", stiffness: 320, damping: 17, delay: 0.12 }}
+              >
+                <div className="admin-unlock__disc" />
+                <svg viewBox="0 0 200 200" className="admin-unlock__ring">
+                  <defs>
+                    <path
+                      id="admin-unlock-circle"
+                      d="M100,100 m-76,0 a76,76 0 1,1 152,0 a76,76 0 1,1 -152,0"
+                    />
+                  </defs>
+                  <text textLength="472">
+                    <textPath href="#admin-unlock-circle">
+                      ACCESO CONCEDIDO · OPERACIONES DIEGCUTZ ·
+                    </textPath>
+                  </text>
+                </svg>
+                <div className="admin-unlock__core">
+                  <ShieldCheck />
+                </div>
+              </motion.div>
+
+              <motion.div
+                className="admin-unlock__word"
+                initial="hidden"
+                animate="show"
+                variants={{ show: { transition: { staggerChildren: 0.05, delayChildren: 0.45 } } }}
+              >
+                {WORD.split("").map((letter, i) => (
+                  <motion.span
+                    key={`${letter}-${i}`}
+                    variants={{
+                      hidden: { opacity: 0, y: "0.6em" },
+                      show: { opacity: 1, y: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } },
+                    }}
+                  >
+                    {letter}
+                  </motion.span>
+                ))}
+              </motion.div>
+
+              <motion.div
+                className="admin-unlock__rule"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1], delay: 0.9 }}
+              />
+
+              <motion.div
+                className="admin-unlock__note"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 1.1 }}
+              >
+                <span />
+                Preparando el panel
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <Button variant="ghost" onClick={() => navigate("/")} className="admin-access__back"><ArrowLeft /> Volver</Button>
         <div className="admin-access__layout">
           <section className="admin-access__statement">
@@ -108,7 +139,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
             <p>Un espacio de trabajo preciso para reservas, clientes y decisiones del estudio.</p>
             <div><ShieldCheck /><span><strong>Sistema privado</strong><small>Acceso exclusivo para administradores</small></span></div>
           </section>
-          <section className={`admin-access__panel ${shake ? "animate-login-shake" : ""} ${unlocking ? "animate-login-unlock" : ""}`}>
+          <section className={`admin-access__panel ${shake ? "animate-login-shake" : ""}`}>
             <div className="admin-access__panel-head">
               <div><Fingerprint /></div>
               <span>IDENTIDAD ADMIN</span>
@@ -147,13 +178,12 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
                   </div>
                 </div>
                 <Button type="submit" disabled={unlocking} className="admin-access__submit w-full h-12 text-base">
-                  {unlocking ? "Preparando panel..." : "Entrar al panel"}
+                  {unlocking ? "Validando identidad…" : "Entrar al panel"}
                 </Button>
-                {hudLines.length > 0 && (
-                  <div className="admin-access__status">
-                    {hudLines.map((line, i) => (
-                      <div key={i} className="admin-hud-line"><span />{line}</div>
-                    ))}
+                {error && (
+                  <div className="admin-access__error">
+                    <span />
+                    Credenciales no válidas — intento registrado
                   </div>
                 )}
               </form>
