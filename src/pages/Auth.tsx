@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useGoogleAuthEnabled } from "@/hooks/useGoogleAuthEnabled";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, LogIn, UserPlus, Check, X, Loader2 } from "lucide-react";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
@@ -645,7 +646,7 @@ const Auth = () => {
     <div className="customer-shell auth-liquid min-h-screen">
       <div className="customer-ambient" aria-hidden="true" />
       <header className="auth-liquid__top">
-        <button onClick={() => navigate("/")} className="brand-lockup" aria-label="Volver al inicio"><span className="brand-lockup__mark">DC</span><span className="brand-lockup__name">DIEGCUTZ<small>MONÓVAR</small></span></button>
+        <button onClick={() => navigate("/")} className="brand-lockup" aria-label="Volver al inicio"><BrandMark /><span className="brand-lockup__name">DIEGCUTZ<small>MONÓVAR</small></span></button>
         <span>ÁREA PRIVADA DE CLIENTES</span>
       </header>
       <main className="auth-liquid__layout">
