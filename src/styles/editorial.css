@@ -155,3 +155,6 @@ body.tv-kiosk { background: hsl(30 8% 8%) !important; }
   [role="dialog"]:not([data-vaul-drawer]) { width: calc(100% - 1.5rem) !important; }
   .admin-sidebar { border-radius: 0 !important; }
 }
+
+/* TV: route-transition wrapper must not trap fixed full-screen layers */
+body.tv-kiosk #root > div[style] { filter: none !important; transform: none !important; min-height: 100vh; }
