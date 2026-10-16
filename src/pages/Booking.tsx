@@ -119,6 +119,19 @@ const Booking = () => {
   const [confirmedBooking, setConfirmedBooking] = useState<{ id: string; booking_date: string; booking_time: string; services: string[] } | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const mobileSummaryRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isMobile || !summaryOpen) return;
+    const dismissOutside = (event: Event) => {
+      const target = event.target;
+      if (target instanceof Node && mobileSummaryRef.current?.contains(target)) return;
+      setSummaryOpen(false);
+    };
+    const events = ["pointerdown", "touchstart", "touchmove", "wheel", "scroll"] as const;
+    events.forEach(name => document.addEventListener(name, dismissOutside, { capture: true, passive: true }));
+    return () => events.forEach(name => document.removeEventListener(name, dismissOutside, true));
+  }, [isMobile, summaryOpen]);
 
   useEffect(() => {
     if (!isMobile) return;
@@ -1040,9 +1053,9 @@ const Booking = () => {
 
   return (
     <CustomerPage footer={false}><div className="booking-editorial min-h-screen">
-      <div className="noir-page-head"><div><p className="customer-kicker">RESERVA ONLINE</p><div><h1 className="noir-title">Construye tu <em>cita.</em></h1><p className="noir-lede">Cuatro decisiones sencillas. Tú marcas el momento y nosotros preparamos el resto.</p></div></div></div>
+      <div className="noir-page-head"><div><p className="customer-kicker">RESERVA ONLINE- CONFIGURA TU CITA</p><div><h1 className="noir-title">Construye tu <em>cita.</em></h1><p className="noir-lede">Cuatro decisiones sencillas. Tú marcas el momento y nosotros preparamos el resto.</p></div></div></div>
       <div className="max-w-6xl mx-auto py-10 md:py-16 px-4 relative">
-        <motion.div
+        {isFreeCutReservation && <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
@@ -1059,12 +1072,8 @@ const Booking = () => {
                 Incluye DEGRADADO + VACIAR/TEXTURIZADO. Puedes añadir servicios extra.
               </p>
             </>
-          ) : (
-            <>
-              <p className="customer-kicker">CONFIGURA TU CITA</p>
-            </>
-          )}
-        </motion.div>
+          ) : null}
+        </motion.div>}
 
         <div className="booking-top-shell">
         <nav className="booking-progress booking-progress--new" aria-label="Progreso de la reserva">
@@ -1084,7 +1093,7 @@ const Booking = () => {
           })}
         </nav>
 
-          {isMobile && <div className="booking-mobile-summary">
+          {isMobile && <div ref={mobileSummaryRef} className="booking-mobile-summary">
             <Button variant="ghost" className="booking-mobile-summary__toggle" onClick={() => setSummaryOpen(open => !open)} aria-expanded={summaryOpen} aria-controls="mobile-booking-details">
               <span><strong>{selectedDate ? format(selectedDate, "d MMM", { locale: es }) : "Tu cita"}{selectedTime ? ` · ${selectedTime.slice(0, 5)}` : ""}</strong><small>{getSelectedItems().length ? `${getSelectedItems().length} servicios` : "Sin servicios elegidos"}</small></span>
               <b>{totalPrice}€</b><ChevronDown className={summaryOpen ? "is-open" : ""} />

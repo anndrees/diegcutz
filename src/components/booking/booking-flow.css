@@ -6,7 +6,7 @@
 .customer-page .booking-editorial .booking-progress--new { padding: 0; gap: 0; border-radius: 0; border: 0 !important; background: transparent; margin: 0; position: static; }
 .customer-page .booking-editorial .booking-progress--new button { border-radius: 0; padding: 1.1rem 1rem; min-height: 5.5rem; height: auto; border: 0; border-bottom: 2px solid hsl(var(--border)); background: transparent !important; gap: .85rem; color: hsl(var(--muted-foreground)); letter-spacing: 0; }
 .customer-page .booking-editorial .booking-progress--new button.is-active { background: transparent !important; color: hsl(var(--signal)) !important; border-bottom-color: hsl(var(--signal)); }
-.booking-progress--new .booking-progress__number { border: 0 !important; width: 2.25rem; height: 2.25rem; background: hsl(var(--ink) / .05); border-radius: 50%; font-family: var(--dc-display); }
+.booking-progress--new .booking-progress__number { border: 0 !important; width: 2.25rem !important; height: 2.25rem; min-width: 2.25rem; aspect-ratio: 1; flex: none; background: hsl(var(--ink) / .05); border-radius: 50%; font-family: var(--dc-display); }
 .booking-progress--new .is-active .booking-progress__number { background: hsl(var(--signal)); color: hsl(var(--paper)); }
 .booking-progress--new .booking-progress__label { width: auto; border: 0; }
 .booking-progress--new button small, .booking-progress--new button.is-active small { color: hsl(var(--muted-foreground)); text-transform: none; font-weight: 400; }
@@ -80,7 +80,7 @@
   .booking-editorial .booking-top-shell { position: sticky; top: var(--booking-header-height, 80px); z-index: 40; margin: 0 -1rem 1rem; padding: 0 1rem; background: hsl(var(--paper) / .98); box-shadow: var(--booking-shadow); border-bottom: 1px solid hsl(var(--border)); backdrop-filter: blur(18px); }
   .customer-page .booking-editorial .booking-progress--new { margin: 0; }
   .customer-page .booking-editorial .booking-progress--new button { flex-direction: column; justify-content: center; gap: .25rem; padding: .45rem .1rem; min-height: 3.3rem; }
-  .booking-progress--new .booking-progress__number { width: 1.35rem !important; height: 1.35rem; font-size: .6rem; flex: none; }
+  .booking-progress--new .booking-progress__number { width: 1.35rem !important; min-width: 1.35rem; height: 1.35rem; font-size: .6rem; flex: none; }
   .booking-progress--new .booking-progress__number svg { width: .7rem; height: .7rem; }
   .booking-progress--new button strong { font-size: .58rem; }
   .booking-progress--new button small { display: none; }
