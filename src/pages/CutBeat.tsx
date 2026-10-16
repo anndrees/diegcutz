@@ -78,6 +78,7 @@ export default function CutBeat() {
 
   const start = () => {
     if (!ready) return;
+    if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     setCopied(false); setNewRecord(false); setCountdown(3); setStats(initialStats);
     changeStatus("playing"); game.current?.events.emit("start-round", mode);
   };
