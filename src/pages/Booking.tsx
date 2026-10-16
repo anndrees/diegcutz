@@ -1068,6 +1068,7 @@ const Booking = () => {
                     selected={selectedDate}
                     onSelect={setSelectedDate}
                     disabled={isDayDisabled}
+                    toDate={maxBookingDate}
                     className="rounded-md pointer-events-auto scale-90 sm:scale-100"
                     modifiers={{
                       dayFull: (d: Date) => getDayAvailability(d) === "full",
