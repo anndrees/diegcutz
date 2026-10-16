@@ -500,9 +500,80 @@ const Admin = () => {
     </>
   );
 
+  const sectionContent = (
+    <>
+      {activeTab === "bookings" && (
+        <AdminBookingsSection
+          bookings={bookings}
+          loading={loading}
+          onReload={loadBookings}
+          onEdit={openEditDialog}
+          onCancel={openCancelDialog}
+          onDelete={openDeleteConfirm}
+          onReactivate={handleReactivateBooking}
+          onSelectDay={(date) => {
+            setSelectedCalendarDate(date);
+            setShowDayOptionsDialog(true);
+          }}
+        />
+      )}
+
+      {activeTab === "statistics" && (
+        <div className="space-y-8 text-left">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h2 className="text-2xl font-bold text-secondary">Estadísticas de Reservas</h2>
+            <DateRangeFilter
+              onRangeChange={(preset, dates) => {
+                if (preset === "all") setStatsDateRange(null);
+                else if (dates) setStatsDateRange(dates);
+              }}
+            />
+          </div>
+          <StatisticsSection bookings={bookings.filter(booking => {
+            if (!statsDateRange) return true;
+            const date = new Date(booking.booking_date);
+            return isWithinInterval(date, {
+              start: startOfDay(statsDateRange.from),
+              end: endOfDay(statsDateRange.to)
+            });
+          })} />
+          <div className="pt-8 border-t border-border/50">
+            <h2 className="text-2xl font-bold text-primary mb-6">Estadísticas de Membresías</h2>
+            <MembershipStatsSection />
+          </div>
+        </div>
+      )}
+
+      {activeTab === 'services' && <ServicesManagement />}
+      {activeTab === 'clients' && <ClientsManagement />}
+      {activeTab === 'hours' && (
+        <div className='space-y-6'>
+          <BusinessHoursManagement />
+          <SpecialHoursManagement />
+        </div>
+      )}
+      {activeTab === 'ratings' && <RatingsManagement />}
+      {activeTab === 'achievements' && <AchievementsManagement />}
+      {activeTab === 'coupons' && <CouponsManagement />}
+      {activeTab === 'memberships' && (
+        <>
+          <MembershipsManagement />
+          <MemberRanking />
+        </>
+      )}
+      {activeTab === 'giveaways' && <GiveawaysManagement />}
+      {activeTab === 'marquee' && <MarqueeManagement />}
+      {activeTab === 'homepage' && <HomepageManagement />}
+      {activeTab === 'tv' && <TvModeManagement />}
+      {activeTab === 'messages' && <AdminMessagesSection />}
+      {activeTab === 'notifications' && <NotificationHistoryManagement />}
+      {activeTab === 'logs' && <AdminActionsLog />}
+      {activeTab === 'help' && <AdminHelpCenter />}
+    </>
+  );
+
   return (
     <AdminGuard>
-    <div className="admin-chrome min-h-screen py-8 px-4 pt-safe relative overflow-hidden">
       <div className="admin-chrome__mesh" aria-hidden="true" />
       <div className="admin-chrome__orb admin-chrome__orb--one" aria-hidden="true" />
       <div className="admin-chrome__orb admin-chrome__orb--two" aria-hidden="true" />
