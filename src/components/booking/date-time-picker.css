@@ -76,3 +76,16 @@
 .dtp-empty { padding: 1rem; border-radius: .9rem; background: hsl(var(--ink) / .05); font-size: .9rem; text-align: center; }
 
 @media (prefers-reduced-motion: reduce) { .dtp-day, .dtp-time { transition: none; } .dtp-day:hover, .dtp-time:hover, .dtp-day.is-selected, .dtp-time.is-selected { transform: none; } }
+
+/* Services & extras cards — same editorial language as the pickers */
+.booking-step-card { background: hsl(var(--paper)) !important; border: 1px solid hsl(var(--ink)) !important; border-radius: 1.25rem !important; box-shadow: none !important; }
+.booking-step-card > div:first-child { border-bottom: 1px dashed hsl(var(--ink) / .2) !important; }
+.booking-step-card h3, .booking-step-card [class*="CardTitle"], .booking-step-card .text-xl { font-family: var(--dc-display); font-weight: 900; letter-spacing: -.03em; }
+.booking-step-card h3 svg { color: hsl(var(--signal)); }
+.booking-step-card .border-2.rounded-lg { border-width: 1px !important; border-radius: 1rem !important; border-color: hsl(var(--ink) / .18); padding: 1rem 1.1rem; transition: transform .25s cubic-bezier(.16,1,.3,1), background .25s, border-color .25s, color .25s; }
+.booking-step-card .border-2.rounded-lg:hover { border-color: hsl(var(--ink)); transform: translateY(-2px); }
+.booking-step-card .border-2.rounded-lg.border-primary { background: hsl(var(--ink)) !important; border-color: hsl(var(--ink)) !important; color: hsl(var(--paper)); }
+.booking-step-card .border-2.rounded-lg.border-primary .text-muted-foreground { color: hsl(var(--paper) / .65) !important; }
+.booking-step-card .border-2.rounded-lg.border-primary .text-primary { color: hsl(var(--signal)) !important; }
+.booking-step-card .border-2.rounded-lg .text-xl.font-bold { font-family: var(--dc-display); font-weight: 900; }
+@media (prefers-reduced-motion: reduce) { .booking-step-card .border-2.rounded-lg:hover { transform: none; } }
