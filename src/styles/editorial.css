@@ -122,7 +122,8 @@ input::placeholder, textarea::placeholder { color: hsl(var(--muted-foreground)) 
 .customer-footer h2, .customer-footer .brand-lockup__name { color: hsl(var(--paper)) !important; }
 .customer-footer h2 span, .customer-footer .customer-kicker { color: hsl(var(--signal)) !important; }
 .customer-footer h2 span { font-family: var(--dc-serif); font-style: italic; font-weight: 400; }
-.customer-footer .brand-lockup__mark { background: hsl(var(--paper)) !important; color: hsl(var(--ink)) !important; }
+.customer-footer .brand-lockup__mark:not(.brand-lockup__mark--img) { background: hsl(var(--paper)) !important; color: hsl(var(--ink)) !important; }
+.customer-footer .brand-lockup__mark--img { background: none !important; }
 .customer-footer__cta { background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; border: 0 !important; border-radius: 999px !important; }
 .customer-footer__grid a:hover { color: hsl(var(--signal)) !important; }
 .customer-footer__legal { border-color: hsl(var(--paper) / .15) !important; }
