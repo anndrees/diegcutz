@@ -17,7 +17,7 @@
 .cb-modes { display: flex; border-bottom: 1px solid hsl(var(--ink) / .2); gap: 10px; }
 .cb-modes .cb-mode { border-radius: 0; padding: 8px 14px; color: hsl(var(--muted-foreground)); background: transparent; }
 .cb-modes .cb-mode[aria-pressed="true"] { border-bottom: 3px solid hsl(var(--signal)); color: hsl(var(--ink)); }
-.cb-play { min-width: 218px; height: 62px; border-radius: 4px; font-size: 14px; }
+.cb-play { min-width: 218px; height: 62px; border-radius: 4px; font-size: 14px; background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; }
 .cb-hud { position: absolute; inset: 25px 5% auto; z-index: 2; display: flex; justify-content: space-between; pointer-events: none; }
 .cb-hud div { display: grid; gap: 5px; }
 .cb-hud strong { font: 900 42px/1 var(--dc-display); font-variant-numeric: tabular-nums; }
