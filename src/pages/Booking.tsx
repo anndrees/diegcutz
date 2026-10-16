@@ -113,6 +113,7 @@ const Booking = () => {
   const [useMembershipService, setUseMembershipService] = useState(false);
   const [membershipName, setMembershipName] = useState("");
   const [confirmedBooking, setConfirmedBooking] = useState<{ id: string; booking_date: string; booking_time: string; services: string[] } | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   
   // Coupon state
   const [couponCode, setCouponCode] = useState<string>("");
