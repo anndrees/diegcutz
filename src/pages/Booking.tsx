@@ -1735,7 +1735,7 @@ const Booking = () => {
                       <p className="text-lg font-semibold">{profile.contact_value}</p>
                     </div>
                     <Button
-                      onClick={handleSubmit}
+                      onClick={requestConfirmation}
                       variant="default"
                       className="w-full h-10 sm:h-12 text-sm sm:text-base"
                       disabled={loading || (!selectedPack && selectedServices.length === 0)}
@@ -1746,13 +1746,7 @@ const Booking = () => {
                 ) : (
                   <Button
                     onClick={() => {
-                      const bookingState = {
-                        date: selectedDate?.toISOString(),
-                        time: selectedTime,
-                        services: selectedServices,
-                        pack: selectedPack,
-                      };
-                      localStorage.setItem("pendingBooking", JSON.stringify(bookingState));
+                      localStorage.setItem("pendingBooking", JSON.stringify(buildPendingBooking()));
                       navigate("/auth", { state: { from: "/booking" } });
                     }}
                     variant="premium"
