@@ -888,10 +888,12 @@ const Booking = () => {
     if (existingBooking && existingBooking.length > 0) {
       setLoading(false);
       toast({
-        title: "Hora no disponible",
-        description: "Esta hora acaba de ser reservada. Por favor elige otra.",
+        title: "Oh... alguien ha sido más rápido",
+        description: "Esa hora acaba de ocuparse. Elige otra hora y seguimos.",
         variant: "destructive",
       });
+      setSelectedTime("");
+      setMobileStep(2);
       loadBookedTimes();
       return;
     }
