@@ -70,7 +70,7 @@
 .dc-ticker i { font-style: normal; color: hsl(var(--signal)); font-size: .8em; }
 @keyframes dc-ticker { to { transform: translateX(-33.333%); } }
 
-.dc-notices { max-width: 72rem; margin: 2rem auto 0; padding: 0 1rem; display: grid; gap: 1rem; }
+.dc-notices { max-width: 72rem; margin: clamp(3.5rem, 7vw, 6rem) auto 0; padding: 0 clamp(1rem, 3vw, 3rem); display: grid; gap: 1rem; }
 .dc-notices:empty { display: none; }
 
 /* MANIFESTO */
