@@ -22,6 +22,8 @@ export class CutBeatScene extends Phaser.Scene {
   private lastCountdown = -1;
   private targetY = 220;
   private pausedByUser = false;
+  private clockStart = 0;
+  private pauseStart = 0;
 
   constructor(options: Options) { super("cut-beat"); this.options = options; }
 
@@ -46,7 +48,6 @@ export class CutBeatScene extends Phaser.Scene {
     this.lines = this.add.graphics();
     this.blade = this.add.graphics();
     this.input.on("pointerdown", () => this.cut());
-    this.input.keyboard?.on("keydown-SPACE", (event: KeyboardEvent) => { event.preventDefault(); if (!event.repeat) this.cut(); });
     this.input.keyboard?.on("keydown-P", () => this.game.events.emit("toggle-pause"));
     this.game.events.on("cut", this.cut, this);
     this.game.events.on("start-round", this.startRound, this);
@@ -62,6 +63,7 @@ export class CutBeatScene extends Phaser.Scene {
   private startRound(mode: CutMode) {
     this.options.mode = mode;
     this.elapsed = 0; this.index = 0; this.stats = emptyStats();
+    this.clockStart = performance.now();
     this.lastBeat = -1; this.lastCountdown = -1; this.pausedByUser = false;
     this.trail?.clear(); this.started = true;
     this.options.onStats({ ...this.stats });
@@ -69,7 +71,12 @@ export class CutBeatScene extends Phaser.Scene {
     void this.audio?.resume();
   }
 
-  private pauseRound(paused: boolean) { this.pausedByUser = paused; }
+  private pauseRound(paused: boolean) {
+    if (paused === this.pausedByUser) return;
+    if (paused) this.pauseStart = performance.now();
+    else this.clockStart += performance.now() - this.pauseStart;
+    this.pausedByUser = paused;
+  }
 
   private playTone(kind: "beat" | "cut" | "miss", accent = false) {
     const audio = this.audio;
@@ -92,6 +99,7 @@ export class CutBeatScene extends Phaser.Scene {
 
   private cut() {
     if (!this.started || this.pausedByUser || this.elapsed < 3000 || this.index >= TOTAL_CUTS) return;
+    this.elapsed = performance.now() - this.clockStart;
     const offset = this.elapsed - cutTime(this.index, this.options.mode);
     // Early taps give tactile feedback but cannot consume the next cut.
     if (offset < -300) { this.playTone("miss"); return; }
@@ -128,9 +136,9 @@ export class CutBeatScene extends Phaser.Scene {
     }
   }
 
-  update(_time: number, delta: number) {
+  update() {
     if (!this.started || this.pausedByUser) return;
-    this.elapsed += Math.min(delta, 100);
+    this.elapsed = performance.now() - this.clockStart;
     if (this.elapsed < 3000) {
       const count = 3 - Math.floor(this.elapsed / 1000);
       if (count !== this.lastCountdown) { this.lastCountdown = count; this.options.onCountdown(count); this.playTone("beat", true); }

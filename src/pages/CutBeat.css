@@ -5,7 +5,7 @@
 .cb-brand img { width: 32px; }
 .cb-top__right { display: flex; align-items: center; gap: 10px; }
 .cb-label { font: 600 10px/1.4 var(--dc-display); text-transform: uppercase; }
-.cb-stage { position: relative; height: min(1000px, calc(100dvh - 154px)); min-height: 620px; width: 100%; }
+.cb-stage { position: relative; height: calc(100dvh - 154px); min-height: 620px; width: 100%; }
 .cb-canvas { position: absolute; inset: 0; touch-action: none; }
 .cb-canvas canvas { display: block; }
 .cb-title { position: absolute; left: 5%; top: 8%; z-index: 2; pointer-events: none; }

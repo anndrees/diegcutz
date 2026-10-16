@@ -67,7 +67,13 @@ export default function CutBeat() {
       }
     };
     document.addEventListener("visibilitychange", onHidden);
-    return () => { disposed = true; game.current?.destroy(true); game.current = null; document.title = originalTitle; document.removeEventListener("visibilitychange", onHidden); };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.code !== "Space" || statusRef.current !== "playing") return;
+      event.preventDefault(); event.stopPropagation();
+      if (!event.repeat) game.current?.events.emit("cut");
+    };
+    document.addEventListener("keydown", onKey, true);
+    return () => { disposed = true; game.current?.destroy(true); game.current = null; document.title = originalTitle; document.removeEventListener("visibilitychange", onHidden); document.removeEventListener("keydown", onKey, true); };
   }, [changeStatus, togglePause, reduced]);
 
   const start = () => {
