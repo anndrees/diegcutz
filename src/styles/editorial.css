@@ -158,3 +158,4 @@ body.tv-kiosk { background: hsl(30 8% 8%) !important; }
 
 /* TV: route-transition wrapper must not trap fixed full-screen layers */
 body.tv-kiosk #root > div[style] { filter: none !important; transform: none !important; min-height: 100vh; }
+.admin-chrome, .admin-access { --neon-cyan: 8 88% 52%; --neon-purple: 30 8% 8%; --neon-pink: 8 88% 52%; --primary: 8 88% 52%; --ring: 8 88% 52%; }
