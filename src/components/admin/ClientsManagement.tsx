@@ -15,6 +15,7 @@ import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MergeUsersDialog } from "@/components/admin/MergeUsersDialog";
 import { WhatsAppButton } from "@/components/admin/WhatsAppButton";
+import { ListPager, usePaged } from "@/components/admin/ListPager";
 
 type Client = {
   id: string; full_name: string; username: string; contact_method: string;
@@ -134,6 +135,7 @@ export const ClientsManagement = () => {
         default: return 0;
       }
     });
+  const paged = usePaged(filteredAndSortedClients, 15, `${searchQuery}|${sortBy}`);
 
   return (
     <Card>
@@ -169,7 +171,7 @@ export const ClientsManagement = () => {
           <p className="text-center text-muted-foreground py-8">{searchQuery ? "No se encontraron clientes" : "No hay clientes registrados"}</p>
         ) : isMobile ? (
           <div className="space-y-2">
-            {filteredAndSortedClients.map((client) => {
+            {paged.slice.map((client) => {
               const mem = getMembership(client.id);
               const tierStyle = mem ? getTierStyle(mem.sort_order) : null;
               return (
@@ -215,7 +217,7 @@ export const ClientsManagement = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredAndSortedClients.map((client) => {
+                {paged.slice.map((client) => {
                   const mem = getMembership(client.id);
                   const tierStyle = mem ? getTierStyle(mem.sort_order) : null;
                   return (
@@ -253,6 +255,7 @@ export const ClientsManagement = () => {
             </Table>
           </div>
         )}
+        {!loading && <ListPager {...paged} />}
       </CardContent>
 
       <Dialog open={!!editingClient} onOpenChange={() => setEditingClient(null)}>
