@@ -41,3 +41,10 @@
 - [x] Enlarge the customer header and expose sign-out on desktop and mobile
 - [x] Validate the expanded homepage motion across desktop and mobile
 
+
+## Panel admin como app nativa (móvil)
+- [x] Barra inferior tipo app (Stats, Reservas, Hoy central, Clientes, Más)
+- [x] Hoja inferior "Más" con todas las secciones agrupadas
+- [x] Pantalla "Hoy" con cifras del día y citas
+- [x] Cabecera nativa por sección y transiciones entre pestañas
+- [x] Escritorio sin cambios; verificado en 390px y 1280px
