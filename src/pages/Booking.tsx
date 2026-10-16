@@ -1059,7 +1059,7 @@ const Booking = () => {
                   <CalendarDays className="text-primary" />
                   Selecciona una fecha
                 </CardTitle>
-                <CardDescription>Los días cerrados no están disponibles</CardDescription>
+                <CardDescription>Los días cerrados no están disponibles. Puedes reservar hasta dos meses por adelantado.</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center overflow-x-auto p-4 pt-6">
                 <div className="w-full">
