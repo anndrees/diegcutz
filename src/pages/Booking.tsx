@@ -744,6 +744,35 @@ const Booking = () => {
     return Math.min(appliedCoupon.discount_value, subtotal);
   };
 
+  // Keep the whole selection so nothing is lost when the client signs in mid-booking.
+  const buildPendingBooking = () => ({
+    date: selectedDate?.toISOString(),
+    time: selectedTime,
+    services: selectedServices,
+    pack: selectedPack,
+    addons: selectedAddons,
+    playlist: playlistUrl,
+  });
+
+  const requestConfirmation = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!user || !profile) {
+      handleSubmit();
+      return;
+    }
+    if (!selectedDate || !selectedTime) {
+      toast({ title: "Error", description: "Por favor selecciona fecha y hora", variant: "destructive" });
+      return;
+    }
+    if (!selectedPack && selectedServices.length === 0) {
+      toast({ title: "Error", description: "Por favor selecciona al menos un servicio o pack", variant: "destructive" });
+      return;
+    }
+    setConfirmOpen(true);
+  };
+
+
+
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
     setConfirmOpen(false);
