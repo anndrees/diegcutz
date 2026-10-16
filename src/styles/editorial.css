@@ -693,3 +693,4 @@ body.has-admin-tabbar #root > div[style] { filter: none !important; transform: n
   .splash-x *, .splash-x__mask > span { animation: none !important; }
   .splash-x__slash { transform: translateY(-50%) rotate(-14deg); opacity: 0.12; height: 1px; }
 }
+.splash-x__logo, .splash-x__word { z-index: 1; }
