@@ -561,3 +561,87 @@ body.has-admin-tabbar #root > div[style] { filter: none !important; transform: n
 @media (prefers-reduced-motion: reduce) {
   .admin-app__tab:active, .admin-today__action:active { transform: none; }
 }
+
+/* /auth en móvil: primero el formulario, el intro va después y más discreto */
+@media (max-width: 767px) {
+  .auth-liquid__layout { display: flex; flex-direction: column; }
+  .auth-liquid__form { order: -1; padding: 6.5rem 1rem 3rem; }
+  .auth-liquid__intro { min-height: 0; padding: 1rem 1.25rem 3rem; border-bottom: 0; border-top: 1px solid hsl(var(--border)); }
+  .auth-liquid__intro h1 { font-size: clamp(2.2rem, 10vw, 3.2rem); margin: 1rem 0 1.25rem; }
+  .auth-liquid__signal { margin-top: 1.5rem; }
+}
+
+/* Páginas legales: titular contenido, no editorial gigante */
+.legal-editorial { padding: clamp(2.5rem, 5vw, 4.5rem) 1.25rem !important; }
+.legal-editorial > h1 { font-size: clamp(1.8rem, 4vw, 2.9rem) !important; line-height: 1.05 !important; margin: 1.25rem 0 2.5rem !important; }
+.legal-editorial > h1 br { display: none; }
+
+/* Accesibilidad: respetar "reducir movimiento" en toda la web */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Splash de carga animada */
+.splash-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.6rem;
+  background: hsl(var(--background));
+  overflow: hidden;
+}
+.splash-loader__letters {
+  display: flex;
+  font-family: "Archivo", sans-serif;
+  font-weight: 800;
+  font-size: clamp(2.4rem, 9vw, 5.5rem);
+  letter-spacing: 0.1em;
+  color: hsl(var(--foreground));
+}
+.splash-loader__letters span {
+  display: inline-block;
+  animation: splash-letter 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.splash-loader__letters span:nth-child(odd) { color: hsl(var(--signal, 0 84% 48%)); }
+@keyframes splash-letter {
+  from { opacity: 0; transform: translateY(0.6em) rotate(4deg); }
+  to { opacity: 1; transform: none; }
+}
+.splash-loader__bar {
+  width: min(14rem, 60vw);
+  height: 2px;
+  background: hsl(var(--foreground) / 0.12);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.splash-loader__bar i {
+  display: block;
+  height: 100%;
+  width: 40%;
+  background: hsl(var(--signal, 0 84% 48%));
+  border-radius: inherit;
+  animation: splash-bar 1s ease-in-out infinite;
+}
+@keyframes splash-bar {
+  0% { transform: translateX(-110%); }
+  100% { transform: translateX(260%); }
+}
+.splash-loader__tag {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: hsl(var(--foreground) / 0.45);
+}
+@media (prefers-reduced-motion: reduce) {
+  .splash-loader__letters span { animation: none; }
+  .splash-loader__bar i { animation: none; width: 100%; }
+}
