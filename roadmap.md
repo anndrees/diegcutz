@@ -1,5 +1,10 @@
 # Roadmap
 
+## CUT / BEAT
+- [x] Añadir accesos a Administración y CUT / BEAT en los pies de portada
+- [x] Crear juego de precisión completo con ritmo, cortes, puntuación y revancha
+- [x] Verificar partida y accesos en móvil y escritorio
+
 ## Ajustes finales de reserva
 - [x] Unificar encabezado y mantener círculos redondos en escritorio
 - [x] Cerrar el resumen móvil al interactuar fuera y verificarlo
