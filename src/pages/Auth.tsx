@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useGoogleAuthEnabled } from "@/hooks/useGoogleAuthEnabled";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, LogIn, UserPlus, Check, X, Loader2 } from "lucide-react";
+import { BrandMark } from "@/components/brand/BrandMark";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 

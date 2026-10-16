@@ -4,6 +4,7 @@ import { ArrowUpRight, LogOut, Menu, UserRound, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
+import { BrandMark } from "@/components/brand/BrandMark";
 
 const links = [
   ["/booking", "Reservar"],

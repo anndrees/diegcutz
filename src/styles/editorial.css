@@ -73,6 +73,10 @@ h1 em, h2 em, h3 em, .noir-title em { font-family: var(--dc-serif); font-style: 
 }
 .customer-header.is-scrolled .customer-header__inner { background: hsl(var(--paper) / .94) !important; box-shadow: 0 12px 40px -24px hsl(var(--ink) / .4) !important; }
 .brand-lockup__mark { background: hsl(var(--ink)) !important; color: hsl(var(--paper)) !important; border-radius: 50% !important; font-family: var(--dc-display); font-weight: 900; border: 0 !important; box-shadow: none !important; }
+/* Logo DC */
+.brand-lockup__mark--img { width: 2.15rem !important; height: auto !important; aspect-ratio: auto !important; background: none !important; border-radius: 0 !important; box-shadow: none !important; object-fit: contain; float: none !important; display: block; }
+.brand-lockup--large .brand-lockup__mark--img { width: 3.1rem !important; }
+.admin-sidebar__head .brand-lockup__mark--img { width: 2.2rem !important; float: left; margin-right: .75rem; }
 .brand-lockup__name { font-family: var(--dc-display); font-weight: 900; font-stretch: 115%; color: hsl(var(--ink)); }
 .brand-lockup__name small { color: hsl(var(--muted-foreground)); }
 .customer-nav a { font-family: var(--dc-display); text-transform: uppercase; letter-spacing: .1em; color: hsl(var(--ink) / .7); border-radius: 999px; }
