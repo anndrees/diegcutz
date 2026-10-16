@@ -40,7 +40,7 @@ add('terrace-return-ramp',[123,12,19],[10,.5,50],'concrete',undefined,[Math.atan
 add('tower-a',[174,18,-10],[20,36,28],'concrete',[[0,1,0],[1,0,0],[0,0,1]]);
 add('tower-b',[207,26,-16],[22,52,22],'dark',[[0,1,0],[-1,0,0],[0,0,1]]);
 add('tower-c',[226,15,16],[20,30,24],'concrete',[[0,1,0],[-1,0,0],[0,0,-1]]);
-add('tower-canopy',[192,36,-10],[14,1,14],'red',[[0,1,0],[0,-1,0]]);
+add('tower-canopy',[192,36,-10],[10,1,14],'red',[[0,1,0],[0,-1,0]]);
 add('tower-skybridge',[211,30,4],[12,1,22],'concrete',[[0,1,0],[0,-1,0]]);
 add('tower-entry-wall',[157,9,12],[2,18,30],'dark',[[1,0,0],[0,1,0]]);
 add('tower-entry-deck',[170,18,12],[18,1,30],'concrete',[[0,1,0]]);
@@ -52,7 +52,7 @@ const races: Race[] = [
  {id:'terraces',name:'Entre terrazas',district:'02 / TERRAZAS',description:'Sube por el paseo y encadena las azoteas. Busca el atajo.',start:cp([55,1,25]),yaw:0,checkpoints:[cp([55,4,12]),cp([55,7,-1]),cp([64,7,-12]),cp([82,10,-12]),cp([100,13,-12]),cp([118,16,-12])],medals:[23,34,50]},
  {id:'wallline',name:'Línea de pared',district:'02 / TERRAZAS',description:'Un corredor estrecho elevado. Usa las paredes para conservar altura.',start:cp([72,7,10]),yaw:-Math.PI/2,checkpoints:[cp([84,7,10]),cp([96,7,10]),cp([108,7,10]),cp([115,1,24])],medals:[12,20,30]},
  {id:'axis',name:'Cambio de eje',district:'01 / ÁGORA',description:'La fachada se convierte en suelo. Cambia de gravedad y asciende.',start:cp([17,1,-18]),yaw:-Math.PI/2,checkpoints:[cp([26,3,-18],[-1,0,0]),cp([26,10,-12],[-1,0,0]),cp([20,17,-12]),cp([12,17,-2])],medals:[18,29,45]},
- {id:'inverted',name:'La ciudad invertida',district:'03 / VÉRTICE',description:'Cruza fachadas, alcanza el puente y corre bajo el voladizo.',start:cp([187,1,-5]),yaw:-Math.PI/2,checkpoints:[cp([195,8,-5],[-1,0,0]),cp([195,24,-5],[-1,0,0]),cp([192,34.5,-10],[0,-1,0]),cp([185.8,34.5,-10],[0,-1,0]),cp([178,37,-10])],medals:[30,45,65]},
+ {id:'inverted',name:'La ciudad invertida',district:'03 / VÉRTICE',description:'Cruza fachadas, alcanza el puente y corre bajo el voladizo.',start:cp([187,1,-5]),yaw:-Math.PI/2,checkpoints:[cp([195,8,-5],[-1,0,0]),cp([195,24,-5],[-1,0,0]),cp([192,34.5,-10],[0,-1,0]),cp([188,34.5,-10],[0,-1,0]),cp([178,37,-10])],medals:[30,45,65]},
  {id:'paradox',name:'Paradox Run',district:'CIUDAD / TRAVESÍA',description:'La ciudad entera en una carrera. Elige tus conexiones y domina los tres distritos.',start:cp([-20,1,18]),yaw:-Math.PI/2,checkpoints:[cp([25,1,15]),cp([55,1,25]),cp([82,10,-12]),cp([118,16,-12]),cp([129,16,-8],[-1,0,0]),cp([120,25.5,-8]),cp([155,1,20]),cp([159,9,12],[1,0,0]),cp([170,19.5,12]),cp([185,25,-10],[1,0,0]),cp([174,37,-10])],medals:[80,115,165]},
 ];
 const secretPositions: Vec3[]=[[-30,1,-23],[-8,1,-16],[0,15.7,-29],[12,16,-23],[26,9,0],[32,1,25],[64,7,-21],[82,10,-21],[100,13,-21],[118,16,-21],[80,7,10],[120,25,-20],[159,15,22],[170,19,24],[174,37,-20],[207,53,-16],[226,31,22],[192,34.5,-14]];
