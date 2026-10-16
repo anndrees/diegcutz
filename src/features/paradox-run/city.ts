@@ -43,7 +43,7 @@ add('tower-c',[226,15,16],[20,30,24],'concrete',[[0,1,0],[-1,0,0],[0,0,-1]]);
 add('tower-canopy',[192,36,-10],[14,1,14],'red',[[0,1,0],[0,-1,0]]);
 add('tower-skybridge',[211,30,4],[12,1,22],'concrete',[[0,1,0],[0,-1,0]]);
 add('tower-entry-wall',[157,9,12],[2,18,30],'dark',[[1,0,0],[0,1,0]]);
-add('tower-entry-deck',[168.5,18,12],[19,1,30],'concrete',[[0,1,0]]);
+add('tower-entry-deck',[170,18,12],[18,1,30],'concrete',[[0,1,0]]);
 add('tower-exit-ramp',[238,15,0],[12,.6,65],'concrete',undefined,[Math.atan2(30,65),0,0]);
 // Small stepping structures provide optional rooftop shortcuts.
 for(let i=0;i<5;i++) add(`step-${i}`,[45+i*3, .35+i*.6, -2],[3,.7+i*1.2,8]);
