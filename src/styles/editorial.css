@@ -1,0 +1,157 @@
+/* DIEGCUTZ editorial system — app-wide (paper / ink / signal). Loaded last. */
+:root, .dark {
+  --paper: 40 20% 92%;
+  --ink: 30 8% 8%;
+  --signal: 8 88% 52%;
+  --background: 40 20% 92%;
+  --foreground: 30 8% 8%;
+  --card: 40 25% 96%;
+  --card-foreground: 30 8% 8%;
+  --popover: 40 25% 96%;
+  --popover-foreground: 30 8% 8%;
+  --primary: 8 88% 52%;
+  --primary-foreground: 40 25% 96%;
+  --secondary: 30 8% 8%;
+  --secondary-foreground: 40 25% 96%;
+  --muted: 40 12% 86%;
+  --muted-foreground: 30 5% 36%;
+  --accent: 40 14% 84%;
+  --accent-foreground: 30 8% 8%;
+  --destructive: 0 72% 42%;
+  --destructive-foreground: 40 25% 96%;
+  --border: 30 8% 8% / 0.14;
+  --input: 30 8% 8% / 0.22;
+  --ring: 8 88% 52%;
+  --radius: 1rem;
+  --surface-raised: 40 18% 89%;
+  --neon-purple: 30 8% 8%;
+  --neon-cyan: 8 88% 52%;
+  --neon-pink: 8 88% 52%;
+  --success: 142 60% 32%;
+  --warning: 32 90% 42%;
+  --stone: 30 8% 8%;
+  --gradient-neon: linear-gradient(110deg, hsl(8 88% 52%), hsl(16 90% 56%));
+  --gradient-dark: linear-gradient(180deg, hsl(40 20% 92%), hsl(40 25% 96%));
+  --shadow-neon-purple: none;
+  --shadow-neon-cyan: none;
+  --shadow-elegant: 0 24px 60px -30px hsl(30 8% 8% / .35);
+  --dc-display: "Archivo", system-ui, sans-serif;
+  --dc-serif: "Instrument Serif", Georgia, serif;
+}
+
+html, body { background: hsl(var(--paper)); color: hsl(var(--ink)); }
+body { font-family: "DM Sans", system-ui, sans-serif; }
+h1, h2, h3, h4, h5, h6, .font-aggressive, .noir-title {
+  font-family: var(--dc-display) !important; font-weight: 800; letter-spacing: -.025em; font-stretch: 105%;
+}
+h1 em, h2 em, h3 em, .noir-title em { font-family: var(--dc-serif); font-style: italic; font-weight: 400; color: hsl(var(--signal)); }
+.customer-kicker, .noir-kicker { font: 500 .74rem/1 var(--dc-display) !important; letter-spacing: .14em !important; text-transform: uppercase; color: hsl(var(--signal)) !important; }
+
+/* Kill legacy glows */
+[class*="text-neon"], .noir-gold-text { text-shadow: none !important; }
+.noir-gold-text { background: none !important; color: hsl(var(--signal)) !important; -webkit-text-fill-color: currentColor; }
+.bg-neon-grid, .bg-scanlines, .aurora, .customer-ambient, .admin-chrome__orb, .admin-chrome__mesh, .admin-access__mesh, .home-motion-layer, .scroll-tools, .scroll-tools-3d { background: none !important; animation: none !important; }
+.customer-ambient, .admin-chrome__orb, .admin-chrome__mesh, .admin-access__mesh { display: none !important; }
+.neon-border { border-color: hsl(var(--ink)) !important; box-shadow: none !important; }
+.glitch::before, .glitch::after { display: none !important; }
+
+/* Shells with dotted paper */
+.customer-shell, .admin-chrome, .admin-access, .auth-liquid, .auth-editorial, .install-editorial {
+  background: hsl(var(--paper)) !important; color: hsl(var(--ink));
+}
+.customer-shell::before, .admin-chrome::before, .admin-access::before {
+  content: "" !important; display: block !important; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .5;
+  background: radial-gradient(hsl(var(--ink) / .08) 1px, transparent 1px) 0 0 / 22px 22px !important;
+}
+.customer-page__content > div::before { display: none !important; }
+
+/* Header */
+.customer-header { background: transparent !important; }
+.customer-header__inner {
+  background: hsl(var(--paper) / .86) !important; border: 1px solid hsl(var(--ink) / .12) !important;
+  border-radius: 999px !important; box-shadow: none !important; backdrop-filter: blur(18px);
+}
+.customer-header.is-scrolled .customer-header__inner { background: hsl(var(--paper) / .94) !important; box-shadow: 0 12px 40px -24px hsl(var(--ink) / .4) !important; }
+.brand-lockup__mark { background: hsl(var(--ink)) !important; color: hsl(var(--paper)) !important; border-radius: 50% !important; font-family: var(--dc-display); font-weight: 900; border: 0 !important; box-shadow: none !important; }
+.brand-lockup__name { font-family: var(--dc-display); font-weight: 900; font-stretch: 115%; color: hsl(var(--ink)); }
+.brand-lockup__name small { color: hsl(var(--muted-foreground)); }
+.customer-nav a { font-family: var(--dc-display); text-transform: uppercase; letter-spacing: .1em; color: hsl(var(--ink) / .7); border-radius: 999px; }
+.customer-nav a:hover, .customer-nav a.is-active { color: hsl(var(--paper)) !important; background: hsl(var(--ink)) !important; }
+.customer-header__reserve { background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; border-radius: 50% !important; }
+.customer-mobile-nav { background: hsl(var(--paper)) !important; }
+
+/* Page heads & editorial blocks */
+.noir-page-head, .customer-page .noir-page-head {
+  background: transparent !important; border: 0 !important; border-bottom: 1px solid hsl(var(--ink)) !important; border-radius: 0 !important;
+}
+.noir-title { font-size: clamp(2.6rem, 7vw, 6.5rem) !important; line-height: .92 !important; font-weight: 900 !important; font-stretch: 118% !important; color: hsl(var(--ink)) !important; }
+.noir-lede { color: hsl(var(--muted-foreground)) !important; font-size: clamp(1rem, 1.4vw, 1.2rem); }
+.noir-rule { background: hsl(var(--ink)) !important; }
+.customer-panel, .noir-glass, .booking-step-card, .booking-summary, .auth-editorial__card, .auth-liquid__form, .admin-access__chrome {
+  background: hsl(var(--card)) !important; border: 1px solid hsl(var(--ink) / .12) !important; border-radius: 1.5rem !important;
+  box-shadow: none !important; backdrop-filter: none !important; color: hsl(var(--ink));
+}
+.booking-summary__head, .booking-summary__total { background: hsl(var(--ink)) !important; color: hsl(var(--paper)) !important; }
+.booking-summary__head *, .booking-summary__total * { color: inherit; }
+.booking-progress [aria-current="step"], .booking-progress .is-active { background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; }
+
+/* Controls */
+button, a { -webkit-tap-highlight-color: transparent; }
+.customer-shell button[class*="bg-primary"], .admin-chrome button[class*="bg-primary"] { border-radius: 999px; }
+input, textarea, select, [role="combobox"] { background-color: hsl(var(--card)) !important; color: hsl(var(--ink)) !important; }
+input::placeholder, textarea::placeholder { color: hsl(var(--muted-foreground)) !important; }
+[role="dialog"], [role="alertdialog"], [data-radix-popper-content-wrapper] > div { border-radius: 1.5rem; }
+[role="dialog"] h2 { font-family: var(--dc-display); }
+.rdp-day_selected, .rdp-day_selected:hover { background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; }
+.rdp-day_today { color: hsl(var(--signal)) !important; font-weight: 800; }
+
+/* Footer: ink block */
+.customer-footer { background: hsl(var(--ink)) !important; color: hsl(var(--paper)) !important; border: 0 !important; }
+.customer-footer *, .customer-footer__grid > div { color: hsl(var(--paper) / .8) !important; }
+.customer-footer h2, .customer-footer .brand-lockup__name { color: hsl(var(--paper)) !important; }
+.customer-footer h2 span, .customer-footer .customer-kicker { color: hsl(var(--signal)) !important; }
+.customer-footer h2 span { font-family: var(--dc-serif); font-style: italic; font-weight: 400; }
+.customer-footer .brand-lockup__mark { background: hsl(var(--paper)) !important; color: hsl(var(--ink)) !important; }
+.customer-footer__cta { background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; border: 0 !important; border-radius: 999px !important; }
+.customer-footer__grid a:hover { color: hsl(var(--signal)) !important; }
+.customer-footer__legal { border-color: hsl(var(--paper) / .15) !important; }
+
+/* Admin */
+.admin-chrome { --border: 30 8% 8% / .14; }
+.admin-chrome > * { position: relative; z-index: 1; }
+.admin-sidebar { background: hsl(var(--ink)) !important; color: hsl(var(--paper)) !important; border: 0 !important; border-radius: 1.75rem !important; box-shadow: none !important; }
+.admin-sidebar__head { border-color: hsl(var(--paper) / .12) !important; }
+.admin-sidebar__head h2 { color: hsl(var(--paper)); }
+.admin-sidebar__head > span { background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; border-radius: 50%; }
+.admin-sidebar .admin-sidebar__item { color: hsl(var(--paper) / .65) !important; border-radius: 999px !important; }
+.admin-sidebar .admin-sidebar__item:hover { color: hsl(var(--paper)) !important; background: hsl(var(--paper) / .08) !important; }
+.admin-sidebar__item.is-active, .admin-sidebar .admin-sidebar__item.is-active { background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; box-shadow: none !important; }
+.admin-chrome__topbar { background: hsl(var(--paper) / .9) !important; border-color: hsl(var(--ink) / .12) !important; box-shadow: none !important; }
+.admin-chrome__heading h1, .admin-neon { color: hsl(var(--ink)) !important; text-shadow: none !important; background: none !important; -webkit-text-fill-color: currentColor; }
+.admin-hud-line { background: hsl(var(--ink)) !important; }
+.admin-chrome .rounded-lg.border, .admin-chrome [class*="bg-card"] { border-radius: 1.25rem; }
+.admin-chrome table thead th { font-family: var(--dc-display); text-transform: uppercase; letter-spacing: .08em; font-size: .7rem; color: hsl(var(--muted-foreground)); }
+.admin-access__submit { background: hsl(var(--signal)) !important; color: hsl(var(--paper)) !important; border-radius: 999px !important; }
+.admin-access__statement { color: hsl(var(--ink)) !important; }
+
+/* TV: ink version of the identity (readable at distance) */
+body.tv-kiosk, .tv-page-root {
+  --background: 30 8% 8%; --foreground: 40 20% 92%; --card: 30 7% 12%; --card-foreground: 40 20% 92%;
+  --muted: 30 6% 18%; --muted-foreground: 40 10% 68%; --border: 40 20% 92% / .14;
+  --primary-foreground: 40 25% 96%; --secondary: 40 20% 92%; --secondary-foreground: 30 8% 8%;
+  --neon-cyan: 8 88% 52%; --neon-purple: 40 20% 92%; --neon-pink: 8 88% 52%;
+  background: hsl(30 8% 8%) !important; color: hsl(40 20% 92%);
+}
+body.tv-kiosk { background: hsl(30 8% 8%) !important; }
+
+/* Mobile: app feel on every page */
+@media (max-width: 767px) {
+  .customer-header { padding: .5rem .6rem !important; }
+  .customer-header__inner { border-radius: 1.4rem !important; }
+  .noir-page-head { padding-top: 1.5rem !important; padding-bottom: 1.25rem !important; }
+  .noir-title { font-size: clamp(2.3rem, 12vw, 3.4rem) !important; }
+  .customer-panel, .noir-glass, .booking-step-card, .booking-summary { border-radius: 1.3rem !important; }
+  [role="dialog"] { max-height: 92svh; overflow-y: auto; }
+  [role="dialog"]:not([data-vaul-drawer]) { width: calc(100% - 1.5rem) !important; }
+  .admin-sidebar { border-radius: 0 !important; }
+}
