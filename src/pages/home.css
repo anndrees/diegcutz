@@ -59,8 +59,8 @@
 .dc-hero__foot em, .dc-manifesto em { font-family: var(--dc-serif); font-style: italic; font-size: 1.15em; color: hsl(var(--signal)); }
 .dc-badge { position: relative; flex: 0 0 auto; width: clamp(7rem, 11vw, 10rem); aspect-ratio: 1; border-radius: 50%; background: hsl(var(--signal)); color: hsl(var(--paper)); display: grid; place-items: center; transition: transform .4s cubic-bezier(.16,1,.3,1); }
 .dc-badge:hover { transform: scale(1.08); }
-.dc-badge svg { position: absolute; inset: 0; width: 100%; height: 100%; animation: dc-spin 14s linear infinite; fill: currentColor; font: 700 15px var(--dc-display); letter-spacing: .2em; }
-.dc-badge > svg + svg, .dc-badge > .lucide { position: static; width: 2rem; height: 2rem; animation: none; fill: none; }
+.dc-badge > svg:not(.lucide) { position: absolute; inset: 0; width: 100%; height: 100%; animation: dc-spin 14s linear infinite; fill: currentColor; font: 700 15px var(--dc-display); letter-spacing: .2em; }
+.dc-badge > .lucide { position: static; width: 2rem; height: 2rem; animation: none; fill: none; }
 @keyframes dc-spin { to { transform: rotate(360deg); } }
 
 /* TICKER */
