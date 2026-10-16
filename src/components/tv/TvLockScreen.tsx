@@ -63,7 +63,7 @@ export const TvLockScreen = ({ expectedCode, onUnlock }: Props) => {
         className="absolute inset-0 opacity-20"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(34,211,238,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.4) 1px,transparent 1px)",
+            "linear-gradient(rgba(238,58,30,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(238,58,30,.4) 1px,transparent 1px)",
           backgroundSize: "60px 60px",
           maskImage: "radial-gradient(ellipse at center,black 30%,transparent 75%)",
         }}
@@ -82,7 +82,7 @@ export const TvLockScreen = ({ expectedCode, onUnlock }: Props) => {
       >
         <div className="text-center mb-8">
           <div className="relative inline-block mb-4">
-            <Scissors className="w-14 h-14 text-cyan-400 mx-auto drop-shadow-[0_0_20px_rgba(34,211,238,.8)]" />
+            <Scissors className="w-14 h-14 text-cyan-400 mx-auto drop-shadow-[0_0_20px_rgba(238,58,30,.8)]" />
             <motion.div
               animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -113,7 +113,7 @@ export const TvLockScreen = ({ expectedCode, onUnlock }: Props) => {
                   error
                     ? "bg-red-500 border-red-400 shadow-[0_0_15px_rgba(239,68,68,.8)]"
                     : filled
-                    ? "bg-cyan-400 border-cyan-300 shadow-[0_0_15px_rgba(34,211,238,.8)]"
+                    ? "bg-cyan-400 border-cyan-300 shadow-[0_0_15px_rgba(238,58,30,.8)]"
                     : "border-white/30"
                 }`}
               />
@@ -152,7 +152,7 @@ export const TvLockScreen = ({ expectedCode, onUnlock }: Props) => {
                 key={i}
                 whileTap={{ scale: 0.92 }}
                 onClick={() => press(k)}
-                className="aspect-square rounded-full text-3xl font-light text-white bg-white/5 hover:bg-cyan-500/20 border border-white/10 hover:border-cyan-400/60 backdrop-blur-md transition-all shadow-[inset_0_0_20px_rgba(34,211,238,.05)] hover:shadow-[0_0_25px_rgba(34,211,238,.4)]"
+                className="aspect-square rounded-full text-3xl font-light text-white bg-white/5 hover:bg-cyan-500/20 border border-white/10 hover:border-cyan-400/60 backdrop-blur-md transition-all shadow-[inset_0_0_20px_rgba(238,58,30,.05)] hover:shadow-[0_0_25px_rgba(238,58,30,.4)]"
               >
                 {k}
               </motion.button>
@@ -180,7 +180,7 @@ export const TvLockScreen = ({ expectedCode, onUnlock }: Props) => {
                   setCode(v);
                   setError(false);
                 }}
-                className="w-full px-5 py-4 rounded-xl bg-black/60 border border-cyan-400/40 text-center text-2xl tracking-[0.5em] font-mono text-cyan-200 outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(34,211,238,.4)]"
+                className="w-full px-5 py-4 rounded-xl bg-black/60 border border-cyan-400/40 text-center text-2xl tracking-[0.5em] font-mono text-cyan-200 outline-none focus:border-cyan-400 focus:shadow-[0_0_20px_rgba(238,58,30,.4)]"
                 placeholder="••••"
               />
               <p className="mt-2 text-xs text-center text-cyan-300/60 uppercase tracking-widest">

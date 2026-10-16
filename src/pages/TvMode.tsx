@@ -376,7 +376,7 @@ const TvMode = () => {
           backgroundImage: `url(${heroImage})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
-          filter: "hue-rotate(220deg) saturate(1.4) brightness(0.6)",
+          filter: "grayscale(1) brightness(0.55)",
         }}
         animate={{ scale: [1, 1.08, 1] }}
         transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
@@ -397,7 +397,7 @@ const TvMode = () => {
         className="absolute inset-0 opacity-25"
         style={{
           backgroundImage:
-            "linear-gradient(rgba(34,211,238,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.5) 1px,transparent 1px)",
+            "linear-gradient(rgba(238,58,30,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(238,58,30,.5) 1px,transparent 1px)",
           backgroundSize: "80px 80px",
           maskImage: "radial-gradient(ellipse at center,black 25%,transparent 75%)",
         }}
@@ -473,7 +473,7 @@ const TvMode = () => {
           className="flex items-center gap-4"
         >
           <div className="relative">
-            <Scissors className="w-12 h-12 text-cyan-400 drop-shadow-[0_0_20px_rgba(34,211,238,.8)]" />
+            <Scissors className="w-12 h-12 text-cyan-400 drop-shadow-[0_0_20px_rgba(238,58,30,.8)]" />
             <motion.div
               animate={{ scale: [1, 1.4, 1], opacity: [0.6, 0, 0.6] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -490,7 +490,7 @@ const TvMode = () => {
 
         <div className="flex items-center gap-6">
           <div className="text-right">
-            <div className="text-5xl font-mono font-bold text-cyan-300 drop-shadow-[0_0_15px_rgba(34,211,238,.6)] tabular-nums">
+            <div className="text-5xl font-mono font-bold text-cyan-300 drop-shadow-[0_0_15px_rgba(238,58,30,.6)] tabular-nums">
               {format(now, "HH:mm")}
             </div>
             <div className="text-xs uppercase tracking-widest text-fuchsia-300/80">
@@ -555,7 +555,7 @@ const TvMode = () => {
               <div
                 key={s.key}
                 className={`h-1.5 rounded-full transition-all duration-500 ${
-                  i === slideIdx ? "w-12 bg-cyan-400 shadow-[0_0_10px_rgba(34,211,238,.8)]" : "w-2 bg-white/20"
+                  i === slideIdx ? "w-12 bg-cyan-400 shadow-[0_0_10px_rgba(238,58,30,.8)]" : "w-2 bg-white/20"
                 }`}
               />
             ))}
@@ -584,7 +584,7 @@ const Particles = () => {
         size: Math.random() * 4 + 1,
         d: 4 + Math.random() * 6,
         delay: Math.random() * 5,
-        color: i % 2 === 0 ? "rgba(34,211,238,.7)" : "rgba(217,70,239,.7)",
+        color: i % 2 === 0 ? "rgba(238,58,30,.7)" : "rgba(239,236,231,.7)",
       })),
     []
   );
@@ -615,19 +615,19 @@ const AuroraBlobs = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden">
     <motion.div
       className="absolute -top-40 -left-40 w-[60vw] h-[60vw] rounded-full blur-3xl"
-      style={{ background: "radial-gradient(circle, rgba(34,211,238,.45), transparent 60%)" }}
+      style={{ background: "radial-gradient(circle, rgba(238,58,30,.45), transparent 60%)" }}
       animate={{ x: [0, 200, -100, 0], y: [0, 120, 60, 0], scale: [1, 1.2, 0.95, 1] }}
       transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
     />
     <motion.div
       className="absolute -bottom-40 -right-40 w-[55vw] h-[55vw] rounded-full blur-3xl"
-      style={{ background: "radial-gradient(circle, rgba(217,70,239,.4), transparent 60%)" }}
+      style={{ background: "radial-gradient(circle, rgba(239,236,231,.4), transparent 60%)" }}
       animate={{ x: [0, -180, 60, 0], y: [0, -100, -40, 0], scale: [1, 1.15, 0.9, 1] }}
       transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
     />
     <motion.div
       className="absolute top-1/3 left-1/2 w-[40vw] h-[40vw] rounded-full blur-3xl -translate-x-1/2"
-      style={{ background: "radial-gradient(circle, rgba(168,85,247,.35), transparent 60%)" }}
+      style={{ background: "radial-gradient(circle, rgba(239,236,231,.35), transparent 60%)" }}
       animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0.7, 0.4] }}
       transition={{ duration: 14, repeat: Infinity, ease: "easeInOut" }}
     />
@@ -646,7 +646,7 @@ const SlideTitle = ({ icon: Icon, title, subtitle }: any) => (
       <Icon className="w-5 h-5 text-cyan-400" />
       <span className="text-xs uppercase tracking-[0.4em] text-cyan-300">{subtitle}</span>
     </div>
-    <h2 className="text-7xl font-black tracking-tight text-white drop-shadow-[0_0_30px_rgba(34,211,238,.5)]">
+    <h2 className="text-7xl font-black tracking-tight text-white drop-shadow-[0_0_30px_rgba(238,58,30,.5)]">
       {title}
     </h2>
   </motion.div>
@@ -669,7 +669,7 @@ const QueueSlide = ({ bookings, now }: { bookings: Booking[]; now: Date }) => {
           animate={{ opacity: 1 }}
           className="text-center py-20 rounded-lg border border-cyan-400/30 bg-black/40 backdrop-blur-xl"
         >
-          <Sparkles className="w-20 h-20 text-cyan-400 mx-auto mb-6 drop-shadow-[0_0_20px_rgba(34,211,238,.8)]" />
+          <Sparkles className="w-20 h-20 text-cyan-400 mx-auto mb-6 drop-shadow-[0_0_20px_rgba(238,58,30,.8)]" />
           <p className="text-3xl font-bold text-white">¡No quedan turnos hoy!</p>
           <p className="text-xl text-cyan-300/80 mt-2">Reserva el tuyo para mañana</p>
         </motion.div>
@@ -685,7 +685,7 @@ const QueueSlide = ({ bookings, now }: { bookings: Booking[]; now: Date }) => {
                 transition={{ delay: 0.1 * i }}
                 className={`relative rounded-lg p-5 backdrop-blur-xl border overflow-hidden ${
                   isNext
-                    ? "bg-gradient-to-r from-cyan-500/30 to-fuchsia-500/30 border-cyan-400/60 shadow-[0_0_40px_rgba(34,211,238,.4)]"
+                    ? "bg-gradient-to-r from-cyan-500/30 to-fuchsia-500/30 border-cyan-400/60 shadow-[0_0_40px_rgba(238,58,30,.4)]"
                     : "bg-black/40 border-white/10"
                 }`}
               >
@@ -704,7 +704,7 @@ const QueueSlide = ({ bookings, now }: { bookings: Booking[]; now: Date }) => {
                     <div className="text-2xl font-bold mt-1">{maskName(b.client_name)}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-4xl font-mono font-black text-cyan-300 drop-shadow-[0_0_10px_rgba(34,211,238,.6)]">
+                    <div className="text-4xl font-mono font-black text-cyan-300 drop-shadow-[0_0_10px_rgba(238,58,30,.6)]">
                       {b.booking_time.slice(0, 5)}
                     </div>
                   </div>
@@ -834,12 +834,12 @@ const GiveawaySlide = ({ giveaway }: { giveaway: Giveaway }) => {
         transition={{ duration: 3, repeat: Infinity }}
         className="relative rounded-lg p-12 bg-gradient-to-br from-fuchsia-600/30 via-pink-500/20 to-cyan-500/30 backdrop-blur-xl border-2 border-fuchsia-400/50 overflow-hidden"
       >
-        <Gift className="w-20 h-20 text-fuchsia-300 mx-auto mb-6 drop-shadow-[0_0_30px_rgba(217,70,239,.8)]" />
+        <Gift className="w-20 h-20 text-fuchsia-300 mx-auto mb-6 drop-shadow-[0_0_30px_rgba(239,236,231,.8)]" />
         <div className="text-4xl font-black text-white mb-4">{giveaway.title}</div>
         <div className="text-2xl text-cyan-200 mb-8">🎁 {giveaway.prize}</div>
         <div className="inline-block px-8 py-4 rounded-lg bg-black/50 border border-cyan-400/40">
           <div className="text-xs uppercase tracking-widest text-cyan-300/80 mb-1">Termina en</div>
-          <div className="text-5xl font-mono font-black text-cyan-300 drop-shadow-[0_0_15px_rgba(34,211,238,.7)]">
+          <div className="text-5xl font-mono font-black text-cyan-300 drop-shadow-[0_0_15px_rgba(238,58,30,.7)]">
             {diff}
           </div>
         </div>
@@ -873,7 +873,7 @@ const HoursSlide = ({ hours }: { hours: BusinessHour[] }) => {
               }`}
             >
               <div className="flex items-center gap-3">
-                {isToday && <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#22d3ee]" />}
+                {isToday && <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_10px_#ef3a1e]" />}
                 <span className={`text-2xl font-bold uppercase ${isToday ? "text-cyan-300" : "text-white/80"}`}>
                   {DAYS[h.day_of_week]}
                 </span>
@@ -905,14 +905,14 @@ const BrandSlide = () => (
       transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
       className="inline-block mb-8"
     >
-      <Scissors className="w-32 h-32 text-cyan-400 drop-shadow-[0_0_50px_rgba(34,211,238,1)]" />
+      <Scissors className="w-32 h-32 text-cyan-400 drop-shadow-[0_0_50px_rgba(238,58,30,1)]" />
     </motion.div>
     <motion.h2
       animate={{
         textShadow: [
-          "0 0 30px rgba(34,211,238,.6)",
-          "0 0 60px rgba(217,70,239,.8)",
-          "0 0 30px rgba(34,211,238,.6)",
+          "0 0 30px rgba(238,58,30,.6)",
+          "0 0 60px rgba(239,236,231,.8)",
+          "0 0 30px rgba(238,58,30,.6)",
         ],
       }}
       transition={{ duration: 3, repeat: Infinity }}
@@ -1083,9 +1083,9 @@ const CouponsSlide = ({ coupons }: { coupons: Coupon[] }) => (
               <motion.div
                 animate={{
                   textShadow: [
-                    "0 0 10px rgba(217,70,239,.6)",
+                    "0 0 10px rgba(239,236,231,.6)",
                     "0 0 25px rgba(251,191,36,.8)",
-                    "0 0 10px rgba(217,70,239,.6)",
+                    "0 0 10px rgba(239,236,231,.6)",
                   ],
                 }}
                 transition={{ duration: 2.5, repeat: Infinity }}
@@ -1124,14 +1124,14 @@ const SocialSlide = () => (
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-        className="absolute -inset-10 bg-[conic-gradient(from_0deg,rgba(217,70,239,.3),rgba(251,191,36,.3),rgba(34,211,238,.3),rgba(217,70,239,.3))] blur-3xl"
+        className="absolute -inset-10 bg-[conic-gradient(from_0deg,rgba(239,236,231,.3),rgba(251,191,36,.3),rgba(238,58,30,.3),rgba(239,236,231,.3))] blur-3xl"
       />
       <motion.div
         animate={{ rotate: [0, 10, -10, 0] }}
         transition={{ duration: 3, repeat: Infinity }}
         className="relative inline-block mb-6"
       >
-        <Instagram className="w-32 h-32 text-white drop-shadow-[0_0_30px_rgba(217,70,239,.9)]" />
+        <Instagram className="w-32 h-32 text-white drop-shadow-[0_0_30px_rgba(239,236,231,.9)]" />
       </motion.div>
       <div className="relative text-7xl font-black leading-[1.2] pb-3 bg-gradient-to-r from-amber-300 via-fuchsia-300 to-cyan-300 bg-clip-text text-transparent">
         @diegcutz
@@ -1168,7 +1168,7 @@ const PromoSlide = () => (
         Tu próximo corte<br />
         te está esperando
       </div>
-      <div className="mt-8 inline-block px-10 py-5 rounded-lg bg-black/50 border border-cyan-400/50 shadow-[0_0_40px_rgba(34,211,238,.5)]">
+      <div className="mt-8 inline-block px-10 py-5 rounded-lg bg-black/50 border border-cyan-400/50 shadow-[0_0_40px_rgba(238,58,30,.5)]">
         <div className="text-xs uppercase tracking-widest text-cyan-300/80">Reserva online</div>
         <div className="text-5xl font-black leading-[1.2] pb-2 bg-gradient-to-r from-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
           diegcutz.es
@@ -1308,7 +1308,7 @@ const CutsTodaySlide = ({ count }: { count: number }) => (
       transition={{ type: "spring", stiffness: 90 }}
       className="relative mx-auto max-w-3xl rounded-lg p-16 bg-gradient-to-br from-cyan-600/30 via-purple-700/30 to-fuchsia-600/30 backdrop-blur-xl border-2 border-cyan-400/50 overflow-hidden"
     >
-      <Activity className="w-20 h-20 text-cyan-300 mx-auto mb-6 drop-shadow-[0_0_25px_rgba(34,211,238,.9)]" />
+      <Activity className="w-20 h-20 text-cyan-300 mx-auto mb-6 drop-shadow-[0_0_25px_rgba(238,58,30,.9)]" />
       <div className="text-2xl text-white/80 uppercase tracking-[0.4em] mb-4">Ya llevamos</div>
       <CountUp value={count} />
       <div className="mt-4 text-3xl font-bold text-white">corte{count === 1 ? "" : "s"} hoy</div>
@@ -1353,7 +1353,7 @@ const QrBookSlide = () => {
       <motion.div
         initial={{ opacity: 0, scale: 0.85 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative mx-auto inline-block rounded-lg p-8 bg-white border-4 border-cyan-400/70 shadow-[0_0_60px_rgba(34,211,238,.6)]"
+        className="relative mx-auto inline-block rounded-lg p-8 bg-white border-4 border-cyan-400/70 shadow-[0_0_60px_rgba(238,58,30,.6)]"
       >
         <img src={qr} alt="QR diegcutz.es/booking" className="w-[360px] h-[360px] block" />
       </motion.div>
@@ -1373,7 +1373,7 @@ const TvLoadingScreen = () => (
       className="absolute inset-0 opacity-20"
       style={{
         backgroundImage:
-          "linear-gradient(rgba(34,211,238,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(34,211,238,.4) 1px,transparent 1px)",
+          "linear-gradient(rgba(238,58,30,.4) 1px,transparent 1px),linear-gradient(90deg,rgba(238,58,30,.4) 1px,transparent 1px)",
         backgroundSize: "60px 60px",
         maskImage: "radial-gradient(ellipse at center,black 30%,transparent 75%)",
       }}
@@ -1389,7 +1389,7 @@ const TvLoadingScreen = () => (
         transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
         className="inline-block mb-8"
       >
-        <Scissors className="w-20 h-20 text-cyan-400 drop-shadow-[0_0_30px_rgba(34,211,238,.9)]" />
+        <Scissors className="w-20 h-20 text-cyan-400 drop-shadow-[0_0_30px_rgba(238,58,30,.9)]" />
       </motion.div>
       <h1 className="text-5xl font-black tracking-tight bg-gradient-to-r from-cyan-300 via-white to-fuchsia-300 bg-clip-text text-transparent mb-3">
         DIEGCUTZ
@@ -1400,7 +1400,7 @@ const TvLoadingScreen = () => (
           initial={{ x: "-100%" }}
           animate={{ x: "100%" }}
           transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-          className="h-full w-1/2 bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-cyan-400 shadow-[0_0_20px_rgba(34,211,238,.8)]"
+          className="h-full w-1/2 bg-gradient-to-r from-cyan-400 via-fuchsia-400 to-cyan-400 shadow-[0_0_20px_rgba(238,58,30,.8)]"
         />
       </div>
     </div>

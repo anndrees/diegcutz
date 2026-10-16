@@ -121,7 +121,7 @@ export const HomepageManagement = () => {
             <HomeIcon className="h-6 w-6 text-neon-purple" />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.6)] uppercase tracking-wide">
+            <h2 className="text-2xl font-black text-cyan-400 drop-shadow-[0_0_10px_rgba(238,58,30,0.6)] uppercase tracking-wide">
               Página principal
             </h2>
             <p className="text-sm text-muted-foreground">
