@@ -509,12 +509,23 @@ const Booking = () => {
     return Array.from(slotsSet).sort((a, b) => a - b);
   };
 
+  // Bookings are only accepted up to two months ahead.
+  const maxBookingDate = (() => {
+    const limit = new Date();
+    limit.setMonth(limit.getMonth() + 2);
+    limit.setHours(23, 59, 59, 999);
+    return limit;
+  })();
+
   const isDayDisabled = (date: Date): boolean => {
     // Past dates
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (date < today) return true;
-    
+
+    // Beyond the two-month booking window
+    if (date > maxBookingDate) return true;
+
     // Closed days
     if (isDayClosed(date)) return true;
     
