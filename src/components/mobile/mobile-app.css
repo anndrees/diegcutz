@@ -3,6 +3,7 @@
 
 @media (max-width: 767px) {
   .m-tabbar {
+    --background: 40 20% 92%; --foreground: 30 8% 8%; --muted-foreground: 30 5% 38%; --border: 30 8% 8% / 0.12; --primary: 8 88% 52%; --primary-foreground: 40 25% 96%;
     position: fixed; z-index: 60; left: 0; right: 0; bottom: 0;
     display: grid; grid-template-columns: repeat(5, 1fr); align-items: end;
     padding: .45rem .4rem calc(.45rem + env(safe-area-inset-bottom, 0px));
@@ -56,7 +57,7 @@
 .mh-story small { font-size: .66rem; font-weight: 600; max-width: 4.6rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
 .mh-hero { margin: 1rem; border-radius: 1.8rem; background: hsl(var(--ink)); color: hsl(var(--paper)); padding: 1.4rem 1rem 1.1rem; overflow: hidden; position: relative; }
-.mh-hero .dc-hero__title { font-size: 15.2vw; color: hsl(var(--paper)); justify-content: center; }
+.mh-hero .dc-hero__title { font-size: 12.6vw; color: hsl(var(--paper)); justify-content: center; }
 .mh-hero__row { display: flex; align-items: center; justify-content: space-between; gap: .8rem; margin-top: 1rem; }
 .mh-hero__row p { font-size: .85rem; opacity: .75; line-height: 1.35; }
 .mh-pill { flex: none; display: inline-flex; align-items: center; gap: .4rem; padding: .8rem 1.1rem; border-radius: 999px; background: hsl(var(--signal)); color: hsl(var(--paper)); font: 700 .9rem var(--dc-display); }

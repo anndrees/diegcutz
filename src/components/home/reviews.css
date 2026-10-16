@@ -56,8 +56,8 @@
   .rv { padding-top: 2.5rem; }
   .rv-head { flex-direction: row; justify-content: space-between; text-align: left; margin-bottom: 1.2rem; }
   .rv-score strong { font-size: 2.8rem; }
-  .rv-feature { min-height: 30rem; border-radius: 1.6rem; }
-  .rv-card { min-height: 27rem; }
+  .rv-feature { min-height: 22rem; border-radius: 1.6rem; }
+  .rv-card { min-height: 19rem; }
   .rv-quote { font-size: 1.9rem; }
   .rv-quote.is-long { font-size: 1.25rem; }
 }
