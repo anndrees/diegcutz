@@ -574,6 +574,26 @@ const Admin = () => {
 
   return (
     <AdminGuard>
+      {isMobile ? (
+        <AdminMobileShell
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onLogout={handleLogout}
+          onOpenQr={loyaltyEnabled ? () => setShowQrScanner(true) : undefined}
+        >
+          {activeTab === "today" ? (
+            <AdminToday
+              bookings={bookings}
+              loading={loading}
+              onOpenQr={loyaltyEnabled ? () => setShowQrScanner(true) : undefined}
+              onGoBookings={() => setActiveTab("bookings")}
+            />
+          ) : (
+            sectionContent
+          )}
+        </AdminMobileShell>
+      ) : (
+      <div className="admin-chrome min-h-screen py-8 px-4 pt-safe relative overflow-hidden">
       <div className="admin-chrome__mesh" aria-hidden="true" />
       <div className="admin-chrome__orb admin-chrome__orb--one" aria-hidden="true" />
       <div className="admin-chrome__orb admin-chrome__orb--two" aria-hidden="true" />
