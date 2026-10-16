@@ -1,8 +1,8 @@
 # Roadmap
 
 ## PARADOX RUN
-- [ ] Concretar cámara, gravedad, contenido inicial y creación futura de mapas con Andrés
-- [ ] Aprobar el plan de juego, dirección visual y alcance
+- [x] Concretar cámara, gravedad, contenido inicial y creación futura de mapas con Andrés
+- [x] Aprobar el plan de juego, dirección visual y alcance
 - [ ] Crear juego exclusivo para PC con parkour, cambios de gravedad y escenarios detallados
 - [ ] Añadir recorridos alternativos, secretos, contrarrelojes y rival fantasma
 - [ ] Preparar ampliación con mapas y skins

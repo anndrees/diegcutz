@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "asset_id": "6602888d-ee2d-49b8-8156-63f0500e4e99",
+  "asset_id": "b407e1bc-86cf-4e95-8515-8de32899c002",
   "project_id": "db6729ec-105f-460c-b027-4529ed935386",
-  "url": "/__l5e/assets-v1/6602888d-ee2d-49b8-8156-63f0500e4e99/paradox-light.glb",
-  "r2_key": "a/v1/db6729ec-105f-460c-b027-4529ed935386/6602888d-ee2d-49b8-8156-63f0500e4e99/paradox-light.glb",
-  "original_filename": "paradox-light.glb",
-  "size": 6996,
+  "url": "/__l5e/assets-v1/b407e1bc-86cf-4e95-8515-8de32899c002/paradox-light-embedded.glb",
+  "r2_key": "a/v1/db6729ec-105f-460c-b027-4529ed935386/b407e1bc-86cf-4e95-8515-8de32899c002/paradox-light-embedded.glb",
+  "original_filename": "paradox-light-embedded.glb",
+  "size": 18480,
   "content_type": "model/gltf-binary",
-  "created_at": "2026-10-16T22:22:05Z"
+  "created_at": "2026-10-16T22:32:09Z"
 }
