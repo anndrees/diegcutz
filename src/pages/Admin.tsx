@@ -103,7 +103,9 @@ const Admin = () => {
   const [deletingBookingId, setDeletingBookingId] = useState<string | null>(null);
   const [cancelDialogBooking, setCancelDialogBooking] = useState<Booking | null>(null);
   const [cancelMode, setCancelMode] = useState<"cancel" | "reschedule">("cancel");
-  const [activeTab, setActiveTab] = useState("bookings");
+  const [activeTab, setActiveTab] = useState(() =>
+    typeof window !== "undefined" && window.innerWidth < 768 ? "today" : "bookings"
+  );
   const [showQrScanner, setShowQrScanner] = useState(false);
   const [statsDateRange, setStatsDateRange] = useState<{ from: Date; to: Date } | null>(null);
   const [showDayOptionsDialog, setShowDayOptionsDialog] = useState(false);
