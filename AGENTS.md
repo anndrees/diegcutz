@@ -1,5 +1,9 @@
 # Architecture rules
 
+- Keep PARADOX RUN isolated behind a PC capability gate with lazy 3D loading and no customer-route transforms or overlays; the game must not load on mobile or alter booking/admin behavior.
+- Keep versioned city, race, skin and editor data separate from the Rapier capsule controller, camera, rendering and local persistence; new maps and appearances must reuse the existing game rules.
+- Use one fixed-step physics owner and explicit gravity-relative movement; best-run ghosts replay recorded transforms and are invalidated when city/race geometry changes.
+
 - Keep the mobile footer entry gesture in a pure tested state machine with document-level interruption listeners; this enforces uninterrupted taps without changing AdminGuard authentication.
 
 - Keep booking steps inside one keyed AnimatePresence boundary with wait mode; separate step boundaries reserve incoming space above outgoing content on backwards navigation.

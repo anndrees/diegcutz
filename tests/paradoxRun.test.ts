@@ -1,0 +1,17 @@
+import {describe,it,expect} from 'bun:test';
+import {DEFAULT_CITY,SKINS} from '../src/features/paradox-run/city';
+import {parseCity,pcAllowed,gravityAllowed,crossedCheckpoint,ghostAt,medalFor,worldSignature} from '../src/features/paradox-run/rules';
+import {initPhysics,RunnerPhysics} from '../src/features/paradox-run/physics';
+describe('PARADOX RUN approved rules',()=>{
+ it('includes six integrated races in the same city',()=>{expect(parseCity(JSON.stringify(DEFAULT_CITY)).races.length).toBe(6);});
+ it('contains eighteen distinct secrets',()=>{expect(new Set(DEFAULT_CITY.secrets.map(s=>s.id)).size).toBe(18);});
+ it('offers four cosmetic skins',()=>{expect(SKINS.length).toBe(4);});
+ it('blocks touch-only mobile gameplay',()=>{expect(pcAllowed(393,false,false,true)).toBe(false);expect(pcAllowed(1280,true,true,false)).toBe(true);});
+ it('only allows marked visible faces within 45 metres',()=>{expect(gravityAllowed([[1,0,0]],[1,0,0],45)).toBe(true);expect(gravityAllowed([[1,0,0]],[1,0,0],45.01)).toBe(false);expect(gravityAllowed(undefined,[1,0,0],1)).toBe(false);expect(gravityAllowed([[1,0,0]],[1,0,0],1,true)).toBe(false);});
+ it('detects a checkpoint crossed between simulation steps',()=>{expect(crossedCheckpoint([-5,1,0],[5,1,0],[0,1,0],1)).toBe(true);expect(crossedCheckpoint([-5,4,0],[5,4,0],[0,1,0],1)).toBe(false);});
+ it('awards medals only at concrete course thresholds',()=>{expect(medalFor(15,DEFAULT_CITY.races[0].medals)).toBe('ORO');expect(medalFor(24,DEFAULT_CITY.races[0].medals)).toBe('BRONCE');});
+ it('interpolates ghost frames and stops at the finish',()=>{const frames=[{t:0,p:[0,0,0] as [number,number,number],q:[0,0,0,1] as [number,number,number,number]},{t:1,p:[10,0,0]as [number,number,number],q:[0,0,0,1]as [number,number,number,number]}];expect(ghostAt(frames,.5)?.p[0]).toBe(5);expect(ghostAt(frames,2)).toBe(null);});
+ it('invalidates saved ghosts if a race is changed',()=>{const c=structuredClone(DEFAULT_CITY);c.races[0].checkpoints[0].position[0]+=1;expect(worldSignature(c)).not.toBe(worldSignature(DEFAULT_CITY));});
+ it('rejects duplicate map identifiers',()=>{const c=structuredClone(DEFAULT_CITY);c.entities[1].id=c.entities[0].id;expect(()=>parseCity(JSON.stringify(c))).toThrow();});
+ it('runs grounded and changes gravity onto a marked facade',async()=>{await initPhysics();const p=new RunnerPhysics(DEFAULT_CITY);const input={forward:0,strafe:0,sprint:false,crouch:false,jump:false,switchGravity:false};for(let i=0;i<120;i++)p.step(input,1/60);expect(p.position.y).toBeGreaterThan(.8);expect(p.position.y).toBeLessThan(1.1);p.respawn([17,1,-18],[0,1,0],-Math.PI/2);p.aim();expect(p.target).toBe('plaza-gravity-wall');expect(p.gravitySwitch()).toBe(true);for(let i=0;i<180;i++)p.step({...input,forward:1},1/60);expect(p.up.toArray()).toEqual([-1,0,0]);expect(p.position.y).toBeGreaterThan(7);expect(p.position.x).toBeLessThan(27.1);p.dispose();});
+});

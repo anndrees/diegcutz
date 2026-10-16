@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import ParadoxRoute from "./features/paradox-run/Route";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { ForcePasswordChange } from "./components/ForcePasswordChange";
 import { CompleteProfileForm } from "./components/CompleteProfileForm";
@@ -34,7 +35,10 @@ const queryClient = new QueryClient();
 
 // Wrapper to check for forced password change and incomplete profile
 const AppContent = () => {
+  const location = useLocation();
   const { user, profile, requiresPasswordChange, requiresProfileCompletion, clearPasswordChangeRequirement, refreshProfile } = useAuth();
+
+  if (location.pathname === "/paradox-run") return <ParadoxRoute />;
 
   // If user needs to change password, show only that screen
   if (user && requiresPasswordChange) {
