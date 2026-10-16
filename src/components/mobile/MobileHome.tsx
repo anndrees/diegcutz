@@ -193,6 +193,7 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
       </motion.section>
 
       <footer className="mh-end">
+        <nav><Link to="/cut-beat">CUT / BEAT <ArrowUpRight size={14} /></Link><Link to="/admin">Administración <ArrowUpRight size={14} /></Link></nav>
         <nav><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/install">App</Link></nav>
         <span>© {new Date().getFullYear()} DIEGCUTZ · Monóvar</span>
       </footer>
