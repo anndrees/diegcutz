@@ -32,7 +32,7 @@ add('wallrun-left',[90,11,7],[40,8,1.2],'dark');
 add('wallrun-right',[90,11,13],[40,8,1.2],'dark');
 add('wallrun-floor',[90,6,10],[44,1,6]);
 add('terrace-gravity',[131,12,-8],[2,24,36],'dark',[[-1,0,0],[0,1,0]]);
-add('terrace-top',[118,24,-8],[22,1,36],'concrete',[[0,1,0]]);
+add('terrace-top',[117,24,-8],[20,1,36],'concrete',[[0,1,0]]);
 add('terrace-return-ramp',[123,12,19],[10,.5,50],'concrete',undefined,[Math.atan2(24,50),0,0]);
 // Towers: solid fluted structures with traversable ledges and marked facades.
 add('tower-a',[174,18,-10],[20,36,28],'concrete',[[0,1,0],[1,0,0],[0,0,1]]);
