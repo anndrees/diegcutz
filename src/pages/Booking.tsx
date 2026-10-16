@@ -1829,6 +1829,32 @@ const Booking = () => {
           </div>
         </div>
       )}
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Confirmamos tu cita?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-left">
+                <p className="text-base font-semibold text-foreground">
+                  {selectedDate ? format(selectedDate, "EEEE, d 'de' MMMM", { locale: es }) : ""} · {selectedTime ? selectedTime.slice(0, 5) : ""}
+                </p>
+                <p>{getSelectedItems().map(item => item.replace(/\s*\([^)]*\)$/, "")).join(" · ")}{totalPrice > 0 ? ` — ${totalPrice}€` : ""}</p>
+                <p>
+                  Al confirmar reservas una hora en exclusiva para ti. Si no puedes venir, cancela con antelación:
+                  las faltas sin avisar pueden suponer la suspensión temporal de tu cuenta DIEGCUTZ y no poder reservar durante un tiempo.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Revisar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => handleSubmit()} disabled={loading}>
+              {loading ? "Reservando..." : "Sí, confirmar cita"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div></CustomerPage>
   );
 };
