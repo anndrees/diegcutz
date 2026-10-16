@@ -27,6 +27,47 @@ const ORDER = [1, 2, 3, 4, 5, 6, 0];
 const MANIFESTO = "Un corte no es un trámite. Es cómo entras en una sala, cómo te ves en el reflejo y cómo te recuerdan.";
 const fmt = (r: TimeRange[]) => r.map(x => `${x.start.slice(0, 5)}–${x.end.slice(0, 5)}`).join(" · ");
 
+function LetterPhotoTitle({ images }: { images: string[] }) {
+  const reduce = useReducedMotion();
+  const [step, setStep] = useState(0);
+
+  useEffect(() => {
+    const id = "dc-editorial-fonts";
+    if (!document.getElementById(id)) {
+      const link = document.createElement("link");
+      link.id = id;
+      link.rel = "stylesheet";
+      link.href = "https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&display=swap";
+      document.head.appendChild(link);
+    }
+  }, []);
+
+  useEffect(() => {
+    images.forEach(url => { const image = new Image(); image.src = url; });
+  }, [images]);
+
+  useEffect(() => {
+    if (reduce || !images.length) return;
+    const timer = window.setInterval(() => setStep(value => value + 1), 3200);
+    return () => window.clearInterval(timer);
+  }, [reduce, images.length]);
+
+  return (
+    <h1 className="dc-hero__title" aria-label="DIEGCUTZ">
+      {Array.from("DIEGCUTZ").map((letter, index) => (
+        <span key={index} className="dc-hero__letter" aria-hidden="true">
+          {letter}
+          {index === step % 8 && images.length > 0 && (
+            <span key={step} className="dc-hero__letter-photo" style={{ backgroundImage: `url(${JSON.stringify(images[step % images.length])})` }}>
+              {letter}
+            </span>
+          )}
+        </span>
+      ))}
+    </h1>
+  );
+}
+
 function Word({ word, index, total, progress }: { word: string; index: number; total: number; progress: MotionValue<number> }) {
   const start = index / total;
   const opacity = useTransform(progress, [start, start + 1 / total], [0.12, 1]);
@@ -82,12 +123,7 @@ function Reel({ slides }: { slides: HomeMediaSlide[] }) {
 
 export default function Home() {
   const navigate = useNavigate();
-  const reduce = useReducedMotion();
   const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
-  const leftX = useTransform(heroP, [0, 1], ["0%", reduce ? "0%" : "-18%"]);
-  const rightX = useTransform(heroP, [0, 1], ["0%", reduce ? "0%" : "18%"]);
-  const pillScale = useTransform(heroP, [0, 1], [1, reduce ? 1 : 1.6]);
 
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
@@ -96,7 +132,6 @@ export default function Home() {
   const [heroImage, setHeroImage] = useState("");
   const [configured, setConfigured] = useState<HomeMediaSlide[]>([]);
   const [igEnabled, setIgEnabled] = useState(true);
-  const [pill, setPill] = useState(0);
 
   useEffect(() => {
     const today = new Date();
@@ -132,12 +167,10 @@ export default function Home() {
     ];
   }, [configured, heroImage]);
 
-  const pillImages = slides.filter(s => s.type === "image");
-  useEffect(() => {
-    if (pillImages.length < 2 || reduce) return;
-    const t = window.setInterval(() => setPill(v => (v + 1) % pillImages.length), 3200);
-    return () => window.clearInterval(t);
-  }, [pillImages.length, reduce]);
+  const letterImages = useMemo(() => {
+    const photos = slides.filter(s => s.type === "image").map(s => s.url);
+    return photos.length ? photos : [defaultHero, craftDetail, clientEditorial];
+  }, [slides]);
 
   const todayIdx = new Date().getDay();
 
@@ -152,15 +185,7 @@ export default function Home() {
           <span>Monóvar — Alicante</span>
           <span>Est. con criterio</span>
         </div>
-        <h1 className="dc-hero__title" aria-label="DIEGCUTZ">
-          <motion.span style={{ x: leftX }} initial={{ y: "110%" }} animate={{ y: 0 }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}>DIEG</motion.span>
-          <motion.span className="dc-hero__pill" style={{ scale: pillScale }} initial={{ width: 0, opacity: 0 }} animate={{ width: "auto", opacity: 1 }} transition={{ delay: 0.5, duration: 0.9, ease: [0.16, 1, 0.3, 1] }} aria-hidden="true">
-            <AnimatePresence mode="popLayout">
-              {pillImages[pill] && <motion.img key={pillImages[pill].id} src={pillImages[pill].url} alt="" initial={{ opacity: 0, scale: 1.2 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }} />}
-            </AnimatePresence>
-          </motion.span>
-          <motion.span style={{ x: rightX }} initial={{ y: "110%" }} animate={{ y: 0 }} transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}>CUTZ</motion.span>
-        </h1>
+        <LetterPhotoTitle images={letterImages} />
         <div className="dc-hero__foot">
           <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
             Cortes, degradados y barba con precisión. <em>Sin prisas, sin plantillas.</em>

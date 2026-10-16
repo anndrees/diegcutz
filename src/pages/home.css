@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=Instrument+Serif:ital@0;1&display=swap");
-
 /* Home-scoped tokens: bone paper, ink, signal red */
 .dc-home {
   --background: 40 20% 92%;
@@ -45,15 +43,17 @@
 .dc-hero__meta { display: flex; justify-content: space-between; gap: 1rem; font: 500 .8rem var(--dc-display); letter-spacing: .12em; text-transform: uppercase; border-top: 1px solid hsl(var(--ink)); padding-top: .9rem; }
 .dc-hero__meta span:nth-child(3) { display: none; }
 @media (min-width: 768px) { .dc-hero__meta span:nth-child(3) { display: inline; } }
-.dc-hero__title { display: flex; align-items: center; justify-content: center; gap: clamp(.4rem, 1.5vw, 1.6rem); margin: 2rem 0; overflow: hidden; padding-block: .1em;
-  font-family: var(--dc-display); font-weight: 900; font-stretch: 125%; font-size: clamp(3.4rem, 11.2vw, 14rem); line-height: .85; letter-spacing: -.045em; }
-.dc-hero__title > span { display: inline-block; }
-.dc-hero__pill { position: relative; flex: 0 0 auto; width: clamp(4rem, 13vw, 14rem) !important; height: .72em; border-radius: 999px; overflow: hidden; background: hsl(var(--ink)); }
-.dc-hero__pill img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: grayscale(.3) contrast(1.1); }
-@media (max-width: 640px) {
-  .dc-hero__title { flex-wrap: wrap; font-size: 24vw; gap: .2rem; }
-  .dc-hero__pill { order: 3; width: 70vw !important; height: .55em; }
-}
+.dc-hero__title { display: flex; align-items: center; justify-content: center; gap: 0; margin: 2rem 0; padding-block: .1em;
+  font-family: var(--dc-display); font-weight: 900; font-stretch: 125%; font-size: 48px; line-height: 1; letter-spacing: 0; }
+.dc-hero__letter { display: block; position: relative; flex: 0 0 auto; }
+.dc-hero__letter-photo { position: absolute; inset: 0; display: block; color: transparent; background-color: hsl(var(--ink)); background-size: auto 100%; background-position: center; background-repeat: no-repeat; background-clip: text; -webkit-background-clip: text; animation: dc-letter-photo 3.2s ease-in-out both; }
+@keyframes dc-letter-photo { 0%, 100% { opacity: 0; } 18%, 72% { opacity: 1; } 94% { opacity: 0; } }
+@media (max-width: 359px) { .dc-hero__title { font-size: 40px; } }
+@media (min-width: 480px) { .dc-hero__title { font-size: 64px; } }
+@media (min-width: 640px) { .dc-hero__title { font-size: 96px; } }
+@media (min-width: 900px) { .dc-hero__title { font-size: 128px; } }
+@media (min-width: 1100px) { .dc-hero__title { font-size: 168px; } }
+@media (min-width: 1440px) { .dc-hero__title { font-size: 220px; } }
 .dc-hero__foot { display: flex; align-items: flex-end; justify-content: space-between; gap: 2rem; }
 .dc-hero__foot p { max-width: 30rem; font-size: clamp(1.05rem, 1.6vw, 1.35rem); line-height: 1.4; }
 .dc-hero__foot em, .dc-manifesto em { font-family: var(--dc-serif); font-style: italic; font-size: 1.15em; color: hsl(var(--signal)); }
@@ -168,5 +168,6 @@
 .dc-whatsapp svg { width: 1.5rem; height: 1.5rem; }
 
 @media (prefers-reduced-motion: reduce) {
+  .dc-hero__letter-photo { animation: none; opacity: 1; }
   .dc-badge svg, .dc-ticker > div, .dc-membership__card::after, .dc-reel__media img { animation: none !important; }
 }
