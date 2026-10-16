@@ -1,5 +1,14 @@
 # Roadmap
 
+## Reserva editorial y experiencia móvil
+- [x] Corregir transición al volver a pasos anteriores
+- [x] Renovar Servicios, Confirmar, progreso y resumen
+- [x] Tarjetas completas seleccionables y contacto WhatsApp para servicios no listados
+- [x] Cupón en resumen lateral o Confirmar, sin duplicados y con transición fluida
+- [x] Advertir que el pago se realiza en la barbería
+- [x] Marco móvil sticky con resumen plegable y controles fijos sobre la navegación
+- [x] Verificar selección, navegación, cupón único y resumen en móvil y escritorio (confirmación con sesión no verificable: Supabase externo sin acceso de prueba)
+
 ## Extensión de la estética aprobada a toda la web
 - [x] Unificar el sistema visual con la portada aprobada
 - [x] Renovar reservas, perfil, membresías, sorteos y fidelidad
