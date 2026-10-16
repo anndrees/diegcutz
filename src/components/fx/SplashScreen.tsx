@@ -18,7 +18,7 @@ export const SplashScreen = () => {
     const t = setTimeout(() => {
       sessionStorage.setItem("diegcutz_splash_shown", "1");
       setVisible(false);
-    }, reduced ? 500 : 1600);
+    }, reduced ? 1000 : 1600);
     return () => clearTimeout(t);
   }, [visible]);
 

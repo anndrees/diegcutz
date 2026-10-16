@@ -354,22 +354,20 @@ body.has-admin-tabbar #root > div[style] { filter: none !important; transform: n
 .admin-app__tab.is-active { color: hsl(var(--foreground)); }
 .admin-app__tab:active { transform: scale(0.94); }
 
-/* Círculo deslizante que marca la sección activa */
-.admin-app__tab-pill {
+/* Indicador de sección activa (igual que la barra pública) */
+.admin-app__tab-dot {
   position: absolute;
-  top: 0.05rem;
+  top: -0.45rem;
   left: 50%;
-  width: 2.6rem;
-  height: 2.6rem;
-  margin-left: -1.3rem;
-  border-radius: 50%;
-  background: hsl(var(--signal, 0 84% 48%) / 0.12);
-  border: 1px solid hsl(var(--signal, 0 84% 48%) / 0.4);
-  z-index: 0;
+  width: 1.4rem;
+  margin-left: -0.7rem;
+  height: 3px;
+  border-radius: 3px;
+  background: hsl(var(--primary));
   pointer-events: none;
 }
+.admin-app__tab.is-active > svg { stroke-width: 2.4; }
 .admin-app__tab > svg, .admin-app__tab > small { position: relative; z-index: 1; }
-.admin-app__tab.is-active > svg { color: hsl(var(--signal, 0 84% 48%)); }
 
 .admin-app__tab--main .admin-app__tab-main {
   display: grid;
