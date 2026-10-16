@@ -57,7 +57,7 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
           <Button asChild size="icon" className="hidden md:inline-flex customer-header__reserve" aria-label="Reservar">
             <Link to="/booking"><ArrowUpRight /></Link>
           </Button>
-          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setOpen(value => !value)} aria-label={open ? "Cerrar menú" : "Abrir menú"}>
+          <Button variant="ghost" size="icon" className="md:hidden customer-header__menu" onClick={() => setOpen(value => !value)} aria-label={open ? "Cerrar menú" : "Abrir menú"}>
             {open ? <X /> : <Menu />}
           </Button>
         </div>

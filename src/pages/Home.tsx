@@ -14,6 +14,8 @@ import Map from "@/components/Map";
 import defaultHero from "@/assets/urban-studio.jpg";
 import craftDetail from "@/assets/urban-tools.jpg";
 import clientEditorial from "@/assets/urban-cut.jpg";
+import { MobileHome } from "@/components/mobile/MobileHome";
+import { useIsMobile } from "@/hooks/use-mobile";
 import "./home.css";
 
 type TimeRange = { start: string; end: string };
@@ -173,6 +175,16 @@ export default function Home() {
   }, [slides]);
 
   const todayIdx = new Date().getDay();
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <div className="dc-home min-h-screen">
+        <InstallBanner />
+        <MobileHome title={<LetterPhotoTitle images={letterImages} />} slides={slides} giveaway={giveaway} marquee={marquee} businessHours={businessHours} specialHours={specialHours} igEnabled={igEnabled} />
+      </div>
+    );
+  }
 
   return (
     <div className="dc-home min-h-screen">
