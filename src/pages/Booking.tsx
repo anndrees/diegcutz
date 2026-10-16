@@ -23,6 +23,7 @@ import { PlaylistPreview } from "@/components/booking/PlaylistPreview";
 import { StyleAdvisor } from "@/components/booking/StyleAdvisor";
 import { BookingConfirmation } from "@/components/booking/BookingConfirmation";
 import { CustomerPage } from "@/components/customer/CustomerPage";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Validation schema for playlist URL
 const playlistUrlSchema = z.string().max(500, "URL demasiado larga").refine(
@@ -113,6 +114,7 @@ const Booking = () => {
   const [useMembershipService, setUseMembershipService] = useState(false);
   const [membershipName, setMembershipName] = useState("");
   const [confirmedBooking, setConfirmedBooking] = useState<{ id: string; booking_date: string; booking_time: string; services: string[] } | null>(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   
   // Coupon state
   const [couponCode, setCouponCode] = useState<string>("");
@@ -183,13 +185,18 @@ const Booking = () => {
     loadPreviousSelection();
   }, [location.search, user, loadingServices, services, packs]);
 
-  // Advance after the two time decisions; the same focused flow is used on every screen.
+  // Advance only when the client actually changes a decision, so revisiting an earlier step stays there.
+  const lastDateRef = useRef<string>("");
+  const lastTimeRef = useRef<string>("");
   useEffect(() => {
-    if (selectedDate && mobileStep === 1) setMobileStep(2);
-  }, [selectedDate, mobileStep]);
+    const key = selectedDate ? selectedDate.toDateString() : "";
+    if (key && key !== lastDateRef.current) setMobileStep(step => (step === 1 ? 2 : step));
+    lastDateRef.current = key;
+  }, [selectedDate]);
   useEffect(() => {
-    if (selectedTime && mobileStep === 2) setMobileStep(3);
-  }, [selectedTime, mobileStep]);
+    if (selectedTime && selectedTime !== lastTimeRef.current) setMobileStep(step => (step === 2 ? 3 : step));
+    lastTimeRef.current = selectedTime;
+  }, [selectedTime]);
   useEffect(() => {
     if (!isMobile) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -324,12 +331,19 @@ const Booking = () => {
     const savedBookingState = localStorage.getItem("pendingBooking");
     if (savedBookingState && user) {
       const state = JSON.parse(savedBookingState);
-      setSelectedDate(state.date ? new Date(state.date) : undefined);
+      const restoredDate = state.date ? new Date(state.date) : undefined;
+      setSelectedDate(restoredDate);
       setSelectedTime(state.time || "");
       setSelectedServices(state.services || []);
       setSelectedPack(state.pack || null);
+      setSelectedAddons(state.addons || []);
+      setPlaylistUrl(state.playlist || "");
       localStorage.removeItem("pendingBooking");
-      
+      // Land straight on the confirmation step when everything was already chosen.
+      const ready = !!restoredDate && !!state.time && (!!state.pack || (state.services || []).length > 0);
+      window.setTimeout(() => setMobileStep(ready ? 4 : restoredDate ? 2 : 1), 0);
+      if (restoredDate && state.time) toast({ title: "Seguimos donde lo dejaste", description: "Tu fecha, hora y servicios siguen seleccionados." });
+
       // Check if the saved time is still available
       if (state.date && state.time) {
         checkTimeAvailability(new Date(state.date), state.time);
@@ -497,12 +511,23 @@ const Booking = () => {
     return Array.from(slotsSet).sort((a, b) => a - b);
   };
 
+  // Bookings are only accepted up to two months ahead.
+  const maxBookingDate = (() => {
+    const limit = new Date();
+    limit.setMonth(limit.getMonth() + 2);
+    limit.setHours(23, 59, 59, 999);
+    return limit;
+  })();
+
   const isDayDisabled = (date: Date): boolean => {
     // Past dates
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     if (date < today) return true;
-    
+
+    // Beyond the two-month booking window
+    if (date > maxBookingDate) return true;
+
     // Closed days
     if (isDayClosed(date)) return true;
     
@@ -721,19 +746,42 @@ const Booking = () => {
     return Math.min(appliedCoupon.discount_value, subtotal);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  // Keep the whole selection so nothing is lost when the client signs in mid-booking.
+  const buildPendingBooking = () => ({
+    date: selectedDate?.toISOString(),
+    time: selectedTime,
+    services: selectedServices,
+    pack: selectedPack,
+    addons: selectedAddons,
+    playlist: playlistUrl,
+  });
+
+  const requestConfirmation = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!user || !profile) {
+      handleSubmit();
+      return;
+    }
+    if (!selectedDate || !selectedTime) {
+      toast({ title: "Error", description: "Por favor selecciona fecha y hora", variant: "destructive" });
+      return;
+    }
+    if (!selectedPack && selectedServices.length === 0) {
+      toast({ title: "Error", description: "Por favor selecciona al menos un servicio o pack", variant: "destructive" });
+      return;
+    }
+    setConfirmOpen(true);
+  };
+
+
+
+  const handleSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    setConfirmOpen(false);
+
     // Check if user is logged in
     if (!user || !profile) {
-      // Save booking state to localStorage
-      const bookingState = {
-        date: selectedDate?.toISOString(),
-        time: selectedTime,
-        services: selectedServices,
-        pack: selectedPack,
-      };
-      localStorage.setItem("pendingBooking", JSON.stringify(bookingState));
+      localStorage.setItem("pendingBooking", JSON.stringify(buildPendingBooking()));
       
       toast({
         title: "Inicia sesión",
@@ -841,10 +889,12 @@ const Booking = () => {
     if (existingBooking && existingBooking.length > 0) {
       setLoading(false);
       toast({
-        title: "Hora no disponible",
-        description: "Esta hora acaba de ser reservada. Por favor elige otra.",
+        title: "Oh... alguien ha sido más rápido",
+        description: "Esa hora acaba de ocuparse. Elige otra hora y seguimos.",
         variant: "destructive",
       });
+      setSelectedTime("");
+      setMobileStep(2);
       loadBookedTimes();
       return;
     }
@@ -879,11 +929,19 @@ const Booking = () => {
 
     if (error) {
       setLoading(false);
+      // The database guards the slot, so a duplicate means someone confirmed it first.
+      const slotTaken = error.code === "23505";
       toast({
-        title: "Error",
-        description: "No se pudo completar la reserva. Inténtalo de nuevo.",
+        title: slotTaken ? "Oh... alguien ha sido más rápido" : "Error",
+        description: slotTaken
+          ? "Esa hora acaba de ocuparse mientras confirmabas. Elige otra hora, por favor."
+          : "No se pudo completar la reserva. Inténtalo de nuevo.",
         variant: "destructive",
       });
+      if (slotTaken) {
+        setSelectedTime("");
+        setMobileStep(2);
+      }
       loadBookedTimes();
       return;
     }
@@ -1036,7 +1094,7 @@ const Booking = () => {
                   <CalendarDays className="text-primary" />
                   Selecciona una fecha
                 </CardTitle>
-                <CardDescription>Los días cerrados no están disponibles</CardDescription>
+                <CardDescription>Los días cerrados no están disponibles. Puedes reservar hasta dos meses por adelantado.</CardDescription>
               </CardHeader>
               <CardContent className="flex justify-center overflow-x-auto p-4 pt-6">
                 <div className="w-full">
@@ -1045,6 +1103,7 @@ const Booking = () => {
                     selected={selectedDate}
                     onSelect={setSelectedDate}
                     disabled={isDayDisabled}
+                    toDate={maxBookingDate}
                     className="rounded-md pointer-events-auto scale-90 sm:scale-100"
                     modifiers={{
                       dayFull: (d: Date) => getDayAvailability(d) === "full",
@@ -1677,7 +1736,7 @@ const Booking = () => {
                       <p className="text-lg font-semibold">{profile.contact_value}</p>
                     </div>
                     <Button
-                      onClick={handleSubmit}
+                      onClick={requestConfirmation}
                       variant="default"
                       className="w-full h-10 sm:h-12 text-sm sm:text-base"
                       disabled={loading || (!selectedPack && selectedServices.length === 0)}
@@ -1688,13 +1747,7 @@ const Booking = () => {
                 ) : (
                   <Button
                     onClick={() => {
-                      const bookingState = {
-                        date: selectedDate?.toISOString(),
-                        time: selectedTime,
-                        services: selectedServices,
-                        pack: selectedPack,
-                      };
-                      localStorage.setItem("pendingBooking", JSON.stringify(bookingState));
+                      localStorage.setItem("pendingBooking", JSON.stringify(buildPendingBooking()));
                       navigate("/auth", { state: { from: "/booking" } });
                     }}
                     variant="premium"
@@ -1777,6 +1830,32 @@ const Booking = () => {
           </div>
         </div>
       )}
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Confirmamos tu cita?</AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-left">
+                <p className="text-base font-semibold text-foreground">
+                  {selectedDate ? format(selectedDate, "EEEE, d 'de' MMMM", { locale: es }) : ""} · {selectedTime ? selectedTime.slice(0, 5) : ""}
+                </p>
+                <p>{getSelectedItems().map(item => item.replace(/\s*\([^)]*\)$/, "")).join(" · ")}{totalPrice > 0 ? ` — ${totalPrice}€` : ""}</p>
+                <p>
+                  Al confirmar reservas una hora en exclusiva para ti. Si no puedes venir, cancela con antelación:
+                  las faltas sin avisar pueden suponer la suspensión temporal de tu cuenta DIEGCUTZ y no poder reservar durante un tiempo.
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Revisar</AlertDialogCancel>
+            <AlertDialogAction onClick={() => handleSubmit()} disabled={loading}>
+              {loading ? "Reservando..." : "Sí, confirmar cita"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div></CustomerPage>
   );
 };
