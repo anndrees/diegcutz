@@ -71,7 +71,7 @@ export class CutBeatScene extends Phaser.Scene {
 
   private pauseRound(paused: boolean) { this.pausedByUser = paused; }
 
-  private sound(kind: "beat" | "cut" | "miss", accent = false) {
+  private playTone(kind: "beat" | "cut" | "miss", accent = false) {
     const audio = this.audio;
     if (!audio || this.muted || audio.state !== "running") return;
     const now = audio.currentTime;
@@ -94,7 +94,7 @@ export class CutBeatScene extends Phaser.Scene {
     if (!this.started || this.pausedByUser || this.elapsed < 3000 || this.index >= TOTAL_CUTS) return;
     const offset = this.elapsed - cutTime(this.index, this.options.mode);
     // Early taps give tactile feedback but cannot consume the next cut.
-    if (offset < -300) { this.sound("miss"); return; }
+    if (offset < -300) { this.playTone("miss"); return; }
     this.resolve(judgeCut(offset), offset);
   }
 
@@ -107,7 +107,7 @@ export class CutBeatScene extends Phaser.Scene {
     this.stats.hits += hit ? 1 : 0;
     this.stats.cuts++; this.stats.grade = grade; this.stats.offset = Math.round(offset);
     this.options.onStats({ ...this.stats });
-    this.sound(hit ? "cut" : "miss");
+    this.playTone(hit ? "cut" : "miss");
     if (hit) this.impact(this.targetY, grade === "PERFECT");
     this.index++;
     if (this.index === TOTAL_CUTS) {
@@ -133,13 +133,13 @@ export class CutBeatScene extends Phaser.Scene {
     this.elapsed += Math.min(delta, 100);
     if (this.elapsed < 3000) {
       const count = 3 - Math.floor(this.elapsed / 1000);
-      if (count !== this.lastCountdown) { this.lastCountdown = count; this.options.onCountdown(count); this.sound("beat", true); }
+      if (count !== this.lastCountdown) { this.lastCountdown = count; this.options.onCountdown(count); this.playTone("beat", true); }
       return;
     }
     if (this.lastCountdown !== 0) { this.lastCountdown = 0; this.options.onCountdown(0); }
     const interval = 60000 / MODES[this.options.mode].bpm;
     const beat = Math.floor((this.elapsed - 3000) / interval);
-    if (beat !== this.lastBeat) { this.lastBeat = beat; this.sound("beat", beat % 4 === 0); }
+    if (beat !== this.lastBeat) { this.lastBeat = beat; this.playTone("beat", beat % 4 === 0); }
     if (this.index >= TOTAL_CUTS) return;
     const offset = this.elapsed - cutTime(this.index, this.options.mode);
     this.targetY = 190 + (this.index % 8) * 22;
