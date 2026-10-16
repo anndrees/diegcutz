@@ -643,7 +643,11 @@ const Admin = () => {
           </main>
         </div>
 
-        {/* Day Options Dialog */}
+      </div>
+      )}
+
+      {/* Diálogos compartidos (escritorio y móvil) */}
+      {/* Day Options Dialog */}
         <Dialog open={showDayOptionsDialog} onOpenChange={setShowDayOptionsDialog}>
           <DialogContent className="max-w-sm">
             <DialogHeader>
@@ -840,9 +844,7 @@ const Admin = () => {
         )}
 
         {/* QR Scanner */}
-        {loyaltyEnabled && <QrScanner open={showQrScanner} onOpenChange={setShowQrScanner} />}
-      </div>
-    </div>
+      {loyaltyEnabled && <QrScanner open={showQrScanner} onOpenChange={setShowQrScanner} />}
     </AdminGuard>
   );
 };
