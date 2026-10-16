@@ -329,12 +329,19 @@ const Booking = () => {
     const savedBookingState = localStorage.getItem("pendingBooking");
     if (savedBookingState && user) {
       const state = JSON.parse(savedBookingState);
-      setSelectedDate(state.date ? new Date(state.date) : undefined);
+      const restoredDate = state.date ? new Date(state.date) : undefined;
+      setSelectedDate(restoredDate);
       setSelectedTime(state.time || "");
       setSelectedServices(state.services || []);
       setSelectedPack(state.pack || null);
+      setSelectedAddons(state.addons || []);
+      setPlaylistUrl(state.playlist || "");
       localStorage.removeItem("pendingBooking");
-      
+      // Land straight on the confirmation step when everything was already chosen.
+      const ready = !!restoredDate && !!state.time && (!!state.pack || (state.services || []).length > 0);
+      window.setTimeout(() => setMobileStep(ready ? 4 : restoredDate ? 2 : 1), 0);
+      if (restoredDate && state.time) toast({ title: "Seguimos donde lo dejaste", description: "Tu fecha, hora y servicios siguen seleccionados." });
+
       // Check if the saved time is still available
       if (state.date && state.time) {
         checkTimeAvailability(new Date(state.date), state.time);
