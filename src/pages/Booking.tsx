@@ -183,13 +183,18 @@ const Booking = () => {
     loadPreviousSelection();
   }, [location.search, user, loadingServices, services, packs]);
 
-  // Advance after the two time decisions; the same focused flow is used on every screen.
+  // Advance only when the client actually changes a decision, so revisiting an earlier step stays there.
+  const lastDateRef = useRef<string>("");
+  const lastTimeRef = useRef<string>("");
   useEffect(() => {
-    if (selectedDate && mobileStep === 1) setMobileStep(2);
-  }, [selectedDate, mobileStep]);
+    const key = selectedDate ? selectedDate.toDateString() : "";
+    if (key && key !== lastDateRef.current) setMobileStep(step => (step === 1 ? 2 : step));
+    lastDateRef.current = key;
+  }, [selectedDate]);
   useEffect(() => {
-    if (selectedTime && mobileStep === 2) setMobileStep(3);
-  }, [selectedTime, mobileStep]);
+    if (selectedTime && selectedTime !== lastTimeRef.current) setMobileStep(step => (step === 2 ? 3 : step));
+    lastTimeRef.current = selectedTime;
+  }, [selectedTime]);
   useEffect(() => {
     if (!isMobile) return;
     window.scrollTo({ top: 0, behavior: "smooth" });
