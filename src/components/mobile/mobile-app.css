@@ -103,7 +103,7 @@
 .mh-end nav { display: flex; gap: 1rem; }
 
 /* Story viewer */
-.mh-viewer { position: fixed; inset: 0; z-index: 90; background: hsl(var(--ink)); color: hsl(var(--paper)); }
+.mh-viewer { position: fixed; inset: 0; z-index: 200; height: 100dvh; background: hsl(var(--ink)); color: hsl(var(--paper)); }
 .mh-viewer img, .mh-viewer video { width: 100%; height: 100%; object-fit: cover; }
 .mh-viewer__bars { position: absolute; top: calc(.8rem + env(safe-area-inset-top, 0px)); left: .7rem; right: .7rem; display: flex; gap: 4px; z-index: 2; }
 .mh-viewer__bars span { flex: 1; height: 2.5px; border-radius: 2px; background: hsl(var(--paper) / .3); overflow: hidden; }

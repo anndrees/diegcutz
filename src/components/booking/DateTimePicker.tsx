@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { addDays, addMonths, endOfMonth, format, isSameDay, isSameMonth, startOfDay, startOfMonth, startOfWeek } from "date-fns";
 import { es } from "date-fns/locale";
 import { CalendarDays, ChevronLeft, ChevronRight, Moon, Sun, Sunset } from "lucide-react";
@@ -34,6 +34,14 @@ export function DatePickerEditorial({ selected, onSelect, isDisabled, availabili
     for (let d = start; d <= end || out.length % 7; d = addDays(d, 1)) out.push(d);
     return out;
   }, [month]);
+
+  // Anchor the strip so the first bookable day sits second, with the closed day before it visible.
+  useEffect(() => {
+    if (mode !== "strip" || !stripRef.current) return;
+    const first = stripDays.findIndex(d => !isDisabled(d));
+    const target = stripRef.current.children[Math.max(0, first - 1)] as HTMLElement | undefined;
+    if (target) stripRef.current.scrollLeft = target.offsetLeft - stripRef.current.offsetLeft;
+  }, [mode, stripDays.length, stripDays.map(d => (isDisabled(d) ? 0 : 1)).join("")]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const scroll = (dir: number) => stripRef.current?.scrollBy({ left: dir * stripRef.current.clientWidth * 0.8, behavior: "smooth" });
 

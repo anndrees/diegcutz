@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowUpRight, CalendarPlus, ChevronDown, Crown, Gift, Instagram, MapPin, MessageCircle, Scissors, X } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -196,7 +197,7 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
         <span>© {new Date().getFullYear()} DIEGCUTZ · Monóvar</span>
       </footer>
 
-      <AnimatePresence>
+      {createPortal(<AnimatePresence>
         {story && current && (
           <motion.div className="mh-viewer" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} drag="y" dragConstraints={{ top: 0, bottom: 0 }} onDragEnd={(_, i) => { if (i.offset.y > 100) setStory(null); }}>
             <div className="mh-viewer__bars">{groups[story.g].items.map((it, i) => <span key={it.id} className={i < story.i ? "is-done" : ""}>{i === story.i && <i key={`${story.g}-${story.i}`} style={{ animationDuration: `${dur}s` }} />}</span>)}</div>
@@ -209,7 +210,7 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
               : <Link to="/booking" className="mh-pill mh-viewer__cta">Reservar cita <ArrowUpRight /></Link>}
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence>, document.body)}
     </div>
   );
 }

@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { sendBookingConfirmation } from "@/lib/pushNotifications";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { es } from "date-fns/locale";
 import { ArrowLeft, Clock, Package, Sparkles, LogIn, Gift, Music, Ticket, X, Check, Loader2, ClipboardPaste } from "lucide-react";
 import { CalendarDays, Scissors, CheckCircle2 } from "lucide-react";
@@ -1074,20 +1074,19 @@ const Booking = () => {
         <div>
           {/* Calendar — Step 1 on mobile */}
           <MobileStep isMobile={isMobile} active={mobileStep === 1} step={1} currentStep={mobileStep}>
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-          >
+          <div>
             <DatePickerEditorial
               selected={selectedDate}
-              onSelect={setSelectedDate}
+              onSelect={(d) => {
+                if (!selectedDate || !isSameDay(d, selectedDate)) setSelectedTime("");
+                setSelectedDate(d);
+              }}
               isDisabled={isDayDisabled}
               availability={getDayAvailability}
               freeCount={(d) => Math.max(0, slotsForDate(d) - (bookingsByDate[format(d, "yyyy-MM-dd")] || 0))}
               maxDate={maxBookingDate}
             />
-          </motion.div>
+          </div>
           </MobileStep>
 
           {/* Time Selection — Step 2 on mobile */}
