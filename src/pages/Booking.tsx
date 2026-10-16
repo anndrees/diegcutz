@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
+import { DatePickerEditorial, TimePickerEditorial } from "@/components/booking/DateTimePicker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -1079,80 +1079,14 @@ const Booking = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.1 }}
           >
-            <Card className="booking-step-card overflow-hidden">
-              <CardHeader className="border-b border-border">
-                <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                  <CalendarDays className="text-primary" />
-                  Selecciona una fecha
-                </CardTitle>
-                <CardDescription>Los días cerrados no están disponibles. Puedes reservar hasta dos meses por adelantado.</CardDescription>
-              </CardHeader>
-              <CardContent className="flex justify-center overflow-x-auto p-4 pt-6">
-                <div className="w-full">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={setSelectedDate}
-                    disabled={isDayDisabled}
-                    toDate={maxBookingDate}
-                    className="rounded-md pointer-events-auto scale-90 sm:scale-100"
-                    modifiers={{
-                      dayFull: (d: Date) => getDayAvailability(d) === "full",
-                      dayFew:  (d: Date) => getDayAvailability(d) === "few",
-                      dayOpen: (d: Date) => getDayAvailability(d) === "open",
-                    }}
-                    modifiersClassNames={{
-                      dayFull: "relative !bg-destructive/15 !text-destructive font-bold ring-1 ring-destructive/40 rounded-full",
-                      dayFew:  "relative !bg-yellow-500/15 !text-yellow-400 font-bold ring-1 ring-yellow-500/40 rounded-full",
-                      dayOpen: "relative !bg-secondary/10 !text-secondary font-bold ring-1 ring-secondary/30 rounded-full",
-                    }}
-                    components={{
-                      DayContent: ({ date }: any) => {
-                        const av = getDayAvailability(date);
-                        const free = Math.max(0, slotsForDate(date) - (bookingsByDate[format(date, "yyyy-MM-dd")] || 0));
-                        const title =
-                          av === "closed" ? "Cerrado" :
-                          av === "full"   ? "Día completo" :
-                          av === "few"    ? `Solo ${free} ${free === 1 ? "hora libre" : "horas libres"}` :
-                                            `${free} horas libres`;
-                        return (
-                          <span title={title} className="relative inline-flex items-center justify-center w-full h-full">
-                            {date.getDate()}
-                            {av !== "closed" && (
-                              <span
-                                className={`absolute bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full ${
-                                  av === "full" ? "bg-destructive" :
-                                  av === "few"  ? "bg-yellow-400" : "bg-secondary"
-                                }`}
-                              />
-                            )}
-                          </span>
-                        );
-                      },
-                    }}
-                  />
-                  {/* Legend */}
-                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px] uppercase tracking-widest">
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-secondary/30 bg-secondary/5">
-                      <span className="w-2 h-2 rounded-full bg-secondary" />
-                      <span className="text-secondary font-bold">Libre</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-yellow-500/30 bg-yellow-500/5">
-                      <span className="w-2 h-2 rounded-full bg-yellow-400" />
-                      <span className="text-yellow-400 font-bold">Casi lleno</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-destructive/30 bg-destructive/5">
-                      <span className="w-2 h-2 rounded-full bg-destructive" />
-                      <span className="text-destructive font-bold">Ocupado</span>
-                    </div>
-                    <div className="flex items-center gap-1.5 px-2 py-1 rounded-md border border-border bg-muted/20">
-                      <span className="w-2 h-2 rounded-full bg-muted-foreground/60" />
-                      <span className="text-muted-foreground font-bold">Cerrado</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <DatePickerEditorial
+              selected={selectedDate}
+              onSelect={setSelectedDate}
+              isDisabled={isDayDisabled}
+              availability={getDayAvailability}
+              freeCount={(d) => Math.max(0, slotsForDate(d) - (bookingsByDate[format(d, "yyyy-MM-dd")] || 0))}
+              maxDate={maxBookingDate}
+            />
           </motion.div>
           </MobileStep>
 
@@ -1168,149 +1102,13 @@ const Booking = () => {
                   exit={{ opacity: 0, x: -30 }}
                   transition={{ duration: 0.4 }}
                 >
-                  <Card className="booking-step-card overflow-hidden">
-                    <CardHeader className="border-b border-border">
-                      <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                        <Clock className="text-secondary animate-pulse" />
-                        Horas disponibles
-                      </CardTitle>
-                      <CardDescription className="text-sm md:text-base capitalize">
-                        {format(selectedDate, "EEEE, d 'de' MMMM", { locale: es })}
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="p-4 pt-6">
-                      {availableHours.length === 0 ? (
-                        (() => {
-                          const allSlots = getAllDaySlots();
-                          if (allSlots.length === 0) return <p className="text-destructive py-4 text-center">Cerrado este día</p>;
-                          return (
-                            <div className="space-y-3">
-                              <div className="border border-destructive/60 bg-destructive/10 px-3 py-2 flex items-center gap-2">
-                                <span className="relative flex h-2.5 w-2.5">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-destructive opacity-75" />
-                                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-destructive" />
-                                </span>
-                                <span className="text-sm font-bold uppercase tracking-wider text-destructive">Día completo · prueba otro día</span>
-                              </div>
-                              <div className="grid grid-cols-3 gap-2 opacity-60">
-                                {allSlots.map((s) => {
-                                  const hh = Math.floor(s / 60).toString().padStart(2, "0");
-                                  const mm = (s % 60).toString().padStart(2, "0");
-                                  return (
-                                    <div key={s} className="h-12 sm:h-14 rounded-lg border-2 border-destructive/40 bg-destructive/5 text-destructive/70 flex items-center justify-center font-mono font-bold tracking-wider line-through text-sm">
-                                      {hh}:{mm}
-                                    </div>
-                                  );
-                                })}
-                              </div>
-                            </div>
-                          );
-                        })()
-                      ) : (
-                        <>
-                          {(() => {
-                            const totalSlots = availableHours.length + bookedTimes.filter(b => {
-                              // count bookings inside today's open ranges only (rough)
-                              return true;
-                            }).length;
-                            const freeCount = availableHours.length;
-                            const bookedCount = bookedTimes.length;
-                            const isFull = freeCount === 0;
-                            return (
-                              <div className="mb-4 space-y-2">
-                                <div className={`relative overflow-hidden rounded-lg border-2 px-3 py-2 flex items-center justify-between gap-3 ${
-                                  isFull
-                                    ? 'border-destructive/60 bg-destructive/10'
-                                    : freeCount <= 2
-                                    ? 'border-yellow-500/60 bg-yellow-500/10'
-                                    : 'border-secondary/60 bg-secondary/10'
-                                }`}>
-                                  <div className="flex items-center gap-2 text-sm font-bold uppercase tracking-wider">
-                                    <span className={`relative flex h-2.5 w-2.5`}>
-                                      <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
-                                        isFull ? 'bg-destructive' : freeCount <= 2 ? 'bg-yellow-500' : 'bg-secondary'
-                                      }`} />
-                                      <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${
-                                        isFull ? 'bg-destructive' : freeCount <= 2 ? 'bg-yellow-500' : 'bg-secondary'
-                                      }`} />
-                                    </span>
-                                    <span className={isFull ? 'text-destructive' : freeCount <= 2 ? 'text-yellow-500' : 'text-secondary'}>
-                                      {isFull ? 'Día completo' : freeCount <= 2 ? `¡Solo ${freeCount} ${freeCount === 1 ? 'hora' : 'horas'}!` : `${freeCount} horas libres`}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center gap-2 text-xs">
-                                    <span className="text-muted-foreground">{bookedCount} reservadas</span>
-                                  </div>
-                                </div>
-                                <div className="flex items-center justify-center gap-4 text-[10px] uppercase tracking-widest text-muted-foreground">
-                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-secondary/30 border border-secondary" /> Libre</span>
-                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-primary" /> Seleccionada</span>
-                                  <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-sm bg-destructive/30 border border-destructive" /> Ocupada</span>
-                                </div>
-                              </div>
-                            );
-                          })()}
-                        <motion.div
-                          initial="hidden"
-                          animate="visible"
-                          variants={{
-                            visible: { transition: { staggerChildren: 0.03 } },
-                          }}
-                          className="grid grid-cols-3 sm:grid-cols-3 gap-2"
-                        >
-                          {getAllDaySlots().map((slotMin) => {
-                            const hh = Math.floor(slotMin / 60).toString().padStart(2, "0");
-                            const mm = (slotMin % 60).toString().padStart(2, "0");
-                            const timeString = `${hh}:${mm}:00`;
-                            const label = `${hh}:${mm}`;
-                            const isAvailable = availableHours.includes(slotMin);
-                            const isBooked = !isAvailable;
-                            const isSelected = selectedTime === timeString;
-
-                            return (
-                              <motion.button
-                                key={slotMin}
-                                variants={{
-                                  hidden: { opacity: 0, y: 10 },
-                                  visible: { opacity: 1, y: 0 },
-                                }}
-                                whileHover={!isBooked ? { scale: 1.05, y: -2 } : {}}
-                                whileTap={!isBooked ? { scale: 0.95 } : {}}
-                                disabled={isBooked}
-                                onClick={() => !isBooked && setSelectedTime(timeString)}
-                                className={`relative h-12 sm:h-14 rounded-lg font-bold text-sm sm:text-base font-mono tracking-wider border-2 transition-all duration-300 overflow-hidden group ${
-                                  isBooked
-                                    ? 'border-destructive/30 bg-destructive/5 text-muted-foreground cursor-not-allowed'
-                                    : isSelected
-                                    ? 'border-primary bg-primary text-primary-foreground'
-                                    : 'border-border/60 bg-card/40 text-foreground hover:border-secondary hover:bg-secondary/10 hover:text-secondary'
-                                }`}
-                              >
-                                {isSelected && !isBooked && (
-                                  <motion.span
-                                    layoutId="selectedTimeGlow"
-                                    className="absolute inset-0 bg-primary/10"
-                                  />
-                                )}
-                                <span className={`relative z-10 ${isBooked ? 'line-through opacity-50' : ''}`}>
-                                  {label}
-                                </span>
-                                {isBooked && (
-                                  <span className="absolute top-1 right-1 text-[8px] font-semibold uppercase text-destructive/80 z-10">
-                                    ✕
-                                  </span>
-                                )}
-                                {!isBooked && !isSelected && (
-                                  <span className="absolute inset-x-0 bottom-0 h-[2px] bg-secondary scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
-                                )}
-                              </motion.button>
-                            );
-                          })}
-                        </motion.div>
-                        </>
-                      )}
-                    </CardContent>
-                  </Card>
+                  <TimePickerEditorial
+                    date={selectedDate}
+                    slots={getAllDaySlots()}
+                    available={availableHours}
+                    selected={selectedTime}
+                    onSelect={setSelectedTime}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>

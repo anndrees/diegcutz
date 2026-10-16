@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {
+import { Clapperboard,
   Calendar,
   BarChart3,
   Scissors,
@@ -44,6 +44,7 @@ const menuItems = [
   { id: "giveaways", label: "Sorteos", icon: Gift },
   { id: "marquee", label: "Marquee", icon: Megaphone },
   { id: "homepage", label: "Página principal", icon: Home },
+      { id: "stories", label: "Historias", icon: Clapperboard },
   { id: "tv", label: "Modo TV", icon: Tv },
   { id: "messages", label: "Mensajes", icon: MessageSquare },
   { id: "notifications", label: "Notificaciones", icon: Bell },

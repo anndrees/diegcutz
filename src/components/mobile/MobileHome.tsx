@@ -9,6 +9,9 @@ import { MembershipExpirationBanner } from "@/components/home/MembershipExpirati
 import type { HomeMediaSlide } from "@/components/home/MediaCarousel";
 import Map from "@/components/Map";
 import "./mobile-app.css";
+import { supabase } from "@/integrations/supabase/client";
+import { StoryFrame, type StoryItem } from "@/components/stories/StoryFrame";
+import "@/components/stories/stories.css";
 
 type TimeRange = { start: string; end: string };
 type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: TimeRange[] };
@@ -36,17 +39,43 @@ const greeting = () => {
 export function MobileHome({ title, slides, giveaway, marquee, businessHours, specialHours, igEnabled }: Props) {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const [story, setStory] = useState<number | null>(null);
-  const [seen, setSeen] = useState<Set<number>>(new Set());
+  const [story, setStory] = useState<{ g: number; i: number } | null>(null);
+  const [seen, setSeen] = useState<Set<string>>(new Set());
   const [weekOpen, setWeekOpen] = useState(false);
+  const [extra, setExtra] = useState<StoryItem[]>([]);
+  const [dur, setDur] = useState(5);
   const todayIdx = new Date().getDay();
 
   useEffect(() => {
-    if (story === null) return;
-    setSeen(s => new Set(s).add(story));
-    const t = window.setTimeout(() => setStory(i => (i !== null && i + 1 < slides.length ? i + 1 : null)), 5000);
+    supabase.from("home_stories" as any).select("*").order("created_at", { ascending: true }).then(({ data }) => {
+      const now = Date.now();
+      setExtra(((data as any[]) || []).filter(s => !s.expires_at || new Date(s.expires_at).getTime() > now));
+    });
+  }, []);
+
+  const groups = [
+    { key: "estudio", name: "Estudio", items: slides.map<StoryItem>(s => ({ id: s.id, media_url: s.url, media_type: s.type, filter: "none", crop: { scale: 1, x: 0, y: 0 }, overlays: [] })) },
+    { key: "novedades", name: "Novedades", items: extra },
+  ].filter(g => g.items.length);
+
+  const next = () => setStory(st => {
+    if (!st) return null;
+    if (st.i + 1 < groups[st.g].items.length) return { g: st.g, i: st.i + 1 };
+    if (st.g + 1 < groups.length) return { g: st.g + 1, i: 0 };
+    return null;
+  });
+  const prev = () => setStory(st => (!st ? null : st.i > 0 ? { g: st.g, i: st.i - 1 } : st.g > 0 ? { g: st.g - 1, i: 0 } : st));
+  const current = story ? groups[story.g]?.items[story.i] : null;
+
+  useEffect(() => {
+    if (!story || !current) return;
+    setSeen(s => new Set(s).add(groups[story.g].key));
+    if (current.media_type === "video") return; // advances on video end
+    setDur(5);
+    const t = window.setTimeout(next, 5000);
     return () => window.clearTimeout(t);
-  }, [story, slides.length]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [story?.g, story?.i, current?.id]);
 
   const dayInfo = (dow: number) => {
     const d = businessHours.find(b => b.day_of_week === dow);
@@ -81,12 +110,12 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
           <span className="mh-story__ring"><span><CalendarPlus /></span></span>
           <small>Reservar</small>
         </button>
-        {slides.map((s, i) => (
-          <button key={s.id} className="mh-story" onClick={() => setStory(i)} aria-label={`Ver historia ${i + 1}`}>
-            <span className={`mh-story__ring ${seen.has(i) ? "is-seen" : ""}`}>
-              {s.type === "video" ? <video src={s.url} muted playsInline preload="metadata" /> : <img src={s.url} alt="" loading="lazy" />}
+        {groups.map((g, gi) => (
+          <button key={g.key} className="mh-story" onClick={() => setStory({ g: gi, i: 0 })} aria-label={`Ver historias: ${g.name}`}>
+            <span className={`mh-story__ring ${seen.has(g.key) ? "is-seen" : ""}`}>
+              {g.items[0].media_type === "video" ? <video src={g.items[0].media_url} muted playsInline preload="metadata" /> : <img src={g.items[0].media_url} alt="" loading="lazy" />}
             </span>
-            <small>Estudio {String(i + 1).padStart(2, "0")}</small>
+            <small>{g.name}</small>
           </button>
         ))}
       </div>
@@ -168,14 +197,16 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
       </footer>
 
       <AnimatePresence>
-        {story !== null && slides[story] && (
+        {story && current && (
           <motion.div className="mh-viewer" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} drag="y" dragConstraints={{ top: 0, bottom: 0 }} onDragEnd={(_, i) => { if (i.offset.y > 100) setStory(null); }}>
-            <div className="mh-viewer__bars">{slides.map((_, i) => <span key={i} className={i < story ? "is-done" : ""}>{i === story && <i key={story} />}</span>)}</div>
-            <div className="mh-viewer__head"><span>DIEGCUTZ · Estudio</span><button onClick={() => setStory(null)} aria-label="Cerrar"><X /></button></div>
-            {slides[story].type === "video" ? <video src={slides[story].url} autoPlay muted playsInline loop /> : <img src={slides[story].url} alt={`Estudio ${story + 1}`} />}
-            <button className="mh-viewer__tap" style={{ left: 0 }} onClick={() => setStory(s => (s ? s - 1 : 0))} aria-label="Anterior" />
-            <button className="mh-viewer__tap" style={{ right: 0 }} onClick={() => setStory(s => (s !== null && s + 1 < slides.length ? s + 1 : null))} aria-label="Siguiente" />
-            <Link to="/booking" className="mh-pill mh-viewer__cta">Reservar cita <ArrowUpRight /></Link>
+            <div className="mh-viewer__bars">{groups[story.g].items.map((it, i) => <span key={it.id} className={i < story.i ? "is-done" : ""}>{i === story.i && <i key={`${story.g}-${story.i}`} style={{ animationDuration: `${dur}s` }} />}</span>)}</div>
+            <div className="mh-viewer__head"><span>DIEGCUTZ · {groups[story.g].name}</span><button onClick={() => setStory(null)} aria-label="Cerrar"><X /></button></div>
+            <StoryFrame key={current.id} item={current} onVideoMeta={d => setDur(Math.min(d || 15, 60))} onVideoEnd={next} />
+            <button className="mh-viewer__tap" style={{ left: 0 }} onClick={prev} aria-label="Anterior" />
+            <button className="mh-viewer__tap" style={{ right: 0 }} onClick={next} aria-label="Siguiente" />
+            {current.link_url
+              ? <a href={current.link_url} target={current.link_url.startsWith("/") ? undefined : "_blank"} rel="noopener noreferrer" className="mh-pill mh-viewer__cta">{current.link_label || "Ver más"} <ArrowUpRight /></a>
+              : <Link to="/booking" className="mh-pill mh-viewer__cta">Reservar cita <ArrowUpRight /></Link>}
           </motion.div>
         )}
       </AnimatePresence>
