@@ -1,137 +1,255 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion, useReducedMotion, useScroll, useSpring, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence, type MotionValue } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowDown, ArrowUpRight, Clock3, Gift, MapPin, Scissors, ShieldCheck, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowRight, ArrowUpRight, Gift, Instagram, MapPin, Pause, Play } from "lucide-react";
 import { CustomerHeader } from "@/components/customer/CustomerHeader";
 import { CustomerFooter } from "@/components/customer/CustomerFooter";
 import { supabase } from "@/integrations/supabase/client";
-import { InstagramFeed } from "@/components/home/InstagramFeed";
 import { ReviewsShowcase } from "@/components/home/ReviewsShowcase";
 import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
-import { LiquidChromeWordmark } from "@/components/home/LiquidChromeWordmark";
-import { MediaCarousel, type HomeMediaSlide } from "@/components/home/MediaCarousel";
-import { ScrollBarberObjects } from "@/components/home/ScrollBarberObjects";
+import type { HomeMediaSlide } from "@/components/home/MediaCarousel";
 import Map from "@/components/Map";
 import defaultHero from "@/assets/urban-studio.jpg";
 import craftDetail from "@/assets/urban-tools.jpg";
 import clientEditorial from "@/assets/urban-cut.jpg";
+import "./home.css";
 
 type TimeRange = { start: string; end: string };
 type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: TimeRange[] };
 type SpecialHour = { id: string; date: string; is_closed: boolean; time_ranges: TimeRange[]; note: string | null };
 type Giveaway = { id: string; title: string; prize: string; end_date: string };
 type MarqueeItem = { id: string; text: string; color: string };
-type HomeSettings = { image: string; slides: HomeMediaSlide[] };
 
 const DAYS = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+const ORDER = [1, 2, 3, 4, 5, 6, 0];
+const MANIFESTO = "Un corte no es un trámite. Es cómo entras en una sala, cómo te ves en el reflejo y cómo te recuerdan.";
+const fmt = (r: TimeRange[]) => r.map(x => `${x.start.slice(0, 5)}–${x.end.slice(0, 5)}`).join(" · ");
 
-function HomeMotionLayer() {
-  const reducedMotion = useReducedMotion();
-  const { scrollYProgress } = useScroll();
-  const progress = useSpring(scrollYProgress, { stiffness: 95, damping: 24, mass: 0.35 });
-  const railScale = useTransform(progress, [0, 1], [0, 1]);
-  const meshY = useTransform(progress, [0, 1], [0, -360]);
-  const haloRotate = useTransform(progress, [0, 1], [0, 220]);
-  if (reducedMotion) return null;
-  return <div className="home-motion-layer" aria-hidden="true"><motion.div className="home-scroll-rail" style={{ scaleY: railScale }} /><motion.div className="home-parallax-mesh" style={{ y: meshY }} /><motion.div className="home-chrome-halo" style={{ rotate: haloRotate }} /></div>;
+function Word({ word, index, total, progress }: { word: string; index: number; total: number; progress: MotionValue<number> }) {
+  const start = index / total;
+  const opacity = useTransform(progress, [start, start + 1 / total], [0.12, 1]);
+  return <motion.span style={{ opacity }}>{word} </motion.span>;
+}
+
+function Manifesto() {
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "end 0.45"] });
+  const words = MANIFESTO.split(" ");
+  return (
+    <section className="dc-manifesto" ref={ref}>
+      <span className="dc-label">(01) Filosofía</span>
+      <p>{words.map((w, i) => <Word key={i} word={w} index={i} total={words.length} progress={scrollYProgress} />)}</p>
+    </section>
+  );
+}
+
+function Reel({ slides }: { slides: HomeMediaSlide[] }) {
+  const [i, setI] = useState(0);
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (paused || slides.length < 2) return;
+    const t = window.setInterval(() => setI(v => (v + 1) % slides.length), 6500);
+    return () => window.clearInterval(t);
+  }, [paused, slides.length]);
+  const slide = slides[i % slides.length];
+  if (!slide) return null;
+  return (
+    <section className="dc-reel" aria-label="El estudio">
+      <div className="dc-reel__head">
+        <span className="dc-label">(02) El estudio</span>
+        <div className="dc-reel__count"><strong>{String(i + 1).padStart(2, "0")}</strong> / {String(slides.length).padStart(2, "0")}</div>
+      </div>
+      <div className="dc-reel__frame">
+        <AnimatePresence mode="popLayout">
+          <motion.div key={slide.id} className="dc-reel__media" initial={{ clipPath: "inset(0 0 0 100% round 2rem)" }} animate={{ clipPath: "inset(0 0 0 0% round 2rem)" }} exit={{ opacity: 0.4 }} transition={{ duration: 1.1, ease: [0.76, 0, 0.24, 1] }}>
+            {slide.type === "video"
+              ? <video src={slide.url} muted loop autoPlay playsInline />
+              : <img src={slide.url} alt={`DIEGCUTZ, escena ${i + 1}`} />}
+          </motion.div>
+        </AnimatePresence>
+        {slides.length > 1 && (
+          <div className="dc-reel__controls">
+            {slides.map((s, n) => <button key={s.id} className={n === i ? "is-on" : ""} onClick={() => setI(n)} aria-label={`Ver escena ${n + 1}`}><span key={`${i}-${paused}`} /></button>)}
+            <button className="dc-reel__pause" onClick={() => setPaused(p => !p)} aria-label={paused ? "Reanudar" : "Pausar"}>{paused ? <Play /> : <Pause />}</button>
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }
 
 export default function Home() {
-  const pageRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const reduce = useReducedMotion();
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ["start start", "end start"] });
+  const leftX = useTransform(heroP, [0, 1], ["0%", reduce ? "0%" : "-18%"]);
+  const rightX = useTransform(heroP, [0, 1], ["0%", reduce ? "0%" : "18%"]);
+  const pillScale = useTransform(heroP, [0, 1], [1, reduce ? 1 : 1.6]);
+
   const [businessHours, setBusinessHours] = useState<BusinessHour[]>([]);
   const [specialHours, setSpecialHours] = useState<SpecialHour[]>([]);
-  const [activeGiveaway, setActiveGiveaway] = useState<Giveaway | null>(null);
-  const [marqueeItems, setMarqueeItems] = useState<MarqueeItem[]>([]);
-  const [homeSettings, setHomeSettings] = useState<HomeSettings>({ image: "", slides: [] });
+  const [giveaway, setGiveaway] = useState<Giveaway | null>(null);
+  const [marquee, setMarquee] = useState<MarqueeItem[]>([]);
+  const [heroImage, setHeroImage] = useState("");
+  const [configured, setConfigured] = useState<HomeMediaSlide[]>([]);
+  const [igEnabled, setIgEnabled] = useState(true);
+  const [pill, setPill] = useState(0);
 
   useEffect(() => {
     const today = new Date();
     const later = new Date(today);
     later.setDate(later.getDate() + 28);
+    const now = new Date().toISOString();
     Promise.all([
       supabase.from("business_hours").select("*").order("day_of_week"),
       supabase.from("special_hours").select("*").gte("date", today.toISOString().split("T")[0]).lte("date", later.toISOString().split("T")[0]).order("date"),
-      supabase.from("giveaways").select("id,title,prize,end_date").eq("is_finished", false).lte("start_date", new Date().toISOString()).gte("end_date", new Date().toISOString()).order("end_date").limit(1).maybeSingle(),
+      supabase.from("giveaways").select("id,title,prize,end_date").eq("is_finished", false).lte("start_date", now).gte("end_date", now).order("end_date").limit(1).maybeSingle(),
       supabase.from("marquee_items").select("id,text,color").eq("is_active", true).order("sort_order"),
-      supabase.from("app_settings").select("key,value").in("key", ["home_hero_image_url", "home_hero_slides"]),
-    ]).then(([hours, specials, giveaway, marquee, settings]) => {
-      if (hours.data) setBusinessHours(hours.data.map(day => ({ ...day, time_ranges: Array.isArray(day.time_ranges) ? day.time_ranges as TimeRange[] : [] })));
-      if (specials.data) setSpecialHours(specials.data.map(day => ({ ...day, time_ranges: Array.isArray(day.time_ranges) ? day.time_ranges as TimeRange[] : [] })));
-      if (giveaway.data) setActiveGiveaway(giveaway.data as Giveaway);
-      setMarqueeItems((marquee.data as MarqueeItem[] | null) || []);
-      const next: HomeSettings = { image: "", slides: [] };
-      settings.data?.forEach(setting => {
-        if (setting.key === "home_hero_image_url" && typeof setting.value === "string") next.image = setting.value;
-        if (setting.key === "home_hero_slides" && Array.isArray(setting.value)) next.slides = setting.value as unknown as HomeMediaSlide[];
+      supabase.from("app_settings").select("key,value").in("key", ["home_hero_image_url", "home_hero_slides", "instagram_feed_enabled"]),
+    ]).then(([hours, specials, gw, mq, settings]) => {
+      if (hours.data) setBusinessHours(hours.data.map(d => ({ ...d, time_ranges: Array.isArray(d.time_ranges) ? d.time_ranges as TimeRange[] : [] })));
+      if (specials.data) setSpecialHours(specials.data.map(d => ({ ...d, time_ranges: Array.isArray(d.time_ranges) ? d.time_ranges as TimeRange[] : [] })));
+      if (gw.data) setGiveaway(gw.data as Giveaway);
+      setMarquee((mq.data as MarqueeItem[] | null) || []);
+      settings.data?.forEach(s => {
+        if (s.key === "home_hero_image_url" && typeof s.value === "string") setHeroImage(s.value);
+        if (s.key === "home_hero_slides" && Array.isArray(s.value)) setConfigured(s.value as unknown as HomeMediaSlide[]);
+        if (s.key === "instagram_feed_enabled") setIgEnabled(s.value === true);
       });
-      setHomeSettings(next);
     });
   }, []);
 
   const slides = useMemo(() => {
-    const configured = homeSettings.slides.filter(slide => slide.active !== false).sort((a, b) => a.order - b.order);
-    if (configured.length) return configured;
+    const list = configured.filter(s => s.active !== false).sort((a, b) => a.order - b.order);
+    if (list.length) return list;
     return [
-      { id: "studio", url: homeSettings.image || defaultHero, type: "image" as const, order: 0 },
+      { id: "studio", url: heroImage || defaultHero, type: "image" as const, order: 0 },
       { id: "craft", url: craftDetail, type: "image" as const, order: 1 },
       { id: "client", url: clientEditorial, type: "image" as const, order: 2 },
     ];
-  }, [homeSettings]);
+  }, [configured, heroImage]);
+
+  const pillImages = slides.filter(s => s.type === "image");
+  useEffect(() => {
+    if (pillImages.length < 2 || reduce) return;
+    const t = window.setInterval(() => setPill(v => (v + 1) % pillImages.length), 3200);
+    return () => window.clearInterval(t);
+  }, [pillImages.length, reduce]);
+
+  const todayIdx = new Date().getDay();
 
   return (
-    <div ref={pageRef} className="customer-shell liquid-home min-h-screen overflow-x-hidden">
-      <div className="customer-ambient" aria-hidden="true" />
-      <HomeMotionLayer />
-      <ScrollBarberObjects />
+    <div className="dc-home min-h-screen">
       <InstallBanner />
       <CustomerHeader transparent />
 
-      <motion.section className="liquid-hero" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.8 }}>
-        <div className="liquid-hero__meta"><span>ESTUDIO DE BARBERÍA</span><span>MONÓVAR · ALICANTE</span></div>
-        <LiquidChromeWordmark />
-        <div className="liquid-hero__bottom">
-          <p>Barbería urbana para gente que busca criterio, precisión y una imagen que se sienta propia.</p>
-          <div><Button size="lg" onClick={() => navigate("/booking")}>Reservar cita <ArrowUpRight /></Button><a href="#estudio">Descubrir el estudio <ArrowDown /></a></div>
+      <section className="dc-hero" ref={heroRef}>
+        <div className="dc-hero__meta">
+          <span>Barbería urbana</span>
+          <span>Monóvar — Alicante</span>
+          <span>Est. con criterio</span>
         </div>
-      </motion.section>
-
-      {marqueeItems.length > 0 && <div className="liquid-marquee" aria-label="Información destacada"><div>{[...marqueeItems, ...marqueeItems].map((item, index) => <span key={`${item.id}-${index}`}><Scissors />{item.text}</span>)}</div></div>}
-
-      <section className="customer-notices"><MembershipExpirationBanner /><PendingRatingBanner /></section>
-
-      <motion.section id="estudio" className="liquid-intro" initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.25 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.14 } } }}>
-        <motion.div className="liquid-intro__heading" variants={{ hidden: { opacity: 0, x: -90, rotateY: -12 }, visible: { opacity: 1, x: 0, rotateY: 0, transition: { duration: 0.75 } } }}><span className="customer-kicker">EL ESTUDIO</span><h2>Menos ruido.<br />Más <em>presencia.</em></h2></motion.div>
-        <motion.div className="liquid-intro__copy" variants={{ hidden: { opacity: 0, y: 70 }, visible: { opacity: 1, y: 0, transition: { duration: 0.75 } } }}><p>El corte empieza escuchando. Construimos una forma que encaje contigo, con tu día a día y con lo que quieres proyectar.</p><Button variant="outline" onClick={() => navigate("/booking")}>Encontrar mi estilo <Sparkles /></Button></motion.div>
-      </motion.section>
-
-      <MediaCarousel slides={slides} />
-
-      <motion.section className="liquid-principles" initial="hidden" whileInView="visible" viewport={{ once: false, amount: 0.18 }} variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.13 } } }}>
-        {[
-          { icon: Scissors, number: "01", title: "Técnica con intención", text: "Proporción, textura y detalle al servicio de tu imagen." },
-          { icon: ShieldCheck, number: "02", title: "Sin improvisar", text: "Cada cita tiene su tiempo, su preparación y su acabado." },
-          { icon: Clock3, number: "03", title: "Tu tiempo cuenta", text: "Reserva clara, horario definido y todo listo cuando llegas." },
-        ].map(({ icon: Icon, number, title, text }) => <motion.article variants={{ hidden: { opacity: 0, y: 90, rotateX: 12 }, visible: { opacity: 1, y: 0, rotateX: 0, transition: { type: "spring", stiffness: 90, damping: 18 } } }} key={number}><span>{number}</span><Icon /><h3>{title}</h3><p>{text}</p></motion.article>)}
-      </motion.section>
-
-      {activeGiveaway && <section className="liquid-feature"><Gift /><div><span className="customer-kicker">AHORA EN DIEGCUTZ</span><h2>{activeGiveaway.title}</h2><p>{activeGiveaway.prize}</p></div><Button variant="secondary" onClick={() => navigate("/giveaways")}>Participar <ArrowUpRight /></Button></section>}
-
-      <section className="liquid-membership"><div><span className="customer-kicker">MEMBRESÍAS</span><h2>Siempre a punto,<br />sin volver a empezar.</h2></div><div><p>Ventajas pensadas para quienes hacen del cuidado personal una rutina, no una excepción.</p><Link to="/membership">Ver membresías <ArrowUpRight /></Link></div></section>
-
-      <ReviewsShowcase />
-
-      <section className="liquid-location">
-        <div className="liquid-location__map"><Map /></div>
-        <div className="liquid-location__info"><span className="customer-kicker">VEN A VERNOS</span><h2>En el centro<br />de Monóvar.</h2><p><MapPin /> Carrer Sant Antoni · 03640 Monóvar, Alicante</p><div className="liquid-hours">{businessHours.length ? businessHours.map(day => { const special = specialHours.find(item => new Date(`${item.date}T00:00:00`).getDay() === day.day_of_week); return <div key={day.day_of_week}><span>{DAYS[day.day_of_week]}</span><strong>{special?.is_closed || day.is_closed ? "Cerrado" : special ? special.time_ranges.map(range => `${range.start.slice(0, 5)}–${range.end.slice(0, 5)}`).join(" / ") : day.is_24h ? "24 horas" : day.time_ranges.map(range => `${range.start.slice(0, 5)}–${range.end.slice(0, 5)}`).join(" / ")}</strong></div>; }) : <p>Consulta la disponibilidad al reservar.</p>}</div></div>
+        <h1 className="dc-hero__title" aria-label="DIEGCUTZ">
+          <motion.span style={{ x: leftX }} initial={{ y: "110%" }} animate={{ y: 0 }} transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}>DIEG</motion.span>
+          <motion.span className="dc-hero__pill" style={{ scale: pillScale }} initial={{ width: 0, opacity: 0 }} animate={{ width: "auto", opacity: 1 }} transition={{ delay: 0.5, duration: 0.9, ease: [0.16, 1, 0.3, 1] }} aria-hidden="true">
+            <AnimatePresence mode="popLayout">
+              {pillImages[pill] && <motion.img key={pillImages[pill].id} src={pillImages[pill].url} alt="" initial={{ opacity: 0, scale: 1.2 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.8 }} />}
+            </AnimatePresence>
+          </motion.span>
+          <motion.span style={{ x: rightX }} initial={{ y: "110%" }} animate={{ y: 0 }} transition={{ duration: 1, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}>CUTZ</motion.span>
+        </h1>
+        <div className="dc-hero__foot">
+          <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
+            Cortes, degradados y barba con precisión. <em>Sin prisas, sin plantillas.</em>
+          </motion.p>
+          <motion.button className="dc-badge" onClick={() => navigate("/booking")} initial={{ scale: 0, rotate: -90 }} animate={{ scale: 1, rotate: 0 }} transition={{ delay: 0.9, type: "spring", stiffness: 120 }} aria-label="Reservar cita">
+            <svg viewBox="0 0 200 200" aria-hidden="true"><defs><path id="dc-circle" d="M100,100 m-78,0 a78,78 0 1,1 156,0 a78,78 0 1,1 -156,0" /></defs><text><textPath href="#dc-circle">RESERVA TU CITA · RESERVA TU CITA · </textPath></text></svg>
+            <ArrowUpRight />
+          </motion.button>
+        </div>
       </section>
 
-      <InstagramFeed />
+      {marquee.length > 0 && (
+        <div className="dc-ticker" aria-label="Información destacada">
+          <div>{[...marquee, ...marquee, ...marquee].map((m, i) => <span key={`${m.id}-${i}`}>{m.text}<i aria-hidden="true">✕</i></span>)}</div>
+        </div>
+      )}
+
+      <section className="dc-notices"><MembershipExpirationBanner /><PendingRatingBanner /></section>
+
+      <Manifesto />
+      <Reel slides={slides} />
+
+      <section className="dc-method">
+        <span className="dc-label">(03) Método</span>
+        {[
+          ["Escucha", "Antes de tocar las tijeras, entendemos qué quieres proyectar y cómo vives tu pelo."],
+          ["Precisión", "Proporción, textura y líneas limpias. Cada detalle tiene un motivo."],
+          ["Acabado", "Sales listo, con el estilo asentado y sabiendo cómo mantenerlo."],
+        ].map(([t, d], n) => (
+          <motion.button key={t} className="dc-method__row" onClick={() => navigate("/booking")} initial={{ opacity: 0, y: 40 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, amount: 0.5 }} transition={{ delay: n * 0.08, duration: 0.6 }}>
+            <span className="dc-method__n">0{n + 1}</span>
+            <strong>{t}</strong>
+            <p>{d}</p>
+            <ArrowRight />
+          </motion.button>
+        ))}
+      </section>
+
+      {giveaway && (
+        <section className="dc-giveaway">
+          <Gift />
+          <div><span className="dc-label">Ahora mismo</span><h2>{giveaway.title}</h2><p>{giveaway.prize}</p></div>
+          <button className="dc-btn dc-btn--light" onClick={() => navigate("/giveaways")}>Participar <ArrowUpRight /></button>
+        </section>
+      )}
+
+      <section className="dc-membership">
+        <motion.div className="dc-membership__card" initial={{ opacity: 0, scale: 0.94 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true, amount: 0.3 }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}>
+          <span className="dc-label">(04) Membresías</span>
+          <h2>Siempre<br />a punto.</h2>
+          <div className="dc-membership__foot">
+            <p>Para quienes no esperan a que se note. Ventajas mensuales pensadas para tu ritmo.</p>
+            <Link to="/membership" className="dc-btn dc-btn--accent">Ver planes <ArrowUpRight /></Link>
+          </div>
+        </motion.div>
+      </section>
+
+      <div className="dc-reviews"><ReviewsShowcase /></div>
+
+      <section className="dc-visit">
+        <div className="dc-visit__info">
+          <span className="dc-label">(05) Visítanos</span>
+          <h2>Monóvar,<br />centro.</h2>
+          <p className="dc-visit__addr"><MapPin /> Carrer Sant Antoni · 03640 Monóvar, Alicante</p>
+          <ul className="dc-hours">
+            {businessHours.length ? ORDER.map(dow => businessHours.find(d => d.day_of_week === dow)).filter(Boolean).map(day => {
+              const d = day as BusinessHour;
+              const special = specialHours.find(s => new Date(`${s.date}T00:00:00`).getDay() === d.day_of_week);
+              const closed = special?.is_closed || d.is_closed;
+              const text = closed ? "Cerrado" : special ? fmt(special.time_ranges) : d.is_24h ? "24 horas" : fmt(d.time_ranges);
+              return <li key={d.day_of_week} className={`${d.day_of_week === todayIdx ? "is-today" : ""} ${closed ? "is-closed" : ""}`}><span>{DAYS[d.day_of_week]}</span><strong>{text}</strong></li>;
+            }) : <li><span>Consulta la disponibilidad al reservar.</span></li>}
+          </ul>
+        </div>
+        <div className="dc-visit__map"><Map /></div>
+      </section>
+
+      <section className="dc-final">
+        <button onClick={() => navigate("/booking")} className="dc-final__cta">
+          <span>¿Te toca?</span>
+          <strong>Reserva<ArrowUpRight /></strong>
+        </button>
+        {igEnabled && (
+          <a className="dc-ig" href="https://instagram.com/diegcutz" target="_blank" rel="noopener noreferrer"><Instagram /> @diegcutz</a>
+        )}
+      </section>
+
       <CustomerFooter />
-      <a href="https://wa.me/34641637576" target="_blank" rel="noopener noreferrer" className="liquid-whatsapp" aria-label="Contactar por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884" /></svg></a>
+      <a href="https://wa.me/34641637576" target="_blank" rel="noopener noreferrer" className="dc-whatsapp" aria-label="Contactar por WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884" /></svg></a>
     </div>
   );
 }
