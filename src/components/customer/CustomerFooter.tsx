@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight, Instagram, MapPin } from "lucide-react";
+import { BrandMark } from "@/components/brand/BrandMark";
 
 export function CustomerFooter() {
   return (
@@ -11,7 +12,7 @@ export function CustomerFooter() {
       </div>
       <div className="customer-footer__grid">
         <div>
-          <div className="brand-lockup brand-lockup--large"><span className="brand-lockup__mark">DC</span><span className="brand-lockup__name">DIEGCUTZ</span></div>
+          <div className="brand-lockup brand-lockup--large"><BrandMark variant="light" /><span className="brand-lockup__name">DIEGCUTZ</span></div>
           <p>Estudio de barbería urbana. Precisión, conversación y estilo propio.</p>
         </div>
         <div><p className="customer-kicker">ESTUDIO</p><a href="https://maps.google.com/?q=Carrer+Sant+Antoni+Monovar+Alicante" target="_blank" rel="noreferrer"><MapPin /> Carrer Sant Antoni · Monóvar</a><a href="https://instagram.com/diegcutz" target="_blank" rel="noreferrer"><Instagram /> @diegcutz</a></div>

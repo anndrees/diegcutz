@@ -127,7 +127,7 @@ export const AdminSidebar = ({ activeTab, onTabChange }: AdminSidebarProps) => {
       {/* Desktop sidebar */}
       <aside className="admin-sidebar hidden lg:flex lg:flex-col w-64 h-[calc(100vh-10rem)] sticky top-24 overflow-hidden">
         <div className="admin-sidebar__head p-5 border-b border-border">
-          <span>DC</span>
+          <BrandMark variant="light" className="admin-sidebar__logo" />
           <h2 className="text-lg font-bold">Panel de Control</h2>
           <p className="text-xs text-muted-foreground">Gestión del negocio</p>
         </div>

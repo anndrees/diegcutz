@@ -34,7 +34,7 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
     <header className={cn("customer-header", transparent && "customer-header--transparent", scrolled && "is-scrolled")}>
       <div className="customer-header__inner">
         <Link to="/" className="brand-lockup" aria-label="DIEGCUTZ inicio">
-          <span className="brand-lockup__mark" aria-hidden="true">DC</span>
+          <BrandMark />
           <span className="brand-lockup__name">DIEGCUTZ <small>MONÓVAR</small></span>
         </Link>
 
