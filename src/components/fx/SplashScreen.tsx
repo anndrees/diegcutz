@@ -7,16 +7,12 @@ const TEXT = "DIEGCUTZ";
  *  loads underneath and the splash is just an overlay that fades out. With
  *  prefers-reduced-motion it shows briefly with no animation. */
 export const SplashScreen = () => {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return !sessionStorage.getItem("diegcutz_splash_shown");
-  });
+  const [visible, setVisible] = useState(() => typeof window !== "undefined");
 
   useEffect(() => {
     if (!visible) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const t = setTimeout(() => {
-      sessionStorage.setItem("diegcutz_splash_shown", "1");
       setVisible(false);
     }, reduced ? 1000 : 1600);
     return () => clearTimeout(t);
