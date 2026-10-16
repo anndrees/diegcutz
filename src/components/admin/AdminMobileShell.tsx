@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
+import { Clapperboard,
   BarChart3,
   Calendar,
   House,
@@ -44,6 +44,7 @@ export const ADMIN_SECTION_TITLES: Record<string, string> = {
   giveaways: "Sorteos",
   marquee: "Marquee",
   homepage: "Página principal",
+  stories: "Historias",
   tv: "Modo TV",
   messages: "Mensajes",
   notifications: "Notificaciones",
@@ -80,6 +81,7 @@ const moreGroups: {
       { id: "giveaways", label: "Sorteos", icon: Gift },
       { id: "marquee", label: "Marquee", icon: Megaphone },
       { id: "homepage", label: "Página principal", icon: Home },
+      { id: "stories", label: "Historias", icon: Clapperboard },
       { id: "tv", label: "Modo TV", icon: Tv },
     ],
   },
