@@ -1,4 +1,7 @@
 import { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
+import { BookingCoupon } from "@/components/booking/BookingCoupon";
+import "@/components/booking/booking-flow.css";
 import { Button } from "@/components/ui/button";
 import { DatePickerEditorial, TimePickerEditorial } from "@/components/booking/DateTimePicker";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,7 +21,7 @@ import { CalendarDays, Scissors, CheckCircle2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { z } from "zod";
 import { MobileStep } from "@/components/booking/MobileStep";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronDown, TriangleAlert, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { PlaylistPreview } from "@/components/booking/PlaylistPreview";
 import { StyleAdvisor } from "@/components/booking/StyleAdvisor";
 import { BookingConfirmation } from "@/components/booking/BookingConfirmation";
@@ -115,6 +118,24 @@ const Booking = () => {
   const [membershipName, setMembershipName] = useState("");
   const [confirmedBooking, setConfirmedBooking] = useState<{ id: string; booking_date: string; booking_time: string; services: string[] } | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [summaryOpen, setSummaryOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isMobile) return;
+    const header = document.querySelector(".customer-header");
+    const tabs = document.querySelector(".m-tabbar");
+    const sync = () => {
+      document.body.style.setProperty("--booking-header-height", `${header?.getBoundingClientRect().height || 80}px`);
+      document.body.style.setProperty("--booking-tabbar-height", `${tabs?.getBoundingClientRect().height || 76}px`);
+    };
+    const observer = new ResizeObserver(sync);
+    if (header) observer.observe(header);
+    if (tabs) observer.observe(tabs);
+    sync();
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  useEffect(() => { setSummaryOpen(false); }, [mobileStep]);
   
   // Coupon state
   const [couponCode, setCouponCode] = useState<string>("");
@@ -561,7 +582,7 @@ const Booking = () => {
     // Remove services included in the pack
     const pack = packs.find(p => p.id === packId);
     if (pack && pack.included_service_ids) {
-      setSelectedServices(selectedServices.filter(s => !pack.included_service_ids!.includes(s)));
+      setSelectedServices(selectedServices.filter(s => !pack.included_service_ids?.includes(s)));
     }
   };
 
@@ -678,17 +699,17 @@ const Booking = () => {
     
     const result = data as { valid: boolean; error?: string; coupon_id?: string; code?: string; description?: string; discount_type?: string; discount_value?: number };
     
-    if (!result.valid) {
+    if (!result.valid || !result.coupon_id || !result.code || !result.discount_type || result.discount_value === undefined) {
       setCouponError(result.error || "Cupón no válido");
       return;
     }
     
     setAppliedCoupon({
-      id: result.coupon_id!,
-      code: result.code!,
+      id: result.coupon_id,
+      code: result.code,
       description: result.description || null,
-      discount_type: result.discount_type!,
-      discount_value: result.discount_value!
+      discount_type: result.discount_type,
+      discount_value: result.discount_value
     });
     setCouponCode("");
     toast({
@@ -1005,6 +1026,16 @@ const Booking = () => {
   const availableHours = getAvailableHours();
   const totalPrice = calculateTotal();
 
+  const renderCoupon = () => <BookingCoupon code={couponCode} onCode={value => { setCouponCode(value); setCouponError(""); }} applied={appliedCoupon} loading={couponLoading} error={couponError} onApply={handleApplyCoupon} onRemove={removeCoupon} />;
+  const renderSummary = () => <div className="booking-summary__body">
+    <div className="booking-summary__row"><span><CalendarDays /> Fecha</span><div><p>{selectedDate ? format(selectedDate, "EEEE, d MMMM", { locale: es }) : "Por elegir"}</p>{selectedDate && <Button variant="link" size="sm" onClick={() => setMobileStep(1)}>Editar</Button>}</div></div>
+    <div className="booking-summary__row"><span><Clock /> Hora</span><div><p>{selectedTime ? selectedTime.slice(0, 5) : "Por elegir"}</p>{selectedTime && <Button variant="link" size="sm" onClick={() => setMobileStep(2)}>Editar</Button>}</div></div>
+    <div className="booking-summary__row"><span><Scissors /> Servicios</span><div><p>{getSelectedItems().length ? getSelectedItems().map(item => item.replace(/\s*\([^)]*\)$/, "")).join(" · ") : "Por elegir"}</p>{selectedTime && <Button variant="link" size="sm" onClick={() => setMobileStep(3)}>Editar</Button>}</div></div>
+    <div className="booking-summary__total"><span>Total en la barbería</span><strong>{totalPrice}€</strong></div>
+    <AnimatePresence initial={false}>{mobileStep < 4 && !isFreeCutReservation && <motion.div key="coupon" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: .3 }} className="booking-summary__reveal">{renderCoupon()}</motion.div>}</AnimatePresence>
+    {!isMobile && <AnimatePresence initial={false}>{mobileStep < 4 && <motion.div key="continue" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="booking-summary__reveal"><Button size="lg" className="w-full" disabled={(mobileStep === 1 && !selectedDate) || (mobileStep === 2 && !selectedTime) || (mobileStep === 3 && !selectedPack && !selectedServices.length)} onClick={() => setMobileStep(step => Math.min(4, step + 1) as 1 | 2 | 3 | 4)}>Continuar <ChevronRight /></Button></motion.div>}</AnimatePresence>}
+  </div>;
+
   if (confirmedBooking) return <CustomerPage><BookingConfirmation booking={confirmedBooking} onHome={() => navigate("/")} /></CustomerPage>;
 
   return (
@@ -1035,7 +1066,8 @@ const Booking = () => {
           )}
         </motion.div>
 
-        <nav className="booking-progress" aria-label="Progreso de la reserva">
+        <div className="booking-top-shell">
+        <nav className="booking-progress booking-progress--new" aria-label="Progreso de la reserva">
           {[
             { n: 1, label: "Fecha", detail: selectedDate ? format(selectedDate, "d MMM", { locale: es }) : "Elige el día", complete: !!selectedDate },
             { n: 2, label: "Hora", detail: selectedTime ? selectedTime.slice(0, 5) : "Elige la hora", complete: !!selectedTime },
@@ -1044,13 +1076,22 @@ const Booking = () => {
           ].map(step => {
             const enabled = step.n === 1 || (step.n === 2 && selectedDate) || (step.n === 3 && selectedDate && selectedTime) || (step.n === 4 && selectedDate && selectedTime && (selectedPack || selectedServices.length));
             return (
-              <button key={step.n} type="button" disabled={!enabled} onClick={() => enabled && setMobileStep(step.n as 1 | 2 | 3 | 4)} className={`${mobileStep === step.n ? "is-active" : ""} ${step.complete ? "is-complete" : ""}`} aria-current={mobileStep === step.n ? "step" : undefined}>
-                <span>{step.complete ? <Check className="h-4 w-4" /> : String(step.n).padStart(2, "0")}</span>
-                <span><strong>{step.label}</strong><small>{step.detail}</small></span>
-              </button>
+              <Button variant="ghost" key={step.n} type="button" disabled={!enabled} onClick={() => enabled && setMobileStep(step.n as 1 | 2 | 3 | 4)} className={`${mobileStep === step.n ? "is-active" : ""} ${step.complete ? "is-complete" : ""}`} aria-current={mobileStep === step.n ? "step" : undefined}>
+                <span className="booking-progress__number">{step.complete ? <Check className="h-4 w-4" /> : String(step.n).padStart(2, "0")}</span>
+                <span className="booking-progress__label"><strong>{step.label}</strong><small>{step.detail}</small></span>
+              </Button>
             );
           })}
         </nav>
+
+          {isMobile && <div className="booking-mobile-summary">
+            <Button variant="ghost" className="booking-mobile-summary__toggle" onClick={() => setSummaryOpen(open => !open)} aria-expanded={summaryOpen} aria-controls="mobile-booking-details">
+              <span><strong>{selectedDate ? format(selectedDate, "d MMM", { locale: es }) : "Tu cita"}{selectedTime ? ` · ${selectedTime.slice(0, 5)}` : ""}</strong><small>{getSelectedItems().length ? `${getSelectedItems().length} servicios` : "Sin servicios elegidos"}</small></span>
+              <b>{totalPrice}€</b><ChevronDown className={summaryOpen ? "is-open" : ""} />
+            </Button>
+            <AnimatePresence initial={false}>{summaryOpen && <motion.div id="mobile-booking-details" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: .3 }} className="booking-mobile-summary__details">{renderSummary()}</motion.div>}</AnimatePresence>
+          </div>}
+        </div>
 
         {/* Restriction Alert */}
         {profile?.is_restricted && restrictionTimeLeft && (
@@ -1071,10 +1112,8 @@ const Booking = () => {
 
         <div className="booking-workspace pb-24 md:pb-0">
           <main className="booking-workspace__main">
-        <div>
-          {/* Calendar — Step 1 on mobile */}
-          <MobileStep isMobile={isMobile} active={mobileStep === 1} step={1} currentStep={mobileStep}>
-          <div>
+        <MobileStep currentStep={mobileStep}>
+          {mobileStep === 1 && <div>
             <DatePickerEditorial
               selected={selectedDate}
               onSelect={(d) => {
@@ -1086,12 +1125,9 @@ const Booking = () => {
               freeCount={(d) => Math.max(0, slotsForDate(d) - (bookingsByDate[format(d, "yyyy-MM-dd")] || 0))}
               maxDate={maxBookingDate}
             />
-          </div>
-          </MobileStep>
+          </div>}
 
-          {/* Time Selection — Step 2 on mobile */}
-          <MobileStep isMobile={isMobile} active={mobileStep === 2} step={2} currentStep={mobileStep}>
-          <div className="space-y-6" ref={hoursRef}>
+          {mobileStep === 2 && <div className="space-y-6" ref={hoursRef}>
             <AnimatePresence mode="wait">
               {selectedDate && (
                 <motion.div
@@ -1111,22 +1147,11 @@ const Booking = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-          </MobileStep>
-        </div>
+          </div>}
 
-        {/* Services Selection */}
-        <AnimatePresence>
-        {selectedTime && !loadingServices && (
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
-            className="mt-8 space-y-6 pb-24 md:pb-0"
-          >
-            <MobileStep isMobile={isMobile} active={mobileStep === 3} step={3} currentStep={mobileStep}>
-            <div className="space-y-6">
+          {mobileStep === 3 && selectedTime && !loadingServices && <div className="booking-services space-y-6">
+            <header className="booking-section-heading"><p className="dtp-kicker">03 / TU ESTILO</p><h2>El corte. <em>A tu manera.</em></h2><Scissors aria-hidden="true" /></header>
+            <div className="booking-contact-note"><p>¿Necesitas un servicio que no aparece en la lista?</p><Button variant="link" asChild><a href="https://wa.me/34641637576" target="_blank" rel="noopener noreferrer">Escríbenos por WhatsApp <ArrowUpRight /></a></Button></div>
             {!isFreeCutReservation && <StyleAdvisor services={services.filter(service => !service.coming_soon)} onSelect={(id) => { setSelectedPack(null); setSelectedServices(current => current.includes(id) ? current : [...current, id]); }} onSlotSelect={({ date, time }) => { const [y, m, d] = date.split("-").map(Number); setSelectedDate(new Date(y, m - 1, d)); setSelectedTime(`${time}:00`); }} />}
             {/* Packs - Hidden for free cut reservations */}
             {!isFreeCutReservation && packs.length > 0 && (
@@ -1201,6 +1226,7 @@ const Booking = () => {
                                     {!addon.coming_soon && (
                                       <Checkbox
                                         checked={selectedAddons.includes(addon.id)}
+                                        onClick={e => e.stopPropagation()}
                                         onCheckedChange={() => handleAddonChange(addon.id)}
                                       />
                                     )}
@@ -1248,48 +1274,13 @@ const Booking = () => {
                     const disabled = isServiceDisabled(service.id) || service.coming_soon;
                     
                     return (
-                      <div
-                        key={service.id}
-                        className={`flex items-center justify-between p-4 border-2 rounded-lg ${
-                          disabled && !isFreeCutService
-                            ? 'opacity-50 border-muted'
-                            : isFreeCutService
-                            ? 'border-secondary bg-secondary/10'
-                            : selectedServices.includes(service.id)
-                            ? 'border-primary bg-card/50 shadow-elegant'
-                            : 'border-border hover:border-primary'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <Checkbox
-                            id={service.id}
-                            checked={selectedServices.includes(service.id)}
-                            onCheckedChange={() => handleServiceChange(service.id)}
-                            disabled={disabled || isFreeCutService}
-                          />
-                          <Label
-                            htmlFor={service.id}
-                            className={`text-base cursor-pointer`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span>{service.name}</span>
-                              {isFreeCutService && (
-                                <span className="text-xs font-bold text-secondary uppercase bg-secondary/20 px-2 py-0.5 rounded">
-                                  ✓ GRATIS
-                                </span>
-                              )}
-                              {service.coming_soon && (
-                                <span className="text-xs font-bold text-primary uppercase bg-primary/10 px-2 py-0.5 rounded">
-                                  Próximamente
-                                </span>
-                              )}
-                            </div>
-                          </Label>
-                        </div>
-                        <span className={`text-lg font-bold ${isFreeCutService ? 'line-through text-muted-foreground' : ''}`}>
-                          {service.price}€
-                        </span>
-                      </div>
+                      <Button variant="ghost" role="checkbox" aria-checked={selectedServices.includes(service.id)} aria-label={`${service.name}, ${service.price}€`} disabled={!!disabled || isFreeCutService}
+                        key={service.id} onClick={() => handleServiceChange(service.id)}
+                        className={`booking-service-option ${selectedServices.includes(service.id) ? "is-selected" : ""}`}>
+                        <span className="booking-service-option__check" aria-hidden="true">{selectedServices.includes(service.id) && <Check />}</span>
+                        <span className="booking-service-option__name"><strong>{service.name}</strong>{service.description && <small>{service.description}</small>}{isFreeCutService && <small>GRATIS · Incluido</small>}{service.coming_soon && <small>Próximamente</small>}{isServiceDisabled(service.id) && !isFreeCutService && <small>Incluido en tu pack</small>}</span>
+                        <span className="booking-service-option__price">{isFreeCutService ? "0" : service.price}€</span>
+                      </Button>
                     );
                   })}
                 </CardContent>
@@ -1391,112 +1382,17 @@ const Booking = () => {
               </CardContent>
             </Card>
 
-            {/* Coupon Code */}
-            {!isFreeCutReservation && (selectedPack || selectedServices.length > 0) && (
-              <Card className="booking-step-card overflow-hidden">
-                <CardHeader className="border-b border-border">
-                  <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-                    <Ticket className="text-primary" />
-                    Código de descuento
-                  </CardTitle>
-                  <CardDescription>
-                    ¿Tienes un cupón promocional? Aplícalo aquí
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="pt-6">
-                  {appliedCoupon ? (
-                    <div className="flex items-center justify-between p-3 bg-primary/10 border border-primary rounded-lg">
-                      <div className="flex items-center gap-2">
-                        <Check className="h-5 w-5 text-primary" />
-                        <div>
-                          <p className="font-semibold text-primary">{appliedCoupon.code}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {appliedCoupon.discount_type === 'percentage' 
-                              ? `${appliedCoupon.discount_value}% de descuento`
-                              : `${appliedCoupon.discount_value}€ de descuento`
-                            }
-                          </p>
-                        </div>
-                      </div>
-                      <Button variant="ghost" size="icon" onClick={removeCoupon}>
-                        <X className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
-                    <div className="space-y-2">
-                      <div className="flex gap-2">
-                        <Input
-                          placeholder="Introduce tu código"
-                          value={couponCode}
-                          onChange={(e) => {
-                            setCouponCode(e.target.value.toUpperCase());
-                            setCouponError("");
-                          }}
-                          className="uppercase"
-                        />
-                        <Button 
-                          onClick={handleApplyCoupon} 
-                          disabled={couponLoading || !couponCode.trim()}
-                          variant="outline"
-                        >
-                          {couponLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
-                        </Button>
-                      </div>
-                      {couponError && (
-                        <p className="text-sm text-destructive">{couponError}</p>
-                      )}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-            </div>
-            </MobileStep>
+          </div>}
 
-            <MobileStep isMobile={isMobile} active={mobileStep === 4} step={4} currentStep={mobileStep}>
-            <div className="space-y-6">
-            {/* Total Price */}
-            {(selectedPack || selectedServices.length > 0) && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.4 }}
-              >
-              <Card className={`relative overflow-hidden border ${isFreeCutReservation ? 'bg-secondary/10 border-secondary' : 'bg-primary border-primary'}`}>
-                <CardContent className="p-6 relative">
-                  {appliedCoupon && (
-                    <div className={`mb-3 space-y-1 ${isFreeCutReservation ? 'text-foreground' : 'text-background/80'}`}>
-                      <div className="flex justify-between text-sm">
-                        <span>Subtotal:</span>
-                        <span>{calculateSubtotal()}€</span>
-                      </div>
-                      <div className="flex justify-between text-sm text-primary">
-                        <span>Descuento ({appliedCoupon.code}):</span>
-                        <span>-{calculateDiscount()}€</span>
-                      </div>
-                    </div>
-                  )}
-                  <div className={`flex justify-between items-center ${isFreeCutReservation ? 'text-foreground' : 'text-background'}`}>
-                    <div>
-                      <span className="text-2xl font-semibold">TOTAL:</span>
-                      {isFreeCutReservation && totalPrice === 0 && (
-                        <p className="text-sm text-secondary">¡Es tu corte gratis!</p>
-                      )}
-                    </div>
-                    <motion.span
-                      key={totalPrice}
-                      initial={{ scale: 1.3, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      className="text-5xl font-semibold tabular-nums"
-                    >
-                      {totalPrice}€
-                    </motion.span>
-                  </div>
-                </CardContent>
-              </Card>
-              </motion.div>
-            )}
-
+          {mobileStep === 4 && <div className="booking-confirm-step space-y-6">
+            <header className="booking-section-heading"><p className="dtp-kicker">04 / TODO LISTO</p><h2>Tu próxima <em>visita.</em></h2><CheckCircle2 aria-hidden="true" /></header>
+            <section className="booking-receipt">
+              <div className="booking-receipt__date"><CalendarDays /><strong>{selectedDate ? format(selectedDate, "EEEE, d MMMM", { locale: es }) : ""}</strong><b>{selectedTime.slice(0, 5)}</b></div>
+              <div className="booking-receipt__items">{getSelectedItems().map((item, i) => <p key={`${i}-${item}`}><Scissors />{item}</p>)}</div>
+              {appliedCoupon && <div className="booking-receipt__discount"><span>Descuento · {appliedCoupon.code}</span><strong>−{calculateDiscount()}€</strong></div>}
+              <div className="booking-receipt__total"><span>Total en la barbería</span><strong>{totalPrice}€</strong></div>
+            </section>
+            {!isFreeCutReservation && renderCoupon()}
             {/* User Info / Login Prompt */}
             <Card className="booking-step-card overflow-hidden">
               <CardHeader className="border-b border-border">
@@ -1529,8 +1425,9 @@ const Booking = () => {
                       className="w-full h-10 sm:h-12 text-sm sm:text-base"
                       disabled={loading || (!selectedPack && selectedServices.length === 0)}
                     >
-                      {loading ? "Reservando..." : isFreeCutReservation ? `¡Confirmar Corte Gratis!` : `Confirmar Reserva - ${totalPrice}€`}
+                      {loading ? "Reservando..." : isFreeCutReservation ? `¡Confirmar Corte Gratis!` : "Confirmar reserva"}
                     </Button>
+                    <div className="booking-payment-note"><TriangleAlert aria-hidden="true" /><p><strong>No tienes que pagar ahora.</strong> El pago se realizará en la barbería.</p></div>
                   </div>
                 ) : (
                   <Button
@@ -1545,51 +1442,23 @@ const Booking = () => {
                     Iniciar Sesión / Registrarse
                   </Button>
                 )}
+                {!user && <div className="booking-payment-note"><TriangleAlert aria-hidden="true" /><p><strong>No tienes que pagar ahora.</strong> El pago se realizará en la barbería.</p></div>}
               </CardContent>
             </Card>
-            </div>
-            </MobileStep>
-          </motion.div>
-        )}
-        </AnimatePresence>
+            </div>}
+        </MobileStep>
           </main>
 
-          <aside className="booking-summary" aria-label="Resumen de la reserva">
-            <div className="booking-summary__head">
-              <h2>Tu reserva</h2>
-              <p>Todo lo elegido, siempre a la vista.</p>
-            </div>
-            <div className="booking-summary__body">
-              <div className="booking-summary__row">
-                <span>Fecha y hora</span>
-                <div><p>{selectedDate ? format(selectedDate, "EEEE, d 'de' MMMM", { locale: es }) : "Sin fecha"}<br />{selectedTime ? selectedTime.slice(0, 5) : "Sin hora"}</p>{selectedDate && <button type="button" onClick={() => setMobileStep(1)}>Editar</button>}</div>
-              </div>
-              <div className="booking-summary__row">
-                <span>Servicios</span>
-                <div><p>{getSelectedItems().length ? getSelectedItems().map(item => item.replace(/\s*\([^)]*\)$/, "")).join(", ") : "Aún no has elegido"}</p>{selectedTime && <button type="button" onClick={() => setMobileStep(3)}>Editar</button>}</div>
-              </div>
-              <div className="booking-summary__total"><span>Total</span><strong>{totalPrice}€</strong></div>
-              {mobileStep < 4 && (
-                <Button
-                  size="lg"
-                  disabled={(mobileStep === 1 && !selectedDate) || (mobileStep === 2 && !selectedTime) || (mobileStep === 3 && !selectedPack && selectedServices.length === 0)}
-                  onClick={() => setMobileStep(step => Math.min(4, step + 1) as 1 | 2 | 3 | 4)}
-                  className="w-full"
-                >
-                  Continuar <ChevronRight className="h-4 w-4" />
-                </Button>
-              )}
-              <p className="text-xs text-muted-foreground text-center">Puedes revisar cualquier paso antes de confirmar.</p>
-            </div>
-          </aside>
+          {!isMobile && <motion.aside layout className="booking-summary booking-summary--new" aria-label="Resumen de la reserva">
+            <div className="booking-summary__head"><p className="dtp-kicker">DIEGCUTZ / TU CITA</p><h2>Todo encaja.</h2><Scissors /></div>
+            {renderSummary()}
+          </motion.aside>}
         </div>
       </div>
 
       {/* Mobile bottom nav */}
-      {isMobile && (
-        <div
-          className="md:hidden fixed bottom-0 inset-x-0 z-40 px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] pt-3 bg-background/90 backdrop-blur-xl border-t border-secondary/20"
-        >
+      {isMobile && createPortal(
+        <div className="booking-mobile-actions">
           <div className="flex items-center gap-2 max-w-md mx-auto">
             <Button
               variant="outline"
@@ -1606,17 +1475,20 @@ const Booking = () => {
               disabled={
                 (mobileStep === 1 && !selectedDate) ||
                 (mobileStep === 2 && !selectedTime) ||
-                (mobileStep === 3 && !selectedPack && selectedServices.length === 0) ||
-                mobileStep === 4
+                (mobileStep === 3 && !selectedPack && selectedServices.length === 0) || loading
               }
-              onClick={() => setMobileStep((s) => (Math.min(4, s + 1) as 1 | 2 | 3 | 4))}
+              onClick={() => {
+                if (mobileStep < 4) { setMobileStep(s => Math.min(4, s + 1) as 1 | 2 | 3 | 4); return; }
+                if (user && profile) requestConfirmation();
+                else { localStorage.setItem("pendingBooking", JSON.stringify(buildPendingBooking())); navigate("/auth", { state: { from: "/booking" } }); }
+              }}
               className="flex-1"
             >
-              {mobileStep === 4 ? "Confirma arriba" : "Siguiente"}
+              {mobileStep === 4 ? (user ? "Confirmar" : "Iniciar sesión") : "Siguiente"}
               {mobileStep !== 4 && <ChevronRight className="h-4 w-4 ml-1" />}
             </Button>
           </div>
-        </div>
+        </div>, document.body
       )}
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
