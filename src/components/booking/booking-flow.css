@@ -3,9 +3,9 @@
 .bstep { position: relative; transform-origin: center top; }
 .booking-workspace__main { position: relative; }
 .booking-editorial .booking-top-shell { margin-bottom: 2rem; }
-.customer-page .booking-progress--new { padding: 0; gap: 0; border-radius: 0; border: 0 !important; background: transparent; margin: 0; position: static; }
-.customer-page .booking-progress--new button { border-radius: 0; padding: 1.1rem 1rem; min-height: 5.5rem; height: auto; border: 0; border-bottom: 2px solid hsl(var(--border)); background: transparent !important; gap: .85rem; color: hsl(var(--muted-foreground)); letter-spacing: 0; }
-.customer-page .booking-progress--new button.is-active { background: transparent !important; color: hsl(var(--signal)) !important; border-bottom-color: hsl(var(--signal)); }
+.customer-page .booking-editorial .booking-progress--new { padding: 0; gap: 0; border-radius: 0; border: 0 !important; background: transparent; margin: 0; position: static; }
+.customer-page .booking-editorial .booking-progress--new button { border-radius: 0; padding: 1.1rem 1rem; min-height: 5.5rem; height: auto; border: 0; border-bottom: 2px solid hsl(var(--border)); background: transparent !important; gap: .85rem; color: hsl(var(--muted-foreground)); letter-spacing: 0; }
+.customer-page .booking-editorial .booking-progress--new button.is-active { background: transparent !important; color: hsl(var(--signal)) !important; border-bottom-color: hsl(var(--signal)); }
 .booking-progress--new .booking-progress__number { border: 0 !important; width: 2.25rem; height: 2.25rem; background: hsl(var(--ink) / .05); border-radius: 50%; font-family: var(--dc-display); }
 .booking-progress--new .is-active .booking-progress__number { background: hsl(var(--signal)); color: hsl(var(--paper)); }
 .booking-progress--new .booking-progress__label { width: auto; border: 0; }
@@ -71,13 +71,15 @@
 @media (max-width: 767px) {
   .booking-editorial .noir-page-head .noir-title, .booking-editorial .noir-page-head .noir-lede { display: none; }
   .booking-editorial .noir-page-head { padding: .75rem 1rem 0 !important; }
-  .booking-editorial .noir-page-head > div { padding: 0; }
+  .booking-editorial .noir-page-head > div { padding: 0; gap: 0; }
+  .booking-editorial .noir-page-head > div > div { display: none; }
+  .booking-editorial .noir-page-head::after { display: none; }
   .booking-editorial > .max-w-6xl { padding-top: .35rem; padding-bottom: 7rem; }
-  .booking-editorial__intro { margin-bottom: .9rem; padding-bottom: 0; border: 0; }
+  .booking-editorial .booking-editorial__intro { margin-bottom: .9rem !important; padding-bottom: 0 !important; border: 0; }
   .booking-editorial__intro .customer-kicker { font-size: .65rem; }
   .booking-editorial .booking-top-shell { position: sticky; top: var(--booking-header-height, 80px); z-index: 40; margin: 0 -1rem 1rem; padding: 0 1rem; background: hsl(var(--paper) / .98); box-shadow: var(--booking-shadow); border-bottom: 1px solid hsl(var(--border)); backdrop-filter: blur(18px); }
-  .customer-page .booking-progress--new { margin: 0; }
-  .customer-page .booking-progress--new button { flex-direction: row; justify-content: center; gap: .3rem; padding: .65rem .1rem; min-height: 3.1rem; }
+  .customer-page .booking-editorial .booking-progress--new { margin: 0; }
+  .customer-page .booking-editorial .booking-progress--new button { flex-direction: column; justify-content: center; gap: .25rem; padding: .45rem .1rem; min-height: 3.3rem; }
   .booking-progress--new .booking-progress__number { width: 1.35rem !important; height: 1.35rem; font-size: .6rem; flex: none; }
   .booking-progress--new .booking-progress__number svg { width: .7rem; height: .7rem; }
   .booking-progress--new button strong { font-size: .58rem; }
