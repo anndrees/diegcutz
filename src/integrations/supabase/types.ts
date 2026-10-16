@@ -483,6 +483,45 @@ export type Database = {
           },
         ]
       }
+      home_stories: {
+        Row: {
+          created_at: string
+          crop: Json
+          expires_at: string | null
+          filter: string
+          id: string
+          link_label: string | null
+          link_url: string | null
+          media_type: string
+          media_url: string
+          overlays: Json
+        }
+        Insert: {
+          created_at?: string
+          crop?: Json
+          expires_at?: string | null
+          filter?: string
+          id?: string
+          link_label?: string | null
+          link_url?: string | null
+          media_type?: string
+          media_url: string
+          overlays?: Json
+        }
+        Update: {
+          created_at?: string
+          crop?: Json
+          expires_at?: string | null
+          filter?: string
+          id?: string
+          link_label?: string | null
+          link_url?: string | null
+          media_type?: string
+          media_url?: string
+          overlays?: Json
+        }
+        Relationships: []
+      }
       loyalty_rewards: {
         Row: {
           completed_bookings: number
