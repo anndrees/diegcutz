@@ -78,6 +78,7 @@ h1 em, h2 em, h3 em, .noir-title em { font-family: var(--dc-serif); font-style: 
 .brand-lockup--large .brand-lockup__mark--img { width: 3.1rem !important; }
 .admin-sidebar__head .brand-lockup__mark--img { width: 2.2rem !important; float: left; margin-right: .75rem; }
 .brand-lockup__name { font-family: var(--dc-display); font-weight: 900; font-stretch: 115%; color: hsl(var(--ink)); }
+.brand-lockup__word span { color: hsl(var(--signal)); }
 .brand-lockup__name small { color: hsl(var(--muted-foreground)); }
 .customer-nav a { font-family: var(--dc-display); text-transform: uppercase; letter-spacing: .1em; color: hsl(var(--ink) / .7); border-radius: 999px; }
 .customer-nav a:hover, .customer-nav a.is-active { color: hsl(var(--paper)) !important; background: hsl(var(--ink)) !important; }

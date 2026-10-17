@@ -36,7 +36,7 @@ export function CustomerHeader({ transparent = false }: { transparent?: boolean 
       <div className="customer-header__inner">
         <Link to="/" className="brand-lockup" aria-label="DIEGCUTZ inicio">
           <BrandMark />
-          <span className="brand-lockup__name">DIEGCUTZ <small>MONÓVAR</small></span>
+          <span className="brand-lockup__name"><span className="brand-lockup__word">DIEGCUTZ<span aria-hidden="true">.</span></span><small>MONÓVAR</small></span>
         </Link>
 
         <nav className="customer-nav" aria-label="Navegación principal">
