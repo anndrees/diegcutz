@@ -14,3 +14,6 @@ export const medalFor=(time:number,thresholds:[number,number,number])=>time<=thr
 export function ghostAt(frames:GhostFrame[],time:number):GhostFrame|null {if(!frames.length||time>frames[frames.length-1].t)return null;let lo=0,hi=frames.length-1;while(lo<hi){const m=Math.floor((lo+hi)/2);if(frames[m].t<time)lo=m+1;else hi=m;}const b=frames[lo],a=frames[Math.max(0,lo-1)],t=b.t===a.t?0:(time-a.t)/(b.t-a.t);return {t:time,p:a.p.map((v,i)=>v+(b.p[i]-v)*t) as Vec3,q:b.q};}
 export function worldSignature(city:City){const text=JSON.stringify([city.entities,city.races]);let h=2166136261;for(let i=0;i<text.length;i++)h=Math.imul(h^text.charCodeAt(i),16777619);return (h>>>0).toString(16);}
 export const formatTime=(s:number)=>`${Math.floor(s/60).toString().padStart(2,'0')}:${(s%60).toFixed(2).padStart(5,'0')}`;
+
+const cityBounds=new WeakMap<City,{min:number;max:number}[]>();
+export function outsideCity(city:City,position:Vec3){let bounds=cityBounds.get(city);if(!bounds){bounds=[0,1,2].map(axis=>({min:Math.min(...city.entities.map(e=>e.position[axis]-Math.hypot(...e.size)/2))-30,max:Math.max(...city.entities.map(e=>e.position[axis]+Math.hypot(...e.size)/2))+30}));cityBounds.set(city,bounds);}return bounds.some((b,axis)=>position[axis]<b.min||position[axis]>b.max);}
