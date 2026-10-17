@@ -78,3 +78,4 @@
 .pr-levels-foot{font:11px monospace;color:var(--pr-muted);padding-top:14px}
 @keyframes pr-fade{from{opacity:0}}@keyframes pr-slide{from{opacity:0;transform:translateX(30px)}}@keyframes pr-dash{to{stroke-dashoffset:-10}}
 @media (prefers-reduced-motion:reduce){.pr-levels,.pr-level-detail,.pr-level-route polyline{animation:none}}
+.pr-app[data-screen=races] .pr-topline{opacity:0}
