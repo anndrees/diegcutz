@@ -1,4 +1,5 @@
 import { Toaster } from "@/components/ui/toaster";
+import {lazy,Suspense} from 'react';
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -32,6 +33,7 @@ import TvMode from "./pages/TvMode";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+const Investigation=lazy(()=>import('./features/golden-scissors/Investigation'));
 
 // Wrapper to check for forced password change and incomplete profile
 const AppContent = () => {
@@ -85,6 +87,7 @@ const AppContent = () => {
         <Route path="/membership-policy" element={<MembershipPolicy />} />
         <Route path="/install" element={<Install />} />
         <Route path="/tv" element={<TvMode />} />
+        <Route path="/expediente" element={<Suspense fallback={<div className="min-h-screen bg-background"/>}><Investigation/></Suspense>} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
         </Routes>

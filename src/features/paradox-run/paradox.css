@@ -1,5 +1,5 @@
 :root {
- --pr-paper:#f5f5ef;--pr-ink:#17191a;--pr-signal:#e13c2e;--pr-volt:#bbe13d;--pr-concrete:#c4c8c6;--pr-dark-concrete:#6a7476;--pr-glass:#47646a;--pr-ground:#91a3a6;--pr-ghost:#80ddce;--pr-sky:#f3dcc4;--pr-sky-zenith:#3f86c4;--pr-sky-haze:#e9d6c6;--pr-sun:#ffe2b0;--pr-muted:#a6b1b3;--pr-line:#ffffff38;--pr-scrim:#17191ae8;--pr-light-scrim:#17191a30;--pr-shadow:0 12px 48px #00000038;
+ --pr-gold:#c6a556;--pr-paper:#f5f5ef;--pr-ink:#17191a;--pr-signal:#e13c2e;--pr-volt:#bbe13d;--pr-concrete:#c4c8c6;--pr-dark-concrete:#6a7476;--pr-glass:#47646a;--pr-ground:#91a3a6;--pr-ghost:#80ddce;--pr-sky:#f3dcc4;--pr-sky-zenith:#3f86c4;--pr-sky-haze:#e9d6c6;--pr-sun:#ffe2b0;--pr-muted:#a6b1b3;--pr-line:#ffffff38;--pr-scrim:#17191ae8;--pr-light-scrim:#17191a30;--pr-shadow:0 12px 48px #00000038;
 }
 .pr-app{position:fixed;inset:0;z-index:100;background:var(--pr-sky);color:var(--pr-paper);font-family:Archivo,Arial,sans-serif;letter-spacing:0;overflow:hidden}
 .pr-app *{letter-spacing:0;box-sizing:border-box}

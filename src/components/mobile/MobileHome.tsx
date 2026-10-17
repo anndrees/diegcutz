@@ -196,7 +196,7 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
       </motion.section>
 
       <footer className="mh-end">
-        <nav><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/install">App</Link></nav>
+        <nav><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/install">App</Link><Link to="/expediente">Expediente DC-0529</Link></nav>
         <div className="mh-end__signature">© <Button variant="ghost" className="mh-end__word" data-footer-admin="year">{new Date().getFullYear()}</Button><span aria-hidden="true"> · </span><Button variant="ghost" className="mh-end__word" data-footer-admin="brand">DIEGCUTZ</Button><span aria-hidden="true"> - </span><Button variant="ghost" className="mh-end__word" data-footer-admin="place">Monóvar</Button></div>
       </footer>
 

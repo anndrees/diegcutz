@@ -13,6 +13,7 @@ float s=max(dot(d,normalize(sunDir)),0.);col+=sun*(pow(s,900.)*6.+pow(s,24.)*.35
 if(d.y>0.){vec2 uv=d.xz/(d.y+.12)*1.4+vec2(time*.004,time*.0015);float c=smoothstep(.52,.85,fbm(uv))*smoothstep(0.,.25,d.y);float streak=smoothstep(.6,.9,fbm(uv*vec2(.35,3.)+3.))*.45*smoothstep(.05,.4,d.y);vec3 cloud=mix(vec3(1.),sun,.25+pow(s,6.)*.6);col=mix(col,cloud,clamp(c*.75+streak,0.,.85));}
 if(d.y<0.)col=mix(haze,horizon*.8,clamp(-d.y*3.,0.,1.));
 gl_FragColor=vec4(col,1.);
+#include <tonemapping_fragment>
 #include <colorspace_fragment>
 }`;
 export function Sky(){const ref=useRef<THREE.Mesh>(null);const uniforms=useMemo(()=>({zenith:{value:new THREE.Color(token('--pr-sky-zenith'))},horizon:{value:new THREE.Color(token('--pr-sky'))},haze:{value:new THREE.Color(token('--pr-sky-haze'))},sun:{value:new THREE.Color(token('--pr-sun'))},sunDir:{value:new THREE.Vector3(.35,.42,-.84)},time:{value:0}}),[]);

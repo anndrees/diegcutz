@@ -58,6 +58,7 @@ import { AdminBookingsSection } from "@/components/admin/AdminBookingsSection";
 import { AdminGuard } from "@/components/admin/AdminGuard";
 import { HomepageManagement } from "@/components/admin/HomepageManagement";
 import { StoriesManagement } from "@/components/admin/StoriesManagement";
+import InvestigationManagement from '@/features/golden-scissors/Management';
 import { TvModeManagement } from "@/components/admin/TvModeManagement";
 import { AdminMobileShell } from "@/components/admin/AdminMobileShell";
 import { AdminToday } from "@/components/admin/AdminToday";
@@ -568,6 +569,7 @@ const Admin = () => {
       {activeTab === 'marquee' && <MarqueeManagement />}
       {activeTab === 'homepage' && <HomepageManagement />}
       {activeTab === 'stories' && <StoriesManagement />}
+      {activeTab === 'investigation' && <InvestigationManagement />}
       {activeTab === 'tv' && <TvModeManagement />}
       {activeTab === 'messages' && <AdminMessagesSection />}
       {activeTab === 'notifications' && <NotificationHistoryManagement />}
