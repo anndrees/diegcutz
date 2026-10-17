@@ -35,6 +35,7 @@
 }
 .dc-home > * { position: relative; z-index: 1; }
 .dc-home > .customer-header { z-index: 40; }
+.dc-home > .customer-header--transparent { position: sticky !important; top: 0; width: 100%; margin-bottom: -7rem; }
 
 .dc-label { font: 500 .78rem/1 var(--dc-display); letter-spacing: .14em; text-transform: uppercase; color: hsl(var(--muted-foreground)); }
 
