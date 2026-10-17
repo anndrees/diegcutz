@@ -6,7 +6,7 @@ const cp = (position: Vec3, up: Vec3 = [0,1,0], radius=3.2): Checkpoint => ({pos
 add('plaza', [0,-1,0], [76,2,72], 'concrete', [[0,1,0]]);
 add('terrace-base',[88,-1,0],[92,2,72],'concrete',[[0,1,0]]);
 add('tower-base',[190,-1,0],[110,2,72],'concrete',[[0,1,0]]);
-add('link-one',[43,-.5,0],[16,1,18]);add('link-two',[140,-.5,0],[22,1,18]);
+add('link-one',[40,-.5,0],[4,1,18]);add('link-two',[134.5,-.5,0],[1,1,18]);
 // Plaza monumental colonnade; generous central running lane.
 for(let i=0;i<7;i++) {
  add(`colonnade-${i}`,[-28+i*9,7,-29],[2.2,14,2.2]);
@@ -34,7 +34,7 @@ add('wallrun-floor',[90,6,10],[44,1,6]);
 add('terrace-gravity',[131,12,-8],[2,24,36],'dark',[[-1,0,0],[0,1,0]]);
 add('terrace-top',[117,24,-8],[20,1,36],'concrete',[[0,1,0]]);
 add('terrace-return-landing',[123,-1,41],[18,2,22],'concrete',[[0,1,0]]);
-add('terrace-return-link',[141,-1,22],[26,2,34],'concrete',[[0,1,0]]);
+add('terrace-return-link',[141,-1.03,22],[26,2,34],'concrete',[[0,1,0]]);
 add('terrace-return-ramp',[123,12,19],[10,.5,50],'concrete',undefined,[Math.atan2(24,50),0,0]);
 // Towers: solid fluted structures with traversable ledges and marked facades.
 add('tower-a',[174,18,-10],[20,36,28],'concrete',[[0,1,0],[1,0,0],[0,0,1]]);
