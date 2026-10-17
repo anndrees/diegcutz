@@ -41,3 +41,6 @@ verify_jwt = false
 
 [functions.recommend-service]
 verify_jwt = true
+
+[functions.golden-investigation]
+verify_jwt = false
