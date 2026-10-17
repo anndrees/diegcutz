@@ -1,5 +1,14 @@
 # Roadmap
 
+## PARADOX RUN — nuevo pulido e investigación de las tijeras de oro
+- [ ] Mejorar gráficos y texturas, eliminar z-fighting y pulir animaciones, gravedad y sonidos
+- [ ] Añadir coleccionables de barbería, easter eggs, flecha 3D y meta diferenciada en contrarreloj
+- [ ] Presentar nuevas ideas para ampliar el juego: lista completa y después detalles
+- [ ] Concretar duración, pistas físicas, acceso y premios de la investigación con Andrés
+- [ ] Desarrollar investigación extensa con pruebas, interrogatorios y sala 3D exclusiva
+- [ ] Entregar guía privada completa de resolución y preparación del local, con prompts detallados en español al final; no generar imágenes
+- [ ] Verificar juego y campaña sin alterar reservas ni administración
+
 ## PARADOX RUN
 - [x] Concretar cámara, gravedad, contenido inicial y creación futura de mapas con Andrés
 - [x] Aprobar el plan de juego, dirección visual y alcance
