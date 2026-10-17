@@ -79,3 +79,5 @@
 @keyframes pr-fade{from{opacity:0}}@keyframes pr-slide{from{opacity:0;transform:translateX(30px)}}@keyframes pr-dash{to{stroke-dashoffset:-10}}
 @media (prefers-reduced-motion:reduce){.pr-levels,.pr-level-detail,.pr-level-route polyline{animation:none}}
 .pr-app[data-screen=races] .pr-topline{opacity:0}
+
+.pr-beacon-label{background:var(--pr-scrim);color:var(--pr-paper);padding:6px 10px;font:700 11px monospace;white-space:nowrap;border-bottom:2px solid var(--pr-signal)}

@@ -483,6 +483,174 @@ export type Database = {
           },
         ]
       }
+      golden_access: {
+        Row: {
+          attempts: number
+          created_at: string
+          draft_allowed: boolean
+          updated_at: string
+          user_id: string
+          window_at: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          draft_allowed?: boolean
+          updated_at?: string
+          user_id: string
+          window_at?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          draft_allowed?: boolean
+          updated_at?: string
+          user_id?: string
+          window_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "golden_access_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      golden_campaign: {
+        Row: {
+          created_at: string
+          id: string
+          instagram: Json
+          media: Json
+          release_days: number[]
+          starts_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instagram?: Json
+          media?: Json
+          release_days?: number[]
+          starts_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instagram?: Json
+          media?: Json
+          release_days?: number[]
+          starts_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      golden_chapters: {
+        Row: {
+          content: Json
+          created_at: string
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          content: Json
+          created_at?: string
+          id: number
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      golden_progress: {
+        Row: {
+          completed_at: string | null
+          connections: Json
+          created_at: string
+          notes: string
+          solved: string[]
+          updated_at: string
+          user_id: string
+          visited_at: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          connections?: Json
+          created_at?: string
+          notes?: string
+          solved?: string[]
+          updated_at?: string
+          user_id: string
+          visited_at?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          connections?: Json
+          created_at?: string
+          notes?: string
+          solved?: string[]
+          updated_at?: string
+          user_id?: string
+          visited_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "golden_progress_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      golden_visits: {
+        Row: {
+          code_hash: string
+          consumed_at: string | null
+          consumed_by: string | null
+          created_at: string
+          id: string
+          issued_by: string
+          updated_at: string
+        }
+        Insert: {
+          code_hash: string
+          consumed_at?: string | null
+          consumed_by?: string | null
+          created_at?: string
+          id?: string
+          issued_by: string
+          updated_at?: string
+        }
+        Update: {
+          code_hash?: string
+          consumed_at?: string | null
+          consumed_by?: string | null
+          created_at?: string
+          id?: string
+          issued_by?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "golden_visits_consumed_by_fkey"
+            columns: ["consumed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       home_stories: {
         Row: {
           created_at: string
@@ -1257,6 +1425,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      golden_action_internal: {
+        Args: { op: string; payload?: Json }
+        Returns: Json
+      }
+      golden_service_action: {
+        Args: { actor: string; op: string; payload?: Json }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
