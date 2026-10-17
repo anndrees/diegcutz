@@ -1,6 +1,7 @@
 # PARADOX RUN: pulido profundo + El expediente de las tijeras de oro
 
 ## 1. PARADOX RUN
+
 - Mantener la ciudad conectada, las seis carreras, ambas cámaras y el acceso exclusivo para PC.
 - Renovar la lectura visual: hormigón con escala de textura consistente, variación de acabados y suciedad, metal y cristal diferenciados, juntas y detalles arquitectónicos, iluminación y sombras más cuidadas. No sustituir detalle por desenfoque o brillo excesivo.
 - Revisar todas las superficies superpuestas: separar marcas y carteles del soporte, eliminar duplicados y corregir encuentros entre plataformas. Mantener colisiones y recorridos coherentes; recalcular la validez de fantasmas si cambia la geometría.
@@ -12,9 +13,11 @@
 - Entregar un catálogo amplio de nuevas ideas para el juego: primero todos los títulos y después sus detalles, separando propuestas de lo implementado.
 
 ## 2. Investigación independiente: El expediente de las tijeras de oro
+
 Una ficción policial de DIEGCUTZ: alguien ha sustraído las tijeras de oro y el jugador debe reconstruir el robo, desmontar coartadas y localizar su escondite. No es una denuncia real, no se utilizarán sospechosos reales ni se enviará a nadie a propiedades ajenas.
 
 ### Estructura propuesta
+
 - Campaña de **21 días, siete expedientes y aproximadamente 28 deducciones**, editable antes del lanzamiento. Cada entrega combina varias pruebas; no será una sucesión de contraseñas aisladas.
 - Expedientes: escena del robo; cronología contradictoria; ruta de traslado; identidades y coartadas; almacén señuelo; reconstrucción del escondite; resolución y apertura de la sala.
 - Evidencias numeradas, declaraciones escritas con ramificaciones, interrogatorios guionizados, comparación de documentos, cronología, tablero de conexiones y deducciones verificables.
@@ -24,20 +27,24 @@ Una ficción policial de DIEGCUTZ: alguien ha sustraído las tijeras de oro y el
 - Instagram aporta entregas narrativas y pruebas: incorporar enlaces y materiales manualmente, sin depender de comprobar automáticamente seguidores, likes o publicaciones.
 
 ### Experiencia del jugador
-- Acceso independiente desde la web, reutilizando la cuenta de DIEGCUTZ y manteniendo el avance entre móvil y PC.
+
+- Acceso independiente desde la web, reutilizando la cuenta de DIEGCUTZ y manteniendo el avance entre móvil y PC (aunque será recomendable acceder desde PC).
 - Primera pantalla: expediente y pruebas disponibles; sin una página publicitaria intermedia.
 - Archivo de pruebas, lupa/zoom en documentos, cuaderno privado, interrogatorios, tablero, historial de deducciones y próxima entrega.
-- Sala 3D exclusiva al resolver el caso, utilizable también en móvil: inspección táctil o con ratón, objetos y contenido desbloqueado. No cargará PARADOX RUN en móvil.
+- Sala 3D exclusiva al resolver el caso, utilizable también en móvil: inspección táctil o con ratón, objetos y contenido desbloqueado. (Ésto no cargará PARADOX RUN en móvil, la investigación es algo totalmente independiente).
 - Imágenes temporales tomadas de recursos existentes, claramente sustituidas después por las de Andrés. **No generar imágenes para esta investigación.** Las claves esenciales aparecerán también como texto legible para que una foto provisional no rompa un acertijo.
 - Premios desactivados y sin promesas hasta decidir tipos, cantidades y reparto. Resolver el caso desbloquea contenido; no concede automáticamente cortes, descuentos ni membresías.
 
 ### Preparación y control de la campaña
+
 - Sección de gestión: borrador/activa/cerrada, fechas de entregas, sustitución de imágenes, publicación de pistas, códigos gratuitos de visita, estadísticas y resoluciones.
 - Los controles de campaña con privilegios requieren una identidad de administrador verificada; el acceso tradicional del panel no se modifica ni se usa como prueba suficiente para autorizar premios o publicar respuestas.
-- Lanzamiento inicialmente en borrador: no abrir una campaña pública incompleta, sin tarjetas preparadas y sin materiales revisados.
+- Lanzamiento inicialmente en borrador: no abrir una campaña pública incompleta, sin tarjetas preparadas y sin materiales revisados (al abrirla en borrador, será para testearla, sólo se podrá acceder mediante un codigo numerico mediante un teclado numerico tipo bloqueo de iPhone, código 0529).
 
 ## 3. Guía privada y materiales
+
 Entregar una guía extensa descargable, separada de los archivos que sirve la web:
+
 - Biblia narrativa, personajes ficticios, móvil del robo, cronología verdadera y mapa del escondite ficticio.
 - Cada expediente completo: texto literal de pruebas y declaraciones, pregunta, respuesta, razonamiento paso a paso, dependencias, errores previsibles y ayudas.
 - Calendario diario del organizador y guion de publicaciones de Instagram.
@@ -48,6 +55,7 @@ Entregar una guía extensa descargable, separada de los archivos que sirve la we
 - Anexo amplio de ideas nuevas de ampliación de PARADOX RUN, con la lista completa antes de las explicaciones.
 
 ## Detalles técnicos y seguridad
+
 - Separar datos versionados, presentación, persistencia y validación de las dos experiencias. Mantener reservas, clientes y administración existente intactos.
 - Progreso ligado a la cuenta con políticas específicas para las nuevas tablas. No heredar permisos abiertos del sistema antiguo.
 - Validar respuestas, fechas, visita y acceso final en el servidor; no incluir el solucionario ni capítulos inéditos en archivos públicos. Limitar intentos sin penalizar permanentemente a quien se equivoca.
@@ -57,4 +65,5 @@ Entregar una guía extensa descargable, separada de los archivos que sirve la we
 - Comprobar la ciudad y animaciones en navegador. Para la investigación: recorrido completo con cuenta, visita, entregas, respuestas, recarga y acceso a sala; probar móvil/PC y rechazos de solicitudes prematuras o de otro usuario.
 
 ## Entrega honesta
+
 Indicar qué se ha comprobado jugando y qué solo mediante pruebas automáticas. Señalar cualquier bloqueo de acceso a servicios externos; no presentar el guardado con cuenta ni los premios como activos si no están verificados. Los materiales físicos, publicaciones finales, imágenes de Andrés y elección de premios requieren preparación antes de lanzar.
