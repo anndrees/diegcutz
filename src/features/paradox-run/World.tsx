@@ -8,6 +8,7 @@ import type {City,Entity,Vec3} from './types';
 import {useRunStore} from './store';
 import {architecturalGeometry} from './renderGeometry';
 import {RaceNavigation} from './RaceNavigation';
+import {BarberCollectible} from './BarberCollectibles';
 import building from './assets/building.asset.json';
 import industrial from './assets/industrial.asset.json';
 import vent from './assets/vent.asset.json';
@@ -21,7 +22,7 @@ function Sign({position,text,sub}:{position:Vec3;text:string;sub:string}){const 
 function Markers({city}:{city:City}){const group=useRef<THREE.Group>(null);const screen=useRunStore(s=>s.screen),raceId=useRunStore(s=>s.raceId),index=useRunStore(s=>s.checkpoint),found=useRunStore(s=>s.save.secrets);const race=city.races.find(r=>r.id===raceId),next=race?.checkpoints[index];useFrame((_,dt)=>{if(group.current)group.current.rotation.y+=Math.min(dt,.05)*.5;});return <>
  {city.races.map((r,i)=><group key={r.id} position={r.start.position}><mesh rotation-x={-Math.PI/2} position-y={-.8}><ringGeometry args={[1.8,2.2,48]}/><meshBasicMaterial color={token('--pr-signal')} side={THREE.DoubleSide}/></mesh><mesh position-y={1.2}><boxGeometry args={[.1,4,.1]}/><meshBasicMaterial color={token('--pr-signal')}/></mesh></group>)}
  <RaceNavigation city={city}/>
- <group ref={group} />{city.secrets.filter(s=>!found.includes(`${city.id}:${s.id}`)).map(s=><mesh key={s.id} position={s.position} rotation={[0,Math.PI/4,Math.PI/4]}><octahedronGeometry args={[.35,0]}/><meshStandardMaterial color={token('--pr-volt')} emissive={token('--pr-volt')} emissiveIntensity={.7} metalness={.5} roughness={.2}/></mesh>)}
+ {city.secrets.filter(s=>!found.includes(`${city.id}:${s.id}`)).map((s,i)=><BarberCollectible key={s.id} position={s.position} kind={s.kind||(['pole','scissors','clipper'] as const)[i%3]}/>)}
  </>;}
 export function World({city,onSelect}:{city:City;onSelect?:(id:string)=>void}){const materials=useMemo(loadMaterials,[]);useEffect(()=>()=>{Object.values(materials).forEach(m=>{m.map?.dispose();m.normalMap?.dispose();m.roughnessMap?.dispose();m.dispose();});},[materials]);const skyline=useMemo(()=>Array.from({length:35},(_,i)=>({position:[-65+i*10,-18,-75-(i%4)*15]as Vec3,scale:[9+(i%3)*2,9+(i%5)*4,9+(i%3)*2]as Vec3})),[]);const lights=useMemo(()=>Array.from({length:15},(_,i)=>({position:[-25+i*18,0,24]as Vec3,scale:[2,2,2]as Vec3})),[]);const vents=useMemo(()=>city.entities.filter(e=>e.size[1]>5&&e.size[0]>10).map(e=>({position:[e.position[0]-e.size[0]/3,e.position[1]+e.size[1]/2,e.position[2]-e.size[2]/3]as Vec3,scale:[2,2,2]as Vec3})),[city]);return <>
  {(['concrete','dark','red','glass']as const).map(kind=><Architecture key={kind} entities={city.entities.filter(e=>e.kind===kind)} material={materials[kind]}/>)}

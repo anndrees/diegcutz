@@ -46,6 +46,7 @@ const menuItems = [
   { id: "homepage", label: "Página principal", icon: Home },
       { id: "stories", label: "Historias", icon: Clapperboard },
   { id: "tv", label: "Modo TV", icon: Tv },
+  { id: "investigation", label: "Expediente DC-0529", icon: Scissors },
   { id: "messages", label: "Mensajes", icon: MessageSquare },
   { id: "notifications", label: "Notificaciones", icon: Bell },
   { id: "logs", label: "Historial", icon: History },

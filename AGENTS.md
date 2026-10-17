@@ -3,6 +3,9 @@
 - Keep PARADOX RUN isolated behind a PC capability gate with lazy 3D loading and no customer-route transforms or overlays; the game must not load on mobile or alter booking/admin behavior.
 - Keep versioned city, race, skin and editor data separate from the Rapier capsule controller, camera, rendering and local persistence; new maps and appearances must reuse the existing game rules.
 - Use one fixed-step physics owner and explicit gravity-relative movement; best-run ghosts replay recorded transforms and are invalidated when city/race geometry changes.
+- Render architectural meshes with metre-based UVs, with seam-safe connector geometry, so texture density and collision layouts remain consistent across city sizes.
+- Keep the investigation independent of PARADOX RUN; lazy-load its mobile-capable epilogue only after server-confirmed completion to avoid loading game physics on customer routes.
+- Keep investigation answers, future evidence, release gates and visit-card consumption server-only; its service endpoint derives identity from a validated session and checks database roles for management, independently of legacy AdminGuard.
 
 - Keep the mobile footer entry gesture in a pure tested state machine with document-level interruption listeners; this enforces uninterrupted taps without changing AdminGuard authentication.
 

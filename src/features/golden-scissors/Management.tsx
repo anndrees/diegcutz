@@ -1,0 +1,18 @@
+import {useEffect,useState} from 'react';
+import {Link} from 'react-router-dom';
+import {Button} from '@/components/ui/button';
+import {Input} from '@/components/ui/input';
+import {investigation} from './api';
+import './investigation.css';
+interface AdminState{config:{status:string;starts_at:string|null;media:Record<string,string>;instagram:Record<string,string>};stats:{players:number;visits:number;completed:number}}
+export default function Management(){
+ const [data,setData]=useState<AdminState|null>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false),[card,setCard]=useState('');
+ async function act(op:string,payload:Record<string,unknown>={}){setBusy(true);setError('');try{const result=await investigation<AdminState&{card?:string}>(op,payload);if(result.card)setCard(result.card);else setData(result);}catch(e){setError(e instanceof Error?e.message:'No disponible.');}finally{setBusy(false);}}
+ useEffect(()=>{act('admin_state');},[]);
+ function set(field:string,value:unknown){if(data)setData({...data,config:{...data.config,[field]:value}});}
+ return <section className="gs-management"><p className="gs-kicker">DC-0529 / ORGANIZACIÓN</p><h2>Expediente de las tijeras de oro</h2><Link to="/expediente">Abrir investigación</Link>{error&&<p role="alert" className="gs-alert">{error}</p>}{!data?<><p>Necesitas iniciar sesión como administrador verificado de DIEGCUTZ. El acceso habitual al panel no autoriza esta investigación.</p><Link to="/auth">Entrar con mi cuenta</Link><Button disabled={busy} onClick={()=>act('admin_state')}>Comprobar acceso</Button></>:<>
+ <p>{data.stats.players} investigadores · {data.stats.visits} visitas · {data.stats.completed} casos resueltos</p><label>Estado<select value={data.config.status} onChange={e=>set('status',e.target.value)}><option value="draft">Pruebas / teclado 0529</option><option value="active">Abierto con calendario</option><option value="closed">Cerrado</option></select></label><label>Apertura de la campaña<Input type="datetime-local" value={data.config.starts_at?new Date(new Date(data.config.starts_at).getTime()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16):''} onChange={e=>set('starts_at',e.target.value?new Date(e.target.value).toISOString():null)}/></label><p>Entregas: días 0, 3, 6, 9, 12, 15 y 20. Sin compra. Premios desactivados.</p>
+ <details><summary>Imágenes de las pruebas</summary>{Array.from({length:28},(_,i)=>`E${String(i+1).padStart(2,'0')}`).map(id=><label key={id}>{id}<Input type="url" value={data.config.media[id]||''} placeholder="Dirección de la imagen final" onChange={e=>set('media',{...data.config.media,[id]:e.target.value})}/></label>)}</details><details><summary>Publicaciones de Instagram</summary>{[1,2,3,4,5,6,7].map(id=><label key={id}>Expediente 0{id}<Input type="url" value={data.config.instagram[id]||''} placeholder="https://www.instagram.com/p/..." onChange={e=>set('instagram',{...data.config.instagram,[id]:e.target.value})}/></label>)}</details>
+ <Button disabled={busy||(data.config.status==='active'&&!data.config.starts_at)} onClick={()=>act('admin_save',data.config)}>Guardar campaña</Button><hr/><h3>Tarjeta individual gratuita</h3><p>Genera una tarjeta por visitante. El código se muestra una sola vez y solo puede usarse una vez; entrégalo en el local. No se imprime en documentos públicos.</p><Button disabled={busy} onClick={()=>act('admin_card')}>Generar tarjeta</Button>{card&&<div className="gs-card-code">{card}</div>}
+ </>}</section>;
+}

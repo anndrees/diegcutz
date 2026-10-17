@@ -8,3 +8,5 @@
 - Media hosted in project-scoped asset storage; asset pointer JSONs in assets/ are the authoritative locations. No runtime third-party media URLs.
 
 Architectural layout, panel seams, fluting, gravity markings and signage are authored for PARADOX RUN. Skin variants recolor the same CC0 mannequin; they are not separate clothing meshes.
+
+Barber pole, precision scissors and clipper collectible geometry are authored locally after no directly downloadable, license-verified complete CC0 set was found. They use bevelled geometry, chrome surfaces, separate comb teeth, screw heads, and authored diagonal pole texture; no third-party model claims apply to these objects.

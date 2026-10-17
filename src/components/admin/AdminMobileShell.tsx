@@ -45,6 +45,7 @@ export const ADMIN_SECTION_TITLES: Record<string, string> = {
   marquee: "Marquee",
   homepage: "Página principal",
   stories: "Historias",
+  investigation: "Expediente DC-0529",
   tv: "Modo TV",
   messages: "Mensajes",
   notifications: "Notificaciones",
@@ -83,6 +84,7 @@ const moreGroups: {
       { id: "homepage", label: "Página principal", icon: Home },
       { id: "stories", label: "Historias", icon: Clapperboard },
       { id: "tv", label: "Modo TV", icon: Tv },
+      { id: "investigation", label: "Expediente DC-0529", icon: Scissors },
     ],
   },
   {

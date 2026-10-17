@@ -16,7 +16,7 @@ export function CustomerFooter() {
           <p>Estudio de barbería urbana. Precisión, conversación y estilo propio.</p>
         </div>
         <div><p className="customer-kicker">ESTUDIO</p><a href="https://maps.app.goo.gl/H1wTD6r3dBjsqRHA7" target="_blank" rel="noreferrer"><MapPin /> Carrer Sant Antoni · Monóvar</a><a href="https://instagram.com/diegcutz" target="_blank" rel="noreferrer"><Instagram /> @diegcutz</a></div>
-        <div><p className="customer-kicker">EXPLORA</p><Link to="/booking">Reservar</Link><Link to="/membership">Membresías</Link><Link to="/giveaways">Sorteos</Link><Link to="/install">Instalar la app</Link></div>
+        <div><p className="customer-kicker">EXPLORA</p><Link to="/booking">Reservar</Link><Link to="/membership">Membresías</Link><Link to="/giveaways">Sorteos</Link><Link to="/install">Instalar la app</Link><Link to="/expediente">Expediente DC-0529 <ArrowUpRight/></Link></div>
         <div><p className="customer-kicker">ACCESO</p><Link to="/auth">Cuenta cliente</Link><Link to="/tv">Modo TV</Link><Link to="/admin">Administración</Link><Link to="/paradox-run" className="hidden lg:flex">PARADOX RUN <ArrowUpRight /></Link></div>
       </div>
       <div className="customer-footer__legal"><span>© {new Date().getFullYear()} DIEGCUTZ</span><div><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/membership-policy">Membresías</Link></div></div>
