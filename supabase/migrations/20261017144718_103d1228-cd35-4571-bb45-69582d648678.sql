@@ -1,0 +1,4 @@
+do $$ declare definition text; begin select pg_get_functiondef('public.golden_action_internal(text,jsonb)'::regprocedure) into definition; definition:=replace(definition,'data jsonb;','data jsonb; safe_media jsonb:=''{}''; safe_instagram jsonb:=''{}'';'); definition:=replace(definition,'if allowed then','if allowed then
+ select coalesce(jsonb_object_agg(e->>''id'',cfg.media->(e->>''id'')),''{}''::jsonb) into data from jsonb_array_elements(ch.content->''evidence'') e where cfg.media ? (e->>''id'');
+ safe_media:=safe_media||data;
+ if cfg.instagram ? ch.id::text then safe_instagram:=safe_instagram||jsonb_build_object(ch.id::text,cfg.instagram->ch.id::text); end if;'); definition:=replace(definition,'''media'',cfg.media,''instagram'',cfg.instagram','''media'',safe_media,''instagram'',safe_instagram'); execute definition; end $$;
