@@ -3,11 +3,12 @@
 ## PARADOX RUN
 - [x] Concretar cámara, gravedad, contenido inicial y creación futura de mapas con Andrés
 - [x] Aprobar el plan de juego, dirección visual y alcance
-- [ ] Crear juego exclusivo para PC con parkour, cambios de gravedad y escenarios detallados
-- [ ] Añadir recorridos alternativos, secretos, contrarrelojes y rival fantasma
-- [ ] Preparar ampliación con mapas y skins
-- [ ] Verificar partidas completas, controles, guardado y bloqueo móvil
-- [ ] Entregar todos los detalles del juego y sus controles
+- [x] Crear juego exclusivo para PC con parkour, cambios de gravedad y escenarios detallados
+- [x] Añadir recorridos alternativos, secretos, contrarrelojes y rival fantasma
+- [x] Preparar ampliación con mapas y skins
+- [x] Verificar carrera real, ambas cámaras, giro de gravedad, guardado, editor y bloqueo móvil; travesía de once controles probada con física real
+- [ ] Completar pulido visual y aprendizaje guiado; verificar las seis carreras completas desde la pantalla del juego
+- [x] Entregar guía de la versión actual con controles, contenido, editor y límites verificados
 
 ## Retirada del juego y acceso oculto móvil
 - [x] Retirar CUT / BEAT y sus accesos sin tocar Administración en escritorio
