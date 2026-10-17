@@ -1,13 +1,15 @@
 # Roadmap
 
 ## PARADOX RUN — nuevo pulido e investigación de las tijeras de oro
-- [ ] Mejorar gráficos y texturas, eliminar z-fighting y pulir animaciones, gravedad y sonidos
-- [ ] Añadir coleccionables de barbería, easter eggs, flecha 3D y meta diferenciada en contrarreloj
-- [ ] Presentar nuevas ideas para ampliar el juego: lista completa y después detalles
-- [ ] Concretar duración, pistas físicas, acceso y premios de la investigación con Andrés
-- [ ] Desarrollar investigación extensa con pruebas, interrogatorios y sala 3D exclusiva
-- [ ] Entregar guía privada completa de resolución y preparación del local, con prompts detallados en español al final; no generar imágenes
-- [ ] Verificar juego y campaña sin alterar reservas ni administración
+- [x] Mejorar texturas, enlaces coplanares, animaciones, gravedad y sonidos; verificación exhaustiva de las seis carreras no certificada
+- [x] Añadir coleccionables de barbería, carteles secretos, flecha 3D y meta diferenciada
+- [x] Entregar 36 ideas: lista completa y después detalles
+- [x] Concretar duración, pistas físicas y acceso; premios deliberadamente inactivos, pendientes de decisión de Andrés
+- [x] Implementar siete expedientes, 28 deducciones, interrogatorios, cuaderno, tarjetas y sala 3D en borrador
+- [x] Entregar guía privada de más de 13.000 palabras con soluciones reales y prompts españoles al final; no generar imágenes
+- [x] Pasan 21 pruebas de juego/reglas y 3 comprobaciones de seguridad alojadas; sin acceso público a respuestas ni suplantación de identidad
+- [ ] Verificar campaña autenticada completa, consumo de tarjetas y apertura final: bloqueado por Supabase externo sin sesión disponible
+- [ ] Lanzamiento público: requiere imágenes definitivas, ensayo editorial, tarjetas y cuenta admin con rol verificado
 
 ## PARADOX RUN
 - [x] Concretar cámara, gravedad, contenido inicial y creación futura de mapas con Andrés
