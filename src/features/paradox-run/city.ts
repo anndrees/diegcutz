@@ -56,5 +56,5 @@ const races: Race[] = [
  {id:'paradox',name:'Paradox Run',district:'CIUDAD / TRAVESÍA',description:'La ciudad entera en una carrera. Elige tus conexiones y domina los tres distritos.',start:cp([-20,1,18]),yaw:-Math.PI/2,checkpoints:[cp([25,1,15]),cp([55,1,25]),cp([82,10,-12]),cp([118,16,-12]),cp([129,16,-8],[-1,0,0]),cp([120,25.5,-8]),cp([155,1,20]),cp([159,9,12],[1,0,0]),cp([170,19.5,12]),cp([185,25,-10],[1,0,0]),cp([174,37,-10])],medals:[80,115,165]},
 ];
 const secretPositions: Vec3[]=[[-30,1,-23],[-8,1,-16],[0,15.7,-29],[12,16,-23],[26,9,0],[32,1,25],[64,7,-21],[82,10,-21],[100,13,-21],[118,16,-21],[80,7,10],[120,25,-20],[159,15,22],[170,19,24],[174,37,-20],[207,53,-16],[226,31,22],[192,34.5,-14]];
-export const DEFAULT_CITY: City={version:1,id:'paradox-city-v1',name:'CIUDAD / 001',spawn:[-20,1,18],entities,races,secrets:secretPositions.map((position,i)=>({id:`secret-${i+1}`,position}))};
+export const DEFAULT_CITY: City={version:1,id:'paradox-city-v1',name:'CIUDAD / 001',spawn:[-20,1,18],entities,races,secrets:secretPositions.map((position,i)=>({id:`secret-${i+1}`,position,kind:(['pole','scissors','clipper'] as const)[i%3]}))};
 export const SKINS=[{id:'signal',name:'SIGNAL / 01',token:'--pr-signal'},{id:'chalk',name:'CHALK / 02',token:'--pr-paper'},{id:'carbon',name:'CARBON / 03',token:'--pr-ink'},{id:'volt',name:'VOLT / 04',token:'--pr-volt'}];
