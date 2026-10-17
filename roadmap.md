@@ -8,7 +8,7 @@
 - [x] Preparar ampliación con mapas y skins
 - [x] Verificar carrera real, ambas cámaras, giro de gravedad, guardado, editor y bloqueo móvil; travesía de once controles probada con física real
 - [ ] Completar pulido visual y aprendizaje guiado; verificar las seis carreras completas desde la pantalla del juego
-- [ ] Entregar todos los detalles finales del juego y sus controles tras el pulido
+- [x] Entregar guía de la versión actual con controles, contenido, editor y límites verificados
 
 ## Retirada del juego y acceso oculto móvil
 - [x] Retirar CUT / BEAT y sus accesos sin tocar Administración en escritorio
