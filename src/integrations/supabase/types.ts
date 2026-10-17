@@ -1425,7 +1425,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      golden_action: { Args: { op: string; payload?: Json }; Returns: Json }
+      golden_action_internal: {
+        Args: { op: string; payload?: Json }
+        Returns: Json
+      }
+      golden_service_action: {
+        Args: { actor: string; op: string; payload?: Json }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
