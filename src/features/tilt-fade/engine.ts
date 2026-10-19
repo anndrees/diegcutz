@@ -84,7 +84,8 @@ export class PinballEngine {
   }
   emit() { this.onUpdate({ ...this.stats, balls: this.balls.length }); }
   spawn(ready = false) {
-    const ball = Bodies.circle(ready ? 553 : 285, ready ? 910 : 190, 11, { label: 'ball', restitution: .65, friction: .002, frictionAir: .001, density: .006, isStatic: ready });
+    const ball = Bodies.circle(ready ? 553 : 285, ready ? 910 : 190, 11, { label: 'ball', restitution: .65, friction: .002, frictionAir: .001, density: .006 });
+    if (ready) Body.setStatic(ball, true);
     this.balls.push(ball); Composite.add(this.engine.world, ball); this.history.set(ball.id, []);
     if (!ready) Body.setVelocity(ball, { x: (Math.random() - .5) * 6, y: 3 });
     return ball;
@@ -111,6 +112,7 @@ export class PinballEngine {
     if (this.nudges.length >= 3) { this.tiltUntil = this.time + 3; this.stats.message = 'TILT · MANOS FUERA'; return; }
     this.balls.forEach(b => Body.setVelocity(b, { x: b.velocity.x + (b.position.x < 285 ? 3 : -3), y: b.velocity.y - 4 }));
   }
+  rescue() { for (const b of this.balls) { if (b.isStatic) continue; Body.setPosition(b, { x: 285, y: 210 }); Body.setVelocity(b, { x: 0, y: 1 }); this.history.set(b.id, []); } }
   assist() { this.stats.assisted = true; this.emit(); }
   finish(force = false) { if (force) this.assist(); this.stats.state = 'won'; this.stats.phase = 3; this.stats.message = 'CORTE COMPLETADO'; this.audio.play('win'); this.emit(); }
   step(dt: number) {
