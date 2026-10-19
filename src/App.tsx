@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import ParadoxRoute from "./features/paradox-run/Route";
+import TiltFadeRoute from "./features/tilt-fade/Route";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { ForcePasswordChange } from "./components/ForcePasswordChange";
 import { CompleteProfileForm } from "./components/CompleteProfileForm";
@@ -41,6 +42,7 @@ const AppContent = () => {
   const { user, profile, requiresPasswordChange, requiresProfileCompletion, clearPasswordChangeRequirement, refreshProfile } = useAuth();
 
   if (location.pathname === "/paradox-run") return <ParadoxRoute />;
+  if (location.pathname === "/tilt-fade") return <TiltFadeRoute />;
 
   // If user needs to change password, show only that screen
   if (user && requiresPasswordChange) {
