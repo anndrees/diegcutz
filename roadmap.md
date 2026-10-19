@@ -1,5 +1,11 @@
 # Roadmap
 
+## CLIPPERBALL — DIEGCUTZ
+- [ ] Sustituir las tres fotos de portada y Estudio por las imágenes de Andrés
+- [ ] Crear pinball 2D exclusivo para PC con física, gráficos, sonido y campaña por niveles
+- [ ] Añadir dificultades, progreso local y panel de trucos 4444
+- [ ] Verificar partidas, niveles, trucos, bloqueo móvil y fotos
+
 ## PARADOX RUN — nuevo pulido e investigación de las tijeras de oro
 - [x] Mejorar texturas, enlaces coplanares, animaciones, gravedad y sonidos; verificación exhaustiva de las seis carreras no certificada
 - [x] Añadir coleccionables de barbería, carteles secretos, flecha 3D y meta diferenciada
