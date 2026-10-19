@@ -1,5 +1,9 @@
 .pinball-app { --pin-ink: #101213; --pin-paper: #f5f4ee; --pin-red: #e53c36; --pin-mint: #74dbb0; --pin-gold: #e8c57c; --pin-steel: #c0c9cb; --pin-muted: #626f70; --pin-panel: #1b2020; --pin-border: #343e3c; --pin-shadow: 0 24px 80px #0009; background: var(--pin-ink); color: var(--pin-paper); min-height: 100dvh; font-family: Archivo, sans-serif; letter-spacing: 0; }
 .pinball-app * { letter-spacing: 0; }
+.pinball-app button, .pinball-app select { border-radius: 4px !important; }
+.pinball-app h1, .pinball-app h2, .pinball-app h1 em { font-family: Archivo, sans-serif !important; }
+.pinball-app .pin-levels button { border-radius: 6px !important; text-transform: none !important; }
+.pinball-app .pin-modal select { background: var(--pin-ink) !important; color: var(--pin-paper) !important; }
 .pinball-app .pin-header { height: 80px; display: flex; align-items: center; justify-content: space-between; padding: 0 44px; border-bottom: 1px solid var(--pin-border); }
 .pin-logo { display: flex; align-items: center; gap: 18px; font-weight: 900; font-size: 22px; }
 .pin-logo svg { color: var(--pin-red); }
