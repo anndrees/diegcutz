@@ -11,14 +11,17 @@ import { MembershipExpirationBanner } from "@/components/home/MembershipExpirati
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import type { HomeMediaSlide } from "@/components/home/MediaCarousel";
 import Map from "@/components/Map";
-import defaultHero from "@/assets/urban-studio.jpg";
-import craftDetail from "@/assets/urban-tools.jpg";
-import clientEditorial from "@/assets/urban-cut.jpg";
+import studioAsset from "@/assets/estudio-andres.png.asset.json";
+import toolsAsset from "@/assets/herramientas-andres.png.asset.json";
+import fadeAsset from "@/assets/fade-andres.png.asset.json";
 import { MobileHome } from "@/components/mobile/MobileHome";
 import { useIsMobile } from "@/hooks/use-mobile";
 import "./home.css";
 
 type TimeRange = { start: string; end: string };
+const defaultHero = studioAsset.url;
+const craftDetail = toolsAsset.url;
+const clientEditorial = fadeAsset.url;
 type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: TimeRange[] };
 type SpecialHour = { id: string; date: string; is_closed: boolean; time_ranges: TimeRange[]; note: string | null };
 type Giveaway = { id: string; title: string; prize: string; end_date: string };

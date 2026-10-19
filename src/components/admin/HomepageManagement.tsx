@@ -7,7 +7,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Image as ImageIcon, Upload, Trash2, Sparkles, Palette, Home as HomeIcon, RotateCcw, ArrowUp, ArrowDown, Film, Eye, EyeOff } from "lucide-react";
-import defaultHero from "@/assets/hero-barber.jpg";
+import studioAsset from "@/assets/estudio-andres.png.asset.json";
+const defaultHero = studioAsset.url;
 
 type HomeSettings = {
   home_hero_image_url: string;

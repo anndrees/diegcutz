@@ -1,5 +1,11 @@
 # Roadmap
 
+## TILT & FADE — DIEGCUTZ
+- [x] Sustituir las tres fotos de portada y Estudio por las imágenes de Andrés; configuración compartida conservada
+- [x] Crear pinball 2D exclusivo para PC con física Matter.js a 120Hz, mesa ilustrada, luces, sonido y 18 niveles en seis capítulos
+- [x] Añadir cuatro dificultades, progreso local y panel de trucos 4444 sin récords asistidos
+- [x] Verificar partida real con puntos, campaña de 18 niveles, trucos y bloqueo móvil; las tres fotos se ven en portada e historias; siete tests con 70 comprobaciones y build OK. Las 18 mesas se probaron automáticamente, no se completaron todas jugando manualmente
+
 ## PARADOX RUN — nuevo pulido e investigación de las tijeras de oro
 - [x] Mejorar texturas, enlaces coplanares, animaciones, gravedad y sonidos; verificación exhaustiva de las seis carreras no certificada
 - [x] Añadir coleccionables de barbería, carteles secretos, flecha 3D y meta diferenciada
