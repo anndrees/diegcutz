@@ -4,7 +4,7 @@
 .story-frame__bg, .story-frame__media { position: absolute; inset: 0; width: 100%; height: 100%; }
 .mh-viewer .story-frame .story-frame__bg, .story-frame__bg { object-fit: cover; filter: blur(28px) brightness(.55) !important; transform: scale(1.15); }
 .mh-viewer .story-frame .story-frame__media, .story-frame__media { object-fit: contain; transform-origin: center; }
-.story-overlay { position: absolute; transform: translate(-50%, -50%); z-index: 1; pointer-events: none; width: 90%; text-align: center; }
+.story-overlay { position: absolute; transform: translate(-50%, -50%); z-index: 1; pointer-events: none; width: max-content; max-width: 90%; text-align: center; }
 .story-text { display: inline-block; max-width: 100%; overflow-wrap: anywhere; font: 800 1em/1.1 var(--dc-display); letter-spacing: 0; white-space: pre-wrap; text-shadow: 0 2px 12px hsl(var(--ink) / .45); }
 .story-text--box { background: hsl(var(--ink) / .85); padding: .2em .45em; border-radius: .25em; text-shadow: none; }
 .story-text--serif { font: italic 400 1.15em/1.05 var(--dc-serif); }
