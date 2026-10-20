@@ -12,6 +12,7 @@ import { CompleteProfileForm } from "./components/CompleteProfileForm";
 import { FloatingChat } from "./components/chat/FloatingChat";
 import { InstallPrompt } from "./components/pwa/InstallPrompt";
 import { RouteTransition } from "./components/fx/RouteTransition";
+import { PersistentMobileHeader } from "./components/mobile/PersistentMobileHeader";
 import { SplashScreen } from "./components/fx/SplashScreen";
 import { ScrollToTop } from "./components/fx/ScrollToTop";
 import { MobileTabBar } from "./components/mobile/MobileTabBar";
@@ -73,6 +74,7 @@ const AppContent = () => {
 
   return (
     <>
+      <PersistentMobileHeader />
       <RouteTransition>
         <Routes>
         <Route path="/" element={<Home />} />

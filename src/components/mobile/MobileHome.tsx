@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowUpRight, CalendarPlus, ChevronDown, Crown, Gift, MapPin, MessageCircle, Scissors, X } from "lucide-react";
-import { MobileTopHeader } from "@/components/mobile/MobileTopHeader";
 import { useAuth } from "@/hooks/useAuth";
 import { ReviewsShowcase } from "@/components/home/ReviewsShowcase";
 import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
@@ -95,7 +94,7 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
 
   return (
     <div className="mh">
-      <MobileTopHeader igEnabled={igEnabled} />
+      {/* header rendered persistently in App */}
 
       <div className="mh-hello">
         <small>{greeting()}{profile?.username ? `, @${profile.username}` : ""}</small>

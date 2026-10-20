@@ -10,7 +10,7 @@ export function CustomerPage({ children, className, footer = true }: { children:
   return (
     <div className={cn("customer-shell customer-page min-h-screen", className)}>
       <div className="customer-ambient" aria-hidden="true" />
-      {isMobile ? <MobileTopHeader safeArea /> : <CustomerHeader />}
+      {!isMobile && <CustomerHeader />}
       <main className="customer-page__content">{children}</main>
       {footer && <CustomerFooter />}
     </div>
