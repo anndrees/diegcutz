@@ -1,5 +1,7 @@
 # Architecture rules
 
+- The persistent customer mobile header owns safe-area spacing on every route, including home; page content must not duplicate that inset, so installed-app status bars never overlap header controls.
+
 - Scope admin appearance tokens by the active admin route on the document root and persist selection locally; this includes portalled dialogs without theming customer pages or changing authentication.
 
 - Keep TILT & FADE behind an independent desktop capability gate and lazy route; Matter.js owns fixed-step pinball physics, versioned level data stays separate, and local cheats never authorize admin actions or write competitive records.
