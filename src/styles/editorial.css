@@ -724,7 +724,12 @@ html[data-admin-theme="dark"] {
   --gradient-dark: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card)));
   --shadow-elegant: 0 24px 60px -30px hsl(0 0% 0% / .65);
 }
-html[data-admin-theme="dark"] .admin-chrome { --border: 40 15% 92% / .14; }
+html[data-admin-theme="dark"] .admin-chrome,
+html[data-admin-theme="dark"] .admin-access {
+  --border: 40 15% 92% / .14;
+  --neon-purple: 40 15% 92%;
+}
+html[data-admin-theme="dark"] .text-secondary { color: hsl(var(--foreground)); }
 html[data-admin-theme="dark"] .admin-sidebar { --ink: 0 0% 11%; --paper: 40 15% 92%; }
 html[data-admin-theme="dark"] .admin-app__tab-main,
 html[data-admin-theme="dark"] .admin-today__action--red { color: hsl(var(--primary-foreground)); }
