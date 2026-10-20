@@ -156,12 +156,12 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
 
       <motion.section className="mh-section" {...fade}>
         <div className="mh-section__head"><h2>Hoy</h2><button onClick={() => setWeekOpen(o => !o)} aria-expanded={weekOpen}>{weekOpen ? "Ocultar" : "Semana"}</button></div>
-        <div className="mh-today">
+        <div className="mh-today" role="button" tabIndex={0} aria-expanded={weekOpen} onClick={() => setWeekOpen(o => !o)} onKeyDown={e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setWeekOpen(o => !o); } }}>
           <div className="mh-today__now">
             <span className={`mh-today__dot ${!today || today.closed ? "is-closed" : ""}`} />
             <strong>{DAYS[todayIdx]}</strong>
-            <span>{today ? today.text : "Consulta al reservar"}</span>
-            <ChevronDown style={{ width: 16, transform: weekOpen ? "rotate(180deg)" : "none", transition: "transform .3s" }} onClick={() => setWeekOpen(o => !o)} />
+            <span className="mh-today__hours">{today ? today.text : "Consulta al reservar"}</span>
+            <ChevronDown style={{ width: 16, transform: weekOpen ? "rotate(180deg)" : "none", transition: "transform .3s" }} />
           </div>
           <AnimatePresence initial={false}>
             {weekOpen && (

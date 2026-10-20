@@ -92,7 +92,9 @@
 .mh-today__dot { width: .6rem; height: .6rem; border-radius: 50%; background: hsl(142 70% 40%); box-shadow: 0 0 0 4px hsl(142 70% 40% / .18); }
 .mh-today__dot.is-closed { background: hsl(var(--signal)); box-shadow: 0 0 0 4px hsl(var(--signal) / .18); }
 .mh-today__now strong { font: 700 1rem var(--dc-display); }
-.mh-today__now span { margin-left: auto; font-size: .82rem; color: hsl(var(--muted-foreground)); }
+.mh-today__now .mh-today__hours { margin-left: auto; font-size: .82rem; color: hsl(var(--muted-foreground)); }
+.mh-today__dot { flex: none; }
+.mh-today { cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .mh-week { margin-top: .8rem; display: grid; gap: .1rem; border-top: 1px solid hsl(var(--border)); padding-top: .6rem; }
 .mh-week li { display: flex; justify-content: space-between; font-size: .84rem; padding: .3rem 0; }
 .mh-week li.is-today { font-weight: 700; color: hsl(var(--signal)); }
