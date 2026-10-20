@@ -13,7 +13,6 @@ export const usePersistentMobileHeader = () => {
 
 /** Rendered once outside the route transition so it stays still between pages, like the tab bar. */
 export function PersistentMobileHeader() {
-  const { pathname } = useLocation();
   if (!usePersistentMobileHeader()) return null;
-  return <MobileTopHeader safeArea={pathname !== "/"} />;
+  return <MobileTopHeader />;
 }

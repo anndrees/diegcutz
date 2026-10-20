@@ -8,11 +8,9 @@ const WHATSAPP_PATH = "M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-
 type Props = {
   /** When omitted, the Instagram toggle is read from app_settings (same source as the homepage). */
   igEnabled?: boolean;
-  /** Adds the PWA safe-area padding used on inner pages. */
-  safeArea?: boolean;
 };
 
-export function MobileTopHeader({ igEnabled, safeArea = false }: Props) {
+export function MobileTopHeader({ igEnabled }: Props) {
   const [ig, setIg] = useState<boolean>(igEnabled ?? true);
 
   useEffect(() => {
@@ -34,7 +32,7 @@ export function MobileTopHeader({ igEnabled, safeArea = false }: Props) {
   }, [igEnabled]);
 
   return (
-    <header className={`mh-top${safeArea ? " mh-top--safe" : ""}`}>
+    <header className="mh-top">
       <span className="mh-top__brand">DIEGCUTZ<span>.</span></span>
       <div className="mh-top__actions">
         {ig && <a className="mh-icon" href="https://instagram.com/diegcutz" target="_blank" rel="noopener noreferrer" aria-label="Instagram"><Instagram /></a>}
