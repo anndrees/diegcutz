@@ -1,11 +1,11 @@
 # Roadmap
 
 ## Mapa, footer e historias
-- [ ] Renovar el mapa conservando el anterior para poder volver
-- [ ] Ocultar el expediente con tres pulsaciones ininterrumpidas y sin persistencia
-- [ ] Agrupar los dos juegos de PC en un desplegable del footer
-- [ ] Igualar la composición de historias entre editor y clientes
-- [ ] Verificar cambios y entregar una lista larga de juegos de barbería
+- [x] Renovar el mapa conservando el anterior para poder volver; OpenStreetMap sin claves, marcador rojo y ubicación del enlace verificada
+- [x] Ocultar el expediente con tres pulsaciones ininterrumpidas y sin persistencia; probado en escritorio/móvil y al recargar
+- [x] Agrupar los dos juegos de PC en un desplegable del footer
+- [x] Igualar la composición de historias entre editor y clientes; 360×640, escala uniforme y texto sin reflujo al mover
+- [x] Verificar cambios (12 pruebas y navegador sin errores) y entregar 24 ideas de juegos de barbería; publicación real de historia no ejercitada, comparación visual con datos del editor sí
 
 ## TILT & FADE — DIEGCUTZ
 - [x] Sustituir las tres fotos de portada y Estudio por las imágenes de Andrés; configuración compartida conservada
