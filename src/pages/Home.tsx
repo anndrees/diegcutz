@@ -10,7 +10,7 @@ import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
 import { InstallBanner } from "@/components/pwa/InstallBanner";
 import type { HomeMediaSlide } from "@/components/home/MediaCarousel";
-import Map from "@/components/Map";
+import Map from "@/components/EditorialMap";
 import studioAsset from "@/assets/estudio-andres.png.asset.json";
 import toolsAsset from "@/assets/herramientas-andres.png.asset.json";
 import fadeAsset from "@/assets/fade-andres.png.asset.json";

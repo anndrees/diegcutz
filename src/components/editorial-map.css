@@ -1,0 +1,12 @@
+.editorial-map { height: 400px; position: relative; border: 1px solid hsl(var(--border)); isolation: isolate; }
+.dc-visit__map:has(.editorial-map) { filter: none; }
+.editorial-map .leaflet-container { height: 100%; background: hsl(var(--paper)); font-family: var(--dc-display); }
+.editorial-map .leaflet-tile-pane { filter: grayscale(1) contrast(.93); }
+.editorial-map .leaflet-control-zoom a { background: hsl(var(--paper)); color: hsl(var(--ink)); border-color: hsl(var(--border)); }
+.editorial-map .leaflet-popup-content-wrapper, .editorial-map .leaflet-popup-tip { background: hsl(var(--paper)); color: hsl(var(--ink)); box-shadow: var(--shadow-elegant); }
+.editorial-map .leaflet-popup-content { text-align: center; line-height: 1.6; }
+.editorial-map .leaflet-popup-content strong { display: block; font-size: 1.1rem; }
+.editorial-map .leaflet-popup-content a { color: hsl(var(--signal)); }
+.editorial-map__pin { border: 0; background: transparent; }
+.editorial-map__pin span { display: grid; place-items: center; width: 40px; height: 40px; border: 3px solid hsl(var(--paper)); border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: hsl(var(--signal)); color: hsl(var(--paper)); box-shadow: var(--shadow-elegant); }
+.editorial-map__pin b { transform: rotate(45deg); font-size: 13px; }

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { CalendarPlus, Check, Clock, Crop, Image as ImageIcon, Link2, Loader2, MapPin, Palette, Plus, Smartphone, Sticker, Trash2, Type, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -70,7 +71,7 @@ function StoryEditor({ file, onClose, onSaved }: { file: File; onClose: () => vo
     const up = await supabase.storage.from("homepage").upload(path, file, { contentType: file.type });
     if (up.error) { setSaving(false); toast({ title: "No se pudo subir", description: up.error.message, variant: "destructive" }); return; }
     const url = supabase.storage.from("homepage").getPublicUrl(path).data.publicUrl;
-    const hours = DURATIONS.find(d => d.id === duration)!.hours;
+    const hours = DURATIONS.find(d => d.id === duration)?.hours ?? 24;
     const { error } = await supabase.from("home_stories" as any).insert({
       media_url: url, media_type: isVideo ? "video" : "image", filter, crop, overlays,
       link_url: linkUrl.trim() || null, link_label: linkLabel.trim() || null,
@@ -94,15 +95,16 @@ function StoryEditor({ file, onClose, onSaved }: { file: File; onClose: () => vo
         <button className="is-primary" onClick={save} disabled={saving}>{saving ? <Loader2 className="animate-spin" /> : <Check />} Publicar</button>
       </div>
 
-      <div ref={canvasRef} className="story-editor__canvas" onPointerMove={onPointerMove} onPointerUp={() => (dragRef.current = null)} onPointerLeave={() => (dragRef.current = null)} onClick={() => setActive(null)}>
-        <StoryFrame item={item} interactive />
+      <div className="story-editor__canvas" onPointerMove={onPointerMove} onPointerUp={() => (dragRef.current = null)} onPointerCancel={() => (dragRef.current = null)} onClick={() => setActive(null)}>
+        <StoryFrame item={item} interactive surfaceRef={canvasRef}>
         {overlays.map(o => (
           <div key={o.id} className={`story-overlay ${active === o.id ? "is-active" : ""}`} style={{ left: `${o.x}%`, top: `${o.y}%` }}
-            onPointerDown={e => { e.stopPropagation(); dragRef.current = o.id; setActive(o.id); if (o.kind === "text") setTool("text"); }}
+            onPointerDown={e => { e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId); dragRef.current = o.id; setActive(o.id); if (o.kind === "text") setTool("text"); }}
             onClick={e => e.stopPropagation()}>
             <OverlayView o={o} />
           </div>
         ))}
+        </StoryFrame>
       </div>
 
       <div className="story-editor__tools">
@@ -241,7 +243,7 @@ export function StoriesManagement() {
           </div>
         )}
       </CardContent>
-      {file && <StoryEditor file={file} onClose={() => setFile(null)} onSaved={() => { setFile(null); load(); }} />}
+      {file && createPortal(<StoryEditor file={file} onClose={() => setFile(null)} onSaved={() => { setFile(null); load(); }} />, document.body)}
     </Card>
   );
 }

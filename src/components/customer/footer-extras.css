@@ -1,0 +1,10 @@
+.footer-games__trigger, .footer-copyright {
+  padding: 0; height: auto; min-height: 2rem; border-radius: 0; background: transparent;
+  color: inherit; font: inherit; letter-spacing: 0; text-transform: inherit;
+  touch-action: manipulation; user-select: none; -webkit-user-select: none;
+}
+.footer-games__trigger:hover, .footer-copyright:hover { background: transparent; color: inherit; }
+.footer-games__links { display: flex; flex-direction: column; gap: .8rem; padding-block: .7rem; }
+.footer-games__links a { display: inline-flex; align-items: center; gap: .3rem; }
+.footer-games__trigger svg { margin: 0; }
+.mh-end nav { flex-wrap: wrap; justify-content: center; }

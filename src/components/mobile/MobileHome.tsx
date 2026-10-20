@@ -8,13 +8,14 @@ import { ReviewsShowcase } from "@/components/home/ReviewsShowcase";
 import { PendingRatingBanner } from "@/components/home/PendingRatingBanner";
 import { MembershipExpirationBanner } from "@/components/home/MembershipExpirationBanner";
 import type { HomeMediaSlide } from "@/components/home/MediaCarousel";
-import Map from "@/components/Map";
+import Map from "@/components/EditorialMap";
 import "./mobile-app.css";
 import { supabase } from "@/integrations/supabase/client";
 import { StoryFrame, type StoryItem } from "@/components/stories/StoryFrame";
 import "@/components/stories/stories.css";
 import { Button } from "@/components/ui/button";
 import { useFooterAdminGesture } from "@/hooks/useFooterAdminGesture";
+import { useFooterInvestigation } from "@/hooks/useFooterInvestigation";
 
 type TimeRange = { start: string; end: string };
 type BusinessHour = { day_of_week: number; is_closed: boolean; is_24h: boolean; time_ranges: TimeRange[] };
@@ -41,6 +42,7 @@ const greeting = () => {
 
 export function MobileHome({ title, slides, giveaway, marquee, businessHours, specialHours, igEnabled }: Props) {
   useFooterAdminGesture();
+  const { footerRef, revealed } = useFooterInvestigation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const [story, setStory] = useState<{ g: number; i: number } | null>(null);
@@ -187,9 +189,9 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
         <p className="mh-addr"><MapPin /> Carrer Sant Antoni · 03640 Monóvar, Alicante</p>
       </motion.section>
 
-      <footer className="mh-end">
-        <nav><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/install">App</Link><Link to="/expediente">Expediente DC-0529</Link></nav>
-        <div className="mh-end__signature">© <Button variant="ghost" className="mh-end__word" data-footer-admin="year">{new Date().getFullYear()}</Button><span aria-hidden="true"> · </span><Button variant="ghost" className="mh-end__word" data-footer-admin="brand">DIEGCUTZ</Button><span aria-hidden="true"> - </span><Button variant="ghost" className="mh-end__word" data-footer-admin="place">Monóvar</Button></div>
+      <footer ref={footerRef} className="mh-end">
+        <nav><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/install">App</Link>{revealed && <Link to="/expediente">Expediente DC-0529</Link>}</nav>
+        <div className="mh-end__signature">© <Button variant="ghost" className="mh-end__word" data-footer-admin="year" data-footer-investigation>{new Date().getFullYear()}</Button><span aria-hidden="true"> · </span><Button variant="ghost" className="mh-end__word" data-footer-admin="brand">DIEGCUTZ</Button><span aria-hidden="true"> - </span><Button variant="ghost" className="mh-end__word" data-footer-admin="place">Monóvar</Button></div>
       </footer>
 
       {createPortal(<AnimatePresence>

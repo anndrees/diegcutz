@@ -5,13 +5,15 @@ export class FooterAdminGesture {
   private step = 0;
   private pending: { part: FooterAdminPart; pointerId: number; x: number; y: number } | null = null;
 
+  constructor(private readonly sequence: readonly FooterAdminPart[] = FOOTER_ADMIN_SEQUENCE) {}
+
   reset() {
     this.step = 0;
     this.pending = null;
   }
 
   down(part: FooterAdminPart | null, pointerId: number, x: number, y: number) {
-    if (this.pending || part !== FOOTER_ADMIN_SEQUENCE[this.step]) {
+    if (this.pending || part !== this.sequence[this.step]) {
       this.reset();
       return;
     }
@@ -32,7 +34,7 @@ export class FooterAdminGesture {
     }
     this.pending = null;
     this.step += 1;
-    if (this.step !== FOOTER_ADMIN_SEQUENCE.length) return false;
+    if (this.step !== this.sequence.length) return false;
     this.reset();
     return true;
   }
