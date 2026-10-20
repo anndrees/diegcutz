@@ -1,5 +1,12 @@
 # Roadmap
 
+## Mapa, footer e historias
+- [ ] Renovar el mapa conservando el anterior para poder volver
+- [ ] Ocultar el expediente con tres pulsaciones ininterrumpidas y sin persistencia
+- [ ] Agrupar los dos juegos de PC en un desplegable del footer
+- [ ] Igualar la composición de historias entre editor y clientes
+- [ ] Verificar cambios y entregar una lista larga de juegos de barbería
+
 ## TILT & FADE — DIEGCUTZ
 - [x] Sustituir las tres fotos de portada y Estudio por las imágenes de Andrés; configuración compartida conservada
 - [x] Crear pinball 2D exclusivo para PC con física Matter.js a 120Hz, mesa ilustrada, luces, sonido y 18 niveles en seis capítulos
