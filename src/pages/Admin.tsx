@@ -61,6 +61,7 @@ import { StoriesManagement } from "@/components/admin/StoriesManagement";
 import InvestigationManagement from '@/features/golden-scissors/Management';
 import { TvModeManagement } from "@/components/admin/TvModeManagement";
 import { AdminMobileShell } from "@/components/admin/AdminMobileShell";
+import { AdminAppearanceToggle } from "@/components/admin/AdminAppearance";
 import { AdminToday } from "@/components/admin/AdminToday";
 import { useLoyaltyProgram } from "@/hooks/useLoyaltyProgram";
 
@@ -617,6 +618,7 @@ const Admin = () => {
                 <QrCode className="h-4 w-4" />
               </Button>
             )}
+            <AdminAppearanceToggle />
             <SettingsModal />
             <NotificationsDropdown />
             <Button variant="destructive" onClick={handleLogout}>

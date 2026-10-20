@@ -29,6 +29,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sh
 import { Button } from "@/components/ui/button";
 import { NotificationsDropdown } from "@/components/admin/NotificationsDropdown";
 import { SettingsModal } from "@/components/admin/SettingsModal";
+import { AdminAppearanceToggle, useAdminAppearance } from "@/components/admin/AdminAppearance";
 
 export const ADMIN_SECTION_TITLES: Record<string, string> = {
   today: "Hoy",
@@ -113,6 +114,7 @@ export const AdminMobileShell = ({
   children,
 }: AdminMobileShellProps) => {
   const [moreOpen, setMoreOpen] = useState(false);
+  const { appearance } = useAdminAppearance();
   const isMoreSection = !mainTabs.some((t) => t.id === activeTab) && activeTab !== "today";
 
   useEffect(() => {
@@ -134,13 +136,14 @@ export const AdminMobileShell = ({
       {/* Cabecera nativa */}
       <header className="admin-app__header">
         <div className="admin-app__brand">
-          <BrandMark variant="ink" className="admin-app__logo" />
+          <BrandMark variant={appearance === "dark" ? "light" : "ink"} className="admin-app__logo" />
           <div className="admin-app__titles">
             <span className="admin-app__kicker">Panel</span>
             <h1 className="admin-app__title">{ADMIN_SECTION_TITLES[activeTab] || "Panel"}</h1>
           </div>
         </div>
         <div className="admin-app__actions">
+          <AdminAppearanceToggle />
           <NotificationsDropdown />
           <SettingsModal />
           <Button variant="ghost" size="icon" onClick={onLogout} aria-label="Cerrar sesión">

@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Scope admin appearance tokens by the active admin route on the document root and persist selection locally; this includes portalled dialogs without theming customer pages or changing authentication.
+
 - Keep TILT & FADE behind an independent desktop capability gate and lazy route; Matter.js owns fixed-step pinball physics, versioned level data stays separate, and local cheats never authorize admin actions or write competitive records.
 
 - Keep PARADOX RUN isolated behind a PC capability gate with lazy 3D loading and no customer-route transforms or overlays; the game must not load on mobile or alter booking/admin behavior.
