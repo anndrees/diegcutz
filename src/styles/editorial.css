@@ -695,3 +695,46 @@ body.has-admin-tabbar #root > div[style] { filter: none !important; transform: n
   .splash-x__slash { transform: translateY(-50%) rotate(-14deg); opacity: 0.12; height: 1px; }
 }
 .splash-x__logo, .splash-x__word { z-index: 1; }
+
+/* Admin appearance is route-scoped on the root so body-portalled dialogs inherit it. */
+html[data-admin-theme="dark"] {
+  color-scheme: dark;
+  --paper: 0 0% 7%;
+  --ink: 40 15% 92%;
+  --background: 0 0% 7%;
+  --foreground: 40 15% 92%;
+  --card: 0 0% 11%;
+  --card-foreground: 40 15% 92%;
+  --popover: 0 0% 12%;
+  --popover-foreground: 40 15% 92%;
+  --primary-foreground: 40 25% 96%;
+  --secondary: 0 0% 22%;
+  --secondary-foreground: 40 15% 92%;
+  --muted: 0 0% 17%;
+  --muted-foreground: 40 5% 66%;
+  --accent: 0 0% 20%;
+  --accent-foreground: 40 15% 92%;
+  --border: 40 15% 92% / .14;
+  --input: 40 15% 92% / .22;
+  --surface-raised: 0 0% 15%;
+  --neon-purple: 40 15% 92%;
+  --stone: 40 15% 92%;
+  --success: 142 55% 52%;
+  --warning: 38 90% 58%;
+  --gradient-dark: linear-gradient(180deg, hsl(var(--background)), hsl(var(--card)));
+  --shadow-elegant: 0 24px 60px -30px hsl(0 0% 0% / .65);
+}
+html[data-admin-theme="dark"] .admin-chrome,
+html[data-admin-theme="dark"] .admin-access {
+  --border: 40 15% 92% / .14;
+  --neon-purple: 40 15% 92%;
+}
+html[data-admin-theme="dark"] .text-secondary { color: hsl(var(--foreground)); }
+html[data-admin-theme="dark"] .admin-sidebar { --ink: 0 0% 11%; --paper: 40 15% 92%; }
+html[data-admin-theme="dark"] .admin-app__tab-main,
+html[data-admin-theme="dark"] .admin-today__action--red { color: hsl(var(--primary-foreground)); }
+@media (max-width: 767px) {
+  html[data-admin-theme] .admin-app__actions > button,
+  html[data-admin-theme] .admin-app__actions > [role="switch"] { width: 2.1rem; height: 2.5rem; flex-shrink: 0; }
+  html[data-admin-theme] .admin-app__header { gap: .4rem; }
+}

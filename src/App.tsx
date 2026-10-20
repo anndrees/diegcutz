@@ -19,6 +19,7 @@ import { KonamiCode } from "./components/fx/KonamiCode";
 import Home from "./pages/Home";
 import Booking from "./pages/Booking";
 import Admin from "./pages/Admin";
+import { AdminAppearanceProvider } from "./components/admin/AdminAppearance";
 import Auth from "./pages/Auth";
 import ClientProfile from "./pages/ClientProfile";
 import UserProfile from "./pages/UserProfile";
@@ -111,7 +112,7 @@ const App = () => (
           <ScrollToTop />
           <SplashScreen />
           <KonamiCode />
-          <AppContent />
+          <AdminAppearanceProvider><AppContent /></AdminAppearanceProvider>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
