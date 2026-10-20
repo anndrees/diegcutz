@@ -1,11 +1,13 @@
 import { CalendarPlus, Clock, Link2, MapPin } from "lucide-react";
+import { useEffect, useRef, useState, type ReactNode, type Ref } from "react";
+import { storyFitScale } from "@/lib/storyComposition";
 
 export type StoryOverlay = {
   id: string;
   kind: "text" | "sticker";
   text: string;
   color: string;
-  size: number; // rem
+  size: number; // 16px units on the shared 360 × 640 composition
   x: number; // % of width
   y: number; // % of height
   style?: "plain" | "box" | "serif";
@@ -41,26 +43,40 @@ const STICKER_ICON = { time: Clock, location: MapPin, booking: CalendarPlus, lin
 export function OverlayView({ o }: { o: StoryOverlay }) {
   if (o.kind === "sticker") {
     const Icon = STICKER_ICON[o.sticker ?? "booking"];
-    return <span className="story-sticker" style={{ fontSize: `${o.size}rem` }}><Icon />{o.text}</span>;
+    return <span className="story-sticker" style={{ fontSize: `${o.size * 16}px` }}><Icon />{o.text}</span>;
   }
   return (
-    <span className={`story-text story-text--${o.style ?? "plain"}`} style={{ color: o.color, fontSize: `${o.size}rem` }}>
+    <span className={`story-text story-text--${o.style ?? "plain"}`} style={{ color: o.color, fontSize: `${o.size * 16}px` }}>
       {o.text}
     </span>
   );
 }
 
 /** Renders a story media full-size (never cropped unless admin zoomed) with filter + overlays. */
-export function StoryFrame({ item, onVideoMeta, onVideoEnd, interactive = false }: {
+export function StoryFrame({ item, onVideoMeta, onVideoEnd, interactive = false, children, surfaceRef }: {
   item: StoryItem;
   onVideoMeta?: (seconds: number) => void;
   onVideoEnd?: () => void;
   interactive?: boolean;
+  children?: ReactNode;
+  surfaceRef?: Ref<HTMLDivElement>;
 }) {
+  const frameRef = useRef<HTMLDivElement>(null);
+  const [fit, setFit] = useState(0);
+  useEffect(() => {
+    const frame = frameRef.current;
+    if (!frame) return;
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry) setFit(storyFitScale(entry.contentRect.width, entry.contentRect.height));
+    });
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
   const { scale = 1, x = 0, y = 0 } = item.crop || ({} as StoryItem["crop"]);
   const mediaStyle = { filter: filterCss(item.filter), transform: `translate(${x}%, ${y}%) scale(${scale})` };
   return (
-    <div className="story-frame">
+    <div className="story-frame" ref={frameRef}>
+      <div className="story-composition" ref={surfaceRef} style={{ transform: `translate(-50%, -50%) scale(${fit})` }}>
       {item.media_type === "video"
         ? <video className="story-frame__bg" src={item.media_url} muted playsInline autoPlay loop aria-hidden="true" />
         : <img className="story-frame__bg" src={item.media_url} alt="" aria-hidden="true" />}
@@ -73,6 +89,8 @@ export function StoryFrame({ item, onVideoMeta, onVideoEnd, interactive = false 
       {!interactive && item.overlays?.map(o => (
         <div key={o.id} className="story-overlay" style={{ left: `${o.x}%`, top: `${o.y}%` }}><OverlayView o={o} /></div>
       ))}
+      {children}
+      </div>
     </div>
   );
 }
