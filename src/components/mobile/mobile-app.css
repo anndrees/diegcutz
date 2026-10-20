@@ -36,6 +36,7 @@
 /* ---------- Mobile home (app feed) ---------- */
 .mh { min-height: 100svh; padding-top: env(safe-area-inset-top, 0px); }
 .mh-top { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; justify-content: space-between; padding: .8rem 1rem; background: hsl(var(--paper) / .85); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); }
+.mh-top--safe { padding-top: calc(.8rem + env(safe-area-inset-top, 0px)); }
 .mh-top__brand { font: 900 1.35rem/1 var(--dc-display); letter-spacing: -.02em; font-stretch: 112%; }
 .mh-top__brand span { color: hsl(var(--signal)); }
 .mh-top__actions { display: flex; gap: .4rem; }

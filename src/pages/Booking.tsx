@@ -135,7 +135,7 @@ const Booking = () => {
 
   useEffect(() => {
     if (!isMobile) return;
-    const header = document.querySelector(".customer-header");
+    const header = document.querySelector(".customer-header, .mh-top");
     const tabs = document.querySelector(".m-tabbar");
     const sync = () => {
       document.body.style.setProperty("--booking-header-height", `${header?.getBoundingClientRect().height || 80}px`);

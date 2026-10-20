@@ -1,13 +1,16 @@
 import type { ReactNode } from "react";
 import { CustomerHeader } from "./CustomerHeader";
 import { CustomerFooter } from "./CustomerFooter";
+import { MobileTopHeader } from "@/components/mobile/MobileTopHeader";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 export function CustomerPage({ children, className, footer = true }: { children: ReactNode; className?: string; footer?: boolean }) {
+  const isMobile = useIsMobile();
   return (
     <div className={cn("customer-shell customer-page min-h-screen", className)}>
       <div className="customer-ambient" aria-hidden="true" />
-      <CustomerHeader />
+      {isMobile ? <MobileTopHeader safeArea /> : <CustomerHeader />}
       <main className="customer-page__content">{children}</main>
       {footer && <CustomerFooter />}
     </div>
