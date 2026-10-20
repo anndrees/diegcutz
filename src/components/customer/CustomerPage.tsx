@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import { CustomerHeader } from "./CustomerHeader";
 import { CustomerFooter } from "./CustomerFooter";
-import { MobileTopHeader } from "@/components/mobile/MobileTopHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
