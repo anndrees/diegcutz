@@ -1,5 +1,9 @@
 # Architecture rules
 
+- Render and edit stories on the same fixed 360×640 composition scaled uniformly into each frame; stable overlay widths and local composition tokens preserve wrapping and appearance regardless of position, viewport or admin theme.
+- Keep the active editorial Leaflet map separate from the preserved legacy Map component, so reverting providers or presentation never requires reconstructing the old implementation.
+- Reuse the tested footer pointer state machine for temporary investigation revelation with scoped targets and document interruption listeners; revelation is local React state, never storage or authorization.
+
 - The persistent customer mobile header owns safe-area spacing on every route, including home; page content must not duplicate that inset, so installed-app status bars never overlap header controls.
 
 - Scope admin appearance tokens by the active admin route on the document root and persist selection locally; this includes portalled dialogs without theming customer pages or changing authentication.
