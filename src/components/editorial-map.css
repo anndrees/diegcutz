@@ -1,4 +1,5 @@
 .editorial-map { height: 400px; position: relative; border: 1px solid hsl(var(--border)); isolation: isolate; }
+.dc-visit__map:has(.editorial-map) { filter: none; }
 .editorial-map .leaflet-container { height: 100%; background: hsl(var(--paper)); font-family: var(--dc-display); }
 .editorial-map .leaflet-tile-pane { filter: grayscale(1) contrast(.93); }
 .editorial-map .leaflet-control-zoom a { background: hsl(var(--paper)); color: hsl(var(--ink)); border-color: hsl(var(--border)); }
