@@ -1,3 +1,4 @@
+import { upcomingDateFor } from "@/lib/upcomingDate";
 import { useEffect, useState, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { createPortal } from "react-dom";
@@ -86,7 +87,7 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
   const dayInfo = (dow: number) => {
     const d = businessHours.find(b => b.day_of_week === dow);
     if (!d) return null;
-    const special = specialHours.find(s => new Date(`${s.date}T00:00:00`).getDay() === dow);
+    const special = specialHours.find(s => s.date === upcomingDateFor(dow));
     const closed = !!(special?.is_closed || d.is_closed);
     return { closed, text: closed ? "Cerrado" : special ? fmt(special.time_ranges) : d.is_24h ? "24 horas" : fmt(d.time_ranges) };
   };
