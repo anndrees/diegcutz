@@ -1,3 +1,4 @@
+import { upcomingDateFor } from "@/lib/upcomingDate";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, AnimatePresence, type MotionValue } from "framer-motion";
 import { Link, useNavigate } from "react-router-dom";
@@ -268,7 +269,7 @@ export default function Home() {
           <ul className="dc-hours">
             {businessHours.length ? ORDER.map(dow => businessHours.find(d => d.day_of_week === dow)).filter(Boolean).map(day => {
               const d = day as BusinessHour;
-              const special = specialHours.find(s => new Date(`${s.date}T00:00:00`).getDay() === d.day_of_week);
+              const special = specialHours.find(s => s.date === upcomingDateFor(d.day_of_week));
               const closed = special?.is_closed || d.is_closed;
               const text = closed ? "Cerrado" : special ? fmt(special.time_ranges) : d.is_24h ? "24 horas" : fmt(d.time_ranges);
               return <li key={d.day_of_week} className={`${d.day_of_week === todayIdx ? "is-today" : ""} ${closed ? "is-closed" : ""}`}><span>{DAYS[d.day_of_week]}</span><strong>{text}</strong></li>;
