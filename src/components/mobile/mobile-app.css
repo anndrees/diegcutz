@@ -118,3 +118,4 @@
 .mh-viewer__head button { width: 2.4rem; height: 2.4rem; display: grid; place-items: center; }
 .mh-viewer__tap { position: absolute; top: 0; bottom: 0; width: 40%; z-index: 1; }
 .mh-viewer__cta { position: absolute; z-index: 2; left: 1rem; right: 1rem; bottom: calc(1.2rem + env(safe-area-inset-bottom, 0px)); justify-content: center; }
+.mh-map .editorial-map, .mh-map .editorial-map > div { height: 100%; min-height: 0; }
