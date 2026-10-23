@@ -14,7 +14,7 @@ const recoverOnce = () => {
 window.addEventListener("vite:preloadError", (e) => { e.preventDefault(); recoverOnce(); });
 window.addEventListener("unhandledrejection", (e) => {
   const msg = String((e.reason as Error)?.message ?? e.reason ?? "");
-  if (/dynamically imported module|Importing a module script failed|Failed to fetch/i.test(msg)) recoverOnce();
+  if (/dynamically imported module|Importing a module script failed/i.test(msg)) recoverOnce();
 });
 window.setTimeout(() => sessionStorage.removeItem(RELOAD_KEY), 10000);
 
