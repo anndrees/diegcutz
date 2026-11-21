@@ -1,3 +1,4 @@
+import { getCaller, json } from "../_shared/caller.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -14,14 +15,13 @@ serve(async (req) => {
   try {
     const { userId } = await req.json();
 
-    if (!userId) {
+    if (typeof userId !== "string" || !userId) {
       return new Response(
         JSON.stringify({ error: "userId is required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Create admin client with service role key
     const supabaseAdmin = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
@@ -32,6 +32,11 @@ serve(async (req) => {
         },
       }
     );
+
+    // Only the account owner or a verified admin may delete an account.
+    const caller = await getCaller(req, supabaseAdmin);
+    if (!caller) return json({ error: "Necesitas iniciar sesión." }, 401);
+    if (caller.id !== userId && !caller.isAdmin) return json({ error: "No tienes permiso para esta acción." }, 403);
 
     // Delete from loyalty_rewards first
     await supabaseAdmin

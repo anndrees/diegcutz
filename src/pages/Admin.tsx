@@ -118,8 +118,8 @@ const Admin = () => {
     loadBookings();
   }, []);
 
-  const handleLogout = () => {
-    sessionStorage.removeItem("adminAuth");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/");
   };
 

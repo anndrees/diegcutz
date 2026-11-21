@@ -114,3 +114,10 @@
 - [x] Pantalla "Hoy" con cifras del día y citas
 - [x] Cabecera nativa por sección y transiciones entre pestañas
 - [x] Escritorio sin cambios; verificado en 390px y 1280px
+
+## Seguridad (aviso externo, nov 2026)
+- [x] Funciones de contraseña, borrado, fusión, QR y avisos masivos solo para admin verificado (borrado: también el propio usuario)
+- [x] Panel /admin con cuenta real + rol admin; eliminada la contraseña escrita en el código
+- [ ] Asignar rol admin a la cuenta de Diego (espera: correo de Diego)
+- [ ] Endurecer reglas de acceso (RLS `true` en 26 tablas) a dueño/admin; huecos de reserva sin exponer datos de clientes
+- [ ] Proteger send-push-notification y send-booking-email contra abuso

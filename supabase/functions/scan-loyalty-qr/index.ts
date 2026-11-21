@@ -1,3 +1,4 @@
+import { requireAdmin, serviceClient } from "../_shared/caller.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -12,6 +13,11 @@ Deno.serve(async (req) => {
   }
 
   try {
+    {
+      const gate = serviceClient();
+      const denied = await requireAdmin(req, gate);
+      if (denied) return denied;
+    }
     const { loyalty_token } = await req.json();
 
     if (!loyalty_token) {

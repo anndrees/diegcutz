@@ -1,3 +1,4 @@
+import { requireAdmin, serviceClient } from "../_shared/caller.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
@@ -12,6 +13,11 @@ serve(async (req) => {
   }
 
   try {
+    {
+      const gate = serviceClient();
+      const denied = await requireAdmin(req, gate);
+      if (denied) return denied;
+    }
     const { primaryUserId, secondaryUserId } = await req.json();
 
     if (!primaryUserId || !secondaryUserId) {

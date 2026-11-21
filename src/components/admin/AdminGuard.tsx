@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -6,6 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ArrowLeft, Fingerprint, Lock, ShieldCheck, User as UserIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { adminLoginAttempts } from "@/lib/adminLogin";
 
 interface AdminGuardProps {
   children: React.ReactNode;
@@ -13,44 +15,73 @@ interface AdminGuardProps {
 
 const WORD = "DIEGCUTZ";
 
+/** Admin access = a real signed-in account with the admin role in the database. */
+async function sessionIsAdmin(): Promise<boolean> {
+  const { data: { session } } = await supabase.auth.getSession();
+  if (!session?.user) return false;
+  const { data, error } = await supabase.rpc("has_role", { _user_id: session.user.id, _role: "admin" });
+  return !error && data === true;
+}
+
 export const AdminGuard = ({ children }: AdminGuardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return sessionStorage.getItem("adminAuth") === "true";
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checking, setChecking] = useState(true);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [shake, setShake] = useState(false);
   const [error, setError] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  useEffect(() => {
+    let alive = true;
+    sessionIsAdmin().then(ok => { if (alive) { setIsAuthenticated(ok); setChecking(false); } });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_OUT") setIsAuthenticated(false);
+    });
+    return () => { alive = false; subscription.unsubscribe(); };
+  }, []);
+
+  const deny = (description: string) => {
+    setShake(true);
+    setError(true);
+    setTimeout(() => setShake(false), 600);
+    toast({ title: "ACCESO DENEGADO", description, variant: "destructive" });
+  };
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(false);
+    setUnlocking(true);
 
-    if (username === "diego" && password === "DiegCutz#2025Pro") {
-      setUnlocking(true);
-      sessionStorage.setItem("adminAuth", "true");
-      setTimeout(() => {
-        setIsAuthenticated(true);
-        setUnlocking(false);
-        toast({
-          title: "ACCESO CONCEDIDO",
-          description: "Bienvenido al panel de administración.",
-        });
-      }, 2000);
-    } else {
-      setShake(true);
-      setError(true);
-      setTimeout(() => setShake(false), 600);
-      toast({
-        title: "ACCESO DENEGADO",
-        description: "Credenciales incorrectas. Intento registrado.",
-        variant: "destructive",
-      });
+    let signedIn = false;
+    for (const attempt of adminLoginAttempts(username)) {
+      const { error } = await supabase.auth.signInWithPassword({ ...attempt, password } as never);
+      if (!error) { signedIn = true; break; }
     }
+    if (!signedIn) {
+      setUnlocking(false);
+      deny("Credenciales incorrectas.");
+      return;
+    }
+    if (!(await sessionIsAdmin())) {
+      await supabase.auth.signOut();
+      setUnlocking(false);
+      deny("Esta cuenta no tiene permiso de administrador.");
+      return;
+    }
+    setTimeout(() => {
+      setIsAuthenticated(true);
+      setUnlocking(false);
+      setPassword("");
+      toast({ title: "ACCESO CONCEDIDO", description: "Bienvenido al panel de administración." });
+    }, 2000);
   };
+
+  if (checking) {
+    return <div className="admin-access relative min-h-screen w-full bg-background" aria-busy="true" />;
+  }
 
   if (!isAuthenticated) {
     return (
@@ -148,16 +179,16 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
             <p>Introduce tus credenciales para continuar.</p>
             <form onSubmit={handleLogin} className="space-y-5">
                 <div className="space-y-2">
-                  <Label htmlFor="username">Usuario</Label>
+                  <Label htmlFor="username">Correo o teléfono</Label>
                   <div className="relative">
                     <UserIcon className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input
                       id="username"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      placeholder="usuario"
+                      placeholder="tu@correo.com"
                       required
-                      autoComplete="off"
+                      autoComplete="username"
                       className="pl-11 h-12"
                     />
                   </div>
@@ -173,6 +204,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
                       onChange={(e) => setPassword(e.target.value)}
                       placeholder="••••••••••••"
                       required
+                      autoComplete="current-password"
                       className="pl-11 h-12 tracking-widest"
                     />
                   </div>
@@ -183,7 +215,7 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
                 {error && (
                   <div className="admin-access__error">
                     <span />
-                    Credenciales no válidas — intento registrado
+                    Acceso no válido
                   </div>
                 )}
               </form>
