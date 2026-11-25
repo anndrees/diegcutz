@@ -26,6 +26,8 @@ import { PlaylistPreview } from "@/components/booking/PlaylistPreview";
 import { StyleAdvisor } from "@/components/booking/StyleAdvisor";
 import { BookingConfirmation } from "@/components/booking/BookingConfirmation";
 import { CustomerPage } from "@/components/customer/CustomerPage";
+import { isClosureError } from "@/hooks/useTemporaryClosure";
+import { RejectedBookingScreen } from "@/components/closure/RejectedBookingScreen";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Validation schema for playlist URL
@@ -118,6 +120,7 @@ const Booking = () => {
   const [membershipName, setMembershipName] = useState("");
   const [confirmedBooking, setConfirmedBooking] = useState<{ id: string; booking_date: string; booking_time: string; services: string[] } | null>(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [closureRejection, setClosureRejection] = useState<string | null>(null);
   const [summaryOpen, setSummaryOpen] = useState(false);
   const mobileSummaryRef = useRef<HTMLDivElement>(null);
 
@@ -936,6 +939,11 @@ const Booking = () => {
 
     if (error) {
       setLoading(false);
+      if (isClosureError(error)) {
+        const m = /Motivo: ([\s\S]*)$/.exec(error.message || "");
+        setClosureRejection(m ? m[1] : "");
+        return;
+      }
       // The database guards the slot, so a duplicate means someone confirmed it first.
       const slotTaken = error.code === "23505";
       toast({
@@ -1022,6 +1030,7 @@ const Booking = () => {
     {!isMobile && <AnimatePresence initial={false}>{mobileStep < 4 && <motion.div key="continue" initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="booking-summary__reveal"><Button size="lg" className="w-full" disabled={(mobileStep === 1 && !selectedDate) || (mobileStep === 2 && !selectedTime) || (mobileStep === 3 && !selectedPack && !selectedServices.length)} onClick={() => setMobileStep(step => Math.min(4, step + 1) as 1 | 2 | 3 | 4)}>Continuar <ChevronRight /></Button></motion.div>}</AnimatePresence>}
   </div>;
 
+  if (closureRejection !== null) return <RejectedBookingScreen reason={closureRejection} />;
   if (confirmedBooking) return <CustomerPage><BookingConfirmation booking={confirmedBooking} onHome={() => navigate("/")} /></CustomerPage>;
 
   return (

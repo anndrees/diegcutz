@@ -14,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { TemporaryClosureControl } from "./TemporaryClosureControl";
 
 type SettingsState = {
   google_auth_enabled: boolean;
@@ -166,6 +167,7 @@ export const SettingsModal = () => {
         </DialogHeader>
 
         <div className="space-y-6 py-4">
+          <TemporaryClosureControl />
           {settingsItems.map((item, index) => (
             <div key={item.key}>
               {index > 0 && <Separator className="mb-6" />}

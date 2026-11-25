@@ -34,6 +34,9 @@ import MembershipPolicy from "./pages/MembershipPolicy";
 import Install from "./pages/Install";
 import TvMode from "./pages/TvMode";
 import NotFound from "./pages/NotFound";
+import { TemporaryClosureProvider } from "./hooks/useTemporaryClosure";
+import { ClosureModal } from "./components/closure/ClosureModal";
+import { BookingClosureGuard } from "./components/closure/BookingClosureGuard";
 
 const queryClient = new QueryClient();
 const Investigation=lazy(()=>import('./features/golden-scissors/Investigation'));
@@ -78,7 +81,7 @@ const AppContent = () => {
       <RouteTransition>
         <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/booking" element={<Booking />} />
+        <Route path="/booking" element={<BookingClosureGuard><Booking /></BookingClosureGuard>} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/client/:id" element={<ClientProfile />} />
         <Route path="/user" element={<UserProfile />} />
@@ -100,6 +103,7 @@ const AppContent = () => {
       <MobileTabBar />
       <FloatingChat />
       <InstallPrompt />
+      <ClosureModal />
     </>
   );
 };
@@ -114,7 +118,7 @@ const App = () => (
           <ScrollToTop />
           <SplashScreen />
           <KonamiCode />
-          <AdminAppearanceProvider><AppContent /></AdminAppearanceProvider>
+          <TemporaryClosureProvider><AdminAppearanceProvider><AppContent /></AdminAppearanceProvider></TemporaryClosureProvider>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
