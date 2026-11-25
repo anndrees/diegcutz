@@ -1,5 +1,7 @@
 # Architecture rules
 
+- Keep installability manifest-only and messaging in /sw-push.js at /push/ scope; retain the same-path /sw.js Workbox cleanup for returning users for one release cycle, so retired app-shell caches cannot serve deleted chunks or cache private API data.
+
 - Render and edit stories on the same fixed 360×640 composition scaled uniformly into each frame; stable overlay widths and local composition tokens preserve wrapping and appearance regardless of position, viewport or admin theme.
 - Keep the active editorial Leaflet map separate from the preserved legacy Map component, so reverting providers or presentation never requires reconstructing the old implementation.
 - Reuse the tested footer pointer state machine for temporary investigation revelation with scoped targets and document interruption listeners; revelation is local React state, never storage or authorization.

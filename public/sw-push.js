@@ -1,5 +1,5 @@
 // Push notification handler for service worker
-// This file is imported by the Workbox-generated service worker
+// Dedicated /push/ messaging registration: no page/asset caching or fetch handler.
 
 // Handle push notifications
 self.addEventListener("push", (event) => {

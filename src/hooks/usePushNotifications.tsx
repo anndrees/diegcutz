@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./useAuth";
 import { useToast } from "./use-toast";
+import { getPushRegistration } from "@/lib/pushRegistration";
 
 interface PushSubscriptionState {
   isSupported: boolean;
@@ -50,8 +51,8 @@ export const usePushNotifications = () => {
     }
 
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await (registration as any).pushManager.getSubscription();
+      const registration = await getPushRegistration();
+      const subscription = await registration?.pushManager.getSubscription();
       const permission = Notification.permission;
 
       setState({
@@ -125,7 +126,8 @@ export const usePushNotifications = () => {
       }
 
       // Get service worker registration
-      const registration = await navigator.serviceWorker.ready;
+      const registration = await getPushRegistration(true);
+      if (!registration) throw new Error("Servicio de notificaciones no disponible");
 
       // Subscribe to push notifications
       const subscription = await (registration as any).pushManager.subscribe({
@@ -175,8 +177,8 @@ export const usePushNotifications = () => {
     setState(prev => ({ ...prev, isLoading: true }));
 
     try {
-      const registration = await navigator.serviceWorker.ready;
-      const subscription = await (registration as any).pushManager.getSubscription();
+      const registration = await getPushRegistration();
+      const subscription = await registration?.pushManager.getSubscription();
 
       if (subscription) {
         await subscription.unsubscribe();

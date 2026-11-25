@@ -230,10 +230,6 @@ export default function Install() {
               </li>
               <li className="flex items-center gap-3">
                 <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
-                <span>Funciona sin conexión (contenido básico)</span>
-              </li>
-              <li className="flex items-center gap-3">
-                <CheckCircle2 className="h-5 w-5 text-green-500 shrink-0" />
                 <span>Notificaciones de recordatorio de citas</span>
               </li>
               <li className="flex items-center gap-3">

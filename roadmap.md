@@ -1,5 +1,12 @@
 # Roadmap
 
+## Pantalla blanca por versión antigua
+- [x] Sustituir el antiguo /sw.js por limpieza de sus cachés y retirar el guardado de la web
+- [x] Mantener instalación y separar notificaciones del guardado de páginas; no modificar datos ni preferencias
+- [x] Verificar copia antigua blanca y recuperación en navegador, carga/recarga real, manifest y worker de avisos; 12 pruebas pasan
+- [ ] Publicar y comprobar actualización de clientes en diegcutz.es; pendiente de autorización para publicar
+- [ ] Probar entrega de avisos con cuenta real tras reactivarlos; Supabase externo no facilita sesión de prueba
+
 ## Acceso admin con sesión habitual
 - [x] Asignar rol admin a la cuenta existente @andres, conservando @diegcutz
 - [x] Compartir la comprobación de sesión/rol entre el panel y todos los pies; no mostrar enlace sin permiso
