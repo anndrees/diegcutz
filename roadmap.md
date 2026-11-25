@@ -1,5 +1,10 @@
 # Roadmap
 
+## Rediseño del aviso de cierre temporal
+- [x] Renovar aviso con composición editorial a pantalla completa, logo y acción para seguir viendo la web
+- [x] Compartir superficie con reserva rechazada; portal, foco y bloqueo de scroll, sin tocar reglas del cierre
+- [x] Verificar cobertura total, sin desbordamiento lateral, cierre y reapertura desde Reservar en 393×852, 320×640 y 1440×900; sin errores de navegador, sin activar cierre real
+
 ## Pantalla blanca por versión antigua
 - [x] Sustituir el antiguo /sw.js por limpieza de sus cachés y retirar el guardado de la web
 - [x] Mantener instalación y separar notificaciones del guardado de páginas; no modificar datos ni preferencias

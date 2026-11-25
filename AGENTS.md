@@ -29,3 +29,4 @@
 - On mobile, /admin renders AdminMobileShell (bottom tab bar + "Más" sheet + AdminToday) instead of the sidebar layout; desktop keeps AdminSidebar. Both share the same section components and dialogs, so new admin sections must be added to ADMIN_SECTION_TITLES and the more-groups list in AdminMobileShell.tsx as well as Admin.tsx.
 - Privileged edge functions use `supabase/functions/_shared/caller.ts` to derive the caller from the session token and check `user_roles`; never trust user IDs or admin flags sent by the client.
 - Temporary closure lives in app_settings key `temporary_closure`; a BEFORE INSERT trigger on bookings is the real enforcement, the UI modal/route guard are only presentation.
+- Render both closure notices through the shared body-portalled Radix ClosureSurface with full-viewport CSS overrides; this keeps focus, scroll locking and mobile safe areas above headers, navigation and booking actions without changing closure rules.
