@@ -91,12 +91,10 @@ export const NextAvailableSlot = () => {
         .lte("date", twoWeeksLater.toISOString().split("T")[0]);
 
       // Load existing bookings
-      const { data: bookingsData } = await supabase
-        .from("bookings")
-        .select("booking_date, booking_time")
-        .gte("booking_date", today.toISOString().split("T")[0])
-        .lte("booking_date", twoWeeksLater.toISOString().split("T")[0])
-        .or("is_cancelled.is.null,is_cancelled.eq.false");
+      const { data: bookingsData } = await supabase.rpc("booked_slots", {
+        p_from: today.toISOString().split("T")[0],
+        p_to: twoWeeksLater.toISOString().split("T")[0],
+      });
 
       const businessHours: BusinessHour[] = (businessHoursData || []).map((d) => ({
         ...d,

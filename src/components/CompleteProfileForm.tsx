@@ -57,12 +57,7 @@ export const CompleteProfileForm = ({ userId, currentName, onProfileCompleted }:
     const normalizedPhone = rawPhone.startsWith("+") ? rawPhone : `+34${rawPhone}`;
 
     // Check if phone is already in use by another user
-    const { data: existingProfile } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("contact_value", normalizedPhone)
-      .neq("id", userId)
-      .single();
+    const { data: existingProfile } = await supabase.rpc("contact_taken", { p_contact: normalizedPhone, p_exclude: userId }).then(r => ({ data: r.data ? true : null }));
 
     if (existingProfile) {
       setLoading(false);

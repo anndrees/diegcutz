@@ -386,11 +386,8 @@ const Booking = () => {
   }, [user]);
 
   const checkTimeAvailability = async (date: Date, time: string) => {
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("booking_time")
-      .eq("booking_date", format(date, "yyyy-MM-dd"))
-      .or("is_cancelled.is.null,is_cancelled.eq.false");
+    const day = format(date, "yyyy-MM-dd");
+    const { data, error } = await supabase.rpc("booked_slots", { p_from: day, p_to: day });
 
     if (!error && data) {
       const bookedTimesForDate = data.map((b) => b.booking_time);
@@ -417,11 +414,8 @@ const Booking = () => {
   const loadBookedTimes = async () => {
     if (!selectedDate) return;
 
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("booking_time")
-      .eq("booking_date", format(selectedDate, "yyyy-MM-dd"))
-      .or("is_cancelled.is.null,is_cancelled.eq.false");
+    const day = format(selectedDate, "yyyy-MM-dd");
+    const { data, error } = await supabase.rpc("booked_slots", { p_from: day, p_to: day });
 
     if (error) {
       console.error("Error loading bookings:", error);
@@ -436,12 +430,7 @@ const Booking = () => {
     const today = new Date();
     const end = new Date();
     end.setDate(end.getDate() + 60);
-    const { data, error } = await supabase
-      .from("bookings")
-      .select("booking_date")
-      .gte("booking_date", format(today, "yyyy-MM-dd"))
-      .lte("booking_date", format(end, "yyyy-MM-dd"))
-      .or("is_cancelled.is.null,is_cancelled.eq.false");
+    const { data, error } = await supabase.rpc("booked_slots", { p_from: format(today, "yyyy-MM-dd"), p_to: format(end, "yyyy-MM-dd") });
     if (error || !data) return;
     const counts: Record<string, number> = {};
     data.forEach((b: any) => {
@@ -896,29 +885,13 @@ const Booking = () => {
 
     // If this is a free cut reservation, deduct from loyalty_rewards
     if (isFreeCutReservation) {
-      // Get current free_cuts_available and decrement
-      const { data: loyaltyData } = await supabase
-        .from("loyalty_rewards")
-        .select("free_cuts_available")
-        .eq("user_id", user.id)
-        .single();
-
-      if (loyaltyData && loyaltyData.free_cuts_available > 0) {
-        await supabase
-          .from("loyalty_rewards")
-          .update({ free_cuts_available: loyaltyData.free_cuts_available - 1 })
-          .eq("user_id", user.id);
-      }
+      await supabase.rpc("redeem_free_cut");
     }
 
     // Check if time slot is still available before inserting
-    const { data: existingBooking } = await supabase
-      .from("bookings")
-      .select("id")
-      .eq("booking_date", format(selectedDate, "yyyy-MM-dd"))
-      .eq("booking_time", selectedTime)
-      .or("is_cancelled.is.null,is_cancelled.eq.false")
-      .limit(1);
+    const slotDay = format(selectedDate, "yyyy-MM-dd");
+    const { data: daySlots } = await supabase.rpc("booked_slots", { p_from: slotDay, p_to: slotDay });
+    const existingBooking = (daySlots || []).filter((b) => b.booking_time.slice(0, 5) === selectedTime.slice(0, 5));
 
     if (existingBooking && existingBooking.length > 0) {
       setLoading(false);

@@ -310,14 +310,8 @@ export default function UserProfile() {
       return;
     }
     setCheckingUsername(true);
-    const { data } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("username", username.toLowerCase())
-      .neq("id", user?.id || "")
-      .limit(1);
-
-    setUsernameAvailable(!data || data.length === 0);
+    const { data } = await supabase.rpc("username_taken", { p_username: username.toLowerCase(), p_exclude: user?.id });
+    setUsernameAvailable(!data);
     setCheckingUsername(false);
   };
 

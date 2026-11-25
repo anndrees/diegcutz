@@ -1425,6 +1425,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      booked_slots: {
+        Args: { p_from: string; p_to: string }
+        Returns: {
+          booking_date: string
+          booking_time: string
+        }[]
+      }
+      contact_taken: {
+        Args: { p_contact: string; p_exclude?: string }
+        Returns: boolean
+      }
       golden_action_internal: {
         Args: { op: string; payload?: Json }
         Returns: Json
@@ -1438,6 +1449,28 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_admin: { Args: never; Returns: boolean }
+      login_lookup: {
+        Args: { p_username: string }
+        Returns: {
+          ban_reason: string
+          contact_method: string
+          contact_value: string
+          id: string
+          is_banned: boolean
+        }[]
+      }
+      member_ranking: { Args: never; Returns: Json }
+      redeem_free_cut: { Args: never; Returns: boolean }
+      request_password_reset: {
+        Args: { p_identifier: string }
+        Returns: undefined
+      }
+      tv_snapshot: { Args: { p_today: string }; Returns: Json }
+      username_taken: {
+        Args: { p_exclude?: string; p_username: string }
         Returns: boolean
       }
       validate_coupon: {

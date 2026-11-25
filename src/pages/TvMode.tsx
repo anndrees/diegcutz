@@ -121,23 +121,24 @@ const TvMode = () => {
     if (markReconnect) setReconnecting(true);
     const today = format(new Date(), "yyyy-MM-dd");
     try {
-    const weekAgo = new Date(Date.now() - 7 * 86400000).toISOString();
-    const [b, s, m, g, h, settings, r, c, totalCutsRes, totalClientsRes, cutsTodayRes, ach, sh, future] = await Promise.all([
-      supabase.from("bookings").select("id, booking_time, client_name, services").eq("booking_date", today).eq("is_cancelled", false).order("booking_time"),
+    const [snap, s, m, g, h, settings, r, sh] = await Promise.all([
+      supabase.rpc("tv_snapshot", { p_today: today }),
       supabase.from("services").select("id, name, price, service_type"),
       supabase.from("memberships").select("id, name, emoji, price, description").eq("is_active", true).eq("is_coming_soon", false).order("sort_order"),
       supabase.from("giveaways").select("id, title, prize, end_date").eq("is_finished", false).order("end_date"),
       supabase.from("business_hours").select("*").order("day_of_week"),
       supabase.from("app_settings").select("value").eq("key", "tv_settings").maybeSingle(),
       supabase.from("ratings").select("id, rating, comment, created_at").order("created_at", { ascending: false }).limit(10),
-      supabase.from("coupons").select("id, code, description, discount_type, discount_value").eq("is_active", true).limit(6),
-      supabase.from("bookings").select("id", { count: "exact", head: true }).eq("is_cancelled", false),
-      supabase.from("profiles").select("id", { count: "exact", head: true }),
-      supabase.from("bookings").select("id", { count: "exact", head: true }).eq("booking_date", today).eq("is_cancelled", false),
-      supabase.from("user_achievements").select("id, awarded_at, achievement_id, user_id").gte("awarded_at", weekAgo).order("awarded_at", { ascending: false }).limit(20),
       supabase.from("special_hours").select("id, date, is_closed, time_ranges, note").gte("date", today).order("date").limit(6),
-      supabase.from("bookings").select("booking_date, booking_time").gte("booking_date", today).eq("is_cancelled", false).order("booking_date").order("booking_time").limit(200),
     ]);
+    const tv = (snap.data || {}) as any;
+    const b = { data: tv.queue || [] };
+    const c = { data: tv.coupons || [] };
+    const totalCutsRes = { count: tv.total_bookings || 0 };
+    const totalClientsRes = { count: tv.total_clients || 0 };
+    const cutsTodayRes = { count: tv.today_bookings || 0 };
+    const ach = { data: tv.achievements || [] };
+    const future = { data: tv.upcoming || [] };
     setBookings((b.data as any) || []);
     const allSvc = (s.data as any) || [];
     setServices(allSvc.filter((x: Service) => x.service_type === "service"));
@@ -176,11 +177,8 @@ const TvMode = () => {
     const rawAch = (ach.data as any) || [];
     if (rawAch.length) {
       const achIds = [...new Set(rawAch.map((x: any) => x.achievement_id))];
-      const userIds = [...new Set(rawAch.map((x: any) => x.user_id))];
-      const [achDefs, profs] = await Promise.all([
-        supabase.from("achievements").select("id, name, icon").in("id", achIds as string[]),
-        supabase.from("profiles").select("id, full_name, username").in("id", userIds as string[]),
-      ]);
+      const achDefs = await supabase.from("achievements").select("id, name, icon").in("id", achIds as string[]);
+      const profs = { data: rawAch.map((x: any) => ({ id: x.user_id, full_name: x.full_name, username: x.username })) };
       const aMap = new Map((achDefs.data || []).map((x: any) => [x.id, x]));
       const pMap = new Map((profs.data || []).map((x: any) => [x.id, x]));
       setAchievementsFeed(

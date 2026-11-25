@@ -22,12 +22,14 @@ export const MemberRanking = () => {
 
   const loadRanking = async () => {
     // Get all membership history entries to count months
-    const [historyRes, profilesRes, membershipsRes, activeRes] = await Promise.all([
-      supabase.from("membership_history").select("user_id, action, created_at"),
-      supabase.from("profiles").select("id, full_name"),
+    const [rankingRes, membershipsRes] = await Promise.all([
+      supabase.rpc("member_ranking"),
       supabase.from("memberships").select("id, name, emoji"),
-      supabase.from("user_memberships").select("user_id, membership_id, start_date").eq("status", "active"),
     ]);
+    const ranking = (rankingRes.data || {}) as any;
+    const historyRes = { data: (ranking.history || []) as { user_id: string; action: string; created_at: string }[] };
+    const profilesRes = { data: (ranking.profiles || []) as { id: string; full_name: string }[] };
+    const activeRes = { data: (ranking.active || []) as { user_id: string; membership_id: string; start_date: string }[] };
 
     const profiles = new Map((profilesRes.data || []).map(p => [p.id, p.full_name]));
     const membershipMap = new Map((membershipsRes.data || []).map((m: any) => [m.id, m]));

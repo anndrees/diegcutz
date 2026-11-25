@@ -31,38 +31,8 @@ const ForgotPassword = () => {
     setLoading(true);
 
     // Find user by username or phone
-    const normalizedIdentifier = identifier.trim().toLowerCase();
     
-    // Try to find by username first
-    let { data: profile } = await supabase
-      .from("profiles")
-      .select("id, username, contact_value")
-      .eq("username", normalizedIdentifier)
-      .single();
-
-    // If not found, try by phone
-    if (!profile) {
-      const phoneNormalized = identifier.replace(/\s+/g, "");
-      const phoneWithPrefix = phoneNormalized.startsWith("+") ? phoneNormalized : `+34${phoneNormalized}`;
-      
-      const { data: phoneProfile } = await supabase
-        .from("profiles")
-        .select("id, username, contact_value")
-        .eq("contact_value", phoneWithPrefix)
-        .single();
-      
-      profile = phoneProfile;
-    }
-
-    // Create password reset request
-    const { error } = await supabase
-      .from("password_reset_requests")
-      .insert({
-        user_id: profile?.id || null,
-        username: profile?.username || normalizedIdentifier,
-        contact_value: profile?.contact_value || identifier,
-        status: "pending",
-      });
+    const { error } = await supabase.rpc("request_password_reset", { p_identifier: identifier.trim() });
 
     setLoading(false);
 

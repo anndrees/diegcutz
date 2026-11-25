@@ -152,11 +152,7 @@ const Auth = () => {
     setCheckingUsername(true);
 
     try {
-      const { data: existingProfile } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("username", username)
-        .single();
+      const { data: existingProfile } = await supabase.rpc("username_taken", { p_username: username }).then(r => ({ data: r.data ? true : null }));
 
       if (existingProfile) {
         setUsernameAvailable(false);
@@ -165,11 +161,7 @@ const Auth = () => {
         const availableSuggestions: string[] = [];
 
         for (const suggestion of suggestions) {
-          const { data } = await supabase
-            .from("profiles")
-            .select("username")
-            .eq("username", suggestion)
-            .single();
+          const { data } = await supabase.rpc("username_taken", { p_username: suggestion }).then(r => ({ data: r.data ? true : null }));
 
           if (!data) {
             availableSuggestions.push(suggestion);
@@ -203,11 +195,7 @@ const Auth = () => {
     const normalizedLoginUsername = sanitizeUsername(loginUsername);
 
     // First, get the profile to find the user and check ban status
-    const { data: profileData, error: profileError } = await supabase
-      .from("profiles")
-      .select("id, contact_value, contact_method, is_banned, ban_reason")
-      .eq("username", normalizedLoginUsername)
-      .single();
+    const { data: profileData, error: profileError } = await supabase.rpc("login_lookup", { p_username: normalizedLoginUsername }).maybeSingle();
 
     if (profileError || !profileData) {
       setLoading(false);
@@ -374,11 +362,7 @@ const Auth = () => {
     }
 
     // Check if username already exists (double-check on submit)
-    const { data: existingProfile } = await supabase
-      .from("profiles")
-      .select("username")
-      .eq("username", username)
-      .single();
+    const { data: existingProfile } = await supabase.rpc("username_taken", { p_username: username }).then(r => ({ data: r.data ? true : null }));
 
     if (existingProfile) {
       setLoading(false);
@@ -446,11 +430,7 @@ const Auth = () => {
     // Check if the user already exists (Supabase returns user but no session for existing users)
     if (signUpData?.user && !signUpData?.session && signupContactType === "phone") {
       // For phone signups, user might already exist
-      const { data: existingAuth } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("contact_value", signupContactValue.startsWith("+") ? signupContactValue : `+34${signupContactValue.replace(/\s+/g, "")}`)
-        .single();
+      const { data: existingAuth } = await supabase.rpc("contact_taken", { p_contact: signupContactValue.startsWith("+") ? signupContactValue : `+34${signupContactValue.replace(/\s+/g, "")}` }).then(r => ({ data: r.data ? true : null }));
 
       if (existingAuth) {
         toast({
@@ -488,22 +468,14 @@ const Auth = () => {
     const lastName = sanitizeUsername(nameParts[nameParts.length - 1] || "");
     
     // Priority 1: Just first name
-    const { data: check1 } = await supabase
-      .from("profiles")
-      .select("username")
-      .eq("username", firstName)
-      .single();
+    const { data: check1 } = await supabase.rpc("username_taken", { p_username: firstName }).then(r => ({ data: r.data ? true : null }));
     
     if (!check1) return firstName;
     
     // Priority 2: firstname + lastname
     if (lastName && firstName !== lastName) {
       const combined = `${firstName}${lastName}`;
-      const { data: check2 } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("username", combined)
-        .single();
+      const { data: check2 } = await supabase.rpc("username_taken", { p_username: combined }).then(r => ({ data: r.data ? true : null }));
       
       if (!check2) return combined;
     }
@@ -512,11 +484,7 @@ const Auth = () => {
     for (let i = 0; i < 10; i++) {
       const randomNum = Math.floor(Math.random() * 9999) + 1;
       const withNumbers = `${firstName}${randomNum}`;
-      const { data: check3 } = await supabase
-        .from("profiles")
-        .select("username")
-        .eq("username", withNumbers)
-        .single();
+      const { data: check3 } = await supabase.rpc("username_taken", { p_username: withNumbers }).then(r => ({ data: r.data ? true : null }));
       
       if (!check3) return withNumbers;
     }
@@ -579,11 +547,8 @@ const Auth = () => {
 
     try {
       // Verify password by trying to sign in
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("contact_value, contact_method")
-        .eq("contact_value", linkAccountData.existingPhone)
-        .single();
+      const { data: profile } = await supabase.rpc("contact_taken", { p_contact: linkAccountData.existingPhone })
+        .then(r => ({ data: r.data ? { contact_value: linkAccountData.existingPhone, contact_method: "phone" } : null }));
 
       if (!profile) {
         toast({
