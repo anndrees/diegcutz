@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { ArrowLeft, Fingerprint, Lock, ShieldCheck, User as UserIcon } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { adminLoginAttempts } from "@/lib/adminLogin";
+import { useAuth } from "@/hooks/useAuth";
 
 interface AdminGuardProps {
   children: React.ReactNode;
@@ -26,22 +27,12 @@ async function sessionIsAdmin(): Promise<boolean> {
 export const AdminGuard = ({ children }: AdminGuardProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [checking, setChecking] = useState(true);
+  const { isAdmin: isAuthenticated, adminLoading: checking } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [shake, setShake] = useState(false);
   const [error, setError] = useState(false);
   const [unlocking, setUnlocking] = useState(false);
-
-  useEffect(() => {
-    let alive = true;
-    sessionIsAdmin().then(ok => { if (alive) { setIsAuthenticated(ok); setChecking(false); } });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
-      if (event === "SIGNED_OUT") setIsAuthenticated(false);
-    });
-    return () => { alive = false; subscription.unsubscribe(); };
-  }, []);
 
   const deny = (description: string) => {
     setShake(true);
@@ -72,7 +63,6 @@ export const AdminGuard = ({ children }: AdminGuardProps) => {
       return;
     }
     setTimeout(() => {
-      setIsAuthenticated(true);
       setUnlocking(false);
       setPassword("");
       toast({ title: "ACCESO CONCEDIDO", description: "Bienvenido al panel de administración." });

@@ -15,7 +15,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { StoryFrame, type StoryItem } from "@/components/stories/StoryFrame";
 import "@/components/stories/stories.css";
 import { Button } from "@/components/ui/button";
-import { useFooterAdminGesture } from "@/hooks/useFooterAdminGesture";
 import { useFooterInvestigation } from "@/hooks/useFooterInvestigation";
 
 type TimeRange = { start: string; end: string };
@@ -42,10 +41,9 @@ const greeting = () => {
 };
 
 export function MobileHome({ title, slides, giveaway, marquee, businessHours, specialHours, igEnabled }: Props) {
-  useFooterAdminGesture();
   const { footerRef, revealed } = useFooterInvestigation();
   const navigate = useNavigate();
-  const { profile } = useAuth();
+  const { profile, isAdmin } = useAuth();
   const [story, setStory] = useState<{ g: number; i: number } | null>(null);
   const [seen, setSeen] = useState<Set<string>>(new Set());
   const [weekOpen, setWeekOpen] = useState(false);
@@ -191,8 +189,8 @@ export function MobileHome({ title, slides, giveaway, marquee, businessHours, sp
       </motion.section>
 
       <footer ref={footerRef} className="mh-end">
-        <nav><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/install">App</Link>{revealed && <Link to="/expediente">Expediente DC-0529</Link>}</nav>
-        <div className="mh-end__signature">© <Button variant="ghost" className="mh-end__word" data-footer-admin="year" data-footer-investigation>{new Date().getFullYear()}</Button><span aria-hidden="true"> · </span><Button variant="ghost" className="mh-end__word" data-footer-admin="brand">DIEGCUTZ</Button><span aria-hidden="true"> - </span><Button variant="ghost" className="mh-end__word" data-footer-admin="place">Monóvar</Button></div>
+        <nav><Link to="/privacy">Privacidad</Link><Link to="/terms">Condiciones</Link><Link to="/install">App</Link>{isAdmin && <Link to="/admin">Administración</Link>}{revealed && <Link to="/expediente">Expediente DC-0529</Link>}</nav>
+        <div className="mh-end__signature">© <Button variant="ghost" className="mh-end__word" data-footer-investigation>{new Date().getFullYear()}</Button><span aria-hidden="true"> · </span><span className="mh-end__word">DIEGCUTZ</span><span aria-hidden="true"> - </span><span className="mh-end__word">Monóvar</span></div>
       </footer>
 
       {createPortal(<AnimatePresence>

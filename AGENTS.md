@@ -17,7 +17,7 @@
 - Keep the investigation independent of PARADOX RUN; lazy-load its mobile-capable epilogue only after server-confirmed completion to avoid loading game physics on customer routes.
 - Keep investigation answers, future evidence, release gates and visit-card consumption server-only; its service endpoint derives identity from a validated session and checks database roles for management, independently of legacy AdminGuard.
 
-- Keep the mobile footer entry gesture in a pure tested state machine with document-level interruption listeners; this enforces uninterrupted taps without changing AdminGuard authentication.
+- Share session-derived admin role state in AuthProvider between AdminGuard and every footer, scoped to the current user and cleared on session changes; this avoids duplicate login prompts and stale permission visibility while RLS remains authoritative.
 
 - Keep booking steps inside one keyed AnimatePresence boundary with wait mode; separate step boundaries reserve incoming space above outgoing content on backwards navigation.
 - Mount mobile booking actions in a body portal and measure the header/tab bar for sticky offsets; route transforms must not trap viewport controls.

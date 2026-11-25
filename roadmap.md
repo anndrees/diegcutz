@@ -1,5 +1,11 @@
 # Roadmap
 
+## Acceso admin con sesión habitual
+- [x] Asignar rol admin a la cuenta existente @andres, conservando @diegcutz
+- [x] Compartir la comprobación de sesión/rol entre el panel y todos los pies; no mostrar enlace sin permiso
+- [x] Verificar exactamente dos cuentas admin en la base, 19 pruebas de reglas y pie sin sesión en móvil/escritorio sin errores
+- [ ] Verificar entrada y cierre de sesión reales de @andres/@diegcutz: Supabase externo no permite obtener una sesión de prueba
+
 ## Mapa, footer e historias
 - [x] Renovar el mapa conservando el anterior para poder volver; OpenStreetMap sin claves, marcador rojo y ubicación del enlace verificada
 - [x] Ocultar el expediente con tres pulsaciones ininterrumpidas y sin persistencia; probado en escritorio/móvil y al recargar

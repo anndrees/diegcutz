@@ -1,12 +1,15 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { User, Session } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
+import { verifyAdminAccess } from "@/lib/adminAccess";
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   profile: Profile | null;
   loading: boolean;
+  isAdmin: boolean;
+  adminLoading: boolean;
   requiresPasswordChange: boolean;
   requiresProfileCompletion: boolean;
   signOut: () => Promise<void>;
@@ -36,6 +39,8 @@ const AuthContext = createContext<AuthContextType>({
   session: null,
   profile: null,
   loading: true,
+  isAdmin: false,
+  adminLoading: true,
   requiresPasswordChange: false,
   requiresProfileCompletion: false,
   signOut: async () => {},
@@ -49,8 +54,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adminAccess, setAdminAccess] = useState<{ userId: string | null; allowed: boolean; pending: boolean }>({ userId: null, allowed: false, pending: true });
   const [requiresPasswordChange, setRequiresPasswordChange] = useState(false);
   const [requiresProfileCompletion, setRequiresProfileCompletion] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const userId = user?.id ?? null;
+    setAdminAccess({ userId, allowed: false, pending: !!userId });
+    if (userId) {
+      verifyAdminAccess(userId, async id => {
+        const { data, error } = await supabase.rpc("has_role", { _user_id: id, _role: "admin" });
+        return !error && data === true;
+      }).then(allowed => {
+        if (active) setAdminAccess({ userId, allowed, pending: false });
+      });
+    }
+    return () => { active = false; };
+  }, [user?.id, session?.access_token]);
+
+  const isAdmin = !!user && adminAccess.userId === user.id && adminAccess.allowed;
+  const adminLoading = loading || (!!user && (adminAccess.userId !== user.id || adminAccess.pending));
 
   const fetchProfile = async (userId: string): Promise<Profile | null> => {
     const { data, error } = await supabase
@@ -212,6 +236,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       session, 
       profile, 
       loading, 
+      isAdmin,
+      adminLoading,
       requiresPasswordChange,
       requiresProfileCompletion,
       signOut, 
